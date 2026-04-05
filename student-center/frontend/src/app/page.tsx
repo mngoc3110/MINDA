@@ -25,7 +25,7 @@ export default function Home() {
     setRole(localStorage.getItem("minda_role"));
 
     // Lấy danh sách giáo viên
-    fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || '${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}'}`}/api/profile/teachers`)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/profile/teachers`)
       .then(res => res.json())
       .then(data => setTeachers(data))
       .catch(err => console.error(err));

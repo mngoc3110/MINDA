@@ -1,51 +1,63 @@
-# 🚀 Hướng Dẫn Khởi Chạy Lên Máy Chủ Hệ Thống MINDA EduCenter
+# 🚀 Cẩm Nang Vận Hành Hệ Thống MINDA
 
-Tài liệu này hướng dẫn chi tiết cách khởi động song song 2 phân hệ Backend và Frontend của nền tảng MINDA (Hệ thống Khóa luận KLTN).
-Hãy làm theo đúng thứ tự dưới đây để đảm bảo hệ thống không bị lỗi nghẽn Port hoặc đụng độ với các phiên bản lỗi cũ còn chạy ngầm.
+Chào sếp! Đây là tài liệu hướng dẫn toàn diện nhất để sếp làm chủ hệ thống MINDA, từ lúc code trên máy Mac (Local) cho đến khi "bung lụa" trên server thực tế (Vietnix VPS).
 
 ---
 
-## Bước 1: Khởi Chạy Backend (FastAPI - Port 8000)
+## 💻 PHẦN I: CHẠY TRÊN MÁY MAC (LOCAL - DEV MODE)
 
-Mở một tab/cửa sổ **Terminal 1**, copy và dán toàn bộ đoạn mã dưới đây vào rồi bấm `Enter`:
+Để việc phát triển đồ án nhanh nhất, sếp hãy dùng bộ script tự động hoá sau:
 
+### 1. Khởi động Thần tốc (Bật 4 Service cùng lúc)
+Mở **Terminal** tại thư mục gốc `MINDA` và gõ:
 ```bash
-# 1. Dọn dẹp tiến trình cũ đang kẹt ở port 8000 (nếu có) và di chuyển vào Backend
-kill $(lsof -t -i:8000) 2>/dev/null; cd /Users/minhngoc/HCMUE/MINDA/student-center/backend
+./run_minda_dev.sh
+```
+*   **Service 1**: Frontend (Next.js) - Cổng 3000
+*   **Service 2**: Backend (FastAPI) - Cổng 8000
+*   **Service 3**: AI Engine (PyTorch) - Cổng 8001
+*   **Service 4**: Peer Server (WebRTC) - Cổng 9000
 
-# 2. Kích hoạt môi trường ảo Python (Virtual Environment)
-source venv/bin/activate
+### 2. Xem Logs và Tắt hệ thống
+- **Xem lỗi**: Để xem các service đang chạy gì, sếp gõ: `tail -f /tmp/*.log`
+- **Tắt hệ thống**: Nhấn **Ctrl + C** trong Terminal chạy script, mọi thứ sẽ dừng lại an toàn.
 
-# 3. Khởi chạy Server Backend Uvicorn
-uvicorn app.main:app --reload --port 8000
+---
+
+## ☁️ PHẦN II: LÊN MÂY (GITHUB & VPS DEPLOYMENT)
+
+### 1. Quy trình Cập nhật Code (GitHub Workflow)
+Mỗi khi sếp sửa code xong trên máy Mac và muốn đưa nó lên Web thật cho mọi người thấy, sếp hãy chạy 3 lệnh này:
+```bash
+# Thêm các thay đổi
+git add .
+# Ghi chú nội dung sửa
+git commit -m "feat: [tên tính năng vừa sửa]"
+# Đẩy lên GitHub
+git push origin main
 ```
 
-> [!NOTE]
-> Chờ khoảng vài giây, khi màn hình Terminal hiện lên dòng chữ xanh lá `Application startup complete.` thì điều đó đồng nghĩa với việc Hệ thống Cơ sở Dữ liệu & API đã sống dậy!
-
----
-
-## Bước 2: Khởi Chạy Frontend (Next.js - Port 3000)
-
-Tiếp tục mở thêm một **Terminal 2** hoàn toàn mới (Đừng tắt Terminal 1 nhé), copy khối lệnh sau và bấm `Enter`:
-
+### 2. Cập nhật trên VPS (Báo hiệu thay đổi)
+Sau khi đã "Push" lên GitHub, sếp cần báo cho VPS kéo code mới về. Sếp **SSH** vào VPS và gõ:
 ```bash
-# 1. Dọn dẹp tiến trình cũ đang kẹt ở port 3000 (nếu có) và di chuyển vào Frontend
-kill $(lsof -t -i:3000) 2>/dev/null; cd /Users/minhngoc/HCMUE/MINDA/student-center/frontend
+# 1. Di chuyển vào thư mục code
+cd /var/www/minda/student-center
 
-# 2. Khởi chạy Server Frontend
-npm run dev
+# 2. Kéo code mới nhất từ GitHub
+git pull
+
+# 3. Khởi động lại ứng dụng (Để tính năng mới có hiệu lực)
+pm2 restart all
 ```
 
-> [!NOTE]
-> Khi Terminal này báo `✓ Ready in xxx ms (Local: http://localhost:3000)`, đó là lúc bộ máy biên dịch Turbopack của Next.js đã hoàn thành kết xuất Giao diện.
+### 3. Cách xem Web đang chạy thực tế
+Đăng nhập vào địa chỉ: 👉 **[https://minda.io.vn](https://minda.io.vn)**
 
 ---
 
-## Bước 3: Truy Cập Tận Hưởng 🌐
+## ⚠️ LƯU Ý BẢO MẬT (QUAN TRỌNG)
+> [!CAUTION]
+> **Không bao giờ đẩy file `.env` hoặc `drive_credentials.json` lên GitHub.**  
+> Em đã cấu hình chặn các file này giúp sếp. Nếu sếp cần cấu hình lại cho VPS, hãy dùng lệnh `nano .env` trực tiếp trên server để chỉnh sửa nhé.
 
-Sau khi CẢ HAI Terminal đều xanh xịn xò 100%, bạn chỉ cần bật Trình duyệt Web (khuyên dùng Google Chrome hoặc Cốc Cốc) và tự do truy cập vào địa chỉ quen thuộc:
-
-👉 **[http://localhost:3000](http://localhost:3000)**
-
-🎉 *Vậy là xong! Mọi phân hệ cốt lõi gồm Upload Google Drive, Hệ thống WebRTC, và AI RAPT-CLIP đều sẵn sàng nạp năng lượng!*
+🎉 *Chúc sếp bảo vệ đồ án thành công rực rỡ với điểm 10 tuyệt đối!*

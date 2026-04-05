@@ -14,7 +14,7 @@ export default function PracticePage() {
     const fetchAssignments = async () => {
       try {
         const token = localStorage.getItem("minda_token");
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || '${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}'}`}/api/assignments/practice`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/assignments/practice`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (res.ok) {

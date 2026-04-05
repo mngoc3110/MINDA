@@ -75,8 +75,8 @@ export default function CourseBuilderPage() {
     
     const isScorm = file.name.toLowerCase().endsWith(".zip");
     const endpoint = isScorm 
-        ? `${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || '${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}'}`}/api/files/upload_scorm` 
-        : `${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || '${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}'}`}/api/files/upload`;
+        ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/files/upload_scorm` 
+        : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/files/upload`;
 
     try {
       const res = await fetch(endpoint, {

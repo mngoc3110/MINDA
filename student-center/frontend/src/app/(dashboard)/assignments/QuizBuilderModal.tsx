@@ -156,7 +156,7 @@ export default function QuizBuilderModal({
          const formData = new FormData();
          formData.append("file", file);
          
-         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || '${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}'}`}/api/assignments/parse-upload`, {
+         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/assignments/parse-upload`, {
             method: "POST",
             headers: { "Authorization": `Bearer ${token}` },
             body: formData

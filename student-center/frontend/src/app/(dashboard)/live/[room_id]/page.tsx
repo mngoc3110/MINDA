@@ -121,7 +121,7 @@ export default function LiveRoomPage() {
       }
 
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || '${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}'}`}/api/live-sessions/`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/live-sessions/`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) {
@@ -132,7 +132,7 @@ export default function LiveRoomPage() {
       } catch { /* ignore */ }
 
       try {
-        const hRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || '${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}'}`}/api/emotion/health`);
+        const hRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/emotion/health`);
         if (hRes.ok) {
           const h = await hRes.json();
           setServiceOnline(h.inference_service === "online");
@@ -279,7 +279,7 @@ export default function LiveRoomPage() {
     setIsAnalyzing(true);
     try {
       const token = localStorage.getItem("minda_token");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || '${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}'}`}/api/emotion/analyze`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/emotion/analyze`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -391,7 +391,7 @@ export default function LiveRoomPage() {
     try {
       const token = localStorage.getItem("minda_token");
       if (userInfo?.role === "teacher" || userInfo?.role === "admin") {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || '${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}'}`}/api/live-sessions/`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/live-sessions/`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) {

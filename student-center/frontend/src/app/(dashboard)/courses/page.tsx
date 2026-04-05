@@ -38,7 +38,7 @@ export default function CoursesDiscoveryPage() {
 
   const fetchOfflineTeachers = async (token: string) => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || '${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}'}`}/api/profile/my-offline-teachers`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/profile/my-offline-teachers`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) setOfflineTeachers(await res.json());
@@ -63,9 +63,9 @@ export default function CoursesDiscoveryPage() {
       const headers = { "Authorization": `Bearer ${token}` };
 
       const [coursesRes, enrollmentsRes, teachersRes] = await Promise.all([
-        fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || '${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}'}`}/api/courses/`, { headers }),
-        fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || '${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}'}`}/api/courses/my-enrollments`, { headers }),
-        fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || '${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}'}`}/api/profile/teachers`, { headers })
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/courses/`, { headers }),
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/courses/my-enrollments`, { headers }),
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/profile/teachers`, { headers })
       ]);
 
       if (coursesRes.ok) setCourses(await coursesRes.json());
@@ -149,7 +149,7 @@ export default function CoursesDiscoveryPage() {
      setFormLoading(true);
      try {
        const token = localStorage.getItem("minda_token");
-       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || '${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}'}`}/api/courses/`, {
+       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/courses/`, {
          method: "POST",
          headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
          body: JSON.stringify(formData)

@@ -16,7 +16,7 @@ export default function TuitionPage() {
 
   const fetchOfflineStudents = async (token: string) => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || '${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}'}`}/api/profile/my-offline-students`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/profile/my-offline-students`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) setOfflineStudents(await res.json());
@@ -28,7 +28,7 @@ export default function TuitionPage() {
   const fetchRecords = async () => {
      try {
        const token = localStorage.getItem("minda_token");
-       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || '${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}'}`}/api/tuition/teacher/dashboard`, {
+       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/tuition/teacher/dashboard`, {
          headers: { Authorization: `Bearer ${token}` }
        });
        if(res.ok) {
@@ -68,7 +68,7 @@ export default function TuitionPage() {
         note: formData.note || "Học phí lớp Offline",
         billing_cycle: formData.billing_cycle
       };
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || '${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}'}`}/api/tuition/`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/tuition/`, {
         method: "POST",
         headers: { 
           Authorization: `Bearer ${token}`,

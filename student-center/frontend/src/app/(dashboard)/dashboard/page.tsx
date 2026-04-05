@@ -19,7 +19,7 @@ export default function Dashboard() {
     if (!token) return;
     try {
       // Check file list
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || '${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}'}`}/api/files/my-drive`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/files/my-drive`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       if (res.ok) {
@@ -28,7 +28,7 @@ export default function Dashboard() {
       }
       
       // Check auth status
-      const authRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || '${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}'}`}/api/auth/me`, {
+      const authRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/auth/me`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       if (authRes.ok) {
@@ -69,7 +69,7 @@ export default function Dashboard() {
     formData.append("file", file);
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || '${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}'}`}/api/files/upload`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/files/upload`, {
         method: "POST",
         headers: { "Authorization": `Bearer ${token}` },
         body: formData

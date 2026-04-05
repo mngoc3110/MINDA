@@ -96,7 +96,7 @@ export default function TeacherCVView({ teacherId, enableGoBack = true }: Teache
         cv_custom_sections: JSON.stringify(editForm.cv_custom_sections),
       };
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || '${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}'}`}/api/profile/teachers/cv`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/profile/teachers/cv`, {
         method: "PUT",
         headers: {
           "Authorization": `Bearer ${token}`,
