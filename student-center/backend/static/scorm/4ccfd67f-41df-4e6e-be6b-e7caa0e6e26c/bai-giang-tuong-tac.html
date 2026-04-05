@@ -1,0 +1,1506 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🎓 Bài giảng tương tác — Biểu mẫu HTML</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <script src="scorm-api.js"></script>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Inter", sans-serif;
+        background: #ffffff;
+        min-height: 100vh;
+        color: #000;
+        overflow-x: hidden;
+      }
+
+      /* PROGRESS BAR */
+      .progress-container {
+        max-width: 700px;
+        margin: 0 auto 10px;
+        padding: 0 20px;
+      }
+      .progress-bar-bg {
+        height: 6px;
+        background: rgba(0, 0, 0, 0.08);
+        border-radius: 100px;
+        overflow: hidden;
+      }
+      .progress-bar-fill {
+        height: 100%;
+        border-radius: 100px;
+        background: linear-gradient(90deg, #f97316, #ef4444, #ec4899);
+        transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        width: 0%;
+      }
+      .progress-label {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.78rem;
+        color: #888;
+        margin-top: 6px;
+        font-weight: 500;
+      }
+
+      /* HEADER */
+      .header {
+        text-align: center;
+        padding: 30px 20px 10px;
+      }
+      .badge {
+        display: inline-block;
+        padding: 6px 18px;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        background: rgba(249, 115, 22, 0.12);
+        color: #f97316;
+        border: 1px solid rgba(249, 115, 22, 0.25);
+        margin-bottom: 16px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+      }
+      h1 {
+        font-size: 2.2rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #f97316, #ef4444, #ec4899);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 10px;
+      }
+      .header p {
+        color: #555;
+        font-size: 1.05rem;
+        max-width: 700px;
+        margin: 0 auto;
+        line-height: 1.7;
+      }
+
+      /* STEP DOTS */
+      .step-dots {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin: 16px 0 20px;
+      }
+      .step-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: rgba(0, 0, 0, 0.1);
+        transition: all 0.3s;
+      }
+      .step-dot.active {
+        background: linear-gradient(135deg, #f97316, #ef4444);
+        width: 30px;
+        border-radius: 10px;
+      }
+      .step-dot.done {
+        background: #43e97b;
+      }
+
+      /* SCENES */
+      .scene {
+        display: none;
+        animation: fadeSlideIn 0.5s ease both;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px 20px 60px;
+      }
+      .scene.active {
+        display: block;
+      }
+      @keyframes fadeSlideIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* CARDS */
+      .card {
+        background: #fff;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        border-radius: 20px;
+        overflow: hidden;
+        margin-bottom: 24px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+        transition: all 0.3s;
+      }
+      .card:hover {
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+      }
+      .card-header {
+        padding: 16px 24px;
+        background: linear-gradient(
+          135deg,
+          rgba(249, 115, 22, 0.06),
+          rgba(239, 68, 68, 0.06)
+        );
+        border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+      }
+      .card-header span {
+        font-size: 0.82rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: #f97316;
+      }
+      .card-body {
+        padding: 28px;
+      }
+
+      /* VIDEO */
+      .video-wrapper {
+        position: relative;
+        border-radius: 16px;
+        overflow: hidden;
+        background: #000;
+        margin-bottom: 16px;
+      }
+      .video-wrapper video {
+        width: 100%;
+        display: block;
+        border-radius: 16px;
+      }
+      .video-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.4s;
+        z-index: 10;
+        border-radius: 16px;
+      }
+      .video-overlay.show {
+        opacity: 1;
+        pointer-events: auto;
+      }
+      .video-overlay .overlay-icon {
+        font-size: 3rem;
+        margin-bottom: 12px;
+      }
+      .video-overlay .overlay-text {
+        color: #fff;
+        font-weight: 600;
+        font-size: 1rem;
+        text-align: center;
+        line-height: 1.6;
+      }
+      .seek-warning {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(239, 68, 68, 0.95);
+        color: #fff;
+        padding: 12px 24px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s;
+        z-index: 20;
+      }
+      .seek-warning.show {
+        opacity: 1;
+      }
+      .video-status {
+        text-align: center;
+        margin-top: 8px;
+        font-size: 0.85rem;
+        color: #888;
+        font-weight: 500;
+      }
+
+      /* QUIZ */
+      .quiz-area {
+        margin: 20px 0;
+        text-align: center;
+      }
+      .quiz-question {
+        font-size: 1.15rem;
+        font-weight: 700;
+        margin-bottom: 24px;
+        color: #1a1a2e;
+        line-height: 1.6;
+      }
+      .quiz-options {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        max-width: 600px;
+        margin: 0 auto;
+      }
+      .quiz-btn {
+        padding: 16px 24px;
+        border: 2px solid rgba(0, 0, 0, 0.1);
+        border-radius: 14px;
+        background: #fff;
+        font-family: "Inter", sans-serif;
+        font-weight: 600;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        color: #333;
+        text-align: left;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .quiz-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+        border-color: #f97316;
+        color: #f97316;
+      }
+      .quiz-btn .option-letter {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: rgba(0, 0, 0, 0.05);
+        font-weight: 800;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+        transition: all 0.3s;
+      }
+      .quiz-btn:hover .option-letter {
+        background: rgba(249, 115, 22, 0.15);
+        color: #f97316;
+      }
+      .quiz-btn.correct {
+        background: linear-gradient(135deg, #43e97b, #38f9d7);
+        color: #fff;
+        border-color: transparent;
+        transform: scale(1.02);
+        box-shadow: 0 8px 30px rgba(67, 233, 123, 0.3);
+      }
+      .quiz-btn.correct .option-letter {
+        background: rgba(255, 255, 255, 0.3);
+        color: #fff;
+      }
+      .quiz-btn.wrong {
+        background: #fff;
+        border-color: #f5576c;
+        color: #f5576c;
+        animation: shake 0.5s;
+      }
+      .quiz-btn.wrong .option-letter {
+        background: rgba(245, 87, 108, 0.15);
+        color: #f5576c;
+      }
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        20%,
+        60% {
+          transform: translateX(-8px);
+        }
+        40%,
+        80% {
+          transform: translateX(8px);
+        }
+      }
+      .quiz-feedback {
+        margin-top: 20px;
+        font-size: 1rem;
+        font-weight: 600;
+        min-height: 30px;
+      }
+      .quiz-feedback.success {
+        color: #43e97b;
+      }
+      .quiz-feedback.error {
+        color: #f5576c;
+      }
+      .quiz-locked {
+        text-align: center;
+        padding: 30px;
+        color: #aaa;
+        font-weight: 500;
+        font-size: 0.95rem;
+      }
+      .quiz-locked .lock-icon {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        display: block;
+      }
+
+      /* CONFETTI */
+      .confetti-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 9999;
+        overflow: hidden;
+      }
+      .confetti-piece {
+        position: absolute;
+        top: -20px;
+        width: 10px;
+        height: 10px;
+        border-radius: 2px;
+        animation: confetti-fall 3s ease-out forwards;
+      }
+      @keyframes confetti-fall {
+        0% {
+          transform: translateY(0) rotate(0deg);
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(100vh) rotate(720deg);
+          opacity: 0;
+        }
+      }
+
+      /* NEXT BUTTON */
+      .next-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 16px 36px;
+        border: none;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #f97316, #ef4444);
+        color: #fff;
+        font-family: "Inter", sans-serif;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3);
+        transition: all 0.3s;
+        margin-top: 20px;
+      }
+      .next-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 30px rgba(249, 115, 22, 0.5);
+      }
+      .next-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+      .highlight-in {
+        animation: highlightPulse 2s ease infinite;
+      }
+      @keyframes highlightPulse {
+        0%,
+        100% {
+          box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.3);
+        }
+        50% {
+          box-shadow: 0 0 0 12px rgba(249, 115, 22, 0);
+        }
+      }
+
+      /* DRAG & DROP */
+      .dnd-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        margin: 20px 0;
+      }
+      @media (max-width: 768px) {
+        .dnd-container {
+          grid-template-columns: 1fr;
+        }
+      }
+      .dnd-column-title {
+        font-weight: 700;
+        font-size: 0.95rem;
+        margin-bottom: 14px;
+        color: #333;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .dnd-items {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        min-height: 300px;
+      }
+      .dnd-tag {
+        padding: 14px 20px;
+        background: linear-gradient(
+          135deg,
+          rgba(249, 115, 22, 0.08),
+          rgba(239, 68, 68, 0.08)
+        );
+        border: 2px solid rgba(249, 115, 22, 0.2);
+        border-radius: 12px;
+        font-family: "Courier New", monospace;
+        font-weight: 700;
+        font-size: 0.95rem;
+        color: #f97316;
+        cursor: grab;
+        transition: all 0.3s;
+        user-select: none;
+      }
+      .dnd-tag:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(249, 115, 22, 0.15);
+        border-color: #f97316;
+      }
+      .dnd-tag.dragging {
+        opacity: 0.4;
+        transform: scale(0.95);
+      }
+      .dnd-tag.placed {
+        cursor: default;
+        opacity: 0.5;
+        pointer-events: none;
+      }
+
+      .drop-zone {
+        padding: 16px 20px;
+        border: 2px dashed rgba(0, 0, 0, 0.12);
+        border-radius: 12px;
+        min-height: 60px;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: #fff;
+      }
+      .drop-zone .drop-label {
+        flex: 1;
+        color: #555;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        font-weight: 500;
+      }
+      .drop-zone .drop-slot {
+        min-width: 140px;
+        padding: 10px 16px;
+        border: 2px dashed rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        text-align: center;
+        color: #aaa;
+        font-size: 0.85rem;
+        font-weight: 500;
+        transition: all 0.3s;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .drop-zone.drag-over {
+        border-color: #f97316;
+        background: rgba(249, 115, 22, 0.04);
+        transform: scale(1.02);
+      }
+      .drop-zone.correct {
+        border-color: #43e97b;
+        background: rgba(67, 233, 123, 0.06);
+      }
+      .drop-zone.correct .drop-slot {
+        border-color: #43e97b;
+        background: rgba(67, 233, 123, 0.1);
+        color: #2d8a56;
+        font-weight: 700;
+        font-family: "Courier New", monospace;
+      }
+      .drop-zone.wrong-flash {
+        animation: wrongFlash 0.6s ease;
+      }
+      @keyframes wrongFlash {
+        0% {
+          border-color: #f5576c;
+          background: rgba(245, 87, 108, 0.08);
+        }
+        50% {
+          border-color: #f5576c;
+          background: rgba(245, 87, 108, 0.15);
+        }
+        100% {
+          border-color: rgba(0, 0, 0, 0.12);
+          background: #fff;
+        }
+      }
+
+      /* COMPLETION */
+      .completion-card {
+        text-align: center;
+        padding: 40px 30px;
+        background: linear-gradient(
+          135deg,
+          rgba(67, 233, 123, 0.05),
+          rgba(56, 249, 215, 0.05)
+        );
+        border: 2px solid rgba(67, 233, 123, 0.2);
+        border-radius: 20px;
+        margin-top: 30px;
+      }
+      .completion-card .trophy {
+        font-size: 4rem;
+        margin-bottom: 16px;
+        display: block;
+      }
+      .completion-card h2 {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #333;
+        margin-bottom: 10px;
+      }
+      .completion-card p {
+        color: #555;
+        font-size: 0.95rem;
+        line-height: 1.7;
+      }
+
+      /* SCORE DISPLAY */
+      .score-display {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 20px;
+        border-radius: 50px;
+        background: rgba(67, 233, 123, 0.1);
+        color: #2d8a56;
+        font-weight: 700;
+        font-size: 0.9rem;
+        margin-top: 12px;
+      }
+
+      /* FOOTER */
+      .footer {
+        text-align: center;
+        padding: 30px 20px;
+        color: #888;
+        font-size: 0.82rem;
+        border-top: 1px solid rgba(0, 0, 0, 0.06);
+      }
+
+      @media (max-width: 768px) {
+        h1 {
+          font-size: 1.6rem;
+        }
+        .quiz-btn {
+          font-size: 0.88rem;
+          padding: 14px 18px;
+        }
+        .dnd-container {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- PROGRESS BAR -->
+    <div class="progress-container" style="margin-top: 20px">
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progressFill"></div>
+      </div>
+      <div class="progress-label">
+        <span id="progressText">Phần 1 / 5</span>
+        <span id="progressPercent">0%</span>
+      </div>
+    </div>
+
+    <header class="header">
+      <div class="badge">🎓 Bài giảng tương tác</div>
+      <h1>Biểu mẫu HTML (Form)</h1>
+      <p>
+        Học về biểu mẫu HTML qua video và bài tập tương tác — xem video, trả lời
+        câu hỏi, hoàn thành thử thách!
+      </p>
+    </header>
+
+    <!-- STEP DOTS -->
+    <div class="step-dots">
+      <div class="step-dot active" id="dot1"></div>
+      <div class="step-dot" id="dot2"></div>
+      <div class="step-dot" id="dot3"></div>
+      <div class="step-dot" id="dot4"></div>
+      <div class="step-dot" id="dot5"></div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- PHẦN 1: VIDEO b7-1 + QUIZ -->
+    <!-- ============================================================ -->
+    <div class="scene active" id="scene1">
+      <div class="card">
+        <div class="card-header">
+          <span>🎬 Video bài giảng — Phần 1: Giới thiệu biểu mẫu</span>
+        </div>
+        <div class="card-body">
+          <div class="video-wrapper" id="videoWrapper1">
+            <video id="video1" preload="metadata">
+              <source src="b7-1.mp4" type="video/mp4" />
+              Trình duyệt không hỗ trợ video.
+            </video>
+            <div class="seek-warning" id="seekWarn1">
+              ⚠️ Không được tua video!
+            </div>
+            <!-- Play overlay -->
+            <div
+              class="video-overlay show"
+              id="playOverlay1"
+              style="cursor: pointer"
+              onclick="startVideo(1)"
+            >
+              <div class="overlay-icon">▶️</div>
+              <div class="overlay-text">Nhấn để bắt đầu xem video</div>
+            </div>
+          </div>
+          <div class="video-status" id="videoStatus1">
+            ⏳ Hãy xem hết video để tiếp tục
+          </div>
+        </div>
+      </div>
+
+      <!-- Quiz 1 - Hidden until video ends -->
+      <div class="card" id="quiz1Card" style="display: none">
+        <div class="card-header"><span>❓ Câu hỏi kiểm tra — Phần 1</span></div>
+        <div class="card-body">
+          <div class="quiz-area">
+            <p class="quiz-question">
+              Cú pháp để tạo biểu mẫu (form) trong HTML là gì?
+            </p>
+            <div class="quiz-options" id="quiz1Options">
+              <button class="quiz-btn" onclick="checkQuiz(1, 0)">
+                <span class="option-letter">A</span>
+                <span>&lt;div&gt;&lt;/div&gt;</span>
+              </button>
+              <button class="quiz-btn" onclick="checkQuiz(1, 1)">
+                <span class="option-letter">B</span>
+                <span>&lt;form&gt;&lt;/form&gt;</span>
+              </button>
+              <button class="quiz-btn" onclick="checkQuiz(1, 2)">
+                <span class="option-letter">C</span>
+                <span>&lt;table&gt;&lt;/table&gt;</span>
+              </button>
+              <button class="quiz-btn" onclick="checkQuiz(1, 3)">
+                <span class="option-letter">D</span>
+                <span>&lt;input&gt;&lt;/input&gt;</span>
+              </button>
+            </div>
+            <div class="quiz-feedback" id="quiz1Feedback"></div>
+            <button
+              class="next-btn"
+              id="nextTo2"
+              onclick="goToScene(2)"
+              style="display: none"
+            >
+              Tiếp tục Phần 2 →
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- PHẦN 2: VIDEO b7-2 + QUIZ -->
+    <!-- ============================================================ -->
+    <div class="scene" id="scene2">
+      <div class="card">
+        <div class="card-header">
+          <span>🎬 Video bài giảng — Phần 2: Phương thức GET & POST</span>
+        </div>
+        <div class="card-body">
+          <div class="video-wrapper" id="videoWrapper2">
+            <video id="video2" preload="metadata">
+              <source src="b7-2.mp4" type="video/mp4" />
+              Trình duyệt không hỗ trợ video.
+            </video>
+            <div class="seek-warning" id="seekWarn2">
+              ⚠️ Không được tua video!
+            </div>
+            <div
+              class="video-overlay show"
+              id="playOverlay2"
+              style="cursor: pointer"
+              onclick="startVideo(2)"
+            >
+              <div class="overlay-icon">▶️</div>
+              <div class="overlay-text">Nhấn để bắt đầu xem video</div>
+            </div>
+          </div>
+          <div class="video-status" id="videoStatus2">
+            ⏳ Hãy xem hết video để tiếp tục
+          </div>
+        </div>
+      </div>
+
+      <div class="card" id="quiz2Card" style="display: none">
+        <div class="card-header"><span>❓ Câu hỏi kiểm tra — Phần 2</span></div>
+        <div class="card-body">
+          <div class="quiz-area">
+            <p class="quiz-question">
+              Phương thức GET và POST khác nhau như thế nào?
+            </p>
+            <div class="quiz-options" id="quiz2Options">
+              <button class="quiz-btn" onclick="checkQuiz(2, 0)">
+                <span class="option-letter">A</span>
+                <span
+                  >GET gửi dữ liệu qua URL, POST gửi dữ liệu trong phần body của
+                  request</span
+                >
+              </button>
+              <button class="quiz-btn" onclick="checkQuiz(2, 1)">
+                <span class="option-letter">B</span>
+                <span
+                  >GET và POST hoàn toàn giống nhau, không có sự khác biệt</span
+                >
+              </button>
+              <button class="quiz-btn" onclick="checkQuiz(2, 2)">
+                <span class="option-letter">C</span>
+                <span
+                  >POST gửi dữ liệu qua URL, GET gửi dữ liệu trong phần body của
+                  request</span
+                >
+              </button>
+              <button class="quiz-btn" onclick="checkQuiz(2, 3)">
+                <span class="option-letter">D</span>
+                <span
+                  >GET chỉ dùng cho hình ảnh, POST chỉ dùng cho văn bản</span
+                >
+              </button>
+            </div>
+            <div class="quiz-feedback" id="quiz2Feedback"></div>
+            <button
+              class="next-btn"
+              id="nextTo3"
+              onclick="goToScene(3)"
+              style="display: none"
+            >
+              Tiếp tục Phần 3 →
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- PHẦN 3: VIDEO b7-3 -->
+    <!-- ============================================================ -->
+    <div class="scene" id="scene3">
+      <div class="card">
+        <div class="card-header">
+          <span>🎬 Video bài giảng — Phần 3: Các thành phần của Form</span>
+        </div>
+        <div class="card-body">
+          <div class="video-wrapper" id="videoWrapper3">
+            <video id="video3" preload="metadata">
+              <source src="b7-3.mp4" type="video/mp4" />
+              Trình duyệt không hỗ trợ video.
+            </video>
+            <div class="seek-warning" id="seekWarn3">
+              ⚠️ Không được tua video!
+            </div>
+            <div
+              class="video-overlay show"
+              id="playOverlay3"
+              style="cursor: pointer"
+              onclick="startVideo(3)"
+            >
+              <div class="overlay-icon">▶️</div>
+              <div class="overlay-text">Nhấn để bắt đầu xem video</div>
+            </div>
+          </div>
+          <div class="video-status" id="videoStatus3">
+            ⏳ Hãy xem hết video để tiếp tục
+          </div>
+        </div>
+      </div>
+
+      <div id="nextTo4Wrapper" style="text-align: center; display: none">
+        <button class="next-btn highlight-in" onclick="goToScene(4)">
+          Tiếp tục Phần 4 →
+        </button>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- PHẦN 4: VIDEO b7-4 -->
+    <!-- ============================================================ -->
+    <div class="scene" id="scene4">
+      <div class="card">
+        <div class="card-header">
+          <span>🎬 Video bài giảng — Phần 4: Thực hành Form</span>
+        </div>
+        <div class="card-body">
+          <div class="video-wrapper" id="videoWrapper4">
+            <video id="video4" preload="metadata">
+              <source src="b7-4.mp4" type="video/mp4" />
+              Trình duyệt không hỗ trợ video.
+            </video>
+            <div class="seek-warning" id="seekWarn4">
+              ⚠️ Không được tua video!
+            </div>
+            <div
+              class="video-overlay show"
+              id="playOverlay4"
+              style="cursor: pointer"
+              onclick="startVideo(4)"
+            >
+              <div class="overlay-icon">▶️</div>
+              <div class="overlay-text">Nhấn để bắt đầu xem video</div>
+            </div>
+          </div>
+          <div class="video-status" id="videoStatus4">
+            ⏳ Hãy xem hết video để tiếp tục
+          </div>
+        </div>
+      </div>
+
+      <div id="nextTo5Wrapper" style="text-align: center; display: none">
+        <button class="next-btn highlight-in" onclick="goToScene(5)">
+          🧩 Làm bài tập Drag & Drop →
+        </button>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- PHẦN 5: DRAG & DROP -->
+    <!-- ============================================================ -->
+    <div class="scene" id="scene5">
+      <div class="card">
+        <div class="card-header">
+          <span>🧩 Bài tập — Kéo thẻ HTML vào ý nghĩa đúng</span>
+        </div>
+        <div class="card-body">
+          <p
+            style="
+              color: #333;
+              line-height: 1.8;
+              margin-bottom: 20px;
+              font-size: 0.95rem;
+            "
+          >
+            Kéo các thẻ HTML ở <strong>cột bên trái</strong> và thả vào ô trống
+            tương ứng với <strong>ý nghĩa đúng</strong> ở cột bên phải.
+          </p>
+
+          <div class="dnd-container">
+            <!-- LEFT: Draggable tags -->
+            <div>
+              <div class="dnd-column-title">🏷️ Các thẻ HTML</div>
+              <div class="dnd-items" id="tagPool">
+                <div
+                  class="dnd-tag"
+                  draggable="true"
+                  data-tag="form"
+                  id="tag-form"
+                >
+                  &lt;form&gt;
+                </div>
+                <div
+                  class="dnd-tag"
+                  draggable="true"
+                  data-tag="input"
+                  id="tag-input"
+                >
+                  &lt;input&gt;
+                </div>
+                <div
+                  class="dnd-tag"
+                  draggable="true"
+                  data-tag="label"
+                  id="tag-label"
+                >
+                  &lt;label&gt;
+                </div>
+                <div
+                  class="dnd-tag"
+                  draggable="true"
+                  data-tag="textarea"
+                  id="tag-textarea"
+                >
+                  &lt;textarea&gt;
+                </div>
+              </div>
+            </div>
+
+            <!-- RIGHT: Drop zones -->
+            <div>
+              <div class="dnd-column-title">📝 Ý nghĩa</div>
+              <div class="dnd-items" id="dropZones">
+                <div
+                  class="drop-zone"
+                  data-answer="form"
+                  ondrop="handleDrop(event)"
+                  ondragover="handleDragOver(event)"
+                  ondragleave="handleDragLeave(event)"
+                >
+                  <div class="drop-label">
+                    Tạo biểu mẫu chứa các thành phần nhập liệu
+                  </div>
+                  <div class="drop-slot">Kéo thẻ vào đây</div>
+                </div>
+                <div
+                  class="drop-zone"
+                  data-answer="input"
+                  ondrop="handleDrop(event)"
+                  ondragover="handleDragOver(event)"
+                  ondragleave="handleDragLeave(event)"
+                >
+                  <div class="drop-label">
+                    Ô nhập liệu (text, password, email,…)
+                  </div>
+                  <div class="drop-slot">Kéo thẻ vào đây</div>
+                </div>
+                <div
+                  class="drop-zone"
+                  data-answer="label"
+                  ondrop="handleDrop(event)"
+                  ondragover="handleDragOver(event)"
+                  ondragleave="handleDragLeave(event)"
+                >
+                  <div class="drop-label">Nhãn mô tả cho ô nhập liệu</div>
+                  <div class="drop-slot">Kéo thẻ vào đây</div>
+                </div>
+                <div
+                  class="drop-zone"
+                  data-answer="textarea"
+                  ondrop="handleDrop(event)"
+                  ondragover="handleDragOver(event)"
+                  ondragleave="handleDragLeave(event)"
+                >
+                  <div class="drop-label">Ô nhập văn bản nhiều dòng</div>
+                  <div class="drop-slot">Kéo thẻ vào đây</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="score-display" id="dndScore" style="display: none">
+            ✅ Đã ghép đúng: <span id="dndCorrectCount">0</span> / 4
+          </div>
+        </div>
+      </div>
+
+      <!-- Completion card - hidden until all matched -->
+      <div class="completion-card" id="completionCard" style="display: none">
+        <span class="trophy">🏆</span>
+        <h2>🎉 Chúc mừng bạn đã hoàn thành!</h2>
+        <p>
+          Bạn đã xem xong tất cả video và hoàn thành bài tập về
+          <strong>Biểu mẫu HTML</strong>.<br />
+          Hãy tiếp tục thực hành để thành thạo hơn nhé!
+        </p>
+      </div>
+    </div>
+
+    <footer class="footer">
+      <p>
+        🎓 Bài giảng tương tác — Bài 7: Biểu mẫu HTML — Dành cho giáo viên và
+        học sinh
+      </p>
+    </footer>
+
+    <!-- ============================================================ -->
+    <!-- JAVASCRIPT -->
+    <!-- ============================================================ -->
+    <script>
+      // ==========================================
+      // STATE
+      // ==========================================
+      let currentScene = 1;
+      const totalScenes = 5;
+      const quizAnswered = { 1: false, 2: false };
+      const videoFinished = { 1: false, 2: false, 3: false, 4: false };
+      const videoAllowedTime = { 1: 0, 2: 0, 3: 0, 4: 0 };
+
+      // Quiz answers (0-indexed): Quiz1 = B (index 1), Quiz2 = A (index 0)
+      const quizCorrectAnswers = { 1: 1, 2: 0 };
+
+      // ==========================================
+      // SCENE NAVIGATION
+      // ==========================================
+      function goToScene(n) {
+        document
+          .querySelectorAll(".scene")
+          .forEach((s) => s.classList.remove("active"));
+        document.getElementById("scene" + n).classList.add("active");
+        currentScene = n;
+        updateProgress();
+        updateDots();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+
+        // SCORM: Save progress
+        ScormAPI.setLocation("scene" + n);
+        var progressData = JSON.stringify({
+          scene: n,
+          quiz1: quizAnswered[1],
+          quiz2: quizAnswered[2],
+          video1: videoFinished[1],
+          video2: videoFinished[2],
+          video3: videoFinished[3],
+          video4: videoFinished[4]
+        });
+        ScormAPI.setSuspendData(progressData);
+      }
+
+      function updateProgress() {
+        const pct = Math.round((currentScene / totalScenes) * 100);
+        document.getElementById("progressFill").style.width = pct + "%";
+        document.getElementById("progressText").textContent =
+          "Phần " + currentScene + " / " + totalScenes;
+        document.getElementById("progressPercent").textContent = pct + "%";
+      }
+
+      function updateDots() {
+        for (let i = 1; i <= totalScenes; i++) {
+          const dot = document.getElementById("dot" + i);
+          if (i < currentScene) {
+            dot.className = "step-dot done";
+          } else if (i === currentScene) {
+            dot.className = "step-dot active";
+          } else {
+            dot.className = "step-dot";
+          }
+        }
+      }
+
+      // ==========================================
+      // VIDEO CONTROLS (Anti-Seek)
+      // ==========================================
+      function startVideo(num) {
+        const video = document.getElementById("video" + num);
+        const overlay = document.getElementById("playOverlay" + num);
+        overlay.classList.remove("show");
+        video.controls = true;
+        video.play();
+      }
+
+      function setupVideo(num) {
+        const video = document.getElementById("video" + num);
+        const seekWarn = document.getElementById("seekWarn" + num);
+        const statusEl = document.getElementById("videoStatus" + num);
+        let lastTime = 0;
+        let isSeeking = false;
+
+        // Track the furthest point watched
+        video.addEventListener("timeupdate", function () {
+          if (!isSeeking && video.currentTime > videoAllowedTime[num]) {
+            videoAllowedTime[num] = video.currentTime;
+          }
+          lastTime = video.currentTime;
+
+          // Update status
+          const pct =
+            Math.round((video.currentTime / video.duration) * 100) || 0;
+          statusEl.textContent = "▶️ Đang xem: " + pct + "% hoàn thành";
+        });
+
+        // Prevent seeking forward
+        video.addEventListener("seeking", function () {
+          if (video.currentTime > videoAllowedTime[num] + 1) {
+            isSeeking = true;
+            video.currentTime = videoAllowedTime[num];
+            // Show warning
+            seekWarn.classList.add("show");
+            setTimeout(() => {
+              seekWarn.classList.remove("show");
+              isSeeking = false;
+            }, 1500);
+          }
+        });
+
+        video.addEventListener("seeked", function () {
+          setTimeout(() => {
+            isSeeking = false;
+          }, 200);
+        });
+
+        // When video ends
+        video.addEventListener("ended", function () {
+          videoFinished[num] = true;
+          statusEl.textContent = "✅ Đã xem xong video!";
+          statusEl.style.color = "#43e97b";
+          video.controls = true;
+
+          // Show quiz or next button
+          if (num === 1) {
+            document.getElementById("quiz1Card").style.display = "block";
+            document
+              .getElementById("quiz1Card")
+              .scrollIntoView({ behavior: "smooth", block: "center" });
+          } else if (num === 2) {
+            document.getElementById("quiz2Card").style.display = "block";
+            document
+              .getElementById("quiz2Card")
+              .scrollIntoView({ behavior: "smooth", block: "center" });
+          } else if (num === 3) {
+            document.getElementById("nextTo4Wrapper").style.display = "block";
+            document
+              .getElementById("nextTo4Wrapper")
+              .scrollIntoView({ behavior: "smooth", block: "center" });
+          } else if (num === 4) {
+            document.getElementById("nextTo5Wrapper").style.display = "block";
+            document
+              .getElementById("nextTo5Wrapper")
+              .scrollIntoView({ behavior: "smooth", block: "center" });
+          }
+        });
+
+        // Disable right-click context menu on video
+        video.addEventListener("contextmenu", function (e) {
+          e.preventDefault();
+        });
+      }
+
+      // Setup all 4 videos
+      for (let i = 1; i <= 4; i++) {
+        setupVideo(i);
+      }
+
+      // ==========================================
+      // QUIZ
+      // ==========================================
+      function checkQuiz(quizNum, selectedIndex) {
+        if (quizAnswered[quizNum]) return;
+
+        const feedback = document.getElementById("quiz" + quizNum + "Feedback");
+        const options = document.querySelectorAll(
+          "#quiz" + quizNum + "Options .quiz-btn",
+        );
+        const correct = quizCorrectAnswers[quizNum];
+
+        if (selectedIndex === correct) {
+          // CORRECT
+          quizAnswered[quizNum] = true;
+          options[selectedIndex].classList.add("correct");
+
+          if (quizNum === 1) {
+            feedback.textContent =
+              "🎉 Chính xác! Thẻ <form></form> dùng để tạo biểu mẫu trong HTML.";
+            feedback.className = "quiz-feedback success";
+            document.getElementById("nextTo2").style.display = "inline-flex";
+            document.getElementById("nextTo2").classList.add("highlight-in");
+          } else if (quizNum === 2) {
+            feedback.textContent =
+              "🎉 Chính xác! GET gửi dữ liệu qua URL, còn POST gửi trong body của request.";
+            feedback.className = "quiz-feedback success";
+            document.getElementById("nextTo3").style.display = "inline-flex";
+            document.getElementById("nextTo3").classList.add("highlight-in");
+          }
+
+          showConfetti();
+        } else {
+          // WRONG
+          options[selectedIndex].classList.add("wrong");
+          setTimeout(
+            () => options[selectedIndex].classList.remove("wrong"),
+            700,
+          );
+
+          feedback.textContent =
+            "❌ Chưa đúng! Hãy suy nghĩ lại và chọn đáp án khác.";
+          feedback.className = "quiz-feedback error";
+        }
+      }
+
+      // ==========================================
+      // CONFETTI
+      // ==========================================
+      function showConfetti() {
+        const container = document.createElement("div");
+        container.className = "confetti-container";
+        document.body.appendChild(container);
+
+        const colors = [
+          "#f97316",
+          "#ef4444",
+          "#ec4899",
+          "#43e97b",
+          "#ffd700",
+          "#667eea",
+          "#38f9d7",
+        ];
+        for (let i = 0; i < 60; i++) {
+          const piece = document.createElement("div");
+          piece.className = "confetti-piece";
+          piece.style.left = Math.random() * 100 + "%";
+          piece.style.background =
+            colors[Math.floor(Math.random() * colors.length)];
+          piece.style.animationDelay = Math.random() * 1.5 + "s";
+          piece.style.animationDuration = 2 + Math.random() * 2 + "s";
+          piece.style.width = 6 + Math.random() * 8 + "px";
+          piece.style.height = 6 + Math.random() * 8 + "px";
+          piece.style.borderRadius = Math.random() > 0.5 ? "50%" : "2px";
+          container.appendChild(piece);
+        }
+
+        setTimeout(() => container.remove(), 4000);
+      }
+
+      // ==========================================
+      // DRAG & DROP
+      // ==========================================
+      let draggedTag = null;
+      let dndCorrect = 0;
+
+      // Setup drag events on tags
+      document.querySelectorAll(".dnd-tag").forEach((tag) => {
+        tag.addEventListener("dragstart", function (e) {
+          draggedTag = this;
+          this.classList.add("dragging");
+          e.dataTransfer.setData("text/plain", this.dataset.tag);
+          e.dataTransfer.effectAllowed = "move";
+        });
+
+        tag.addEventListener("dragend", function () {
+          this.classList.remove("dragging");
+          draggedTag = null;
+        });
+
+        // Touch support
+        tag.addEventListener("touchstart", handleTouchStart, {
+          passive: false,
+        });
+        tag.addEventListener("touchmove", handleTouchMove, { passive: false });
+        tag.addEventListener("touchend", handleTouchEnd, { passive: false });
+      });
+
+      function handleDragOver(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = "move";
+        const zone = e.currentTarget;
+        if (!zone.classList.contains("correct")) {
+          zone.classList.add("drag-over");
+        }
+      }
+
+      function handleDragLeave(e) {
+        e.currentTarget.classList.remove("drag-over");
+      }
+
+      function handleDrop(e) {
+        e.preventDefault();
+        const zone = e.currentTarget;
+        zone.classList.remove("drag-over");
+
+        if (zone.classList.contains("correct")) return; // Already matched
+
+        const droppedTag = e.dataTransfer.getData("text/plain");
+        const correctAnswer = zone.dataset.answer;
+
+        if (droppedTag === correctAnswer) {
+          // CORRECT match
+          zone.classList.add("correct");
+          zone.querySelector(".drop-slot").textContent = "<" + droppedTag + ">";
+
+          // Mark tag as placed
+          const tagEl = document.getElementById("tag-" + droppedTag);
+          tagEl.classList.add("placed");
+          tagEl.draggable = false;
+
+          dndCorrect++;
+          updateDndScore();
+
+          if (dndCorrect === 4) {
+            // All matched!
+            setTimeout(() => {
+              document.getElementById("completionCard").style.display = "block";
+              document
+                .getElementById("completionCard")
+                .scrollIntoView({ behavior: "smooth", block: "center" });
+              showConfetti();
+              // Update progress to 100%
+              document.getElementById("progressFill").style.width = "100%";
+              document.getElementById("progressPercent").textContent = "100%";
+
+              // SCORM: Mark as complete
+              ScormAPI.complete(100);
+            }, 500);
+          }
+        } else {
+          // WRONG match
+          zone.classList.add("wrong-flash");
+          setTimeout(() => zone.classList.remove("wrong-flash"), 700);
+        }
+      }
+
+      function updateDndScore() {
+        const scoreEl = document.getElementById("dndScore");
+        scoreEl.style.display = "inline-flex";
+        document.getElementById("dndCorrectCount").textContent = dndCorrect;
+      }
+
+      // ==========================================
+      // TOUCH SUPPORT FOR DRAG & DROP
+      // ==========================================
+      let touchClone = null;
+      let touchSource = null;
+
+      function handleTouchStart(e) {
+        if (this.classList.contains("placed")) return;
+        e.preventDefault();
+        touchSource = this;
+        const touch = e.touches[0];
+
+        // Create visual clone
+        touchClone = this.cloneNode(true);
+        touchClone.style.position = "fixed";
+        touchClone.style.zIndex = "10000";
+        touchClone.style.pointerEvents = "none";
+        touchClone.style.opacity = "0.85";
+        touchClone.style.width = this.offsetWidth + "px";
+        touchClone.style.transform = "scale(1.05)";
+        touchClone.style.boxShadow = "0 10px 30px rgba(0,0,0,.2)";
+        document.body.appendChild(touchClone);
+
+        moveTouchClone(touch);
+        this.classList.add("dragging");
+      }
+
+      function handleTouchMove(e) {
+        if (!touchClone) return;
+        e.preventDefault();
+        moveTouchClone(e.touches[0]);
+
+        // Highlight drop zone under finger
+        const dropZones = document.querySelectorAll(".drop-zone");
+        dropZones.forEach((z) => z.classList.remove("drag-over"));
+        const el = document.elementFromPoint(
+          e.touches[0].clientX,
+          e.touches[0].clientY,
+        );
+        if (el) {
+          const zone = el.closest(".drop-zone");
+          if (zone && !zone.classList.contains("correct")) {
+            zone.classList.add("drag-over");
+          }
+        }
+      }
+
+      function handleTouchEnd(e) {
+        if (!touchClone || !touchSource) return;
+        e.preventDefault();
+
+        const touch = e.changedTouches[0];
+        const el = document.elementFromPoint(touch.clientX, touch.clientY);
+
+        if (el) {
+          const zone = el.closest(".drop-zone");
+          if (zone && !zone.classList.contains("correct")) {
+            const droppedTag = touchSource.dataset.tag;
+            const correctAnswer = zone.dataset.answer;
+
+            if (droppedTag === correctAnswer) {
+              zone.classList.add("correct");
+              zone.querySelector(".drop-slot").textContent =
+                "<" + droppedTag + ">";
+              touchSource.classList.add("placed");
+              touchSource.draggable = false;
+              dndCorrect++;
+              updateDndScore();
+
+              if (dndCorrect === 4) {
+                setTimeout(() => {
+                  document.getElementById("completionCard").style.display =
+                    "block";
+                  document
+                    .getElementById("completionCard")
+                    .scrollIntoView({ behavior: "smooth", block: "center" });
+                  showConfetti();
+
+                // SCORM: Report quiz score
+                var quizScore = 0;
+                if (quizAnswered[1]) quizScore += 25;
+                if (quizAnswered[2]) quizScore += 25;
+                ScormAPI.setScore(quizScore);
+                  document.getElementById("progressFill").style.width = "100%";
+                  document.getElementById("progressPercent").textContent =
+                    "100%";
+                }, 500);
+              }
+            } else {
+              zone.classList.add("wrong-flash");
+              setTimeout(() => zone.classList.remove("wrong-flash"), 700);
+            }
+            zone.classList.remove("drag-over");
+          }
+        }
+
+        touchSource.classList.remove("dragging");
+        touchClone.remove();
+        touchClone = null;
+        touchSource = null;
+
+        document
+          .querySelectorAll(".drop-zone")
+          .forEach((z) => z.classList.remove("drag-over"));
+      }
+
+      function moveTouchClone(touch) {
+        if (!touchClone) return;
+        touchClone.style.left =
+          touch.clientX - touchClone.offsetWidth / 2 + "px";
+        touchClone.style.top =
+          touch.clientY - touchClone.offsetHeight / 2 + "px";
+      }
+
+      // ==========================================
+      // SHUFFLE TAGS ON LOAD
+      // ==========================================
+      function shuffleTags() {
+        const pool = document.getElementById("tagPool");
+        const tags = Array.from(pool.children);
+        for (let i = tags.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          pool.appendChild(tags[j]);
+          tags.splice(j, 1, tags[i]); // keep track
+        }
+        // Simpler: just shuffle and re-append
+        const items = Array.from(pool.children);
+        items.sort(() => Math.random() - 0.5);
+        items.forEach((item) => pool.appendChild(item));
+      }
+      shuffleTags();
+
+      // ==========================================
+      // INIT
+      // ==========================================
+      updateProgress();
+
+      // ==========================================
+      // SCORM INIT & UNLOAD
+      // ==========================================
+      ScormAPI.init();
+
+      window.addEventListener("beforeunload", function () {
+        ScormAPI.finish();
+      });
+    </script>
+  </body>
+</html>
