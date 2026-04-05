@@ -190,7 +190,7 @@ export default function LiveRoomPage() {
         // Teacher fixes their ID to room_id so students know exactly who to call.
         const peerId = userInfo.role === "teacher" || userInfo.role === "admin" ? (room_id as string) : undefined;
         
-        const peer = peerId ? new PeerJs(peerId, {
+        const peerConfig = {
             host: PEER_HOST,
             port: PEER_PORT,
             path: "/",
@@ -200,7 +200,8 @@ export default function LiveRoomPage() {
                     { urls: 'stun:stun1.l.google.com:19302' }
                 ]
             }
-        });
+        };
+        const peer = peerId ? new PeerJs(peerId, peerConfig) : new PeerJs(peerConfig);
 
         peer.on("open", (id) => {
            setIsPeerConnected(true);
