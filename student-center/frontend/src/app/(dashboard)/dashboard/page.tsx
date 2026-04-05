@@ -156,8 +156,8 @@ export default function Dashboard() {
           {[
             { label: "Tổng số Học sinh", value: stats.total_students || "0", icon: Users, color: "text-blue-600", bg: "bg-blue-50", border: "border-blue-200" },
             { label: "Khoá học đang mở", value: stats.active_courses || "0", icon: BookOpen, color: "text-emerald-600", bg: "bg-emerald-50", border: "border-emerald-200" },
-            { label: "Bài nộp chờ chấm", value: stats.pending_assignments || "0", icon: FileText, color: "text-amber-600", bg: "bg-amber-50", border: "border-amber-200" },
-            { label: "Giờ dạy tuần này", value: `${stats.teaching_hours || "0"}h`, icon: Clock, color: "text-pink-600", bg: "bg-pink-50", border: "border-pink-200" },
+            { label: "Học sinh chờ duyệt", value: stats.pending_students ?? "0", icon: Clock, color: "text-amber-600", bg: "bg-amber-50", border: "border-amber-200" },
+            { label: "Bài tập đã tạo", value: stats.assignment_count ?? "0", icon: FileText, color: "text-pink-600", bg: "bg-pink-50", border: "border-pink-200" },
           ].map((stat, i) => (
             <div key={i} className={`p-5 rounded-2xl bg-white border ${stat.border} flex items-center gap-4 shadow-sm`}>
               <div className={`p-3 rounded-xl ${stat.bg} border ${stat.border}`}>
@@ -176,9 +176,21 @@ export default function Dashboard() {
             <h2 className="text-base font-bold mb-4 flex items-center gap-2 text-[#1A1410]">
               <Activity className="w-5 h-5 text-pink-500" /> Bảng tin hệ thống
             </h2>
-            <div className="text-[#5C4F42] text-sm border-l-2 border-pink-400 pl-4 py-1">
-              <p className="font-semibold text-[#1A1410] mb-1">Cập nhật lúc 08:00 AM</p>
-              <p>Hệ thống tự động chấm điểm bài tập trắc nghiệm đã được bật.</p>
+            <div className="text-[#5C4F42] text-sm border-l-2 border-pink-400 pl-4 py-1 space-y-3">
+              <div>
+                <p className="font-semibold text-[#1A1410] mb-1">Cập nhật lúc 08:00 AM</p>
+                <p>Hệ thống tự động chấm điểm bài tập trắc nghiệm đã được bật.</p>
+              </div>
+              {Number(stats.pending_students) > 0 && (
+                <div className="mt-3 pt-3 border-t border-[#E2D9CE]">
+                  <p className="font-semibold text-amber-700 mb-1">⚠️ Có {String(stats.pending_students)} học sinh chờ phê duyệt đăng ký!</p>
+                  <a href="/courses" className="text-xs text-blue-600 underline">Vào Quản lý Khoá học để duyệt →</a>
+                </div>
+              )}
+              <div className="mt-3 pt-3 border-t border-[#E2D9CE]">
+                <p className="font-semibold text-[#1A1410] mb-1">🎖️ Rank Giáo viên: <span className="text-pink-600">{(stats.rank_icon as string) || "📖"} {(stats.rank_name as string) || "Trợ giảng"}</span> — {String(stats.xp || 0)} XP</p>
+                {stats.next_rank && <p className="text-xs">Còn <strong className="text-pink-600">{String(stats.xp_to_next)} XP</strong> để lên <strong>{stats.next_rank as string}</strong>. Tạo bài tập = +10 XP/bài.</p>}
+              </div>
             </div>
           </section>
           {renderDriveSection("text-pink-500")}
