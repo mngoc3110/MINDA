@@ -1,26 +1,101 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-outfit: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
+  --color-background: var(--c-bg-main);
+  --color-foreground: var(--c-text-primary);
+  
+  /* Semantic Tokens for Theme Switching */
+  --color-bg-main: var(--c-bg-main);
+  --color-bg-card: var(--c-bg-card);
+  --color-bg-hover: var(--c-bg-hover);
+  --color-border-card: var(--c-border-card);
+  --color-text-primary: var(--c-text-primary);
+  --color-text-secondary: var(--c-text-secondary);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  /* DARK MODE (Legacy Minda Default) */
+  --c-bg-main: #050505;
+  --c-bg-card: #242526;
+  --c-bg-hover: #3A3B3C;
+  --c-border-card: #3E4042;
+  --c-text-primary: #E4E6EB;
+  --c-text-secondary: #B0B3B8;
+}
+
+:root[data-theme='light'] {
+  /* LIGHT MODE (Pastel Theme User Input) */
+  --c-bg-main: #F4F3E1;       /* Cream Yellow */
+  --c-bg-card: #B0D1D8;       /* Pastel Blue */
+  --c-bg-hover: #C3D3B7;      /* Pastel Green */
+  --c-border-card: #F7D0B1;   /* Pastel Orange */
+  --c-text-primary: #1C2B2D;  /* Dark Blue-Gray text for readability */
+  --c-text-secondary: #4A5D61;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--c-bg-main);
+  color: var(--c-text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.block-container {
+  position: relative;
+  transition: 250ms;
+  perspective: 500px;
+}
+
+.block-container .btn-back {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: inherit;
+  height: inherit;
+  transition: 250ms;
+  transform-style: preserve-3d;
+  transform-origin: bottom right;
+  transform: rotateZ(15deg);
+  will-change: transform;
+  box-shadow: 16px 0 40px #1e1b4b; /* Shadow hợp tone tối */
+}
+
+.block-container .btn-back-red {
+  background: linear-gradient(135deg, #ff4b1f -20%, #ff9068 120%);
+}
+
+.block-container .btn-back-green {
+  background: linear-gradient(135deg, #adfda2 -20%, #11d3f3 120%);
+}
+
+.block-container .btn-back-yellow {
+  background: linear-gradient(135deg, #f7971e -20%, #ffd200 120%);
+}
+
+.block-container .btn-back-blue {
+  background: linear-gradient(135deg, #0061ff -20%, #60efff 120%);
+}
+
+.block-container .btn-front {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: inherit;
+  height: inherit;
+  background-color: #ffffff1a;
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  transition: 250ms;
+  transform-style: preserve-3d;
+  transform-origin: top left;
+  overflow: hidden;
+  border-radius: 0.75rem;
+}
+
+.block-container:hover > .btn-back {
+  transform: translateZ(20px) rotateZ(15deg) rotateX(-20deg) rotateY(-20deg);
+}
+
+.block-container:hover > .btn-front {
+  transform: translateZ(80px) translateY(-5px) rotateX(15deg) rotateY(15deg);
 }
