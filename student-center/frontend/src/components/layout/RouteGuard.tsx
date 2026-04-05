@@ -11,10 +11,21 @@ export default function RouteGuard({ children }: { children: React.ReactNode }) 
 
   useEffect(() => {
     const checkAuth = () => {
+      const token = localStorage.getItem("minda_token");
       const role = localStorage.getItem("minda_role");
       
-      // Admin path protection
-      if (pathname.startsWith("/admin")) {
+      // Nếu không có Token (chưa đăng nhập)
+      if (!token) {
+        if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
+            router.replace("/admin/login");
+        } else {
+            router.replace("/login");
+        }
+        return;
+      }
+
+      // Admin path protection (Đã có token nhưng sai role)
+      if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
         if (role !== "admin") {
           // You do not have permission, booting out!
           router.replace("/dashboard");
