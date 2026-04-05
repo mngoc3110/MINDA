@@ -27,6 +27,28 @@ export default function TeacherCVView({ teacherId, enableGoBack = true }: Teache
     fetchProfile();
   }, [teacherId]);
 
+  const defaultProfile = () => ({
+    full_name: localStorage.getItem("minda_user_name") || "Họ và Tên",
+    cv_title: "GIA SƯ TOÁN - TIN",
+    phone: "",
+    email: localStorage.getItem("minda_email") || "",
+    social_website: "",
+    social_facebook: "",
+    social_linkedin: "",
+    avatar_url: null,
+    cv_theme_color: "#1a365d",
+    cv_layout: "modern",
+    cv_competencies: ["Nắm rõ kiến thức chuyên môn: Mô tả chuyên ngành"],
+    cv_soft_skills: ["Kỹ năng sư phạm tốt", "Tư duy logic"],
+    cv_languages: ["Tiếng Anh"],
+    cv_formats: ["Nhận dạy kèm 1-1", "Nhận dạy nhóm"],
+    cv_education: [{ school: "ĐẠI HỌC SƯ PHẠM TP.HCM", major1: "Sư phạm Toán học", major2: "", icon: "" }],
+    cv_teaching_experience: [{ year: "2024", tasks: "Mô tả kinh nghiệm dạy học" }],
+    cv_programming_experience: ["Ví dụ: Xây dựng ứng dụng học tập AI"],
+    cv_additional_info: ["Ví dụ: Điểm A bộ môn phương pháp giảng dạy"],
+    cv_custom_sections: [],
+  });
+
   const fetchProfile = async () => {
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/profile/teachers/${teacherId}/cv`);
@@ -63,6 +85,18 @@ export default function TeacherCVView({ teacherId, enableGoBack = true }: Teache
         if (currentId && parseInt(currentId) === parseInt(teacherId.toString())) {
           setIsOwner(true);
         }
+      } else if (res.status === 404) {
+        // Chưa có CV → tạo template mặc định và vào edit mode ngay
+        const currentId = localStorage.getItem("minda_user_id");
+        const isMe = currentId && parseInt(currentId) === parseInt(teacherId.toString());
+        if (isMe) {
+          const def = defaultProfile();
+          setProfile(def);
+          setEditForm(JSON.parse(JSON.stringify(def)));
+          setIsOwner(true);
+          setIsEditing(true); // Vào chế độ chỉnh sửa ngay
+        }
+        // Nếu xem CV người khác mà chưa có → giữ null (profile chưa tạo)
       }
     } catch (e) {
       console.error(e);
@@ -70,6 +104,7 @@ export default function TeacherCVView({ teacherId, enableGoBack = true }: Teache
       setLoading(false);
     }
   };
+
 
   const handleSave = async () => {
     setIsSaving(true);
