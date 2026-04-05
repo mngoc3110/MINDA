@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import StudentSidebar from "./StudentSidebar";
 import TeacherSidebar from "./TeacherSidebar";
+import AdminSidebar from "./AdminSidebar";
 
 export default function SidebarWrapper() {
   const [role, setRole] = useState<string | null>(null);
@@ -18,5 +19,6 @@ export default function SidebarWrapper() {
     return <aside className="w-[280px] h-screen bg-bg-main hidden lg:block border-r border-white/5"></aside>;
   }
 
+  if (role === "admin") return <AdminSidebar />;
   return role === "teacher" ? <TeacherSidebar /> : <StudentSidebar />;
 }
