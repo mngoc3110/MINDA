@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { BrainCircuit, Video, BarChart3, ArrowRight, PlayCircle, Star } from "lucide-react";
+import { BrainCircuit, Video, BarChart3, ArrowRight, PlayCircle, Star, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import IslandHero from "@/components/ui/IslandHero";
@@ -19,6 +19,7 @@ export default function Home() {
   const [userName, setUserName] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
   const [teachers, setTeachers] = useState<TeacherInfo[]>([]);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     setUserName(localStorage.getItem("minda_user_name"));
@@ -34,23 +35,25 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-bg-main text-white selection:bg-indigo-500/30 overflow-x-hidden relative scroll-smooth">
       
-      {/* Navigation Toàn cầu (Nổi trên Game) */}
+      {/* Navigation Toàn cầu */}
       <nav className="fixed w-full z-50 top-0 transition-all duration-300 backdrop-blur-xl bg-bg-main/40 border-b border-white/5">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+          {/* Logo */}
+          <Link href="/" className="font-black text-xl tracking-tighter">
+            MINDA<span className="text-indigo-400">.EDU</span>
+          </Link>
+
+          {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-8 text-sm font-bold text-gray-300">
             <Link href="#classes" className="hover:text-white transition-colors uppercase tracking-wider text-xs">Các Lớp Học</Link>
             <Link href="#features" className="hover:text-white transition-colors uppercase tracking-wider text-xs">Công nghệ AI</Link>
-            
             {userName ? (
               <div className="flex items-center gap-4 ml-4">
                 <span className="text-gray-400 capitalize">Xin chào, <span className="font-bold text-white">{userName}</span></span>
                 <Link href={role === "admin" ? "/admin" : "/dashboard"} className="px-5 py-2.5 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white transition-all font-bold shadow-[0_0_15px_rgba(79,70,229,0.3)]">
                   Vào Lớp Học
                 </Link>
-                <button 
-                  onClick={() => { localStorage.clear(); window.location.reload(); }}
-                  className="px-4 py-2 border border-white/10 hover:bg-white/5 rounded-full text-sm font-medium transition-colors"
-                >
+                <button onClick={() => { localStorage.clear(); window.location.reload(); }} className="px-4 py-2 border border-white/10 hover:bg-white/5 rounded-full text-sm font-medium transition-colors">
                   Đăng xuất
                 </button>
               </div>
@@ -61,7 +64,36 @@ export default function Home() {
               </div>
             )}
           </div>
+
+          {/* Mobile Hamburger */}
+          <button className="md:hidden text-white p-2" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
         </div>
+
+        {/* Mobile Dropdown */}
+        {mobileMenuOpen && (
+          <div className="md:hidden bg-[#050505]/95 backdrop-blur-xl border-t border-white/5 px-6 py-6 flex flex-col gap-4">
+            <Link href="#classes" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 font-bold uppercase tracking-wider text-sm py-2 border-b border-white/5">Các Lớp Học</Link>
+            <Link href="#features" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 font-bold uppercase tracking-wider text-sm py-2 border-b border-white/5">Công nghệ AI</Link>
+            {userName ? (
+              <>
+                <span className="text-gray-400 text-sm">Xin chào, <span className="font-bold text-white">{userName}</span></span>
+                <Link href={role === "admin" ? "/admin" : "/dashboard"} onClick={() => setMobileMenuOpen(false)} className="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-center transition-all">
+                  Vào Lớp Học
+                </Link>
+                <button onClick={() => { localStorage.clear(); window.location.reload(); }} className="w-full py-3 border border-white/10 rounded-xl text-sm font-medium">
+                  Đăng xuất
+                </button>
+              </>
+            ) : (
+              <>
+                <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="w-full py-3 rounded-xl bg-white/5 border border-white/10 text-center font-bold">Đăng nhập</Link>
+                <Link href="/register" onClick={() => setMobileMenuOpen(false)} className="w-full py-3 rounded-xl bg-white text-black text-center font-black">XUẤT PHÁT NGAY</Link>
+              </>
+            )}
+          </div>
+        )}
       </nav>
 
       {/* 100vh Banner Game Mở đầu */}
@@ -238,7 +270,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="py-12 border-t border-white/10 bg-[#06010a] text-center">
         <span className="font-black text-2xl tracking-tighter block mb-2 opacity-30">MINDA<span className="text-indigo-400">.EDU</span></span>
-        <p className="text-gray-600 text-sm font-medium">&copy; {new Date().getFullYear()} Tác giả KLTN Đặng Minh Ngọc. Developed by Antigravity.</p>
+        <p className="text-gray-600 text-sm font-medium">&copy; {new Date().getFullYear()} MINDA — Đồ án Nguyễn Lê Minh Ngọc. Mô hình 3D Island do tác giả thiết kế.</p>
       </footer>
     </div>
   );
