@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
+import type { LucideIcon } from "lucide-react";
 import {
   Settings, Cpu, ShieldCheck, Database, Zap, Bell,
-  RefreshCw, Save, ToggleLeft, ToggleRight, Clock,
+  RefreshCw, Save, Clock,
   AlertTriangle, CheckCircle2, HardDrive, Server, Wifi,
   Brain, Key, Download
 } from "lucide-react";
@@ -35,7 +36,7 @@ function Toggle({ enabled, onChange, color = "bg-red-500" }: ToggleProps) {
 interface CardProps {
   title: string;
   description: string;
-  icon: React.ElementType;
+  icon: LucideIcon;
   color: string;
   border: string;
   glow: string;
