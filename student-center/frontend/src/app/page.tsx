@@ -1,11 +1,12 @@
 "use client";
 
-import { BrainCircuit, Video, BarChart3, ArrowRight, Star, Menu, X } from "lucide-react";
+import { BrainCircuit, Video, BarChart3, ArrowRight, Star, Menu, X, Sun, Moon } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import IslandHero from "@/components/ui/IslandHero";
 import { VerticalTimeline, VerticalTimelineElement }  from 'react-vertical-timeline-component';
 import 'react-vertical-timeline-component/style.min.css';
+import { useTheme } from "@/providers/ThemeProvider";
 
 interface TeacherInfo {
   id: number;
@@ -19,6 +20,7 @@ export default function Home() {
   const [role, setRole] = useState<string | null>(null);
   const [teachers, setTeachers] = useState<TeacherInfo[]>([]);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     setUserName(localStorage.getItem("minda_user_name"));
@@ -61,12 +63,21 @@ export default function Home() {
                 <Link href="/register" className="px-5 py-2.5 rounded-full bg-[#1A1410] text-white hover:bg-[#2D2620] transition-all font-black">XUẤT PHÁT NGAY</Link>
               </div>
             )}
+            {/* Desktop Theme Toggle */}
+            <button onClick={toggleTheme} className="ml-2 p-2.5 rounded-full border border-[#E2D9CE] hover:bg-[#EEE9E1] transition-colors" title={theme === 'dark' ? 'Chuyển sang sáng' : 'Chuyển sang tối'}>
+              {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-500" /> : <Moon className="w-4 h-4 text-[#5C4F42]" />}
+            </button>
           </div>
 
-          {/* Mobile Hamburger */}
-          <button className="md:hidden text-[#1A1410] p-2" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
+          {/* Mobile Hamburger + Theme Toggle */}
+          <div className="md:hidden flex items-center gap-2">
+            <button onClick={toggleTheme} className="p-2 rounded-full border border-[#E2D9CE] hover:bg-[#EEE9E1] transition-colors text-[#1A1410]">
+              {theme === 'dark' ? <Sun className="w-5 h-5 text-amber-500" /> : <Moon className="w-5 h-5" />}
+            </button>
+            <button className="text-[#1A1410] p-2" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
         </div>
 
         {/* Mobile Dropdown */}

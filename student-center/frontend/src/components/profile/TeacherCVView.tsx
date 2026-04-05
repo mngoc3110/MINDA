@@ -20,8 +20,10 @@ export default function TeacherCVView({ teacherId, enableGoBack = true }: Teache
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState<any>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   
   const [isOwner, setIsOwner] = useState(false);
+  const avatarInputRef = React.useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetchProfile();
@@ -102,6 +104,35 @@ export default function TeacherCVView({ teacherId, enableGoBack = true }: Teache
       console.error(e);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploadingAvatar(true);
+    const token = localStorage.getItem("minda_token");
+    const formData = new FormData();
+    formData.append("file", file);
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/profile/avatar`, {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${token}` },
+        body: formData,
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const newUrl = data.url || data.avatar_url;
+        setProfile((p: any) => ({ ...p, avatar_url: newUrl }));
+        setEditForm((f: any) => ({ ...f, avatar_url: newUrl }));
+      } else {
+        alert("Lỗi khi tải ảnh lên");
+      }
+    } catch {
+      alert("Không thể kết nối máy chủ");
+    } finally {
+      setIsUploadingAvatar(false);
+      if (avatarInputRef.current) avatarInputRef.current.value = "";
     }
   };
 
@@ -298,11 +329,21 @@ export default function TeacherCVView({ teacherId, enableGoBack = true }: Teache
            <div className="w-48 h-48 rounded-full overflow-hidden border-4 border-white/20 mb-10 shadow-2xl shrink-0 bg-white/5 relative group avatar-glow">
               <img src={profile.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} alt="Avatar" className="w-full h-full object-cover" />
               {isEditing && (
-                 <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <span className="text-sm font-bold text-center px-4">Đổi ảnh trong<br/>Mục Profile</span>
-                 </div>
+                 <>
+                   <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
+                   <div
+                     className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                     onClick={() => avatarInputRef.current?.click()}
+                   >
+                     {isUploadingAvatar
+                       ? <Loader2 className="w-8 h-8 text-white animate-spin" />
+                       : <><span className="text-2xl mb-1">📷</span><span className="text-xs font-bold text-white text-center px-3">Đổi ảnh đại diện</span></>
+                     }
+                   </div>
+                 </>
               )}
            </div>
+
 
            <div className="w-full flex justify-start flex-col gap-10">
               

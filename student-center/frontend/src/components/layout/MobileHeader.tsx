@@ -3,9 +3,10 @@
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { Menu, X, ShieldAlert, BrainCircuit, Grid, Users, Settings, LogOut,
-  LayoutDashboard, BookOpen, GraduationCap, ClipboardCheck, Trophy, Wallet,
-  Radio, Dumbbell, User } from "lucide-react";
+  LayoutDashboard, BookOpen, Radio, ClipboardCheck, Trophy, Wallet,
+  Dumbbell, User, Sun, Moon } from "lucide-react";
 import Link from "next/link";
+import { useTheme } from "@/providers/ThemeProvider";
 
 export default function MobileHeader() {
   const [open, setOpen] = useState(false);
@@ -13,6 +14,7 @@ export default function MobileHeader() {
   const [portal, setPortal] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
   const pathname = usePathname();
+  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     setRole(localStorage.getItem("minda_role"));
@@ -64,16 +66,29 @@ export default function MobileHeader() {
           ) : (
             <BrainCircuit className="w-6 h-6 text-pink-500" />
           )}
-          <span className="font-black text-base tracking-tight text-[#1A1410]">
+          <span className="font-black text-base tracking-tight text-text-primary">
             MINDA{isAdminMode && <span className="text-red-500 text-xs ml-1 font-bold uppercase">Admin</span>}
           </span>
         </div>
-        <button
-          onClick={() => setOpen(true)}
-          className="w-9 h-9 rounded-xl bg-[#EEE9E1] border border-[#E2D9CE] flex items-center justify-center"
-        >
-          <Menu className="w-5 h-5 text-[#1A1410]" />
-        </button>
+        <div className="flex items-center gap-2">
+          {/* Theme Toggle on Mobile Header */}
+          <button
+            onClick={toggleTheme}
+            className="w-9 h-9 rounded-xl bg-bg-hover border border-border-card flex items-center justify-center transition-colors"
+            title={theme === "dark" ? "Chuyển sang sáng" : "Chuyển sang tối"}
+          >
+            {theme === "dark"
+              ? <Sun className="w-4 h-4 text-amber-500" />
+              : <Moon className="w-4 h-4 text-text-secondary" />
+            }
+          </button>
+          <button
+            onClick={() => setOpen(true)}
+            className="w-9 h-9 rounded-xl bg-bg-hover border border-border-card flex items-center justify-center"
+          >
+            <Menu className="w-5 h-5 text-text-primary" />
+          </button>
+        </div>
       </header>
 
       {/* Overlay Backdrop */}
@@ -99,7 +114,7 @@ export default function MobileHeader() {
               </div>
             )}
             <div>
-              <p className="font-black text-sm text-[#1A1410]">
+              <p className="font-black text-sm text-text-primary">
                 {isAdminMode ? "Admin Console" : "MINDA.EDU"}
               </p>
               <p className={`text-[10px] font-bold uppercase tracking-wider ${accentColor}`}>
@@ -107,8 +122,8 @@ export default function MobileHeader() {
               </p>
             </div>
           </div>
-          <button onClick={() => setOpen(false)} className="w-8 h-8 rounded-lg bg-[#EEE9E1] flex items-center justify-center">
-            <X className="w-4 h-4 text-[#1A1410]" />
+          <button onClick={() => setOpen(false)} className="w-8 h-8 rounded-lg bg-bg-hover flex items-center justify-center">
+            <X className="w-4 h-4 text-text-primary" />
           </button>
         </div>
 
@@ -122,7 +137,7 @@ export default function MobileHeader() {
                 key={item.href}
                 href={item.href}
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-semibold text-sm border ${
-                  isActive ? activeBg : "text-[#5C4F42] border-transparent hover:bg-[#EEE9E1] hover:text-[#1A1410]"
+                  isActive ? activeBg : "text-text-secondary border-transparent hover:bg-bg-hover hover:text-text-primary"
                 }`}
               >
                 <Icon className="w-4 h-4 shrink-0" />
@@ -134,9 +149,19 @@ export default function MobileHeader() {
 
         {/* Footer */}
         <div className="p-4 border-t border-border-card flex flex-col gap-2">
+          {/* Theme toggle in drawer too */}
+          <button
+            onClick={toggleTheme}
+            className="flex items-center gap-2 w-full px-4 py-2.5 rounded-xl text-sm font-semibold text-text-primary hover:bg-bg-hover border border-border-card transition-colors"
+          >
+            {theme === "dark"
+              ? <><Sun className="w-4 h-4 text-amber-500" /> Chuyển sang Sáng</>
+              : <><Moon className="w-4 h-4" /> Chuyển sang Tối</>
+            }
+          </button>
           <Link
             href="/"
-            className="flex items-center gap-2 w-full px-4 py-2.5 rounded-xl text-sm font-semibold text-[#1A1410] hover:bg-[#EEE9E1] border border-transparent hover:border-border-card transition-colors"
+            className="flex items-center gap-2 w-full px-4 py-2.5 rounded-xl text-sm font-semibold text-text-primary hover:bg-bg-hover border border-transparent hover:border-border-card transition-colors"
           >
             🏠 Về Trang chủ MINDA
           </Link>
