@@ -11,8 +11,10 @@ Kết quả: email này có role=admin (primary) và secondary_role=teacher
 import sys, os
 sys.path.insert(0, os.path.dirname(__file__))
 
-from app.db.database import SessionLocal
+# Import tất cả models để SQLAlchemy resolve được relationships
+import app.models  # noqa: F401 - triggers __init__.py to register all models
 from app.models.user import User
+from app.db.database import SessionLocal
 from sqlalchemy import text
 
 def main():
