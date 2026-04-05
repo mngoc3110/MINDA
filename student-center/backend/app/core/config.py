@@ -18,8 +18,15 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7 # 7 days
     CORS_ORIGINS: str = "http://localhost:3000"
     
+    # 3rd Party API Keys
+    CLOUDINARY_URL: Optional[str] = None
+    GOOGLE_CLIENT_ID: Optional[str] = None
+    GOOGLE_CLIENT_SECRET: Optional[str] = None
+    GEMINI_API_KEY: Optional[str] = None
+    
     class Config:
         env_file = ".env"
         case_sensitive = True
+        extra = "ignore"
 
 settings = Settings()
