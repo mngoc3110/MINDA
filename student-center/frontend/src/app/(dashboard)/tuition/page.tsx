@@ -120,9 +120,7 @@ export default function TuitionPage() {
     }
   };
 
-  if (role !== "teacher" && role !== "admin") {
-    return <div className="min-h-screen bg-bg-main flex items-center justify-center text-[#5C4F42]">Bạn không có quyền truy cập trang này.</div>;
-  }
+  // Tất cả role được truy cập, backend sẽ tự phân quyền theo role
 
   const filteredRecords = records.filter(r => {
      if (!selectedMonth) return true;

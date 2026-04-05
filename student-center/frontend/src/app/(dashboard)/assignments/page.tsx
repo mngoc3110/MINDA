@@ -141,13 +141,7 @@ export default function AssignmentsPage() {
     });
   };
 
-  if (role !== "teacher" && role !== "admin") {
-    return (
-      <div className="min-h-screen bg-bg-main flex items-center justify-center text-[#5C4F42]">
-        Bạn không có quyền truy cập trang này.
-      </div>
-    );
-  }
+  // Tất cả role được truy cập, backend sẽ phân quyền theo role
 
   return (
     <div className="min-h-screen bg-bg-main text-white p-6 md:p-8 font-outfit selection:bg-pink-500/30">

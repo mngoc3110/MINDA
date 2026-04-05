@@ -54,13 +54,26 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     return user
 
 
+# Phân cấp quyền: Admin thừa kậ quyền của Teacher, Teacher thừa kế quyền của Student
+# darbar3110@gmail.com sẽ có cả teacher + admin rights dựa trên email đặc biệt này
+ROLE_HIERARCHY = {
+    "admin": {"admin", "teacher", "student"},
+    "teacher": {"teacher", "student"},
+    "student": {"student"},
+}
+
+
 def require_role(*allowed_roles: str):
     """
     Dependency factory: Kiểm tra vai trò người dùng.
+    Admin luôn có quyền của teacher và student (kiế trúc phân cấp RBAC).
     Cách dùng: current_user = Depends(require_role("teacher", "admin"))
     """
     def role_checker(current_user = Depends(get_current_user)):
-        if current_user.role.value not in allowed_roles:
+        user_role = current_user.role.value
+        # Lấy tập hợp quyền thực sự của user dựa theo phân cấp
+        effective_roles = ROLE_HIERARCHY.get(user_role, {user_role})
+        if not effective_roles.intersection(set(allowed_roles)):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=f"Bạn không có quyền truy cập. Yêu cầu vai trò: {', '.join(allowed_roles)}"

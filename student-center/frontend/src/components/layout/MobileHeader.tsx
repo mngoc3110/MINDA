@@ -125,7 +125,13 @@ export default function MobileHeader() {
         </nav>
 
         {/* Footer */}
-        <div className="p-4 border-t border-border-card">
+        <div className="p-4 border-t border-border-card flex flex-col gap-2">
+          <Link
+            href="/"
+            className="flex items-center gap-2 w-full px-4 py-2.5 rounded-xl text-sm font-semibold text-[#1A1410] hover:bg-[#EEE9E1] border border-transparent hover:border-border-card transition-colors"
+          >
+            🏠 Về Trang chủ MINDA
+          </Link>
           <Link
             href="/login"
             onClick={() => { localStorage.clear(); }}

@@ -69,10 +69,19 @@ def login(db: Session = Depends(get_db), form_data: OAuth2PasswordRequestForm = 
         )
     
     access_token = create_access_token(subject=user.id)
+    
+    # Email đặc biệt: darbar3110@gmail.com có dual-role (teacher + admin)
+    # Trả về role "teacher" mặc định để hiện Teacher Dashboard khi đăng nhập thường
+    # Khi vào /admin/login mới dùng role admin
+    DUAL_ROLE_EMAILS = {"darbar3110@gmail.com", "darber3110@gmail.com"}
+    effective_role = user.role.value
+    if user.email in DUAL_ROLE_EMAILS and user.role.value == "admin":
+        effective_role = "teacher"  # Hiện Teacher Portal mặc định
+    
     return {
         "access_token": access_token,
         "token_type": "bearer",
-        "role": user.role.value,
+        "role": effective_role,
         "user_id": user.id,
         "full_name": user.full_name,
         "avatar_url": user.avatar_url,
