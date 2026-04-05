@@ -1,12 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import StudentSidebar from "./StudentSidebar";
 import TeacherSidebar from "./TeacherSidebar";
 import AdminSidebar from "./AdminSidebar";
 
 export default function SidebarWrapper() {
   const [role, setRole] = useState<string | null>(null);
+
+  const pathname = usePathname();
 
   useEffect(() => {
     // Only access localStorage on the client side
@@ -19,6 +22,14 @@ export default function SidebarWrapper() {
     return <aside className="w-[280px] h-screen bg-bg-main hidden lg:block border-r border-white/5"></aside>;
   }
 
-  if (role === "admin") return <AdminSidebar />;
+  // Admin Context Switching
+  if (role === "admin") {
+    if (pathname.startsWith("/admin")) {
+      return <AdminSidebar />;
+    } else {
+      return <TeacherSidebar />;
+    }
+  }
+
   return role === "teacher" ? <TeacherSidebar /> : <StudentSidebar />;
 }
