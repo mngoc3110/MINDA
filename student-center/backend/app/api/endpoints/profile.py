@@ -151,8 +151,11 @@ def get_leaderboard(db: Session = Depends(get_db)):
 
 @router.get("/teachers")
 def list_teachers(db: Session = Depends(get_db)):
-    """API lấy danh sách toàn bộ Giáo viên đang có trên hệ thống"""
-    teachers = db.query(User).filter(User.role == "teacher").all()
+    """API lấy danh sách Giáo viên đã được phê duyệt"""
+    teachers = db.query(User).filter(
+        User.role == "teacher",
+        User.is_active == True  # noqa: E712 - chỉ giáo viên đã được admin duyệt
+    ).all()
     return [
         {
             "id": t.id,

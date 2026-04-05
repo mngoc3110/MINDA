@@ -270,7 +270,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="py-12 border-t border-white/10 bg-[#06010a] text-center">
         <span className="font-black text-2xl tracking-tighter block mb-2 opacity-30">MINDA<span className="text-indigo-400">.EDU</span></span>
-        <p className="text-gray-600 text-sm font-medium">&copy; {new Date().getFullYear()} MINDA — Đồ án Nguyễn Lê Minh Ngọc. Mô hình 3D Island do tác giả thiết kế.</p>
+        <p className="text-gray-600 text-sm font-medium">&copy; {new Date().getFullYear()} MINDA — Nguyễn Lê Minh Ngọc. Mô hình 3D Island do tác giả thiết kế.</p>
       </footer>
     </div>
   );
