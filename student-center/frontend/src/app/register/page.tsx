@@ -23,7 +23,11 @@ export default function RegisterPage() {
       });
       
       if (res.ok) {
-        alert("Đăng ký thành công! Vui lòng đăng nhập.");
+        if (role === "teacher") {
+          alert("\u0110ăng ký Giáo viên thành công!\n\n⚠️ Tài khoản của bạn đang chờ Admin phê duyệt. Bạn sẽ nhận được thông báo sau khi được chấp thuận.");
+        } else {
+          alert("Đăng ký thành công! Vui lòng đăng nhập.");
+        }
         window.location.href = "/login";
       } else {
         const err = await res.json();
@@ -142,6 +146,16 @@ export default function RegisterPage() {
                   👩‍🏫 Giáo viên
                 </button>
               </div>
+
+              {/* Cảnh báo chờ phê duyệt */}
+              {role === "teacher" && (
+                <div className="flex items-start gap-2.5 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs">
+                  <span className="text-base mt-0.5">&#9888;&#65039;</span>
+                  <span>
+                    <strong>Yêu cầu phê duyệt:</strong> Tài khoản Giáo viên sẽ được xém xét bởi Admin trước khi có thể đăng nhập vào hệ thống.
+                  </span>
+                </div>
+              )}
             </div>
 
             <button 

@@ -12,7 +12,7 @@ export default function RouteGuard({ children }: { children: React.ReactNode }) 
   useEffect(() => {
     const checkAuth = () => {
       const token = localStorage.getItem("minda_token");
-      const role = localStorage.getItem("minda_role");
+      const portal = localStorage.getItem("minda_portal");
       
       // Nếu không có Token (chưa đăng nhập)
       if (!token) {
@@ -24,10 +24,10 @@ export default function RouteGuard({ children }: { children: React.ReactNode }) 
         return;
       }
 
-      // Admin path protection (Đã có token nhưng sai role)
+      // /admin chỉ dành cho phần mềm đăng nhập từ Admin Portal
       if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
-        if (role !== "admin") {
-          // You do not have permission, booting out!
+        if (portal !== "admin") {
+          // Logged in but not from admin portal → redirect to teacher dashboard
           router.replace("/dashboard");
           return;
         }

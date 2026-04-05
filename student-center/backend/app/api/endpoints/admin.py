@@ -70,3 +70,45 @@ def get_system_stats(
         "total_courses": db.query(Course).count(),
         "total_enrollments": db.query(Enrollment).count(),
     }
+
+
+@router.get("/pending-teachers", response_model=List[UserResponse])
+def list_pending_teachers(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role("admin")),
+):
+    """Liệt kê các đơn đăng ký Giáo viên chưa được duyệt."""
+    return db.query(User).filter(
+        User.role == UserRole.teacher,
+        User.is_active == False  # noqa: E712
+    ).all()
+
+
+@router.post("/users/{user_id}/approve")
+def approve_teacher(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role("admin")),
+):
+    """Phê duyệt đơn đăng ký Giáo viên."""
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Người dùng không tồn tại")
+    user.is_active = True
+    db.commit()
+    return {"message": f"Đã phê duyệt tài khoản giáo viên: {user.full_name}"}
+
+
+@router.post("/users/{user_id}/reject")
+def reject_teacher(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role("admin")),
+):
+    """Từ chối đơn đăng ký Giáo viên (xóa tài khoản pending)."""
+    user = db.query(User).filter(User.id == user_id, User.is_active == False).first()  # noqa: E712
+    if not user:
+        raise HTTPException(status_code=404, detail="Không tìm thấy đơn đăng ký chờ duyệt")
+    db.delete(user)
+    db.commit()
+    return {"message": f"Đã từ chối và xóa tài khoản: {user.email}"}

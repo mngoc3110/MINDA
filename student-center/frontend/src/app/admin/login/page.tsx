@@ -36,6 +36,7 @@ export default function AdminLoginPage() {
 
         localStorage.setItem("minda_token", data.access_token);
         localStorage.setItem("minda_role", data.role);
+        localStorage.setItem("minda_portal", "admin"); // Flag: logged in via admin portal
         localStorage.setItem("minda_user_name", data.full_name || "");
         if (data.user_id) localStorage.setItem("minda_user_id", data.user_id);
         if (data.avatar_url) localStorage.setItem("minda_avatar_url", data.avatar_url);

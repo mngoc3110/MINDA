@@ -50,17 +50,16 @@ function SettingCard({ title, description, icon: Icon, color, border, glow, chil
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay }}
-      className={`relative rounded-3xl bg-[#0a0a0a]/80 border ${border} overflow-hidden group hover:border-white/20 transition-all duration-300`}
+      className={`relative rounded-3xl bg-white border ${border} overflow-hidden group hover:shadow-lg transition-all duration-300`}
     >
-      <div className={`absolute top-0 right-0 w-48 h-48 rounded-full ${glow} blur-3xl opacity-0 group-hover:opacity-100 transition-all duration-500 pointer-events-none`} />
       <div className="p-6">
         <div className="flex items-center gap-4 mb-6">
-          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${glow.replace("blur-3xl", "")} border ${border}`}>
+          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${glow} border ${border}`}>
             <Icon className={`w-6 h-6 ${color}`} />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-white">{title}</h2>
-            <p className="text-xs text-gray-500 mt-0.5">{description}</p>
+            <h2 className="text-base font-bold text-[#1A1410]">{title}</h2>
+            <p className="text-xs text-[#5C4F42] mt-0.5">{description}</p>
           </div>
         </div>
         <div className="space-y-4">{children}</div>
@@ -71,10 +70,10 @@ function SettingCard({ title, description, icon: Icon, color, border, glow, chil
 
 function SettingRow({ label, description, children }: { label: string; description?: string; children: React.ReactNode }) {
   return (
-    <div className="flex items-center justify-between gap-4 py-3 border-t border-white/5 first:border-t-0">
+    <div className="flex items-center justify-between gap-4 py-3 border-t border-[#E2D9CE] first:border-t-0">
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-medium text-gray-200 truncate">{label}</p>
-        {description && <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{description}</p>}
+        <p className="text-sm font-semibold text-[#1A1410] truncate">{label}</p>
+        {description && <p className="text-xs text-[#5C4F42] mt-0.5 leading-relaxed">{description}</p>}
       </div>
       <div className="shrink-0">{children}</div>
     </div>
@@ -305,31 +304,26 @@ export default function AdminSettingsPage() {
       </div>
 
       {/* Server Status Footer */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.4 }}
-        className="mt-6 p-5 rounded-2xl bg-[#0a0a0a]/80 border border-white/10"
-      >
-        <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500">
+      <div className="mt-6 p-4 sm:p-5 rounded-2xl bg-white border border-[#E2D9CE]">
+        <div className="flex flex-wrap items-center gap-4 text-xs text-[#5C4F42]">
           <div className="flex items-center gap-2">
-            <Server className="w-3.5 h-3.5" />
+            <Server className="w-3.5 h-3.5 text-[#5C4F42]" />
             <span>Vietnix VPS · Ubuntu 22.04</span>
           </div>
           <div className="flex items-center gap-2">
-            <Cpu className="w-3.5 h-3.5" />
+            <Cpu className="w-3.5 h-3.5 text-[#5C4F42]" />
             <span>PM2 · 2 tiến trình</span>
           </div>
           <div className="flex items-center gap-2">
-            <Database className="w-3.5 h-3.5" />
+            <Database className="w-3.5 h-3.5 text-[#5C4F42]" />
             <span>PostgreSQL 14</span>
           </div>
           <div className="flex items-center gap-2 ml-auto">
             <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-            <span className="text-green-400 font-medium">Hệ thống ổn định</span>
+            <span className="text-green-700 font-semibold">Hệ thống ổn định</span>
           </div>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }

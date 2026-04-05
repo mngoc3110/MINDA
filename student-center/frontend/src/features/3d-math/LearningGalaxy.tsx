@@ -8,17 +8,9 @@ import * as THREE from "three";
 import { PlayCircle, FileText, Camera } from "lucide-react";
 import { useHandTracking } from "@/hooks/useHandTracking";
 
-// Mock Data
-const MOCK_MILESTONES = [
-  { id: 1, type: "video", title: "Đại số Tuyến tính: Khái niệm Ma trận cơ bản", date: "01/04/2026", color: "#4ade80" },
-  { id: 2, type: "assignment", title: "Bài tập Quản trị Mạng - Tuần 2", date: "30/03/2026", color: "#60a5fa" },
-  { id: 3, type: "video", title: "Nhập môn AI - Cấu trúc dữ liệu Python", date: "28/03/2026", color: "#4ade80" },
-  { id: 4, type: "assignment", title: "Báo cáo Thực hành Hoá Đại cương", date: "25/03/2026", color: "#60a5fa" },
-  { id: 5, type: "video", title: "Lịch sử Thế giới cận đại phân tích", date: "20/03/2026", color: "#4ade80" },
-  { id: 6, type: "video", title: "Văn học Việt Nam hiện đại", date: "15/03/2026", color: "#4ade80" },
-  { id: 7, type: "assignment", title: "Làm Toán Đại Cương - Giải Tích", date: "10/03/2026", color: "#c084fc" }, 
-  { id: 8, type: "assignment", title: "Bài tập Tiếng Anh chuyên ngành", date: "05/03/2026", color: "#60a5fa" },
-];
+// Stars chỉ hiện khi học sinh hoàn thành bài tập hoặc khoá học (populated via API)
+// Không hiện ngôi sao mặc định khi chưa có thành tích
+const MOCK_MILESTONES: { id: number; type: string; title: string; date: string; color: string }[] = [];
 
 function MilestoneStar({ data, initialPosition, globalHoveredId, draggedId, activeId }: any) {
   const [hovered, setHovered] = useState(false);

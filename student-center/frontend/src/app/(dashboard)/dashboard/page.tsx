@@ -281,23 +281,23 @@ export default function Dashboard() {
           
           {/* Rank Section */}
           <section className="p-6 rounded-3xl bg-white/[0.02] border border-white/10 relative overflow-hidden shrink-0">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 blur-[40px]" />
+            <div className="absolute top-0 right-0 w-32 h-32 bg-slate-500/10 blur-[40px]" />
             <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
-              <Trophy className="w-5 h-5 text-purple-400" /> Tiến độ Rank
+              <Trophy className="w-5 h-5 text-slate-400" /> Tiến độ Rank
             </h2>
             <div className="flex items-center gap-4 mb-4">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-cyan-400 to-blue-600 flex items-center justify-center border-4 border-[#0a0a0a] shadow-[0_0_15px_rgba(34,211,238,0.5)]">
-                <span className="font-black text-white text-xl">B1</span>
+              <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-slate-400 to-slate-600 flex items-center justify-center border-4 border-[#0a0a0a] shadow-[0_0_15px_rgba(148,163,184,0.4)]">
+                <span className="font-black text-white text-xl">S1</span>
               </div>
               <div>
-                <h3 className="font-bold text-xl text-cyan-400">Bạch Kim I</h3>
-                <p className="text-sm text-gray-400">Còn 550 EXP để lên Kim Cương</p>
+                <h3 className="font-bold text-xl text-slate-300">Sơ cấp</h3>
+                <p className="text-sm text-gray-400">Hoàn thành bài tập để được thăng hạng</p>
               </div>
             </div>
             <div className="w-full bg-white/10 rounded-full h-2 mb-2">
-              <div className="bg-gradient-to-r from-cyan-400 to-blue-600 h-2 rounded-full w-[80%]"></div>
+              <div className="bg-gradient-to-r from-slate-400 to-slate-600 h-2 rounded-full w-0"></div>
             </div>
-            <p className="text-xs text-center text-gray-500">Giữ sự tập trung 100% khi xem video bài giảng để nhận x2 EXP!</p>
+            <p className="text-xs text-center text-gray-500">Hoàn thành 1 bài tập hoặc 1 khoá học để nhận ⭐ và điểm EXP!</p>
           </section>
 
           {/* Drive Section Của Học Sinh */}

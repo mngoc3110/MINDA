@@ -31,6 +31,9 @@ def register(user_in: UserCreate, db: Session = Depends(get_db)):
     avatar_id = random.randint(1, 70)
     default_avatar = f"https://i.pravatar.cc/300?img={avatar_id}"
 
+    # Giáo viên phải chờ admin phê duyệt trước khi được kích hoạt
+    is_active = role != UserRole.teacher
+
     db_user = User(
         email=user_in.email,
         full_name=user_in.full_name,
@@ -38,6 +41,8 @@ def register(user_in: UserCreate, db: Session = Depends(get_db)):
         hashed_password=hashed_password,
         role=role,
         avatar_url=default_avatar,
+        is_active=is_active,
+        current_rank="Sơ cấp",  # Bật thấp nhất cho mọi user mới
     )
     db.add(db_user)
     db.commit()
@@ -54,6 +59,13 @@ def login(db: Session = Depends(get_db), form_data: OAuth2PasswordRequestForm = 
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Thông tin đăng nhập không chính xác",
             headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    # Kiểm tra tài khoản giáo viên chưa được duyệt
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Tài khoản chưa được phê duyệt. Vui lòng chờ Admin chấp thuận đăng ký Giáo viên của bạn.",
         )
     
     access_token = create_access_token(subject=user.id)
