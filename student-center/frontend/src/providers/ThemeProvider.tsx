@@ -15,20 +15,21 @@ const ThemeContext = createContext<ThemeContextProps>({
 });
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>("dark");
+  const [theme, setTheme] = useState<Theme>("light");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     // Read theme from localStorage on mount
     const savedTheme = localStorage.getItem("minda_theme") as Theme;
     if (savedTheme === "light" || savedTheme === "dark") {
-      // eslint-disable-next-line react-hooks/exhaustive-deps
       setTheme(savedTheme);
-      if (savedTheme === "light") {
-        document.documentElement.classList.add("light");
-        document.documentElement.setAttribute("data-theme", "light");
+      if (savedTheme === "dark") {
+        document.documentElement.setAttribute("data-theme", "dark");
+      } else {
+        document.documentElement.removeAttribute("data-theme");
       }
     }
+    // No savedTheme = use light (default)
     setMounted(true);
   }, []);
 
@@ -37,11 +38,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     setTheme(newTheme);
     localStorage.setItem("minda_theme", newTheme);
     
-    if (newTheme === "light") {
-      document.documentElement.classList.add("light");
-      document.documentElement.setAttribute("data-theme", "light");
+    if (newTheme === "dark") {
+      document.documentElement.setAttribute("data-theme", "dark");
     } else {
-      document.documentElement.classList.remove("light");
       document.documentElement.removeAttribute("data-theme");
     }
   };

@@ -15,23 +15,23 @@
 }
 
 :root {
-  /* DARK MODE (Legacy Minda Default) */
+  /* LIGHT MODE — Beige Warm (Mặc định) */
+  --c-bg-main: #F7F3EE;        /* Beige sáng ấm */
+  --c-bg-card: #FFFFFF;        /* Thẻ trắng sạch */
+  --c-bg-hover: #EEE9E1;       /* Hover beige nhạt */
+  --c-border-card: #E2D9CE;    /* Viền beige trung */
+  --c-text-primary: #1A1410;   /* Chữ nâu đen, tương phản tốt */
+  --c-text-secondary: #5C4F42; /* Chữ nâu trung tính */
+}
+
+:root[data-theme='dark'] {
+  /* DARK MODE */
   --c-bg-main: #050505;
   --c-bg-card: #242526;
   --c-bg-hover: #3A3B3C;
   --c-border-card: #3E4042;
   --c-text-primary: #E4E6EB;
   --c-text-secondary: #B0B3B8;
-}
-
-:root[data-theme='light'] {
-  /* LIGHT MODE (Pastel Theme User Input) */
-  --c-bg-main: #F4F3E1;       /* Cream Yellow */
-  --c-bg-card: #B0D1D8;       /* Pastel Blue */
-  --c-bg-hover: #C3D3B7;      /* Pastel Green */
-  --c-border-card: #F7D0B1;   /* Pastel Orange */
-  --c-text-primary: #1C2B2D;  /* Dark Blue-Gray text for readability */
-  --c-text-secondary: #4A5D61;
 }
 
 body {

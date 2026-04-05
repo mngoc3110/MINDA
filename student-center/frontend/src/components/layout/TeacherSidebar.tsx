@@ -19,7 +19,7 @@ export default function TeacherSidebar() {
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <aside className="w-[280px] h-screen border-r border-white-[0.08] bg-bg-main/80 backdrop-blur-3xl flex-col hidden lg:flex shrink-0 relative z-50">
+    <aside className="w-[280px] h-screen border-r border-border-card bg-bg-main/95 backdrop-blur-3xl flex-col hidden lg:flex shrink-0 relative z-50">
       {/* Hiệu ứng ánh sáng */}
       <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-pink-500/5 via-transparent to-transparent -z-10 pointer-events-none" />
       

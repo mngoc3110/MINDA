@@ -4,7 +4,7 @@ import RouteGuard from "@/components/layout/RouteGuard";
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <RouteGuard>
-      <div className="flex bg-[#020202] min-h-screen text-white font-outfit selection:bg-indigo-500/30">
+      <div className="flex bg-bg-main min-h-screen text-foreground font-outfit selection:bg-indigo-500/30">
         {/* Dynamic Sidebar based on User Role */}
         <SidebarWrapper />
         
