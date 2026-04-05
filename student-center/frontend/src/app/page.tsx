@@ -277,9 +277,18 @@ export default function Home() {
       </section>
       
       {/* Footer */}
-      <footer className="py-10 border-t border-[#E2D9CE] bg-white text-center relative">
-        <span className="font-black text-2xl tracking-tighter block mb-2 text-[#1A1410]/30">MINDA<span className="text-indigo-500">.EDU</span></span>
-        <p className="text-[#5C4F42] text-sm font-medium">&copy; {new Date().getFullYear()} MINDA — Nguyễn Lê Minh Ngọc. Mô hình 3D Island do tác giả thiết kế.</p>
+      <footer className="py-10 border-t border-border-card bg-bg-card text-center relative">
+        <span className="font-black text-2xl tracking-tighter block mb-2 text-text-primary/30">MINDA<span className="text-indigo-500">.EDU</span></span>
+        <p className="text-text-secondary text-sm font-medium">
+          &copy; {new Date().getFullYear()} MINDA — Nguyễn Lê Minh Ngọc.
+        </p>
+        <p className="text-text-muted text-xs mt-1">
+          Mô hình 3D Island bởi{" "}
+          <a href="https://github.com/basedhound/3d-island_portfolio_react" target="_blank" rel="noopener noreferrer" className="text-indigo-500 hover:underline font-semibold">
+            basedhound
+          </a>
+          {" "}— được sử dụng và tích hợp vào MINDA.
+        </p>
         {/* Version Badge */}
         <div className="absolute bottom-4 right-6 flex items-center gap-1.5 px-3 py-1 bg-indigo-50 border border-indigo-200 rounded-full">
           <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
