@@ -120,8 +120,8 @@ export default function TuitionPage() {
     }
   };
 
-  if (role !== "teacher") {
-    return <div className="min-h-screen bg-bg-main flex items-center justify-center text-gray-500">Bạn không có quyền truy cập trang này.</div>;
+  if (role !== "teacher" && role !== "admin") {
+    return <div className="min-h-screen bg-bg-main flex items-center justify-center text-[#5C4F42]">Bạn không có quyền truy cập trang này.</div>;
   }
 
   const filteredRecords = records.filter(r => {

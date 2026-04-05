@@ -141,9 +141,9 @@ export default function AssignmentsPage() {
     });
   };
 
-  if (role !== "teacher") {
+  if (role !== "teacher" && role !== "admin") {
     return (
-      <div className="min-h-screen bg-bg-main flex items-center justify-center text-gray-500">
+      <div className="min-h-screen bg-bg-main flex items-center justify-center text-[#5C4F42]">
         Bạn không có quyền truy cập trang này.
       </div>
     );
