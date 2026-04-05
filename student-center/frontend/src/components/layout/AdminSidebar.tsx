@@ -2,14 +2,21 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BrainCircuit, Grid, Users, BookOpen, Settings, LogOut, Sun, Moon, ShieldAlert } from "lucide-react";
+import { BrainCircuit, Grid, Users, BookOpen, Settings, LogOut, Sun, Moon, ShieldAlert, GraduationCap, ClipboardCheck, Wallet, User } from "lucide-react";
 import { useTheme } from "@/providers/ThemeProvider";
 
 const NAV_ITEMS = [
   { name: "Tổng quan", href: "/admin", icon: Grid },
   { name: "Người dùng", href: "/admin/users", icon: Users },
-  { name: "Khoá học", href: "/admin/courses", icon: BookOpen },
   { name: "Hệ thống", href: "/admin/settings", icon: Settings },
+];
+
+const TEACHER_NAV_ITEMS = [
+  { name: "Trang Cá nhân", href: "/profile", icon: User },
+  { name: "Quản lý Khoá học", href: "/courses", icon: BookOpen },
+  { name: "Lớp học Live", href: "/live", icon: GraduationCap },
+  { name: "Chấm điểm", href: "/assignments", icon: ClipboardCheck },
+  { name: "Học phí", href: "/tuition", icon: Wallet },
 ];
 
 export default function AdminSidebar() {
@@ -33,23 +40,43 @@ export default function AdminSidebar() {
       </Link>
 
       {/* Điều hướng Menu */}
-      <nav className="flex-1 py-6 px-5 flex flex-col gap-2">
-        <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 ml-2">Trung tâm điều khiển</span>
+      <nav className="flex-1 py-6 px-5 flex flex-col gap-2 overflow-y-auto">
+        <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1 ml-2">Trung tâm điều khiển</span>
         {NAV_ITEMS.map((item) => {
-          // highlight correct path
           const isActive = pathname === item.href || (pathname.startsWith(item.href) && item.href !== "/admin");
           const Icon = item.icon;
           return (
             <Link 
               key={item.href} 
               href={item.href}
-              className={`flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all duration-300 group ${
+              className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 group ${
                 isActive 
                   ? "bg-red-500/10 text-red-400 border border-red-500/20 shadow-[0_4px_20px_rgba(220,38,38,0.1)] relative" 
                   : "text-gray-400 hover:bg-white-[0.04] hover:text-white border border-transparent"
               }`}
             >
               {isActive && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-red-500 rounded-r-full" />}
+              <Icon className={`w-5 h-5 transition-transform ${isActive ? '' : 'group-hover:scale-110'}`} />
+              <span className="font-semibold text-sm">{item.name}</span>
+            </Link>
+          );
+        })}
+
+        <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-6 mb-1 ml-2">Công cụ Giảng dạy</span>
+        {TEACHER_NAV_ITEMS.map((item) => {
+          const isActive = pathname === item.href;
+          const Icon = item.icon;
+          return (
+            <Link 
+              key={item.href} 
+              href={item.href}
+              className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 group ${
+                isActive 
+                  ? "bg-pink-500/10 text-pink-400 border border-pink-500/20 shadow-[0_4px_20px_rgba(225,29,72,0.1)] relative" 
+                  : "text-gray-400 hover:bg-white-[0.04] hover:text-white border border-transparent"
+              }`}
+            >
+              {isActive && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-pink-500 rounded-r-full" />}
               <Icon className={`w-5 h-5 transition-transform ${isActive ? '' : 'group-hover:scale-110'}`} />
               <span className="font-semibold text-sm">{item.name}</span>
             </Link>
