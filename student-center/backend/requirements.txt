@@ -17,4 +17,5 @@ httpx
 requests
 python-dotenv
 python-multipart
+aiofiles
 email-validator
