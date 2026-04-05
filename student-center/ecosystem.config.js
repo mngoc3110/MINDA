@@ -2,8 +2,8 @@ module.exports = {
   apps: [
     {
       name: "minda-backend",
-      script: "venv/bin/uvicorn",
-      args: "app.main:app --host 0.0.0.0 --port 8000",
+      script: "venv/bin/python",
+      args: "-m uvicorn app.main:app --host 0.0.0.0 --port 8000",
       cwd: "./backend",
       env: {
         NODE_ENV: "production",
