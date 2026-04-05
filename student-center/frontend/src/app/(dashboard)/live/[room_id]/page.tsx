@@ -190,7 +190,7 @@ export default function LiveRoomPage() {
         // Teacher fixes their ID to room_id so students know exactly who to call.
         const peerId = userInfo.role === "teacher" || userInfo.role === "admin" ? (room_id as string) : undefined;
         
-        const peer = new PeerJs(peerId, {
+        const peer = peerId ? new PeerJs(peerId, {
             host: PEER_HOST,
             port: PEER_PORT,
             path: "/",
