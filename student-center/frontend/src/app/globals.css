@@ -5,41 +5,61 @@
   --color-background: var(--c-bg-main);
   --color-foreground: var(--c-text-primary);
   
-  /* Semantic Tokens for Theme Switching */
-  --color-bg-main: var(--c-bg-main);
-  --color-bg-card: var(--c-bg-card);
-  --color-bg-hover: var(--c-bg-hover);
-  --color-border-card: var(--c-border-card);
-  --color-text-primary: var(--c-text-primary);
+  /* Semantic Tokens — tự động đổi khi toggle theme */
+  --color-bg-main:        var(--c-bg-main);
+  --color-bg-card:        var(--c-bg-card);
+  --color-bg-hover:       var(--c-bg-hover);
+  --color-bg-input:       var(--c-bg-input);
+  --color-border-card:    var(--c-border-card);
+  --color-text-primary:   var(--c-text-primary);
   --color-text-secondary: var(--c-text-secondary);
+  --color-text-muted:     var(--c-text-muted);
+  --color-accent:         var(--c-accent);
+  --color-accent-soft:    var(--c-accent-soft);
 }
 
+/* ═══════════════════════════
+   LIGHT MODE — Beige Ấm (Mặc định)
+   ═══════════════════════════ */
 :root {
-  /* LIGHT MODE — Beige Warm (Mặc định) */
-  --c-bg-main: #F7F3EE;        /* Beige sáng ấm */
-  --c-bg-card: #FFFFFF;        /* Thẻ trắng sạch */
-  --c-bg-hover: #EEE9E1;       /* Hover beige nhạt */
-  --c-border-card: #E2D9CE;    /* Viền beige trung */
-  --c-text-primary: #1A1410;   /* Chữ nâu đen, tương phản tốt */
-  --c-text-secondary: #5C4F42; /* Chữ nâu trung tính */
+  --c-bg-main:        #F7F3EE;   /* Nền chính: beige sáng */
+  --c-bg-card:        #FFFFFF;   /* Thẻ: trắng sạch */
+  --c-bg-hover:       #EEE9E1;   /* Hover: beige nhạt hơn */
+  --c-bg-input:       #F0EBE4;   /* Input field */
+  --c-border-card:    #E2D9CE;   /* Viền: beige trung */
+  --c-text-primary:   #1A1410;   /* Chữ chính: nâu đen */
+  --c-text-secondary: #5C4F42;   /* Chữ phụ: nâu trung */
+  --c-text-muted:     #9C8C80;   /* Chữ mờ */
+  --c-accent:         #4f46e5;   /* Indigo accent */
+  --c-accent-soft:    #EEF2FF;   /* Indigo soft bg */
 }
 
+/* ═══════════════════════════
+   DARK MODE — Tối Hoàn toàn
+   ═══════════════════════════ */
 :root[data-theme='dark'] {
-  /* DARK MODE */
-  --c-bg-main: #050505;
-  --c-bg-card: #242526;
-  --c-bg-hover: #3A3B3C;
-  --c-border-card: #3E4042;
-  --c-text-primary: #E4E6EB;
-  --c-text-secondary: #B0B3B8;
+  --c-bg-main:        #0a0a0a;   /* Nền chính: đen gần hoàn toàn */
+  --c-bg-card:        #1a1a1a;   /* Thẻ: xám đen */
+  --c-bg-hover:       #252525;   /* Hover: xám đậm */
+  --c-bg-input:       #222222;   /* Input field */
+  --c-border-card:    #333333;   /* Viền: xám tối */
+  --c-text-primary:   #F0EBE4;   /* Chữ chính: gần trắng ấm */
+  --c-text-secondary: #B0A89E;   /* Chữ phụ: xám sáng */
+  --c-text-muted:     #6B6259;   /* Chữ mờ */
+  --c-accent:         #818cf8;   /* Indigo sáng trong dark */
+  --c-accent-soft:    #1e1b4b;   /* Indigo soft dark */
 }
 
 body {
   background-color: var(--c-bg-main);
   color: var(--c-text-primary);
   transition: background-color 0.3s ease, color 0.3s ease;
+  font-family: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
 }
 
+/* ═══════════════════════════
+   Block Container 3D (dùng trên landing page)
+   ═══════════════════════════ */
 .block-container {
   position: relative;
   transition: 250ms;
@@ -57,21 +77,18 @@ body {
   transform-origin: bottom right;
   transform: rotateZ(15deg);
   will-change: transform;
-  box-shadow: 16px 0 40px #1e1b4b; /* Shadow hợp tone tối */
+  box-shadow: 16px 0 40px #1e1b4b;
 }
 
 .block-container .btn-back-red {
   background: linear-gradient(135deg, #ff4b1f -20%, #ff9068 120%);
 }
-
 .block-container .btn-back-green {
   background: linear-gradient(135deg, #adfda2 -20%, #11d3f3 120%);
 }
-
 .block-container .btn-back-yellow {
   background: linear-gradient(135deg, #f7971e -20%, #ffd200 120%);
 }
-
 .block-container .btn-back-blue {
   background: linear-gradient(135deg, #0061ff -20%, #60efff 120%);
 }
@@ -95,7 +112,6 @@ body {
 .block-container:hover > .btn-back {
   transform: translateZ(20px) rotateZ(15deg) rotateX(-20deg) rotateY(-20deg);
 }
-
 .block-container:hover > .btn-front {
   transform: translateZ(80px) translateY(-5px) rotateX(15deg) rotateY(15deg);
 }

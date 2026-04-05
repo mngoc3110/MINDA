@@ -20,6 +20,7 @@ class User(Base):
     hashed_password = Column(String, nullable=False)
     phone = Column(String, nullable=True)
     role = Column(SAEnum(UserRole), default=UserRole.student, nullable=False)
+    secondary_role = Column(String, nullable=True)  # "teacher", "admin", etc. — vai trò phụ thứ hai
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     

@@ -151,10 +151,14 @@ def get_leaderboard(db: Session = Depends(get_db)):
 
 @router.get("/teachers")
 def list_teachers(db: Session = Depends(get_db)):
-    """API lấy danh sách Giáo viên đã được phê duyệt"""
+    """API lấy danh sách Giáo viên đã được phê duyệt (cả primary và secondary_role=teacher)"""
+    from sqlalchemy import or_
     teachers = db.query(User).filter(
-        User.role == "teacher",
-        User.is_active == True  # noqa: E712 - chỉ giáo viên đã được admin duyệt
+        User.is_active == True,  # noqa: E712
+        or_(
+            User.role == "teacher",
+            User.secondary_role == "teacher"
+        )
     ).all()
     return [
         {

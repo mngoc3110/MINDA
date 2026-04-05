@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BrainCircuit, Grid, FolderOpen, Video, Trophy, LogOut, Sun, Moon, BookOpen, FileText } from "lucide-react";
 import { useTheme } from "@/providers/ThemeProvider";
+import { useEffect, useState } from "react";
 
 const NAV_ITEMS = [
   { name: "Tổng quan", href: "/dashboard", icon: Grid },
@@ -17,72 +18,79 @@ const NAV_ITEMS = [
 export default function StudentSidebar() {
   const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
+  const [userName, setUserName] = useState<string>("");
+
+  useEffect(() => {
+    setUserName(localStorage.getItem("minda_user_name") || "Học sinh");
+  }, []);
+
+  const initials = userName.split(" ").map(w => w[0]).slice(-2).join("").toUpperCase() || "HS";
 
   return (
-    <aside className="w-[280px] h-screen border-r border-white-[0.08] bg-bg-main/80 backdrop-blur-3xl flex-col hidden lg:flex shrink-0 relative z-50">
-      {/* Hiệu ứng ánh sáng */}
-      <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-indigo-500/5 via-transparent to-transparent -z-10 pointer-events-none" />
+    <aside className="w-[280px] h-screen border-r border-border-card bg-bg-main/95 backdrop-blur-3xl flex-col hidden lg:flex shrink-0 relative z-50">
+      <div className="absolute top-0 left-0 w-full h-48 bg-gradient-to-b from-indigo-500/5 via-transparent to-transparent -z-10 pointer-events-none" />
       
-      {/* App Logo */}
+      {/* Logo */}
       <Link href="/" className="p-8 pb-6 flex items-center gap-4 hover:opacity-80 transition-opacity">
-        <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center shadow-[0_0_20px_rgba(99,102,241,0.5)]">
+        <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center shadow-md shadow-indigo-500/20">
           <BrainCircuit className="w-7 h-7 text-white" />
         </div>
         <div>
-           <span className="font-bold text-2xl tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400 block leading-none">MINDA</span>
-           <span className="text-xs text-indigo-400 font-semibold tracking-widest uppercase mt-1 block">EduCenter AI</span>
+           <span className="font-black text-2xl tracking-tighter text-text-primary block leading-none">MINDA</span>
+           <span className="text-xs text-indigo-500 font-semibold tracking-widest uppercase mt-1 block">EduCenter AI</span>
         </div>
       </Link>
 
-      {/* Điều hướng Menu */}
-      <nav className="flex-1 py-6 px-5 flex flex-col gap-2">
-        <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 ml-2">Điều hướng học tập</span>
+      {/* Nav */}
+      <nav className="flex-1 py-6 px-5 flex flex-col gap-1.5">
+        <span className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mb-2 ml-2">Điều hướng học tập</span>
         {NAV_ITEMS.map((item) => {
-          const isActive = pathname === item.href;
+          const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));
           const Icon = item.icon;
           return (
             <Link 
               key={item.href} 
               href={item.href}
-              className={`flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all duration-300 group ${
+              className={`flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all duration-200 group relative border ${
                 isActive 
-                  ? "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 shadow-[0_4px_20px_rgba(99,102,241,0.1)] relative" 
-                  : "text-gray-400 hover:bg-white-[0.04] hover:text-white border border-transparent"
+                  ? "bg-indigo-500/10 text-indigo-500 border-indigo-500/20 shadow-sm" 
+                  : "text-text-secondary hover:bg-bg-hover hover:text-text-primary border-transparent"
               }`}
             >
               {isActive && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-indigo-500 rounded-r-full" />}
-              <Icon className={`w-5 h-5 transition-transform ${isActive ? '' : 'group-hover:scale-110'}`} />
+              <Icon className={`w-5 h-5 shrink-0 transition-transform ${isActive ? "text-indigo-500" : "group-hover:scale-110"}`} />
               <span className="font-semibold text-sm">{item.name}</span>
             </Link>
           );
         })}
       </nav>
 
-      {/* Thông tin Cá nhân ở Footer */}
-      <div className="p-5 border-t border-white-[0.05]">
-        <div className="p-4 rounded-2xl bg-gradient-to-b from-white/[0.04] to-transparent border border-white/[0.06] mb-4 flex gap-4 items-center">
-             <div className="w-12 h-12 rounded-full border-2 border-indigo-500/50 p-0.5 shrink-0 shadow-[0_0_15px_rgba(99,102,241,0.3)]">
-                <div className="w-full h-full rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-                    <span className="text-white font-bold text-sm">MN</span>
-                </div>
-             </div>
-             <div className="flex-1 min-w-0">
-               <p className="text-sm font-bold text-white truncate">Minh Ngọc</p>
-               <p className="text-[11px] text-cyan-400 mt-0.5 font-bold tracking-wide uppercase">Rank Kim Cương 💎</p>
-             </div>
+      {/* Footer */}
+      <div className="p-5 border-t border-border-card">
+        <div className="p-4 rounded-2xl bg-bg-card border border-border-card mb-4 flex gap-3 items-center shadow-sm">
+          <div className="w-10 h-10 rounded-full border-2 border-indigo-400/40 shrink-0">
+            <div className="w-full h-full rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+              <span className="text-white font-bold text-sm">{initials}</span>
+            </div>
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-bold text-text-primary truncate">{userName}</p>
+            <p className="text-[10px] text-indigo-500 font-semibold tracking-wide uppercase">Học sinh MINDA</p>
+          </div>
         </div>
-        <div className="flex flex-col gap-2">
-            <button onClick={toggleTheme} className="flex items-center justify-between w-full py-2.5 px-4 mb-2 rounded-xl text-t-secondary hover:text-t-primary hover:bg-b-hover transition-colors font-medium border border-transparent hover:border-b-border">
-              <span className="text-sm">Giao diện: {theme === 'dark' ? 'Tối' : 'Sáng'}</span>
-              {theme === 'dark' ? <Moon className="w-4 h-4 text-gray-400" /> : <Sun className="w-4 h-4 text-yellow-500" />}
-            </button>
-            <Link href="/" className="flex items-center justify-center w-full py-2.5 rounded-xl text-gray-400 hover:text-t-primary hover:bg-b-hover transition-colors font-medium border border-transparent hover:border-white/10">
-              <span className="text-sm">Về Trang chủ MINDA</span>
-            </Link>
-            <Link href="/login" className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-colors font-medium border border-transparent hover:border-red-500/20">
-              <LogOut className="w-4 h-4" />
-              <span className="text-sm">Đăng xuất an toàn</span>
-            </Link>
+
+        <div className="flex flex-col gap-1.5">
+          <button onClick={toggleTheme} className="flex items-center justify-between w-full py-2.5 px-4 rounded-xl text-text-secondary hover:text-text-primary hover:bg-bg-hover transition-colors font-medium border border-transparent hover:border-border-card">
+            <span className="text-sm">Giao diện: {theme === 'dark' ? 'Tối' : 'Sáng'}</span>
+            {theme === 'dark' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4 text-amber-500" />}
+          </button>
+          <Link href="/" className="flex items-center justify-center w-full py-2.5 rounded-xl text-text-secondary hover:text-text-primary hover:bg-bg-hover transition-colors font-medium border border-transparent hover:border-border-card text-sm">
+            Về Trang chủ MINDA
+          </Link>
+          <Link href="/login" className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-text-secondary hover:text-red-500 hover:bg-red-500/10 transition-colors font-medium border border-transparent hover:border-red-500/20 text-sm">
+            <LogOut className="w-4 h-4" />
+            Đăng xuất an toàn
+          </Link>
         </div>
       </div>
     </aside>
