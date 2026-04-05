@@ -55,7 +55,7 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white flex items-center justify-center relative overflow-hidden font-outfit">
+    <div className="min-h-screen bg-bg-main text-text-primary flex items-center justify-center relative overflow-hidden font-outfit">
       {/* Background Gradients for Admin Theme (Red/Orange) */}
       <div className="absolute top-0 right-0 w-[700px] h-[700px] bg-red-600/10 blur-[150px] rounded-full mix-blend-screen pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-orange-600/5 blur-[120px] rounded-full mix-blend-screen pointer-events-none" />
@@ -85,23 +85,23 @@ export default function AdminLoginPage() {
           <p className="text-gray-500 text-sm text-center font-medium uppercase tracking-widest">Khu vực hạn chế truy cập</p>
         </div>
 
-        <div className="p-8 rounded-[2rem] bg-[#0f0f0f]/90 backdrop-blur-2xl border border-red-500/20 shadow-2xl relative overflow-hidden">
+        <div className="p-8 rounded-[2rem] bg-bg-card backdrop-blur-2xl border border-red-500/20 shadow-2xl relative overflow-hidden">
           {/* Top Edge Highlight */}
           <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-red-500/50 to-transparent" />
           
           <form className="flex flex-col gap-5" onSubmit={handleLogin}>
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-gray-300">Credentials</label>
+              <label className="text-sm font-semibold text-text-secondary">Credentials</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Mail className="w-5 h-5 text-gray-500" />
+                  <Mail className="w-5 h-5 text-text-muted" />
                 </div>
                 <input 
                   type="email" 
                   value={email}
                   disabled={loading}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3.5 bg-black/40 border border-white/10 rounded-xl focus:outline-none focus:border-red-500/50 focus:bg-red-500/5 transition-all text-white placeholder-gray-600"
+                  className="w-full pl-11 pr-4 py-3.5 bg-bg-hover border border-border-card rounded-xl focus:outline-none focus:border-red-500/50 focus:bg-red-500/5 transition-all text-text-primary placeholder-text-muted"
                   placeholder="admin@minda.io.vn"
                   required
                 />
@@ -111,14 +111,14 @@ export default function AdminLoginPage() {
             <div className="space-y-2 mt-1">
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Lock className="w-5 h-5 text-gray-500" />
+                  <Lock className="w-5 h-5 text-text-muted" />
                 </div>
                 <input 
                   type="password" 
                   value={password}
                   disabled={loading}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3.5 bg-black/40 border border-white/10 rounded-xl focus:outline-none focus:border-red-500/50 focus:bg-red-500/5 transition-all text-white placeholder-gray-600 font-mono tracking-widest"
+                  className="w-full pl-11 pr-4 py-3.5 bg-bg-hover border border-border-card rounded-xl focus:outline-none focus:border-red-500/50 focus:bg-red-500/5 transition-all text-text-primary placeholder-text-muted font-mono tracking-widest"
                   placeholder="••••••••"
                   required
                 />

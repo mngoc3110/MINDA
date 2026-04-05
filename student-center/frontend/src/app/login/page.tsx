@@ -47,16 +47,16 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-bg-main text-white flex items-center justify-center relative overflow-hidden">
+    <div className="min-h-screen bg-bg-main text-text-primary flex items-center justify-center relative overflow-hidden">
       {/* Background Gradients */}
       <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-indigo-600/10 blur-[130px] rounded-full mix-blend-screen pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-purple-600/10 blur-[120px] rounded-full mix-blend-screen pointer-events-none" />
 
       <Link href="/" className="absolute top-8 left-8 flex items-center gap-2 group z-20">
-        <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-white/10 transition-colors">
-          <ArrowRight className="w-4 h-4 text-gray-400 rotate-180" />
+        <div className="w-8 h-8 rounded-lg bg-bg-card border border-border-card flex items-center justify-center group-hover:bg-bg-hover transition-colors">
+          <ArrowRight className="w-4 h-4 text-text-secondary rotate-180" />
         </div>
-        <span className="text-sm font-medium text-gray-400 group-hover:text-white transition-colors">Trang chủ</span>
+        <span className="text-sm font-medium text-text-secondary group-hover:text-text-primary transition-colors">Trang chủ</span>
       </Link>
 
       <motion.div 
@@ -67,28 +67,28 @@ export default function LoginPage() {
       >
         <div className="flex flex-col items-center mb-8">
           <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/20 mb-4">
-            <BrainCircuit className="w-6 h-6 text-white" />
+            <BrainCircuit className="w-6 h-6 text-text-primary" />
           </div>
           <h1 className="text-3xl font-bold tracking-tight mb-2">Đăng nhập</h1>
-          <p className="text-gray-400 text-sm text-center">Chào mừng bạn trở lại Cổng học trực tuyến MINDA</p>
+          <p className="text-text-secondary text-sm text-center">Chào mừng bạn trở lại Cổng học trực tuyến MINDA</p>
         </div>
 
-        <div className="p-8 rounded-3xl bg-[#0a0a0a]/80 backdrop-blur-xl border border-white/10 shadow-2xl relative overflow-hidden">
+        <div className="p-8 rounded-3xl bg-bg-card backdrop-blur-xl border border-border-card shadow-2xl relative overflow-hidden">
           {/* Shine effect */}
           <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent" />
           
           <form className="flex flex-col gap-5" onSubmit={handleLogin}>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-300">Email hoặc Tên đăng nhập</label>
+              <label className="text-sm font-medium text-text-secondary">Email hoặc Tên đăng nhập</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="w-5 h-5 text-gray-500" />
+                  <Mail className="w-5 h-5 text-text-muted" />
                 </div>
                 <input 
                   type="email" 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-white/[0.03] border border-white/10 rounded-xl focus:outline-none focus:border-indigo-500/50 focus:bg-white/[0.05] transition-colors text-white placeholder-gray-500"
+                  className="w-full pl-10 pr-4 py-3 bg-transparent border border-border-card rounded-xl focus:outline-none focus:border-indigo-500/50 focus:bg-bg-main transition-colors text-text-primary placeholder-gray-500"
                   placeholder="name@example.com"
                 />
               </div>
@@ -96,18 +96,18 @@ export default function LoginPage() {
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <label className="text-sm font-medium text-gray-300">Mật khẩu</label>
+                <label className="text-sm font-medium text-text-secondary">Mật khẩu</label>
                 <Link href="#" className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors">Quên mật khẩu?</Link>
               </div>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="w-5 h-5 text-gray-500" />
+                  <Lock className="w-5 h-5 text-text-muted" />
                 </div>
                 <input 
                   type="password" 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-white/[0.03] border border-white/10 rounded-xl focus:outline-none focus:border-indigo-500/50 focus:bg-white/[0.05] transition-colors text-white placeholder-gray-500"
+                  className="w-full pl-10 pr-4 py-3 bg-transparent border border-border-card rounded-xl focus:outline-none focus:border-indigo-500/50 focus:bg-bg-main transition-colors text-text-primary placeholder-gray-500"
                   placeholder="••••••••"
                 />
               </div>
@@ -115,13 +115,13 @@ export default function LoginPage() {
 
             <button 
               type="submit"
-              className="mt-2 w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-medium flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(79,70,229,0.3)] transition-all"
+              className="mt-2 w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-text-primary font-medium flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(79,70,229,0.3)] transition-all"
             >
               Đăng nhập <ArrowRight className="w-4 h-4" />
             </button>
           </form>
 
-          <div className="mt-6 text-center text-sm text-gray-400">
+          <div className="mt-6 text-center text-sm text-text-secondary">
             Chưa có tài khoản? <Link href="/register" className="text-indigo-400 hover:text-indigo-300 hover:underline transition-all">Đăng ký ngay</Link>
           </div>
         </div>

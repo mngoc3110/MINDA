@@ -66,11 +66,11 @@ function StudentTuitionView() {
           <p className="text-xs text-text-secondary font-bold uppercase tracking-wider mb-1">Tổng học phí</p>
           <p className="text-2xl font-black text-text-primary">{total.toLocaleString()}₫</p>
         </div>
-        <div className="p-5 bg-emerald-50 rounded-2xl border border-emerald-200 shadow-sm">
+        <div className="p-5 bg-emerald-500/10 rounded-2xl border border-emerald-500/20 shadow-sm">
           <p className="text-xs text-emerald-700 font-bold uppercase tracking-wider mb-1">Đã thanh toán</p>
           <p className="text-2xl font-black text-emerald-700">{totalPaid.toLocaleString()}₫ <span className="text-sm font-normal text-emerald-600">({paid} phiếu)</span></p>
         </div>
-        <div className="p-5 bg-amber-50 rounded-2xl border border-amber-200 shadow-sm">
+        <div className="p-5 bg-amber-500/10 rounded-2xl border border-amber-500/20 shadow-sm">
           <p className="text-xs text-amber-700 font-bold uppercase tracking-wider mb-1">Chờ đóng</p>
           <p className="text-2xl font-black text-amber-700">{pending} <span className="text-sm font-normal text-amber-600">phiếu còn lại</span></p>
         </div>
@@ -104,7 +104,7 @@ function StudentTuitionView() {
                 <td className="p-4 text-text-secondary">{item.paid_at ? new Date(item.paid_at).toLocaleDateString('vi-VN') : "Chưa nộp"}</td>
                 <td className="p-4 pr-6 text-right">
                   {item.status === 'paid' ? (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-xs font-bold">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 text-emerald-700 border border-emerald-500/20 rounded-full text-xs font-bold">
                       <CheckCircle2 className="w-3 h-3" /> Đã đóng
                     </span>
                   ) : item.status === 'quit' ? (
@@ -112,7 +112,7 @@ function StudentTuitionView() {
                       <Ban className="w-3 h-3" /> Đã nghỉ
                     </span>
                   ) : (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-full text-xs font-bold">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-500/10 text-amber-700 border border-amber-500/20 rounded-full text-xs font-bold">
                       <XCircle className="w-3 h-3" /> Chưa đóng
                     </span>
                   )}
@@ -247,7 +247,7 @@ function TeacherTuitionView() {
           <p className="text-xs text-text-secondary font-bold uppercase tracking-wider mb-2">Số học sinh Offline</p>
           <p className="text-2xl font-black text-text-primary">{offlineStudents.length} <span className="text-base text-text-secondary font-normal">học sinh</span></p>
         </div>
-        <div className="p-5 bg-red-50 rounded-2xl border border-red-200 shadow-sm">
+        <div className="p-5 bg-red-500/10 rounded-2xl border border-red-500/20 shadow-sm">
           <p className="text-xs text-red-700 font-bold uppercase tracking-wider mb-2">Chưa thanh toán</p>
           <p className="text-2xl font-black text-red-700">{pendingCount} <span className="text-base font-normal text-red-600">phiếu</span></p>
         </div>
@@ -331,7 +331,7 @@ function TeacherTuitionView() {
                 <td className="p-4 pr-6 text-right">
                   <div className="flex items-center justify-end gap-2">
                     {item.status === 'paid' ? (
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-xs font-bold">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 text-emerald-700 border border-emerald-500/20 rounded-full text-xs font-bold">
                         <CheckCircle2 className="w-3 h-3" /> Đã đóng
                       </span>
                     ) : item.status === 'quit' ? (
@@ -340,10 +340,10 @@ function TeacherTuitionView() {
                       </span>
                     ) : (
                       <>
-                        <span onClick={() => handleConfirmPayment(item)} className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-full text-xs font-bold cursor-pointer hover:bg-amber-100 transition-colors">
+                        <span onClick={() => handleConfirmPayment(item)} className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-500/10 text-amber-700 border border-amber-500/20 rounded-full text-xs font-bold cursor-pointer hover:bg-amber-100 transition-colors">
                           <XCircle className="w-3 h-3" /> Chưa đóng — Xác nhận
                         </span>
-                        <button onClick={() => handleConfirmPayment(item, "quit")} title="Đánh dấu nghỉ học" className="p-1.5 text-text-secondary hover:bg-red-50 hover:text-red-500 rounded-full transition-colors border border-transparent hover:border-red-200">
+                        <button onClick={() => handleConfirmPayment(item, "quit")} title="Đánh dấu nghỉ học" className="p-1.5 text-text-secondary hover:bg-red-500/10 hover:text-red-500 rounded-full transition-colors border border-transparent hover:border-red-500/20">
                           <Ban className="w-4 h-4" />
                         </button>
                       </>

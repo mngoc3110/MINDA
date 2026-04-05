@@ -3,9 +3,10 @@
 import { motion } from "framer-motion";
 import { BrainCircuit, Mail, Lock, User, ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState } from "react";import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
+  const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -25,10 +26,10 @@ export default function RegisterPage() {
       if (res.ok) {
         if (role === "teacher") {
           alert("\u0110ăng ký Giáo viên thành công!\n\n⚠️ Tài khoản của bạn đang chờ Admin phê duyệt. Bạn sẽ nhận được thông báo sau khi được chấp thuận.");
+          router.push("/login?registered=teacher");
         } else {
-          alert("Đăng ký thành công! Vui lòng đăng nhập.");
+          router.push("/login?registered=student");
         }
-        window.location.href = "/login";
       } else {
         const err = await res.json();
         alert("Lỗi: " + err.detail);
@@ -41,16 +42,16 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-bg-main text-white flex items-center justify-center relative overflow-hidden py-12">
+    <div className="min-h-screen bg-bg-main text-text-primary flex items-center justify-center relative overflow-hidden py-12">
       {/* Background Gradients */}
       <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-pink-600/10 blur-[130px] rounded-full mix-blend-screen pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-indigo-600/10 blur-[120px] rounded-full mix-blend-screen pointer-events-none" />
 
       <Link href="/" className="absolute top-8 left-8 flex items-center gap-2 group z-20">
-        <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-white/10 transition-colors">
-          <ArrowRight className="w-4 h-4 text-gray-400 rotate-180" />
+        <div className="w-8 h-8 rounded-lg bg-bg-card border border-border-card flex items-center justify-center group-hover:bg-bg-hover transition-colors">
+          <ArrowRight className="w-4 h-4 text-text-secondary rotate-180" />
         </div>
-        <span className="text-sm font-medium text-gray-400 group-hover:text-white transition-colors">Trang chủ</span>
+        <span className="text-sm font-medium text-text-secondary group-hover:text-text-primary transition-colors">Trang chủ</span>
       </Link>
 
       <motion.div 
@@ -61,67 +62,67 @@ export default function RegisterPage() {
       >
         <div className="flex flex-col items-center mb-8">
           <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-indigo-500 to-pink-500 flex items-center justify-center shadow-lg shadow-pink-500/20 mb-4">
-            <BrainCircuit className="w-6 h-6 text-white" />
+            <BrainCircuit className="w-6 h-6 text-text-primary" />
           </div>
           <h1 className="text-3xl font-bold tracking-tight mb-2">Đăng ký Tài khoản</h1>
-          <p className="text-gray-400 text-sm text-center">Bắt đầu hành trình học tập tương tác với AI</p>
+          <p className="text-text-secondary text-sm text-center">Bắt đầu hành trình học tập tương tác với AI</p>
         </div>
 
-        <div className="p-8 rounded-3xl bg-[#0a0a0a]/80 backdrop-blur-xl border border-white/10 shadow-2xl relative overflow-hidden">
+        <div className="p-8 rounded-3xl bg-bg-card backdrop-blur-xl border border-border-card shadow-2xl relative overflow-hidden">
           {/* Shine effect */}
           <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-pink-500/50 to-transparent" />
           
           <form className="flex flex-col gap-5" onSubmit={handleRegister}>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-300">Họ và Tên</label>
+              <label className="text-sm font-medium text-text-secondary">Họ và Tên</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <User className="w-5 h-5 text-gray-500" />
+                  <User className="w-5 h-5 text-text-muted" />
                 </div>
                 <input 
                   type="text" 
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-white/[0.03] border border-white/10 rounded-xl focus:outline-none focus:border-pink-500/50 focus:bg-white/[0.05] transition-colors text-white placeholder-gray-500"
+                  className="w-full pl-10 pr-4 py-3 bg-transparent border border-border-card rounded-xl focus:outline-none focus:border-pink-500/50 focus:bg-bg-main transition-colors text-text-primary placeholder-gray-500"
                   placeholder="Nguyễn Văn A"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-300">Email</label>
+              <label className="text-sm font-medium text-text-secondary">Email</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="w-5 h-5 text-gray-500" />
+                  <Mail className="w-5 h-5 text-text-muted" />
                 </div>
                 <input 
                   type="email" 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-white/[0.03] border border-white/10 rounded-xl focus:outline-none focus:border-pink-500/50 focus:bg-white/[0.05] transition-colors text-white placeholder-gray-500"
+                  className="w-full pl-10 pr-4 py-3 bg-transparent border border-border-card rounded-xl focus:outline-none focus:border-pink-500/50 focus:bg-bg-main transition-colors text-text-primary placeholder-gray-500"
                   placeholder="name@example.com"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-300">Mật khẩu</label>
+              <label className="text-sm font-medium text-text-secondary">Mật khẩu</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="w-5 h-5 text-gray-500" />
+                  <Lock className="w-5 h-5 text-text-muted" />
                 </div>
                 <input 
                   type="password" 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-white/[0.03] border border-white/10 rounded-xl focus:outline-none focus:border-pink-500/50 focus:bg-white/[0.05] transition-colors text-white placeholder-gray-500"
+                  className="w-full pl-10 pr-4 py-3 bg-transparent border border-border-card rounded-xl focus:outline-none focus:border-pink-500/50 focus:bg-bg-main transition-colors text-text-primary placeholder-gray-500"
                   placeholder="••••••••"
                 />
               </div>
             </div>
 
             <div className="space-y-3 pt-2">
-              <label className="text-sm font-medium text-gray-300">Bạn là ai?</label>
+              <label className="text-sm font-medium text-text-secondary">Bạn là ai?</label>
               <div className="grid grid-cols-2 gap-4">
                 <button
                   type="button"
@@ -129,7 +130,7 @@ export default function RegisterPage() {
                   className={`py-3 rounded-xl border text-sm font-semibold transition-all duration-300 flex items-center justify-center gap-2 ${
                     role === "student" 
                       ? "bg-indigo-600/20 border-indigo-500 text-indigo-300 shadow-[0_0_15px_rgba(79,70,229,0.2)]" 
-                      : "bg-white/[0.02] border-white/10 text-gray-400 hover:bg-white/[0.05] hover:border-white/20"
+                      : "bg-transparent border-border-card text-text-secondary hover:bg-bg-main hover:border-border-hover"
                   }`}
                 >
                   👨‍🎓 Học sinh
@@ -140,7 +141,7 @@ export default function RegisterPage() {
                   className={`py-3 rounded-xl border text-sm font-semibold transition-all duration-300 flex items-center justify-center gap-2 ${
                     role === "teacher" 
                       ? "bg-pink-600/20 border-pink-500 text-pink-300 shadow-[0_0_15px_rgba(236,72,153,0.2)]" 
-                      : "bg-white/[0.02] border-white/10 text-gray-400 hover:bg-white/[0.05] hover:border-white/20"
+                      : "bg-transparent border-border-card text-text-secondary hover:bg-bg-main hover:border-border-hover"
                   }`}
                 >
                   👩‍🏫 Giáo viên
@@ -160,13 +161,13 @@ export default function RegisterPage() {
 
             <button 
               type="submit"
-              className="mt-2 w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-medium flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(79,70,229,0.3)] transition-all"
+              className="mt-2 w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-text-primary font-medium flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(79,70,229,0.3)] transition-all"
             >
               Đăng ký ngay <ArrowRight className="w-4 h-4" />
             </button>
           </form>
 
-          <div className="mt-6 text-center text-sm text-gray-400">
+          <div className="mt-6 text-center text-sm text-text-secondary">
             Đã có tài khoản? <Link href="/login" className="text-indigo-400 hover:text-indigo-300 hover:underline transition-all">Đăng nhập</Link>
           </div>
         </div>
