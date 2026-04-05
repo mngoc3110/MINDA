@@ -341,8 +341,9 @@ export default function ProfilePage() {
 
   if (role === "teacher") {
     // Render the webflow CV directly in dashboard instead of Facebook-like social layout
-    if (!teacherId) return <div className="min-h-screen flex items-center justify-center bg-transparent"><Loader2 className="w-8 h-8 animate-spin text-[#1a365d]" /></div>;
-    return <TeacherCVView teacherId={teacherId} enableGoBack={false} />;
+    const id = teacherId || localStorage.getItem("minda_user_id");
+    if (!id) return <div className="min-h-screen flex items-center justify-center bg-bg-main"><Loader2 className="w-8 h-8 animate-spin text-indigo-500" /></div>;
+    return <TeacherCVView teacherId={id} enableGoBack={false} />;
   }
 
   return (

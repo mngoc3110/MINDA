@@ -32,19 +32,27 @@ export default function MobileHeader() {
   ];
 
   const TEACHER_ITEMS = [
-    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+    { name: "Tổng quan", href: "/dashboard", icon: LayoutDashboard },
+    { name: "Hồ sơ CV", href: "/profile", icon: User },
     { name: "Khoá học", href: "/courses", icon: BookOpen },
     { name: "Lớp Live", href: "/live", icon: Radio },
     { name: "Bài tập", href: "/assignments", icon: ClipboardCheck },
-    { name: "Luyện tập", href: "/practice", icon: Dumbbell },
     { name: "Bảng xếp hạng", href: "/leaderboard", icon: Trophy },
     { name: "Học phí", href: "/tuition", icon: Wallet },
-    { name: "Hồ sơ", href: "/profile", icon: User },
   ];
 
-  const navItems = isAdminMode ? ADMIN_ITEMS : TEACHER_ITEMS;
-  const accentColor = isAdminMode ? "text-red-600" : "text-pink-600";
-  const activeBg = isAdminMode ? "bg-red-50 border-red-200 text-red-700" : "bg-pink-50 border-pink-200 text-pink-700";
+  const STUDENT_ITEMS = [
+    { name: "Tổng quan", href: "/dashboard", icon: LayoutDashboard },
+    { name: "Thư viện Lớp học", href: "/courses", icon: BookOpen },
+    { name: "Phòng học Live", href: "/live", icon: Radio },
+    { name: "Phòng Luyện Thi", href: "/practice", icon: Dumbbell },
+    { name: "Cặp xách (Drive)", href: "/drive", icon: Wallet },
+    { name: "Bảng Thành tích", href: "/leaderboard", icon: Trophy },
+  ];
+
+  const navItems = isAdminMode ? ADMIN_ITEMS : role === "teacher" ? TEACHER_ITEMS : STUDENT_ITEMS;
+  const accentColor = isAdminMode ? "text-red-600" : role === "teacher" ? "text-pink-600" : "text-indigo-600";
+  const activeBg = isAdminMode ? "bg-red-50 border-red-200 text-red-700" : role === "teacher" ? "bg-pink-50 border-pink-200 text-pink-700" : "bg-indigo-50 border-indigo-200 text-indigo-700";
 
   return (
     <>
