@@ -2,21 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BrainCircuit, Grid, Users, BookOpen, Settings, LogOut, Sun, Moon, ShieldAlert } from "lucide-react";
+import { Grid, Users, Settings, LogOut, Sun, Moon, ShieldAlert } from "lucide-react";
 import { useTheme } from "@/providers/ThemeProvider";
 
 const NAV_ITEMS = [
   { name: "Tổng quan", href: "/admin", icon: Grid },
   { name: "Người dùng", href: "/admin/users", icon: Users },
   { name: "Hệ thống", href: "/admin/settings", icon: Settings },
-];
-
-const TEACHER_NAV_ITEMS = [
-  { name: "Trang Cá nhân", href: "/profile", icon: User },
-  { name: "Quản lý Khoá học", href: "/courses", icon: BookOpen },
-  { name: "Lớp học Live", href: "/live", icon: GraduationCap },
-  { name: "Chấm điểm", href: "/assignments", icon: ClipboardCheck },
-  { name: "Học phí", href: "/tuition", icon: Wallet },
 ];
 
 export default function AdminSidebar() {
