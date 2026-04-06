@@ -269,16 +269,20 @@ export default function Dashboard() {
               <Trophy className="w-5 h-5 text-slate-500" /> Tiến độ Rank
             </h2>
             <div className="flex items-center gap-4 mb-4">
-              <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-slate-400 to-slate-600 flex items-center justify-center border-2 border-white shadow-md">
-                <span className="font-black text-white text-sm">S1</span>
+              <div className={`w-14 h-14 rounded-full bg-gradient-to-tr ${stats.rank_color || 'from-slate-400 to-slate-600'} flex items-center justify-center border-2 border-white shadow-md`}>
+                <span className="font-black text-white text-sm">{stats.rank_abbr as string || 'S1'}</span>
               </div>
               <div>
-                <h3 className="font-bold text-lg text-text-primary">Sơ cấp</h3>
-                <p className="text-sm text-text-secondary">Hoàn thành bài tập để thăng hạng</p>
+                <h3 className="font-bold text-lg text-text-primary">{stats.rank_name as string || 'Sơ cấp'}</h3>
+                {stats.next_rank_name ? (
+                  <p className="text-sm text-text-secondary">Còn <strong className="text-indigo-600">{stats.xp_to_next as number} EXP</strong> để lên {stats.next_rank_name as string}</p>
+                ) : (
+                  <p className="text-sm text-text-secondary text-amber-500 font-bold">Đã đạt mức Rank tối đa!</p>
+                )}
               </div>
             </div>
-            <div className="w-full bg-bg-hover rounded-full h-2 mb-2">
-              <div className="bg-gradient-to-r from-slate-400 to-slate-600 h-2 rounded-full w-0"></div>
+            <div className="w-full bg-bg-hover rounded-full h-2 mb-2 overflow-hidden">
+              <div className={`bg-gradient-to-r ${stats.rank_color || 'from-slate-400 to-slate-600'} h-2 rounded-full transition-all duration-1000 ease-out`} style={{ width: `${stats.progress_percent || 0}%` }}></div>
             </div>
             <p className="text-xs text-center text-text-secondary">Hoàn thành 1 bài tập hoặc 1 khoá học để nhận ⭐ và điểm EXP!</p>
           </section>

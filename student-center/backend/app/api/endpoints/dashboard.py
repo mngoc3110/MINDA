@@ -19,7 +19,19 @@ TEACHER_RANKS = [
     {"name": "Tiến sĩ GS",  "min_xp": 600,  "icon": "⭐", "color": "#ef4444"},
 ]
 
-def get_teacher_rank(xp: int) -> dict:
+def get_teacher_rank(user: User, xp: int) -> dict:
+    if user.email == "darber3110@gmail.com":
+        return {
+            "rank_name": "Mystic",
+            "rank_icon": "☄️",
+            "rank_color": "#ec4899", # Tailwind pink-500
+            "rank_color_class": "bg-gradient-to-r from-fuchsia-600 via-purple-600 to-pink-600 animate-pulse",
+            "xp": 999999,
+            "next_rank": None,
+            "xp_to_next": 0,
+            "next_min_xp": 999999,
+        }
+        
     rank = TEACHER_RANKS[0]
     for r in TEACHER_RANKS:
         if xp >= r["min_xp"]:
@@ -39,6 +51,61 @@ def get_teacher_rank(xp: int) -> dict:
         "next_min_xp": next_rank["min_xp"] if next_rank else xp,
     }
 
+
+# ═══════════════════════════════════
+# Hệ thống rank/XP cho học sinh
+# ═══════════════════════════════════
+STUDENT_RANKS = [
+    {"name": "Sơ cấp",    "min_xp": 0,    "abbr": "S1", "progress_color": "from-slate-400 to-slate-600"},
+    {"name": "Tân binh",  "min_xp": 100,  "abbr": "T2", "progress_color": "from-green-400 to-emerald-600"},
+    {"name": "Học bá",    "min_xp": 300,  "abbr": "H3", "progress_color": "from-blue-400 to-indigo-600"},
+    {"name": "Học thần",  "min_xp": 800,  "abbr": "H4", "progress_color": "from-purple-400 to-pink-600"},
+    {"name": "Thủ khoa",  "min_xp": 2000, "abbr": "T5", "progress_color": "from-amber-400 to-orange-600"},
+]
+
+def get_student_rank(user: User, xp: int) -> dict:
+    if user.email == "darber3110@gmail.com":
+        return {
+            "rank_name": "Mystic",
+            "rank_abbr": "M∞",
+            "rank_color": "from-fuchsia-600 via-purple-600 to-pink-600 animate-pulse",
+            "xp": 999999,
+            "next_rank_name": None,
+            "next_min_xp": 999999,
+            "xp_to_next": 0,
+            "progress_percent": 100
+        }
+        
+    rank = STUDENT_RANKS[0]
+    for r in STUDENT_RANKS:
+        if xp >= r["min_xp"]:
+            rank = r
+            
+    next_rank = None
+    for r in STUDENT_RANKS:
+        if r["min_xp"] > xp:
+            next_rank = r
+            break
+            
+    # Calculate progress % (từ mốc rank hiện tại tới mốc kế tiếp)
+    current_min_xp = rank["min_xp"]
+    if next_rank:
+        range_xp = next_rank["min_xp"] - current_min_xp
+        earned_in_range = xp - current_min_xp
+        progress_percent = int((earned_in_range / range_xp) * 100)
+    else:
+        progress_percent = 100
+
+    return {
+        "rank_name": rank["name"],
+        "rank_abbr": rank["abbr"],
+        "rank_color": rank["progress_color"],
+        "xp": xp,
+        "next_rank_name": next_rank["name"] if next_rank else None,
+        "next_min_xp": next_rank["min_xp"] if next_rank else xp,
+        "xp_to_next": next_rank["min_xp"] - xp if next_rank else 0,
+        "progress_percent": max(0, min(100, progress_percent))
+    }
 
 @router.get("/teacher-stats")
 def get_teacher_stats(
@@ -66,7 +133,7 @@ def get_teacher_stats(
     # XP từ DB hoặc tính từ số bài tập tạo ra
     teacher_xp = (current_user.exp_points or 0) + (assignment_count * 10)
 
-    rank_info = get_teacher_rank(teacher_xp)
+    rank_info = get_teacher_rank(current_user, teacher_xp)
 
     return {
         "total_students": total_students,
@@ -82,7 +149,10 @@ def get_student_stats(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_role("student", "admin"))
 ):
+    current_xp = current_user.exp_points or 0
+    rank_info = get_student_rank(current_user, current_xp)
     return {
-        "exp": current_user.exp_points or 0,
-        "student_id": f"#MND-{current_user.id * 1234}"
+        "exp": current_xp,
+        "student_id": f"#MND-{current_user.id * 1234}",
+        **rank_info
     }
