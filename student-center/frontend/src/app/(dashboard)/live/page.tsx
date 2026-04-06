@@ -150,7 +150,7 @@ export default function LiveSchedulePage() {
          method: "POST",
          headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
          body: JSON.stringify({
-            course_id: 1, 
+            course_id: null, 
             title: quickTitle,
             scheduled_at: new Date().toISOString(),
             duration_minutes: 120,

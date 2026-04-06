@@ -18,8 +18,12 @@ class LiveSessionBase(BaseModel):
     duration_minutes: int = 60
     room_id: str
 
-class LiveSessionCreate(LiveSessionBase):
-    pass
+class LiveSessionCreate(BaseModel):
+    course_id: Optional[int] = None
+    title: str
+    scheduled_at: datetime
+    duration_minutes: int = 60
+    room_id: str
 
 class LiveSessionResponse(LiveSessionBase):
     id: int
@@ -64,8 +68,37 @@ def create_live_session(
     current_user: User = Depends(require_role("teacher", "admin")),
 ):
     """Giáo viên hoặc Admin lên lịch tạo lớp học mới"""
+    from app.models.course import Course
+    
+    actual_course_id = data.course_id
+    
+    # Verify course exists
+    if actual_course_id:
+        course = db.query(Course).filter(Course.id == actual_course_id).first()
+        if not course:
+            actual_course_id = None
+            
+    # If no valid course_id provided, find one belonging to teacher or create a dummy one
+    if not actual_course_id:
+        course = db.query(Course).filter(Course.teacher_id == current_user.id).first()
+        if course:
+            actual_course_id = course.id
+        else:
+            # Create a fallback dummy course for Quick Live
+            new_course = Course(
+                title=f"Lớp học chung của {current_user.full_name}",
+                description="Khoá học mặc định cho các phiên Quick Live.",
+                price=0,
+                teacher_id=current_user.id,
+                thumbnail_url="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80"
+            )
+            db.add(new_course)
+            db.commit()
+            db.refresh(new_course)
+            actual_course_id = new_course.id
+
     session = LiveSession(
-        course_id=data.course_id,
+        course_id=actual_course_id,
         teacher_id=current_user.id,
         title=data.title,
         scheduled_at=data.scheduled_at,
