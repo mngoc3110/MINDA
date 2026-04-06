@@ -26,6 +26,10 @@ def create_assignment(
     # Xử lý course_id optional có thể truyền trong data.model_dump()
     assignment = Assignment(**data.model_dump(), teacher_id=current_user.id)
     db.add(assignment)
+    
+    # Cộng 10 EXP cho giáo viên
+    current_user.exp_points = (current_user.exp_points or 0) + 10
+    
     db.commit()
     db.refresh(assignment)
     return assignment
@@ -191,6 +195,9 @@ def submit_assignment(
             submission.graded_at = datetime.utcnow()
         except Exception as e:
             print("Auto-grade error:", e)
+
+    # Cộng 20 EXP cho học sinh
+    current_user.exp_points = (current_user.exp_points or 0) + 20
 
     db.add(submission)
     db.commit()

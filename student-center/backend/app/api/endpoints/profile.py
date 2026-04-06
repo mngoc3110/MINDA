@@ -186,7 +186,11 @@ from app.core.security import require_role
 @router.post("/connect-teacher/{teacher_id}")
 def connect_teacher(teacher_id: int, db: Session = Depends(get_db), current_user: User = Depends(require_role("student"))):
     from app.models.user import TeacherStudentLink
-    teacher = db.query(User).filter(User.id == teacher_id, User.role == "teacher").first()
+    from sqlalchemy import or_
+    teacher = db.query(User).filter(
+        User.id == teacher_id,
+        or_(User.role == "teacher", User.secondary_role == "teacher")
+    ).first()
     if not teacher:
         raise HTTPException(status_code=404, detail="Giáo viên không tồn tại")
     

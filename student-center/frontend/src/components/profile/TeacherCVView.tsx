@@ -22,6 +22,11 @@ export default function TeacherCVView({ teacherId, enableGoBack = true }: Teache
   const [isSaving, setIsSaving] = useState(false);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   
+  const [isEditingBasicProfile, setIsEditingBasicProfile] = useState(false);
+  const [editFullName, setEditFullName] = useState("");
+  const [editPhone, setEditPhone] = useState("");
+  const [savingBasicProfile, setSavingBasicProfile] = useState(false);
+  
   const [isOwner, setIsOwner] = useState(false);
   const avatarInputRef = React.useRef<HTMLInputElement>(null);
 
@@ -174,6 +179,10 @@ export default function TeacherCVView({ teacherId, enableGoBack = true }: Teache
       
       if (res.ok) {
         setProfile(JSON.parse(JSON.stringify(editForm)));
+        if (editForm.full_name) {
+          localStorage.setItem("minda_user_name", editForm.full_name);
+          window.dispatchEvent(new Event("storage"));
+        }
         setIsEditing(false);
       } else {
         alert("Lỗi khi lưu CV");
@@ -238,9 +247,14 @@ export default function TeacherCVView({ teacherId, enableGoBack = true }: Teache
                      </button>
                   </>
                ) : (
-                  <button onClick={() => setIsEditing(true)} className="px-6 py-2.5 rounded-full text-white bg-[#1a365d] hover:bg-[#2d5a9e] font-bold shadow-lg transition-all flex items-center gap-2">
-                     <Edit3 className="w-4 h-4" /> Chỉnh sửa CV
-                  </button>
+                  <>
+                    <button onClick={() => { setEditFullName(profile.full_name); setEditPhone(profile.phone); setIsEditingBasicProfile(true); }} className="px-5 py-2.5 rounded-full text-white bg-indigo-600 hover:bg-indigo-700 font-bold shadow-lg transition-all flex items-center gap-2 text-sm">
+                       <Edit3 className="w-4 h-4" /> Cài đặt tài khoản
+                    </button>
+                    <button onClick={() => setIsEditing(true)} className="px-6 py-2.5 rounded-full text-white bg-[#1a365d] hover:bg-[#2d5a9e] font-bold shadow-lg transition-all flex items-center gap-2 text-sm">
+                       <Edit3 className="w-4 h-4" /> Chỉnh sửa nền CV
+                    </button>
+                  </>
                )}
             </div>
          )}
