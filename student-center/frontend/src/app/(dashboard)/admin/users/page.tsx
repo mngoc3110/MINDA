@@ -97,25 +97,25 @@ export default function AdminUsersPage() {
     <div className="p-8 max-w-7xl mx-auto w-full">
       <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight mb-2">Quản lý Người Dùng</h1>
-          <p className="text-gray-400">Xem, phân quyền và khoá tài khoản thành viên.</p>
+          <h1 className="text-3xl font-bold tracking-tight mb-2 text-text-primary">Quản lý Người Dùng</h1>
+          <p className="text-text-secondary">Xem, phân quyền và khoá tài khoản thành viên.</p>
         </div>
         
         <div className="flex items-center gap-3">
           <div className="relative">
-            <Search className="w-4 h-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-text-muted absolute left-3 top-1/2 -translate-y-1/2" />
             <input 
               type="text" 
               placeholder="Tìm email/tên..." 
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-9 pr-4 py-2 bg-white/5 border border-white/10 rounded-xl focus:border-red-500/50 outline-none text-sm transition-all text-white w-64 focus:w-72"
+              className="pl-9 pr-4 py-2 bg-bg-hover border border-border-card rounded-xl focus:border-red-500/50 outline-none text-sm transition-all text-text-primary w-64 focus:w-72"
             />
           </div>
           <select 
             value={roleFilter} 
             onChange={(e) => setRoleFilter(e.target.value)}
-            className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl outline-none text-sm text-gray-300 hover:text-white transition-colors"
+            className="px-4 py-2 bg-bg-hover border border-border-card rounded-xl outline-none text-sm text-text-secondary hover:text-text-primary transition-colors"
           >
             <option value="all">Tất cả Roles</option>
             <option value="admin">Admin</option>
@@ -125,10 +125,10 @@ export default function AdminUsersPage() {
         </div>
       </div>
 
-      <div className="bg-[#0a0a0a]/80 border border-white/10 rounded-3xl overflow-hidden mt-6">
+      <div className="bg-bg-card border border-border-card rounded-3xl overflow-hidden mt-6 shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm whitespace-nowrap">
-            <thead className="bg-white/5 border-b border-white/5 font-semibold text-gray-400">
+            <thead className="bg-bg-hover border-b border-border-card font-semibold text-text-secondary">
               <tr>
                 <th className="px-6 py-4">ID</th>
                 <th className="px-6 py-4">Họ và Tên</th>
@@ -138,16 +138,16 @@ export default function AdminUsersPage() {
                 <th className="px-6 py-4 text-right">Thao tác</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-border-card text-text-primary">
               {loading ? (
                 <tr>
-                   <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
+                   <td colSpan={6} className="px-6 py-8 text-center text-text-muted">
                       <div className="w-6 h-6 border-2 border-red-500 border-t-transparent rounded-full animate-spin mx-auto" />
                    </td>
                 </tr>
               ) : filteredUsers.length === 0 ? (
                 <tr>
-                   <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
+                   <td colSpan={6} className="px-6 py-8 text-center text-text-muted">
                       Không tìm thấy người dùng nào phù hợp.
                    </td>
                 </tr>
@@ -158,11 +158,11 @@ export default function AdminUsersPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.05 }}
                     key={user.id} 
-                    className="hover:bg-white/[0.02] transition-colors group"
+                    className="hover:bg-bg-hover transition-colors group"
                   >
-                    <td className="px-6 py-4 font-mono text-gray-400">#{user.id}</td>
+                    <td className="px-6 py-4 font-mono text-text-secondary">#{user.id}</td>
                     <td className="px-6 py-4 font-medium">{user.full_name || "Chưa cập nhật"}</td>
-                    <td className="px-6 py-4 text-gray-400">{user.email}</td>
+                    <td className="px-6 py-4 text-text-secondary">{user.email}</td>
                     <td className="px-6 py-4">
                       {user.role === 'admin' && <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-red-400/10 text-red-400 text-xs font-bold border border-red-400/20"><Shield className="w-3 h-3"/> Admin</span>}
                       {user.role === 'teacher' && <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-400/10 text-blue-400 text-xs font-bold border border-blue-400/20"><GraduationCap className="w-3 h-3"/> Teacher</span>}
@@ -185,7 +185,7 @@ export default function AdminUsersPage() {
                               <select 
                                 onChange={(e) => changeRole(user.id, e.target.value)}
                                 value={user.role}
-                                className="px-3 py-1.5 text-xs bg-white/5 border border-white/10 rounded-lg outline-none hover:bg-white/10 transition-colors"
+                                className="px-3 py-1.5 text-xs bg-bg-hover border border-border-card rounded-lg outline-none hover:bg-bg-card transition-colors text-text-primary"
                               >
                                 <option value="student">Chuyển thành Student</option>
                                 <option value="teacher">Chuyển thành Teacher</option>
