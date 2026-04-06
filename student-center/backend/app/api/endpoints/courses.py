@@ -91,6 +91,8 @@ def get_course(course_id: int, db: Session = Depends(get_db)):
         "thumbnail_url": course.thumbnail_url,
         "price": course.price,
         "is_active": course.is_active,
+        "is_offline": course.is_offline,
+        "enrollment_code": course.enrollment_code,
         "created_at": course.created_at
     }
 
