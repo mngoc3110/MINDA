@@ -21,6 +21,10 @@ def create_exam(
     """Tạo đề kiểm tra (Teacher/Admin)."""
     exam = Exam(**data.model_dump(), course_id=course_id, teacher_id=current_user.id)
     db.add(exam)
+    
+    # Cộng 10 EXP cho giáo viên
+    current_user.exp_points = (current_user.exp_points or 0) + 10
+    
     db.commit()
     db.refresh(exam)
     return exam

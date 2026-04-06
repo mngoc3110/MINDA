@@ -128,11 +128,14 @@ def get_teacher_stats(
         Enrollment.status == "pending"
     ).count()
 
-    # Bài tập giáo viên đã tạo → mỗi bài = 10 XP
+    # Bài tập giáo viên đã tạo (gồm cả Assignment và Exam) -> mỗi bài = 10 XP
+    from app.models.exam import Exam
     assignment_count = db.query(Assignment).filter(Assignment.teacher_id == current_user.id).count()
+    exam_count = db.query(Exam).filter(Exam.teacher_id == current_user.id).count()
+    total_created = assignment_count + exam_count
 
     # Tích hợp điểm quá khứ (khi chưa có exp_points) bằng max()
-    teacher_xp = max(current_user.exp_points or 0, assignment_count * 10)
+    teacher_xp = max(current_user.exp_points or 0, total_created * 10)
 
     rank_info = get_teacher_rank(current_user, teacher_xp)
 
@@ -141,7 +144,7 @@ def get_teacher_stats(
         "total_students": total_students,
         "pending_students": pending_students,
         "active_courses": active_courses,
-        "assignment_count": assignment_count,
+        "assignment_count": total_created,
         **rank_info,
     }
 
