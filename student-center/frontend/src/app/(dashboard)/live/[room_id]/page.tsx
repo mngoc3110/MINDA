@@ -30,8 +30,6 @@ const EMOTION_BAR_COLORS: Record<string, string> = {
 };
 
 const ANALYZE_INTERVAL_MS = 5000;
-const PEER_HOST = "localhost";
-const PEER_PORT = 9000;
 
 // ─── Emotion Overlay Component ───────────────────────────────────────────────
 function EmotionOverlay({ emotion, isAnalyzing, serviceOnline, position = "top-4 right-4" }: any) {
@@ -191,9 +189,6 @@ export default function LiveRoomPage() {
         const peerId = userInfo.role === "teacher" || userInfo.role === "admin" ? (room_id as string) : undefined;
         
         const peerConfig = {
-            host: PEER_HOST,
-            port: PEER_PORT,
-            path: "/",
             config: {
                 iceServers: [
                     { urls: 'stun:stun.l.google.com:19302' },
