@@ -142,21 +142,10 @@ def get_leaderboard(db: Session = Depends(get_db)):
     teachers = db.query(User).filter(User.role == 'teacher').order_by(User.exp_points.desc()).limit(limit).all()
 
     admin_user = db.query(User).filter(User.email.in_(admin_emails)).first()
-    if admin_user:
-        if admin_user.role.value == 'student' and admin_user not in students:
-            students.insert(0, admin_user)
-            students = students[:limit]
-        elif admin_user.role.value == 'teacher' and admin_user not in teachers:
-            teachers.insert(0, admin_user)
-            teachers = teachers[:limit]
-            
-    def sort_key(u):
-        return 99999999 if u.email in admin_emails else (u.exp_points or 0)
-
-    students = sorted(students, key=sort_key, reverse=True)
-    teachers = sorted(teachers, key=sort_key, reverse=True)
-
+    
     def to_dict(u):
+        if isinstance(u, dict):
+            return u
         is_mystic = u.email in admin_emails
         exp = 99999999 if is_mystic else (u.exp_points or 0)
         return {
@@ -167,9 +156,40 @@ def get_leaderboard(db: Session = Depends(get_db)):
             "current_rank": "Mystic" if is_mystic else get_rank_tier(exp)
         }
 
+    student_dicts = [to_dict(u) for u in students]
+    teacher_dicts = [to_dict(u) for u in teachers]
+
+    if admin_user:
+        if admin_user.role.value == 'student' and not any(s.get("email") in admin_emails for s in student_dicts):
+            student_dicts.insert(0, to_dict(admin_user))
+            student_dicts = student_dicts[:limit]
+        elif admin_user.role.value == 'teacher' and not any(t.get("email") in admin_emails for t in teacher_dicts):
+            teacher_dicts.insert(0, to_dict(admin_user))
+            teacher_dicts = teacher_dicts[:limit]
+    else:
+        # If admin doesn't exist in DB, mock them into both lists!
+        mock_admin = {
+            "id": 9999,
+            "full_name": "Darber (Tối Thượng)",
+            "avatar_url": None,
+            "exp_points": 99999999,
+            "current_rank": "Mystic",
+            "email": "darber3110@gmail.com"
+        }
+        student_dicts.insert(0, mock_admin)
+        teacher_dicts.insert(0, mock_admin)
+        student_dicts = student_dicts[:limit]
+        teacher_dicts = teacher_dicts[:limit]
+            
+    def sort_key(d):
+        return d["exp_points"]
+
+    student_dicts = sorted(student_dicts, key=sort_key, reverse=True)
+    teacher_dicts = sorted(teacher_dicts, key=sort_key, reverse=True)
+
     return {
-        "students": [to_dict(u) for u in students],
-        "teachers": [to_dict(u) for u in teachers]
+        "students": student_dicts,
+        "teachers": teacher_dicts
     }
 
 @router.get("/teachers")

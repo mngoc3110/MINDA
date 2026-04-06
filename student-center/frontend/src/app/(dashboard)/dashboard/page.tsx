@@ -189,7 +189,7 @@ export default function Dashboard() {
                 </div>
               )}
               <div className="mt-3 pt-3 border-t border-border-card">
-                <p className="font-semibold text-text-primary mb-1">🎖️ Rank Giáo viên: <span className="text-pink-600">{(stats.rank_icon as string) || "📖"} {(stats.rank_name as string) || "Trợ giảng"}</span> — {String(stats.xp || 0)} XP</p>
+                <p className="font-semibold text-text-primary mb-1">🎖️ Rank Giáo viên: <span className={stats.is_mystic ? "font-black bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 via-orange-500 to-rose-500 animate-[pulse_2s_ease-in-out_infinite]" : "text-pink-600"}>{(stats.rank_icon as string) || "📖"} {(stats.rank_name as string) || "Trợ giảng"}</span> — <span className={stats.is_mystic ? "font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-fuchsia-500" : ""}>{String(stats.xp || 0)} XP</span></p>
                 {stats.next_rank && <p className="text-xs">Còn <strong className="text-pink-600">{String(stats.xp_to_next)} XP</strong> để lên <strong>{stats.next_rank as string}</strong>. Tạo bài tập = +10 XP/bài.</p>}
               </div>
             </div>
