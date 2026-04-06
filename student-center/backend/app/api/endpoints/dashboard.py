@@ -22,14 +22,14 @@ TEACHER_RANKS = [
 def get_teacher_rank(user: User, xp: int) -> dict:
     if user.email == "darber3110@gmail.com":
         return {
-            "rank_name": "Mystic",
-            "rank_icon": "☄️",
-            "rank_color": "#ec4899", # Tailwind pink-500
-            "rank_color_class": "bg-gradient-to-r from-fuchsia-600 via-purple-600 to-pink-600 animate-pulse",
-            "xp": 999999,
+            "rank_name": "Tối Thượng (Mystic)",
+            "rank_icon": "👑",
+            "rank_color": "from-yellow-400 via-red-500 to-fuchsia-500",
+            "xp": 99999999,
             "next_rank": None,
             "xp_to_next": 0,
-            "next_min_xp": 999999,
+            "next_min_xp": 99999999,
+            "is_mystic": True
         }
         
     rank = TEACHER_RANKS[0]
@@ -66,14 +66,15 @@ STUDENT_RANKS = [
 def get_student_rank(user: User, xp: int) -> dict:
     if user.email == "darber3110@gmail.com":
         return {
-            "rank_name": "Mystic",
-            "rank_abbr": "M∞",
-            "rank_color": "from-fuchsia-600 via-purple-600 to-pink-600 animate-pulse",
-            "xp": 999999,
+            "rank_name": "Thần Thoại (Mystic)",
+            "rank_abbr": "👑",
+            "rank_color": "from-yellow-400 via-red-500 to-fuchsia-500",
+            "xp": 99999999,
             "next_rank_name": None,
-            "next_min_xp": 999999,
+            "next_min_xp": 99999999,
             "xp_to_next": 0,
-            "progress_percent": 100
+            "progress_percent": 100,
+            "is_mystic": True
         }
         
     rank = STUDENT_RANKS[0]
@@ -136,6 +137,7 @@ def get_teacher_stats(
     rank_info = get_teacher_rank(current_user, teacher_xp)
 
     return {
+        "exp": rank_info.get("xp", teacher_xp),
         "total_students": total_students,
         "pending_students": pending_students,
         "active_courses": active_courses,
@@ -152,7 +154,7 @@ def get_student_stats(
     current_xp = current_user.exp_points or 0
     rank_info = get_student_rank(current_user, current_xp)
     return {
-        "exp": current_xp,
+        "exp": rank_info.get("xp", current_xp),
         "student_id": f"#MND-{current_user.id * 1234}",
         **rank_info
     }

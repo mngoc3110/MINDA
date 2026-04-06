@@ -13,7 +13,8 @@ interface Ranking {
 }
 
 export default function LeaderboardPage() {
-  const [rankings, setRankings] = useState<Ranking[]>([]);
+  const [dataPayload, setDataPayload] = useState<{ students: Ranking[], teachers: Ranking[] }>({ students: [], teachers: [] });
+  const [activeTab, setActiveTab] = useState<"students" | "teachers">("students");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -24,7 +25,12 @@ export default function LeaderboardPage() {
     })
       .then((res) => res.json())
       .then((data) => {
-        if (Array.isArray(data)) setRankings(data);
+        if (data.students && data.teachers) {
+           setDataPayload(data);
+        } else if (Array.isArray(data)) {
+           // fallback if backend not updated yet
+           setDataPayload({ students: data, teachers: [] });
+        }
         setLoading(false);
       })
       .catch((err) => {
@@ -86,10 +92,17 @@ export default function LeaderboardPage() {
           shadow: "shadow-[0_0_40px_#fde047]", frameGrad: "from-pink-400 via-purple-600 to-fuchsia-900",
           gem: "from-pink-200 to-purple-500", bracketColor: "border-pink-300", glowGrad: "from-purple-600 via-transparent to-transparent"
       };
-      case "Thần thoại": return { 
+      case "Thần thoại": 
+      case "Tiến sĩ GS":
+          return { 
           img: "mythic", color: "text-purple-500", borders: "border-purple-500", grad: "from-indigo-400/50 to-violet-800/70", 
           shadow: "shadow-[0_0_45px_#a855f7]", frameGrad: "from-red-500 via-rose-600 to-red-900",
           gem: "from-rose-300 to-red-600", bracketColor: "border-rose-400", glowGrad: "from-rose-500 via-transparent to-transparent"
+      };
+      case "Mystic": return {
+          img: "mythic", color: "text-pink-500", borders: "border-pink-500", grad: "from-yellow-400/50 via-red-500/50 to-fuchsia-500/70",
+          shadow: "shadow-[0_0_50px_#ec4899]", frameGrad: "from-yellow-400 via-red-500 to-fuchsia-500",
+          gem: "from-yellow-300 to-red-500", bracketColor: "border-yellow-400", glowGrad: "from-fuchsia-500 via-red-500 to-yellow-500"
       };
       default: return { 
           img: "iron", color: "text-slate-400", borders: "border-slate-400", grad: "from-slate-400/30 to-slate-600/50", 
@@ -153,6 +166,7 @@ export default function LeaderboardPage() {
      );
   };
 
+  const rankings = dataPayload[activeTab];
   const top3 = rankings.slice(0, 3);
   const rest = rankings.slice(3);
   const podiumOrder = [top3[1], top3[0], top3[2]];
@@ -162,15 +176,31 @@ export default function LeaderboardPage() {
       
       <div className="absolute top-0 inset-x-0 h-96 bg-linear-to-b from-indigo-500/10 via-purple-500/5 to-transparent -z-10 blur-3xl pointer-events-none" />
 
-      <header className="mb-12 md:mb-16 text-center relative z-10 w-full flex flex-col items-center">
+      <header className="mb-8 text-center relative z-10 w-full flex flex-col items-center">
         <h1 className="text-4xl md:text-5xl font-black bg-clip-text text-transparent bg-linear-to-r from-yellow-500 via-amber-400 to-yellow-600 inline-flex items-center gap-4 drop-shadow-[0_0_15px_rgba(250,204,21,0.3)]">
            <Trophy className="w-8 h-8 md:w-10 md:h-10 text-yellow-500" />
            Đỉnh Cao Nhẫn Giả MINDA
            <Trophy className="w-8 h-8 md:w-10 md:h-10 text-yellow-500" />
         </h1>
         <p className="text-t-secondary mt-3 text-sm md:text-lg font-medium max-w-2xl px-4 text-center">
-          Bảng xếp hạng gắt gao nhất vinh danh **Top 10%** thần đồng sở hữu thành tích (EXP) xuất sắc toàn hệ thống.
+           Bảng xếp hạng gắt gao nhất vinh danh **Top 10%** thần đồng sở hữu thành tích (EXP) xuất sắc toàn hệ thống.
         </p>
+
+        {/* Tab Switcher */}
+        <div className="flex bg-bg-card border border-border-card rounded-full p-1 mt-8 shadow-sm">
+           <button 
+             onClick={() => setActiveTab('students')}
+             className={`px-8 py-2.5 rounded-full font-bold text-sm transition-all duration-300 ${activeTab === 'students' ? 'bg-indigo-600 text-white shadow-md' : 'text-t-secondary hover:text-t-primary'}`}
+           >
+             Học sinh
+           </button>
+           <button 
+             onClick={() => setActiveTab('teachers')}
+             className={`px-8 py-2.5 rounded-full font-bold text-sm transition-all duration-300 ${activeTab === 'teachers' ? 'bg-indigo-600 text-white shadow-md' : 'text-t-secondary hover:text-t-primary'}`}
+           >
+             Giáo viên
+           </button>
+        </div>
       </header>
 
       {/* Podium Top 3 */}

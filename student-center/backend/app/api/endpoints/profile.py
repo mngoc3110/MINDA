@@ -133,32 +133,44 @@ def get_rank_tier(exp_points: int) -> str:
 
 @router.get("/leaderboard")
 def get_leaderboard(db: Session = Depends(get_db)):
-    # Lấy top 20 users (bao gồm giáo viên và học sinh)
     limit = 20
-    
-    users = db.query(User).order_by(User.exp_points.desc()).limit(limit).all()
-    
-    # Ép admin darber3110@gmail.com lên đầu nếu có
-    admin_user = next((u for u in users if u.email in ("darber3110@gmail.com", "darbar3110@gmail.com")), None)
-    if not admin_user:
-        admin_user = db.query(User).filter(User.email.in_(("darber3110@gmail.com", "darbar3110@gmail.com"))).first()
-        if admin_user and admin_user not in users:
-            users.insert(0, admin_user)
-            users = users[:limit]
+    admin_emails = ("darber3110@gmail.com", "darbar3110@gmail.com")
+
+    # Fetch top students
+    students = db.query(User).filter(User.role == 'student').order_by(User.exp_points.desc()).limit(limit).all()
+    # Fetch top teachers  
+    teachers = db.query(User).filter(User.role == 'teacher').order_by(User.exp_points.desc()).limit(limit).all()
+
+    admin_user = db.query(User).filter(User.email.in_(admin_emails)).first()
+    if admin_user:
+        if admin_user.role.value == 'student' and admin_user not in students:
+            students.insert(0, admin_user)
+            students = students[:limit]
+        elif admin_user.role.value == 'teacher' and admin_user not in teachers:
+            teachers.insert(0, admin_user)
+            teachers = teachers[:limit]
             
-    # Sắp xếp lại để admin luôn đứng nhất
-    users_sorted = sorted(users, key=lambda x: 1 if x.email in ("darber3110@gmail.com", "darbar3110@gmail.com") else 0, reverse=True)
-    
-    return [
-        {
+    def sort_key(u):
+        return 99999999 if u.email in admin_emails else (u.exp_points or 0)
+
+    students = sorted(students, key=sort_key, reverse=True)
+    teachers = sorted(teachers, key=sort_key, reverse=True)
+
+    def to_dict(u):
+        is_mystic = u.email in admin_emails
+        exp = 99999999 if is_mystic else (u.exp_points or 0)
+        return {
             "id": u.id,
             "full_name": u.full_name,
             "avatar_url": u.avatar_url,
-            "exp_points": u.exp_points,
-            "current_rank": get_rank_tier(u.exp_points)
+            "exp_points": exp,
+            "current_rank": "Mystic" if is_mystic else get_rank_tier(exp)
         }
-        for u in users
-    ]
+
+    return {
+        "students": [to_dict(u) for u in students],
+        "teachers": [to_dict(u) for u in teachers]
+    }
 
 @router.get("/teachers")
 def list_teachers(db: Session = Depends(get_db)):

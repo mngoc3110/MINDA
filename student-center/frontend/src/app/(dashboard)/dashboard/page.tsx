@@ -201,6 +201,8 @@ export default function Dashboard() {
   }
 
   // ══════════ STUDENT VIEW ══════════
+  const isMystic = !!stats.is_mystic;
+  
   return (
     <div className="min-h-screen bg-bg-main p-6 md:p-8 font-outfit">
       <header className="flex items-center justify-between mb-8 pb-6 border-b border-border-card">
@@ -269,8 +271,14 @@ export default function Dashboard() {
               <Trophy className="w-5 h-5 text-slate-500" /> Tiến độ Rank
             </h2>
             <div className="flex items-center gap-4 mb-4">
-              <div className={`w-14 h-14 rounded-full bg-gradient-to-tr ${stats.rank_color || 'from-slate-400 to-slate-600'} flex items-center justify-center border-2 border-white shadow-md`}>
-                <span className="font-black text-white text-sm">{stats.rank_abbr as string || 'S1'}</span>
+              <div className={`w-14 h-14 rounded-full flex items-center justify-center border-2 shadow-md relative ${isMystic ? 'bg-gradient-to-tr from-yellow-300 via-yellow-500 to-amber-600 border-yellow-200' : `bg-gradient-to-tr ${stats.rank_color || 'from-slate-400 to-slate-600'} border-white`}`}>
+                {isMystic && (
+                  <div className="absolute -inset-1 rounded-full border-2 border-dashed border-red-500 animate-[spin_4s_linear_infinite] opacity-80 z-0"></div>
+                )}
+                {isMystic && (
+                  <div className="absolute -inset-2 rounded-full border border-dotted border-fuchsia-500 animate-[spin_6s_linear_infinite_reverse] opacity-60 z-0"></div>
+                )}
+                <span className={`font-black text-white text-lg z-10 ${isMystic ? 'animate-[pulse_1.5s_ease-in-out_infinite]' : 'text-sm'}`}>{isMystic ? '👑' : (stats.rank_abbr as string || 'S1')}</span>
               </div>
               <div>
                 <h3 className="font-bold text-lg text-text-primary">{stats.rank_name as string || 'Sơ cấp'}</h3>
@@ -281,8 +289,8 @@ export default function Dashboard() {
                 )}
               </div>
             </div>
-            <div className="w-full bg-bg-hover rounded-full h-2 mb-2 overflow-hidden">
-              <div className={`bg-gradient-to-r ${stats.rank_color || 'from-slate-400 to-slate-600'} h-2 rounded-full transition-all duration-1000 ease-out`} style={{ width: `${stats.progress_percent || 0}%` }}></div>
+            <div className="w-full bg-bg-hover rounded-full h-2 mb-2 overflow-hidden shadow-inner">
+              <div className={`h-2 rounded-full transition-all duration-1000 ease-out ${isMystic ? 'bg-gradient-to-r from-yellow-400 via-red-500 to-fuchsia-500 animate-pulse w-full' : `bg-gradient-to-r ${stats.rank_color || 'from-slate-400 to-slate-600'}`}`} style={{ width: isMystic ? '100%' : `${stats.progress_percent || 0}%` }}></div>
             </div>
             <p className="text-xs text-center text-text-secondary">Hoàn thành 1 bài tập hoặc 1 khoá học để nhận ⭐ và điểm EXP!</p>
           </section>
