@@ -98,8 +98,9 @@ export default function Dashboard() {
               className="flex items-center justify-between p-3 rounded-xl bg-bg-hover hover:bg-bg-hover border border-border-card transition-all cursor-pointer group"
             >
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-bg-card border border-border-card flex items-center justify-center">
+                <div className="w-9 h-9 rounded-lg bg-bg-card border border-border-card flex items-center justify-center relative">
                   <FileText className="w-4 h-4 text-text-secondary" />
+                  <Star className="w-3 h-3 absolute -top-1 -right-1 text-amber-400 fill-amber-400" />
                 </div>
                 <div>
                   <span className="text-sm font-semibold truncate block w-32 md:w-48 text-text-primary">{file.filename}</span>

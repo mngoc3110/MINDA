@@ -267,6 +267,23 @@ def teacher_dashboard_assignments(db: Session = Depends(get_db), current_user: U
     assignments = db.query(Assignment).filter(Assignment.teacher_id == current_user.id).order_by(Assignment.created_at.desc()).all()
     return assignments
 
+@router.get("/assignments/student/my-submissions")
+def get_all_my_submissions(db: Session = Depends(get_db), current_user: User = Depends(require_role("student", "admin"))):
+    """Học sinh lấy toàn bộ lịch sử bài nộp của mình."""
+    submissions = db.query(AssignmentSubmission).filter(
+        AssignmentSubmission.student_id == current_user.id
+    ).order_by(AssignmentSubmission.submitted_at.desc()).all()
+    
+    return [
+        {
+            "id": sub.id,
+            "assignment_title": sub.assignment.title if sub.assignment else "Bài tập",
+            "score": sub.score,
+            "submitted_at": sub.submitted_at.isoformat()
+        }
+        for sub in submissions
+    ]
+
 @router.get("/assignments/teacher/dashboard/submissions")
 def teacher_dashboard_submissions(db: Session = Depends(get_db), current_user: User = Depends(require_role("teacher", "admin"))):
     """Dashboard: Toàn bộ bài nộp của học sinh (đã map tên) cho các khoá học của giáo viên."""

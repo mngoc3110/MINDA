@@ -1,16 +1,12 @@
 "use client";
 
-import { useRef, useState, useMemo } from "react";
+import { useRef, useState, useMemo, useEffect } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls, Stars, Html, Sparkles, Float } from "@react-three/drei";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import * as THREE from "three";
 import { PlayCircle, FileText, Camera } from "lucide-react";
 import { useHandTracking } from "@/hooks/useHandTracking";
-
-// Stars chỉ hiện khi học sinh hoàn thành bài tập hoặc khoá học (populated via API)
-// Không hiện ngôi sao mặc định khi chưa có thành tích
-const MOCK_MILESTONES: { id: number; type: string; title: string; date: string; color: string }[] = [];
 
 function MilestoneStar({ data, initialPosition, globalHoveredId, draggedId, activeId }: any) {
   const [hovered, setHovered] = useState(false);
@@ -226,20 +222,20 @@ function AIHandController({ coords, isPinching, handGestures, setGlobalHoveredId
   return null;
 }
 
-function GalaxySystem({ isFullscreen, coords, isPinching, handGestures }: any) {
+function GalaxySystem({ isFullscreen, coords, isPinching, handGestures, milestones = [] }: any) {
   const [globalHoveredId, setGlobalHoveredId] = useState<number | null>(null);
   const [draggedId, setDraggedId] = useState<number | null>(null); 
   const [activeId, setActiveId] = useState<number | null>(null); // Lifted Click State
   const controlsRef = useRef<any>(null);
 
   const starPositions = useMemo(() => {
-    return MOCK_MILESTONES.map((_, i) => {
-      const angle = (i / MOCK_MILESTONES.length) * Math.PI * 2 + (i % 2 === 0 ? 0.5 : 0);
+    return milestones.map((_: any, i: number) => {
+      const angle = (i / milestones.length) * Math.PI * 2 + (i % 2 === 0 ? 0.5 : 0);
       const radius = 4 + (i % 3) * 2;
       const y = (i % 2 === 0 ? 1 : -1) * 2;
       return [Math.cos(angle) * radius, y, Math.sin(angle) * radius] as [number, number, number];
     });
-  }, []);
+  }, [milestones]);
 
   return (
     <group>
@@ -260,7 +256,7 @@ function GalaxySystem({ isFullscreen, coords, isPinching, handGestures }: any) {
       <Stars radius={100} depth={50} count={isFullscreen ? 5000 : 2000} factor={4} saturation={0} fade speed={1} />
       <Sparkles count={isFullscreen ? 400 : 150} scale={20} size={isPinching ? 6 : 3} speed={0.4} color="#a78bfa" />
 
-      {MOCK_MILESTONES.map((milestone, idx) => (
+      {milestones.map((milestone: any, idx: number) => (
         <MilestoneStar 
           key={milestone.id} 
           data={milestone} 
@@ -298,6 +294,32 @@ function GalaxySystem({ isFullscreen, coords, isPinching, handGestures }: any) {
 export default function LearningGalaxy({ isFullscreen = false }: { isFullscreen?: boolean }) {
   // Chỉ kích hoạt Tracking khi ở chế độ Fullscreen!
   const { coords, isPinching, handGestures, isReady, videoRef } = useHandTracking();
+
+  const [milestones, setMilestones] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchSubmissions = async () => {
+      try {
+        const token = localStorage.getItem("minda_token");
+        if (!token) return;
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/assignments/student/my-submissions`, {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const mapped = data.map((sub: any, i: number) => ({
+            id: sub.id,
+            type: "assignment",
+            title: sub.assignment_title,
+            date: new Date(sub.submitted_at).toLocaleDateString("vi-VN"),
+            color: ["#4ade80", "#60a5fa", "#fde047", "#f472b6", "#c084fc"][i % 5]
+          }));
+          setMilestones(mapped);
+        }
+      } catch (e) {}
+    };
+    fetchSubmissions();
+  }, []);
 
   return (
     <section 
@@ -378,7 +400,7 @@ export default function LearningGalaxy({ isFullscreen = false }: { isFullscreen?
       <div className={`absolute inset-0 w-full h-full cursor-grab active:cursor-grabbing z-10 ${isFullscreen ? 'opacity-100' : ''}`}>
         <Canvas camera={{ position: [0, 5, 12], fov: 45 }} gl={{ alpha: true }}>
           {!isFullscreen && <color attach="background" args={["#050505"]} />}
-          <GalaxySystem isFullscreen={isFullscreen} coords={isFullscreen && isReady ? coords : null} isPinching={isPinching} handGestures={handGestures} />
+          <GalaxySystem isFullscreen={isFullscreen} coords={isFullscreen && isReady ? coords : null} isPinching={isPinching} handGestures={handGestures} milestones={milestones} />
           <EffectComposer>
             <Bloom luminanceThreshold={0.2} luminanceSmoothing={0.9} height={300} intensity={1.5} />
           </EffectComposer>
