@@ -731,7 +731,6 @@ export default function TeacherCVView({ teacherId, enableGoBack = true }: Teache
         </div>
       )}
 
-      </div>
     </div>
   );
 }
