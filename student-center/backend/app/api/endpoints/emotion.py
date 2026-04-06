@@ -19,7 +19,7 @@ router = APIRouter(prefix="/api/emotion", tags=["emotion"])
 
 # URL của RAPT-CLIP microservice (chạy local port 8001)
 INFERENCE_URL = "http://localhost:8001/analyze"
-INFERENCE_TIMEOUT = 10.0  # giây
+INFERENCE_TIMEOUT = 30.0  # giây
 
 
 # ─── Schemas ────────────────────────────────────────────────

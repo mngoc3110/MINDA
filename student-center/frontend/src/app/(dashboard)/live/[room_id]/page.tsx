@@ -29,7 +29,7 @@ const EMOTION_BAR_COLORS: Record<string, string> = {
   Distraction: "bg-red-500",
 };
 
-const ANALYZE_INTERVAL_MS = 5000;
+const ANALYZE_INTERVAL_MS = 20000; // Updated to 20 seconds for VPS CPU inference
 
 // ─── Emotion Overlay Component ───────────────────────────────────────────────
 function EmotionOverlay({ emotion, isAnalyzing, serviceOnline, position = "top-4 right-4" }: any) {
@@ -259,6 +259,7 @@ export default function LiveRoomPage() {
 
   // --- Capture Emotion Logic
   const captureAndAnalyze = useCallback(async () => {
+    if (isAnalyzing) return; // Prevent request piling when CPU inference is slow
     if (!canvasRef.current || !localVideoRef.current || !serviceOnline || userInfo?.role === "teacher") return;
     const video = localVideoRef.current;
     const canvas = canvasRef.current;
