@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Users, Shield, GraduationCap, Lock, Unlock, Search } from "lucide-react";
+import { Users, Shield, GraduationCap, Lock, Unlock, Search, Clock, CheckCircle } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function AdminUsersPage() {
@@ -62,6 +62,25 @@ export default function AdminUsersPage() {
         fetchUsers();
       } else {
         alert("Khoá tài khoản thất bại!");
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const approveTeacher = async (userId: number) => {
+    if (!confirm(`Bạn có duyệt đơn đăng ký Giáo viên cho ID ${userId}?`)) return;
+    try {
+      const token = localStorage.getItem("minda_token");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/admin/users/${userId}/approve`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        alert("Đã phê duyệt Giáo viên thành công!");
+        fetchUsers();
+      } else {
+        alert("Phê duyệt thất bại!");
       }
     } catch (e) {
       console.error(e);
@@ -152,6 +171,8 @@ export default function AdminUsersPage() {
                     <td className="px-6 py-4">
                       {user.is_active ? (
                         <span className="inline-flex items-center gap-1 text-green-400 text-xs"><Unlock className="w-3 h-3" /> Đang hoạt động</span>
+                      ) : user.role === 'teacher' ? (
+                        <span className="inline-flex items-center gap-1 text-amber-400 text-xs"><Clock className="w-3 h-3" /> Chờ duyệt</span>
                       ) : (
                         <span className="inline-flex items-center gap-1 text-gray-500 text-xs"><Lock className="w-3 h-3" /> Bị khoá</span>
                       )}
@@ -177,6 +198,15 @@ export default function AdminUsersPage() {
                                   className="w-8 h-8 rounded-lg flex items-center justify-center bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white transition-colors border border-red-500/20"
                                 >
                                   <Lock className="w-4 h-4" />
+                                </button>
+                              )}
+                              {!user.is_active && user.role === 'teacher' && (
+                                <button 
+                                  onClick={() => approveTeacher(user.id)}
+                                  title="Phê duyệt Giáo viên"
+                                  className="w-8 h-8 rounded-lg flex items-center justify-center bg-amber-500/10 text-amber-400 hover:bg-amber-500 hover:text-white transition-colors border border-amber-500/20"
+                                >
+                                  <CheckCircle className="w-4 h-4" />
                                 </button>
                               )}
                             </>
