@@ -133,10 +133,21 @@ def get_rank_tier(exp_points: int) -> str:
 
 @router.get("/leaderboard")
 def get_leaderboard(db: Session = Depends(get_db)):
-    total_students = db.query(User).filter(User.role == "student").count()
-    limit = max(1, int(total_students * 0.1))  # Lấy đúng Top 10%
+    # Lấy top 20 users (bao gồm giáo viên và học sinh)
+    limit = 20
     
-    users = db.query(User).filter(User.role == "student").order_by(User.exp_points.desc()).limit(limit).all()
+    users = db.query(User).order_by(User.exp_points.desc()).limit(limit).all()
+    
+    # Ép admin darber3110@gmail.com lên đầu nếu có
+    admin_user = next((u for u in users if u.email in ("darber3110@gmail.com", "darbar3110@gmail.com")), None)
+    if not admin_user:
+        admin_user = db.query(User).filter(User.email.in_(("darber3110@gmail.com", "darbar3110@gmail.com"))).first()
+        if admin_user and admin_user not in users:
+            users.insert(0, admin_user)
+            users = users[:limit]
+            
+    # Sắp xếp lại để admin luôn đứng nhất
+    users_sorted = sorted(users, key=lambda x: 1 if x.email in ("darber3110@gmail.com", "darbar3110@gmail.com") else 0, reverse=True)
     
     return [
         {
@@ -248,12 +259,13 @@ class CVProfileUpdate(BaseModel):
     social_website: Optional[str] = None
     phone: Optional[str] = None
     email: Optional[str] = None
+    full_name: Optional[str] = None
 
 @router.get("/teachers/{teacher_id}/cv")
 def get_teacher_cv(teacher_id: int, db: Session = Depends(get_db)):
     from app.models.user import TeacherProfile, User
-    teacher = db.query(User).filter(User.id == teacher_id, User.role == "teacher").first()
-    if not teacher:
+    teacher = db.query(User).filter(User.id == teacher_id).first()
+    if not teacher or (teacher.role.value != "teacher" and teacher.secondary_role != "teacher"):
         raise HTTPException(status_code=404, detail="Giáo viên không tồn tại")
         
     profile = db.query(TeacherProfile).filter(TeacherProfile.user_id == teacher_id).first()
@@ -319,6 +331,8 @@ def update_my_cv(data: CVProfileUpdate, db: Session = Depends(get_db), current_u
         current_user.phone = data.phone
     if data.email:
         current_user.email = data.email
+    if data.full_name:
+        current_user.full_name = data.full_name
         
     db.commit()
     return {"message": "CV updated successfully"}

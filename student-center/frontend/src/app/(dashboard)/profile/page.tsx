@@ -85,6 +85,12 @@ export default function ProfilePage() {
   const [editContent, setEditContent] = useState("");
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
 
+  // Edit Profile States
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [editFullName, setEditFullName] = useState("");
+  const [editPhone, setEditPhone] = useState("");
+  const [savingProfile, setSavingProfile] = useState(false);
+
   // Profile Info States
   const [profileInfos, setProfileInfos] = useState<ProfileInfo[]>([]);
   const [editingInfoId, setEditingInfoId] = useState<string | null>(null);
@@ -140,6 +146,12 @@ export default function ProfilePage() {
              localStorage.setItem("minda_user_id", data.id);
              if (currentRole === "teacher") setTeacherId(data.id);
            }
+           if (data.full_name) {
+             setUserName(data.full_name);
+             setEditFullName(data.full_name);
+             localStorage.setItem("minda_user_name", data.full_name);
+           }
+           if (data.phone) setEditPhone(data.phone);
         }
       } catch (e) {}
     };
@@ -401,7 +413,7 @@ export default function ProfilePage() {
                  <button className="bg-[#2374E1] hover:bg-[#3982E4] text-white px-3 py-1.5 rounded-md flex items-center gap-2 font-semibold text-sm transition-colors">
                     <Plus className="w-4 h-4" /> Thêm vào tin
                  </button>
-                 <button className="bg-bg-hover hover:bg-bg-hover text-text-primary px-3 py-1.5 rounded-md flex items-center gap-2 font-semibold text-sm transition-colors">
+                 <button onClick={() => setIsEditingProfile(true)} className="bg-bg-hover hover:bg-bg-hover text-text-primary px-3 py-1.5 rounded-md flex items-center gap-2 font-semibold text-sm transition-colors">
                     <PenTool className="w-4 h-4" /> Chỉnh sửa trang cá nhân
                  </button>
                </div>
@@ -637,6 +649,55 @@ export default function ProfilePage() {
            </div>
         </div>
       </div>
+
+      {/* Edit Basic Profile Info Modal */}
+      {isEditingProfile && (
+        <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-bg-card rounded-2xl w-full max-w-md shadow-2xl overflow-hidden border border-border-card">
+            <div className="flex items-center justify-between p-4 border-b border-border-card">
+              <h3 className="text-xl font-bold text-text-primary">Chỉnh sửa thông tin</h3>
+              <button onClick={() => setIsEditingProfile(false)} className="w-8 h-8 rounded-full bg-bg-hover flex items-center justify-center text-text-secondary hover:text-text-primary transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-4 flex flex-col gap-4">
+              <div>
+                <label className="text-sm font-semibold text-text-secondary mb-1 block">Họ và Tên</label>
+                <input type="text" value={editFullName} onChange={e => setEditFullName(e.target.value)} className="w-full bg-bg-main border border-border-card px-4 py-2.5 rounded-lg text-text-primary outline-none focus:border-indigo-500" placeholder="Nhập họ và tên..." />
+              </div>
+              <div>
+                <label className="text-sm font-semibold text-text-secondary mb-1 block">Số điện thoại</label>
+                <input type="text" value={editPhone} onChange={e => setEditPhone(e.target.value)} className="w-full bg-bg-main border border-border-card px-4 py-2.5 rounded-lg text-text-primary outline-none focus:border-indigo-500" placeholder="Nhập số điện thoại..." />
+              </div>
+            </div>
+            <div className="p-4 border-t border-border-card flex justify-end gap-3 bg-bg-main/50">
+              <button onClick={() => setIsEditingProfile(false)} className="px-5 py-2 font-semibold text-text-secondary hover:text-text-primary transition-colors">Hủy</button>
+              <button onClick={async () => {
+                setSavingProfile(true);
+                try {
+                  const res = await fetch(`${API_BASE}/auth/me`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${getToken()}` },
+                    body: JSON.stringify({ full_name: editFullName, phone: editPhone })
+                  });
+                  if (res.ok) {
+                    const data = await res.json();
+                    setUserName(data.full_name);
+                    localStorage.setItem("minda_user_name", data.full_name);
+                    setEditPhone(data.phone || "");
+                    setIsEditingProfile(false);
+                    alert("Cập nhật thông tin thành công!");
+                  } else alert("Lỗi khi cập nhật");
+                } catch { alert("Lỗi kết nối"); }
+                setSavingProfile(false);
+              }} disabled={savingProfile} className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg transition-colors flex items-center gap-2">
+                {savingProfile && <Loader2 className="w-4 h-4 animate-spin" />}
+                Lưu thay đổi
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

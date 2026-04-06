@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordRequestForm
 from app.db.database import get_db
 from app.models.user import User, UserRole
-from app.schemas.user import UserCreate, UserResponse, Token
+from app.schemas.user import UserCreate, UserResponse, Token, UserUpdate
 from app.core.security import get_password_hash, verify_password, create_access_token, get_current_user
 import random
 
@@ -93,5 +93,18 @@ def login(db: Session = Depends(get_db), form_data: OAuth2PasswordRequestForm = 
 def get_me(current_user: User = Depends(get_current_user)):
     """Lấy thông tin User hiện tại từ JWT Token."""
     # Pydantic v2 requires manually assigning mapped properties if they are declared as fields
+    current_user.is_google_connected = current_user.google_refresh_token is not None
+    return current_user
+
+
+@router.put("/me", response_model=UserResponse)
+def update_me(user_in: UserUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    """Cập nhật thông tin cá nhân."""
+    if user_in.full_name is not None:
+        current_user.full_name = user_in.full_name
+    if user_in.phone is not None:
+        current_user.phone = user_in.phone
+    db.commit()
+    db.refresh(current_user)
     current_user.is_google_connected = current_user.google_refresh_token is not None
     return current_user

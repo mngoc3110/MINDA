@@ -160,6 +160,7 @@ export default function TeacherCVView({ teacherId, enableGoBack = true }: Teache
         cv_theme_color: editForm.cv_theme_color,
         cv_layout: editForm.cv_layout,
         cv_custom_sections: JSON.stringify(editForm.cv_custom_sections),
+        full_name: editForm.full_name,
       };
 
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/profile/teachers/cv`, {
@@ -464,7 +465,9 @@ export default function TeacherCVView({ teacherId, enableGoBack = true }: Teache
            {/* TITLE HEADER */}
            <div>
               <h1 className="text-4xl md:text-5xl font-black text-[#5a5a5a] tracking-tight uppercase leading-none mb-3">
-                 {profile.full_name}
+                 {isEditing ? (
+                   <input className="bg-transparent border-b border-gray-300 w-full outline-none focus:border-blue-500 text-[#5a5a5a]" value={editForm.full_name || ""} onChange={e => setEditForm({...editForm, full_name: e.target.value})} placeholder="Họ và Tên" />
+                 ) : profile.full_name}
               </h1>
               {isEditing ? (
                  <input className="text-xl md:text-2xl font-medium tracking-widest uppercase text-gray-500 w-full border-b border-gray-300 pb-1 outline-none focus:border-blue-500" value={editForm.cv_title} onChange={e => setEditForm({...editForm, cv_title: e.target.value})} placeholder="Chuyên môn (GIA SƯ TOÁN - TIN)" />

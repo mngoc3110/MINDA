@@ -14,6 +14,11 @@ class UserCreate(UserBase):
     role: Optional[str] = "student"  # student / teacher / admin
 
 
+class UserUpdate(BaseModel):
+    full_name: Optional[str] = None
+    phone: Optional[str] = None
+
+
 class UserResponse(UserBase):
     id: int
     phone: Optional[str] = None
