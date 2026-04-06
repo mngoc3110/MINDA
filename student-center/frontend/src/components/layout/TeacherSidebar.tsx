@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BrainCircuit, Grid, BookOpen, GraduationCap, ClipboardCheck, Wallet, LogOut, Sun, Moon, FileUser } from "lucide-react";
+import { BrainCircuit, Grid, BookOpen, GraduationCap, ClipboardCheck, Wallet, LogOut, Sun, Moon, FileUser, Trophy } from "lucide-react";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useEffect, useState } from "react";
 
 const NAV_ITEMS = [
   { name: "Tổng quan", href: "/dashboard", icon: Grid },
+  { name: "Bảng thành tích", href: "/leaderboard", icon: Trophy },
   { name: "Hồ sơ CV", href: "/profile", icon: FileUser },
   { name: "Quản lý Khoá học", href: "/courses", icon: BookOpen },
   { name: "Lớp học Live", href: "/live", icon: GraduationCap },

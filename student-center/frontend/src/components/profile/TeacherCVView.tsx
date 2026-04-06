@@ -681,6 +681,57 @@ export default function TeacherCVView({ teacherId, enableGoBack = true }: Teache
         </div>
 
       </div>
+      
+      {/* Edit Basic Profile Info Modal */}
+      {isEditingBasicProfile && (
+        <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden border border-gray-200">
+            <div className="flex items-center justify-between p-4 border-b border-gray-100">
+              <h3 className="text-xl font-bold text-gray-800">Chỉnh sửa thông tin cơ bản</h3>
+              <button onClick={() => setIsEditingBasicProfile(false)} className="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-500 hover:text-gray-800 transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-4 flex flex-col gap-4">
+              <div>
+                <label className="text-sm font-semibold text-gray-600 mb-1 block">Họ và Tên</label>
+                <input type="text" value={editFullName} onChange={e => setEditFullName(e.target.value)} className="w-full bg-gray-50 border border-gray-200 px-4 py-2.5 rounded-lg text-gray-800 outline-none focus:border-indigo-500" placeholder="Nhập họ và tên..." />
+              </div>
+              <div>
+                <label className="text-sm font-semibold text-gray-600 mb-1 block">Số điện thoại</label>
+                <input type="text" value={editPhone} onChange={e => setEditPhone(e.target.value)} className="w-full bg-gray-50 border border-gray-200 px-4 py-2.5 rounded-lg text-gray-800 outline-none focus:border-indigo-500" placeholder="Nhập số điện thoại..." />
+              </div>
+            </div>
+            <div className="p-4 border-t border-gray-100 flex justify-end gap-3 bg-gray-50/50">
+              <button onClick={() => setIsEditingBasicProfile(false)} className="px-5 py-2 font-semibold text-gray-500 hover:text-gray-700 transition-colors">Hủy</button>
+              <button onClick={async () => {
+                setSavingBasicProfile(true);
+                try {
+                  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/auth/me`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${localStorage.getItem("minda_token")}` },
+                    body: JSON.stringify({ full_name: editFullName, phone: editPhone })
+                  });
+                  if (res.ok) {
+                    const data = await res.json();
+                    localStorage.setItem("minda_user_name", data.full_name);
+                    setProfile((p: any) => ({ ...p, full_name: data.full_name, phone: data.phone }));
+                    setEditForm((f: any) => ({ ...f, full_name: data.full_name, phone: data.phone }));
+                    setIsEditingBasicProfile(false);
+                    alert("Cập nhật thông tin thành công!");
+                  } else alert("Lỗi khi cập nhật");
+                } catch { alert("Lỗi kết nối"); }
+                setSavingBasicProfile(false);
+              }} disabled={savingBasicProfile} className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg transition-colors flex items-center gap-2">
+                {savingBasicProfile && <Loader2 className="w-4 h-4 animate-spin" />}
+                Lưu thay đổi
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      </div>
     </div>
   );
 }
