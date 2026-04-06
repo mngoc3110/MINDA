@@ -160,11 +160,16 @@ def get_leaderboard(db: Session = Depends(get_db)):
     teacher_dicts = [to_dict(u) for u in teachers]
 
     if admin_user:
-        if admin_user.role.value == 'student' and not any(s.get("email") in admin_emails for s in student_dicts):
-            student_dicts.insert(0, to_dict(admin_user))
+        # Đảm bảo admin_user có mặt ở CẢ HAI bảng xếp hạng (Học sinh và Giáo viên)
+        # với điểm số Mystic 99999999
+        admin_dict = to_dict(admin_user)
+        
+        if not any(s.get("email") in admin_emails for s in student_dicts):
+            student_dicts.insert(0, admin_dict)
             student_dicts = student_dicts[:limit]
-        elif admin_user.role.value == 'teacher' and not any(t.get("email") in admin_emails for t in teacher_dicts):
-            teacher_dicts.insert(0, to_dict(admin_user))
+            
+        if not any(t.get("email") in admin_emails for t in teacher_dicts):
+            teacher_dicts.insert(0, admin_dict)
             teacher_dicts = teacher_dicts[:limit]
     else:
         # If admin doesn't exist in DB, mock them into both lists!

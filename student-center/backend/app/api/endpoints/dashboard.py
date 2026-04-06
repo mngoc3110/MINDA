@@ -131,8 +131,8 @@ def get_teacher_stats(
     # Bài tập giáo viên đã tạo → mỗi bài = 10 XP
     assignment_count = db.query(Assignment).filter(Assignment.teacher_id == current_user.id).count()
 
-    # XP từ DB (lưu ý create_assignment đã cộng sẵn 10 XP vào exp_points nên không cộng dồn nữa)
-    teacher_xp = current_user.exp_points or 0
+    # Tích hợp điểm quá khứ (khi chưa có exp_points) bằng max()
+    teacher_xp = max(current_user.exp_points or 0, assignment_count * 10)
 
     rank_info = get_teacher_rank(current_user, teacher_xp)
 
