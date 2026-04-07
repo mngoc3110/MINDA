@@ -380,7 +380,7 @@ export default function QuizBuilderModal({
                               {aiLoading ? (
                                  <>
                                     <Loader2 className="w-10 h-10 text-orange-500 animate-spin mb-3" />
-                                    <p className="font-semibold text-orange-400">Gemini đang phân tích mặt chữ và cấu trúc đề...</p>
+                                    <p className="font-semibold text-orange-400">AI Nội bộ đang phân tích mặt chữ và cấu trúc đề...</p>
                                  </>
                               ) : (
                                  <>

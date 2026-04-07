@@ -1,0 +1,39 @@
+# Model weights (3GB - khong push len git)
+img2latex/
+*.safetensors
+*.pt
+*.bin
+*.pth
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.venv/
+*.egg-info/
+
+# Node
+node_modules/
+.next/
+frontend/.next/
+frontend/node_modules/
+
+# System
+.DS_Store
+*.swp
+*.swo
+
+# Database
+*.db
+*.sqlite3
+
+# Env
+.env
+backend/.env
+
+# Build artifacts
+frontend/next_build.tar.gz
+
+# Temp
+.tmp.driveupload/

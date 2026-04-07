@@ -1,7 +1,7 @@
 import os
 import json
 import base64
-import google.generativeai as genai
+from app.services.ocr_service import extract_quiz_from_pdf_local, extract_quiz_from_image_local
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 
 from sqlalchemy.orm import Session
@@ -311,69 +311,32 @@ async def parse_upload_to_quiz(
     file: UploadFile = File(...),
     current_user: User = Depends(require_role("teacher", "admin"))
 ):
-    """Sử dụng Gemini bóc tách Đề (Pdf/Image) thành JSON cấu trúc THPT 2025."""
+    """Bóc tách Đề (Pdf/Image) thành JSON cấu trúc quiz bằng Tesseract OCR + TextToLatex."""
     try:
-        api_key = os.getenv("GEMINI_API_KEY")
-        if not api_key:
-            raise HTTPException(status_code=500, detail="Thiếu API Key Gemini trên server.")
-            
-        genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-2.5-flash')
-        
         content = await file.read()
         mime_type = file.content_type
+        # === OFFLINE OCR: Tesseract + TextToLatex (Mamba) ===
+        if mime_type == "application/pdf":
+            quiz_data = extract_quiz_from_pdf_local(content)
+        elif mime_type.startswith("image/"):
+            quiz_data = extract_quiz_from_image_local(content)
+        else:
+            raise HTTPException(status_code=400, detail="Chỉ hỗ trợ file PDF hoặc Hình ảnh")
         
-        prompt = """
-        Phân tích đề bài tập/kiểm tra trong ảnh này theo 3 phần cấu trúc THPT Quốc gia 2025:
-        1. Trắc nghiệm MCQ (A,B,C,D - 1 đáp án đúng). correctAnswer là index (0-3).
-        2. Trắc nghiệm Đúng/Sai (Mỗi câu có 4 ý a,b,c,d). items có label (a,b,c,d), text (nội dung ý), và isTrue (tự phân tích hoặc đoán đúng/sai).
-        3. Trả lời ngắn. correctAnswer là chuỗi kết quả (chỉ số học/đáp án ngắn).
+        # Validation - hỗ trợ cả format sections (mới) và questions (cũ)
+        has_sections = quiz_data.get("sections") and any(
+            len(s.get("questions", [])) > 0 for s in quiz_data["sections"]
+        )
+        has_questions = bool(quiz_data.get("questions"))
         
-        QUY TẮC HIỂN THỊ TOÁN HỌC: QUAN TRỌNG: Mọi công thức Toán học, Hóa học, Vật lý (như mũ, phân số, giới hạn, tích phân) PHẢI ĐƯỢC GIỮ NGUYÊN hoặc CHUYỂN ĐỔI SANG MÃ LaTeX. KHÔNG ĐƯỢC việt hóa thành chữ.
-          - Đối với công thức nằm trên một dòng (inline), bọc mã LaTeX trong `$ $` (ví dụ: `$\lim_{x \to 0} f(x)$`, `$x^2 + y^2 = 4$`).
-          - Đối với công thức cần xuống dòng canh giữa (block), bọc trong `$$ $$` (ví dụ: `$$ \int_0^1 x^2 dx $$`).
-
-        Hãy generate ra ĐÚNG ĐỊNH DẠNG JSON sau, không bọc markdown ```json, không thêm chữ nào khác. Tự giải và điền correctAnswer/isTrue. 
-        QUAN TRỌNG: Hãy thêm trường "explanation" chứa lời giải thích rõ ràng, ngắn gọn cho mỗi CÂU HỎI hoặc CHI TIẾT (Với dạng ý thì thêm explanation vào trong mỗi item). Lời giải thích cũng phải tuân thủ chuẩn LaTeX.
-        {
-          "sections": [
-            {
-              "type": "mcq",
-              "instruction": "Phần I: Trắc nghiệm khách quan",
-              "questions": [
-                { "id": "q1", "text": "Câu 1:...", "options": ["A. x=1", "B. x=2", "C. x=3", "D. x=4"], "correctAnswer": 0, "explanation": "Do hàm số bậc nhất..." }
-              ]
-            },
-            {
-              "type": "true_false",
-              "instruction": "Phần II: Câu trắc nghiệm đúng sai",
-              "questions": [
-                { "id": "q2", "text": "Câu 1: Cho hàm số...", "items": [
-                   { "label": "a", "text": "Ý a...", "isTrue": true, "explanation": "Hàm đồng biến trên khoảng..." },
-                   { "label": "b", "text": "Ý b...", "isTrue": false, "explanation": "Đạo hàm âm nên nghịch biến..." }
-                ]}
-              ]
-            },
-            {
-              "type": "short_answer",
-              "instruction": "Phần III: Câu trắc nghiệm trả lời ngắn",
-              "questions": [
-                { "id": "q3", "text": "Câu 1: Giải phương trình...", "correctAnswer": "5" }
-              ]
-            }
-          ]
-        }
-        Nếu là môn nguyên MCQ (như Tin học), thì chỉ tạo 1 section mcq. Chỉ trả về chuỗi parse dạng JSON, tuyệt đối không chèn giải thích.
-        """
-        
-        response = model.generate_content([
-            {"mime_type": mime_type, "data": content},
-            prompt
-        ], generation_config={"response_mime_type": "application/json"})
-        
-        quiz_data = json.loads(response.text)
+        if not has_sections and not has_questions:
+            raise ValueError("OCR không nhận diện được cấu trúc câu hỏi (Câu 1, A, B, C..)")
+            
+        print("Tạo dữ liệu Quiz JSON Offline thành công!")
         return quiz_data
-        
+
+    except HTTPException:
+        raise
     except Exception as e:
         print(f"Error parsing upload: {e}")
         raise HTTPException(status_code=500, detail="Lỗi khi phân tích AI: " + str(e))
