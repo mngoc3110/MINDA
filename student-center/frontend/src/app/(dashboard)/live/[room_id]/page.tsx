@@ -363,11 +363,12 @@ export default function LiveRoomPage() {
   }, [userInfo, room_id]);
 
   // --- 5. Emotion analysis (students only)
-  const captureAndAnalyze = useCallback(async () => {
+    const captureAndAnalyze = useCallback(async () => {
     if (isAnalyzing) return;
-    if (!canvasRef.current || !localVideoRef.current || !serviceOnline) return;
+    const videoNode = localVideoRef.current || pipVideoRef.current;
+    if (!canvasRef.current || !videoNode || !serviceOnline) return;
     if (userInfo?.role === "teacher" || userInfo?.role === "admin") return;
-    const video = localVideoRef.current;
+    const video = videoNode;
     if (video.readyState < 2) return;
 
     const canvas = canvasRef.current;
