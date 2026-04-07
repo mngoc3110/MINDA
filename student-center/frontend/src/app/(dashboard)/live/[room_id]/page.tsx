@@ -127,6 +127,7 @@ export default function LiveRoomPage() {
 
   // Refs
   const localVideoRef   = useRef<HTMLVideoElement>(null);
+  const pipVideoRef = useRef<HTMLVideoElement>(null);
   const teacherVideoRef = useRef<HTMLVideoElement>(null);
   const canvasRef       = useRef<HTMLCanvasElement>(null);
   const intervalRef     = useRef<NodeJS.Timeout | null>(null);
@@ -173,14 +174,7 @@ export default function LiveRoomPage() {
     }
   }, [teacherStream]);
 
-  // --- 3. Bind local stream to local video
-  useEffect(() => {
-    if (localVideoRef.current && localStream) {
-      localVideoRef.current.srcObject = localStream;
-      localVideoRef.current.onloadedmetadata = () =>
-        localVideoRef.current?.play().catch(console.error);
-    }
-  }, [localStream]);
+  
 
   // --- 4. WebRTC setup
   useEffect(() => {
@@ -486,7 +480,7 @@ export default function LiveRoomPage() {
           {peerStatus === "connected" && isTeacher && (
             <div className="w-full h-full relative rounded-3xl overflow-hidden border border-white/10 bg-black shadow-2xl">
               <video
-                ref={localVideoRef}
+                ref={node => { localVideoRef.current = node; if (node && activeStreamRef.current && node.srcObject !== activeStreamRef.current) { node.srcObject = activeStreamRef.current; } }}
                 className={`w-full h-full object-cover ${isScreenSharing ? "" : "scale-x-[-1]"}`}
                 muted
                 playsInline
@@ -500,7 +494,7 @@ export default function LiveRoomPage() {
               {isScreenSharing && (
                 <div className="absolute top-6 right-6 w-36 aspect-video bg-black rounded-xl overflow-hidden border border-white/20 shadow-lg z-30">
                   <video
-                    ref={localVideoRef}
+                ref={node => { localVideoRef.current = node; if (node && activeStreamRef.current && node.srcObject !== activeStreamRef.current) { node.srcObject = activeStreamRef.current; } }}
                     className="w-full h-full object-cover scale-x-[-1]"
                     muted
                     playsInline
@@ -540,7 +534,7 @@ export default function LiveRoomPage() {
               {/* PiP: self cam (bottom-right) */}
               <div className="absolute bottom-20 right-6 md:bottom-8 w-28 md:w-44 aspect-video bg-black rounded-2xl overflow-hidden border border-white/25 shadow-2xl z-40 hover:scale-105 transition-transform">
                 <video
-                  ref={localVideoRef}
+                  ref={node => { pipVideoRef.current = node; if (node && localStream && node.srcObject !== localStream) { node.srcObject = localStream; } }}
                   className="w-full h-full object-cover scale-x-[-1]"
                   muted
                   playsInline
