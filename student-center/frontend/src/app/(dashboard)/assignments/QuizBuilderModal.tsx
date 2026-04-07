@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { X, Upload, Wand2, Loader2, Plus, Trash2, CheckSquare, List } from "lucide-react";
+import { X, Upload, Wand2, Loader2, Plus, Trash2, CheckSquare, List, ImagePlus, ChevronDown } from "lucide-react";
 import MathText from "@/components/MathText";
 import LatexToolbar from "@/components/LatexToolbar";
 
@@ -234,16 +234,56 @@ export default function QuizBuilderModal({
       }
    };
 
-   const addManualQuestion = () => {
-      const newQuestion = { id: `q${Date.now()}`, text: "", options: ["","","",""], correctAnswer: 0 };
-      const currentSections = quizData.sections || [];
-      if (currentSections.length === 0) {
-         setQuizData({ sections: [{ type: "mcq", instruction: "Phần 1: Trắc nghiệm", questions: [newQuestion] }] });
-      } else {
-         const updatedSections = [...currentSections];
-         updatedSections[0].questions.push(newQuestion);
-         setQuizData({ sections: updatedSections });
+   const addManualQuestion = (type: "mcq" | "true_false" | "short_answer") => {
+      let newQuestion: any = { id: `${type}_${Date.now()}`, text: "", imageUrl: "" };
+      
+      let secInstruction = "";
+      if (type === "mcq") {
+         newQuestion = { ...newQuestion, options: ["","","",""], correctAnswer: 0 };
+         secInstruction = "Phần I: Trắc nghiệm khách quan";
+      } else if (type === "true_false") {
+         newQuestion = { ...newQuestion, items: [
+            { label: "a", text: "", isTrue: false },
+            { label: "b", text: "", isTrue: false },
+            { label: "c", text: "", isTrue: false },
+            { label: "d", text: "", isTrue: false }
+         ]};
+         secInstruction = "Phần II: Câu trắc nghiệm đúng/sai";
+      } else if (type === "short_answer") {
+         newQuestion = { ...newQuestion, correctAnswer: "" };
+         secInstruction = "Phần III: Câu trắc nghiệm trả lời ngắn";
       }
+
+      const currentSections = quizData.sections || [];
+      // Tìm section có type tương ứng
+      const secIndex = currentSections.findIndex((s: any) => s.type === type);
+      
+      if (secIndex >= 0) {
+         const updatedSections = [...currentSections];
+         updatedSections[secIndex].questions = [...(updatedSections[secIndex].questions || []), newQuestion];
+         setQuizData({ sections: updatedSections });
+      } else {
+         const newSection = { type, instruction: secInstruction, questions: [newQuestion] };
+         setQuizData({ sections: [...currentSections, newSection] });
+      }
+   };
+
+   const handleImageUpload = (sIdx: number, qIdx: number, e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      if (file.size > 2 * 1024 * 1024) { // giới hạn 2MB
+         alert("Ảnh quá lớn. Vui lòng chọn ảnh dưới 2MB");
+         return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+         const updated = {...quizData};
+         updated.sections[sIdx].questions[qIdx].imageUrl = reader.result;
+         setQuizData(updated);
+      };
+      reader.readAsDataURL(file);
+      // reset input
+      e.target.value = '';
    };
 
    // Simple UI for editing is skipped for brevity (AI parsing creates a complex JSON).
@@ -434,9 +474,18 @@ export default function QuizBuilderModal({
                                  Sếp có thể sửa đề trực tiếp hoặc thêm câu hỏi! 👇
                               </span>
                            )}
-                           <button type="button" onClick={addManualQuestion} className="bg-orange-500/20 text-orange-500 px-3 py-1.5 rounded-lg text-sm font-bold flex items-center gap-1 hover:bg-orange-500/30">
-                              <Plus className="w-4 h-4"/> Thêm Trắc Nghiệm
-                           </button>
+                           
+                           <div className="relative group">
+                              <button type="button" className="bg-orange-500/20 text-orange-500 px-3 py-1.5 rounded-lg text-sm font-bold flex items-center gap-1 hover:bg-orange-500/30">
+                                 <Plus className="w-4 h-4"/> Thêm Câu Hỏi <ChevronDown className="w-4 h-4 ml-1"/>
+                              </button>
+                              <div className="absolute right-0 top-full mt-2 bg-[#222] border border-white/10 rounded-xl overflow-hidden shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20 w-48">
+                                 <button type="button" onClick={() => addManualQuestion('mcq')} className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white border-b border-white/5">Trắc Nghiệm (Phần I)</button>
+                                 <button type="button" onClick={() => addManualQuestion('true_false')} className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white border-b border-white/5">Đúng/Sai (Phần II)</button>
+                                 <button type="button" onClick={() => addManualQuestion('short_answer')} className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white">Trả lời Ngắn (Phần III)</button>
+                              </div>
+                           </div>
+
                         </div>
                         <div className="bg-indigo-500/10 border border-indigo-500/20 p-3 rounded-lg mb-4 text-xs text-indigo-300">
                            <span className="font-bold">💡 Mẹo soạn Toán (LaTeX): </span> 
@@ -470,9 +519,32 @@ export default function QuizBuilderModal({
                                                    setQuizData(updated);
                                                 }}
                                              />
+
                                              {q.text?.includes('$') && (
                                                 <div className="text-sm text-indigo-300 mt-2 p-2 bg-indigo-500/10 rounded-lg"><MathText>{q.text}</MathText></div>
                                              )}
+
+                                             {/* Image Preview */}
+                                             {q.imageUrl && (
+                                                <div className="mt-3 relative w-fit group/img">
+                                                   <img src={q.imageUrl} alt="minh hoa" className="max-h-48 rounded-lg border border-white/10" />
+                                                   <button type="button" onClick={() => {
+                                                      const updated = {...quizData};
+                                                      updated.sections[sIdx].questions[qIdx].imageUrl = "";
+                                                      setQuizData(updated);
+                                                   }} className="absolute -top-2 -right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover/img:opacity-100 transition-opacity">
+                                                      <X className="w-3 h-3"/>
+                                                   </button>
+                                                </div>
+                                             )}
+
+                                             {/* Nút Upload Image */}
+                                             <label className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs text-gray-400 hover:text-white transition-colors cursor-pointer w-fit border border-white/5">
+                                                <ImagePlus className="w-3.5 h-3.5" />
+                                                {q.imageUrl ? "Đổi ảnh khác" : "Đính kèm ảnh/hình vẽ"}
+                                                <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(sIdx, qIdx, e)} />
+                                             </label>
+
                                           </div>
                                           
                                           {sec.type === 'mcq' && q.options && (
@@ -552,9 +624,18 @@ export default function QuizBuilderModal({
                   ) : (
                      <div className="text-center py-12 text-gray-500 border-dashed border border-white/10 rounded-xl bg-[#1a1a1a]">
                         <p>Đề chưa có nội dung. Chọn Upload File Hệ thống AI tự nhận diện cấu trúc, hoặc Bấm "Thêm Trắc Nghiệm" thủ công.</p>
-                        <button type="button" onClick={addManualQuestion} className="mx-auto mt-4 bg-orange-500/20 text-orange-500 px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-orange-500/30">
-                           <Plus className="w-4 h-4"/> Thêm Câu Hỏi Ngay
-                        </button>
+                        
+                        <div className="mx-auto mt-4 w-fit relative group">
+                           <button type="button" className="bg-orange-500/20 text-orange-500 px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-orange-500/30">
+                              <Plus className="w-4 h-4"/> Thêm Câu Hỏi Ngay <ChevronDown className="w-4 h-4"/>
+                           </button>
+                           <div className="absolute top-full mt-2 bg-[#222] border border-white/10 rounded-xl overflow-hidden shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20 w-48 text-left left-1/2 -translate-x-1/2">
+                                 <button type="button" onClick={() => addManualQuestion('mcq')} className="w-full px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white border-b border-white/5">Trắc Nghiệm</button>
+                                 <button type="button" onClick={() => addManualQuestion('true_false')} className="w-full px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white border-b border-white/5">Đúng/Sai</button>
+                                 <button type="button" onClick={() => addManualQuestion('short_answer')} className="w-full px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white">Trả lời Ngắn</button>
+                           </div>
+                        </div>
+
                      </div>
                   )}
 
