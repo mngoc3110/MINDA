@@ -42,10 +42,11 @@ const PEER_PATH   = IS_LOCALHOST ? "/" : "/peerjs/";
 const PEER_SECURE = typeof window !== "undefined" && window.location.protocol === "https:";
 
 // ─── Emotion Overlay Component ────────────────────────────────────────────────
-function EmotionOverlay({ emotion, isAnalyzing, serviceOnline }: {
+function EmotionOverlay({ emotion, isAnalyzing, serviceOnline, compact = false }: {
   emotion: EmotionResult | null;
   isAnalyzing: boolean;
   serviceOnline: boolean | null;
+  compact?: boolean;
 }) {
   if (serviceOnline === false) {
     return (
@@ -55,22 +56,53 @@ function EmotionOverlay({ emotion, isAnalyzing, serviceOnline }: {
       </div>
     );
   }
+  
+  if (!emotion && !isAnalyzing) return null;
+
+  // Tính Top 3
+  let top3: { label: string, val: number }[] = [];
+  if (emotion && emotion.probabilities) {
+    top3 = Object.entries(emotion.probabilities)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([k, v]) => ({ label: k, val: v }));
+  }
+
   return (
-    <div className="absolute top-2 right-2 z-20 bg-black/70 backdrop-blur-md border border-white/10 rounded-lg px-2.5 py-1.5 min-w-[120px]">
-      <div className="flex items-center gap-1.5 mb-1">
-        <Brain className="w-3 h-3 text-purple-400" />
-        <span className="text-[9px] font-bold text-white/60 uppercase tracking-wider">AI Emotion</span>
+    <div className={`absolute top-2 right-2 z-20 bg-black/80 backdrop-blur-md border border-white/10 rounded-lg px-2.5 py-2 ${compact ? "min-w-[120px]" : "min-w-[180px]"}`}>
+      <div className="flex items-center gap-1.5 mb-1.5 pb-1 border-b border-white/10">
+        <Brain className="w-3.5 h-3.5 text-purple-400" />
+        <span className="text-[9px] font-bold text-white/70 uppercase tracking-widest leading-none">AI Emotion</span>
         {isAnalyzing && <div className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse ml-auto" />}
       </div>
+      
       {emotion ? (
-        <div className={`flex items-center gap-1.5 rounded px-1.5 py-1 border text-[10px] font-bold ${EMOTION_COLORS[emotion.label] ?? "bg-white/10 border-white/20 text-white"}`}>
-          <span>{emotion.emoji}</span>
-          <span>{emotion.label} {Math.round(emotion.confidence * 100)}%</span>
+        <div className="flex flex-col gap-2">
+          <div className={`flex items-center gap-1.5 rounded px-2 py-1 border text-xs font-bold w-fit ${EMOTION_COLORS[emotion.label] ?? "bg-white/10 border-white/20 text-white"}`}>
+            <span>{emotion.emoji}</span>
+            <span>{emotion.label} {Math.round(emotion.confidence * 100)}%</span>
+          </div>
+          
+          {top3.length > 0 && !compact && (
+             <div className="flex flex-col gap-1 mt-1">
+               {top3.map((item, idx) => (
+                 <div key={idx} className="flex flex-col gap-0.5">
+                   <div className="flex justify-between text-[8px] uppercase tracking-wider text-white/50 font-bold">
+                     <span>{item.label}</span>
+                     <span>{Math.round(item.val * 100)}%</span>
+                   </div>
+                   <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden">
+                     <div className={`h-full rounded-full ${idx === 0 ? "bg-purple-400" : "bg-white/40"}`} style={{ width: `${Math.round(item.val * 100)}%` }} />
+                   </div>
+                 </div>
+               ))}
+             </div>
+          )}
         </div>
       ) : (
-        <div className="flex items-center gap-1 text-white/40 text-[10px]">
+        <div className="flex items-center gap-1 text-white/40 text-[10px] mt-1">
           <Loader2 className="w-2.5 h-2.5 animate-spin" />
-          <span>Đang phân tích...</span>
+          <span>Đang quét biểu cảm...</span>
         </div>
       )}
     </div>
@@ -124,6 +156,8 @@ export default function LiveRoomPage() {
   const [emotion, setEmotion]       = useState<EmotionResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [serviceOnline, setServiceOnline] = useState<boolean | null>(null);
+  const [studentEmotions, setStudentEmotions] = useState<Record<string, EmotionResult>>({});
+  const dataConnRef = useRef<any>(null);
 
   // Refs
   const localVideoRef   = useRef<HTMLVideoElement>(null);
@@ -224,7 +258,7 @@ export default function LiveRoomPage() {
       peerInstance.current = peer;
 
       // ── Peer is open ──────────────────────────────────────────────
-      peer.on("open", (myId) => {
+            peer.on("open", (myId) => {
         if (!isMounted) return;
         console.log("[PeerJS] Open, myId =", myId, "role =", userInfo.role);
         setPeerStatus("connected");
@@ -232,6 +266,7 @@ export default function LiveRoomPage() {
         if (!isTeacher) {
           // Student: attempt to call teacher with retry
           const attemptCall = () => {
+
             if (!isMounted || !peerInstance.current) return;
             const call = peerInstance.current.call(room_id as string, stream, {
               metadata: { name: userInfo.full_name },
@@ -251,11 +286,29 @@ export default function LiveRoomPage() {
               setTeacherStream(null);
             });
           };
-          attemptCall();
+                    attemptCall();
+          
+          const connectData = () => {
+             if (!isMounted || !peerInstance.current) return;
+             const conn = peerInstance.current.connect(room_id as string, { metadata: { peerId: peerInstance.current.id }});
+             conn.on("open", () => { dataConnRef.current = conn; });
+             conn.on("error", () => { setTimeout(connectData, 3000); });
+          };
+          connectData();
         }
       });
 
-      // ── Incoming calls (Teacher receives student calls) ───────────
+            // ── Incoming calls & data (Teacher) ───────────
+      peer.on("connection", (conn) => {
+        conn.on("data", (data: any) => {
+          try {
+            if (data.type === "emotion" && data.peerId) {
+              setStudentEmotions(prev => ({ ...prev, [data.peerId]: data.emotion }));
+            }
+          } catch(e) {}
+        });
+      });
+
       peer.on("call", (call) => {
         // Always answer with current active stream
         call.answer(activeStreamRef.current || stream);
@@ -333,7 +386,13 @@ export default function LiveRoomPage() {
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ frame_b64, session_id: sessionId }),
       });
-      if (res.ok) setEmotion(await res.json());
+            if (res.ok) {
+        const emData = await res.json();
+        setEmotion(emData);
+        if (dataConnRef.current && dataConnRef.current.open) {
+          dataConnRef.current.send({ type: "emotion", peerId: peerInstance.current?.id, emotion: emData });
+        }
+      }
     } catch { /* ignore */ }
     finally { setIsAnalyzing(false); }
   }, [isAnalyzing, serviceOnline, sessionId, userInfo?.role]);
@@ -582,11 +641,19 @@ export default function LiveRoomPage() {
                     <div className="aspect-video relative">
                       <VideoRefPlayer stream={s.stream} mirrored />
                     </div>
-                    {/* Name tag */}
-                    <div className="px-3 py-2 flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-                      <span className="text-xs font-bold truncate">{s.name}</span>
+                                        {/* Name tag */}
+                    <div className="px-3 py-2 flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                        <span className="text-xs font-bold truncate">{s.name}</span>
+                      </div>
                     </div>
+                    {/* Emotion Overlay (Teacher sees Student's Emotion) */}
+                    {studentEmotions[s.peerId] && (
+                       <div className="absolute top-2 right-2 scale-75 origin-top-right">
+                          <EmotionOverlay emotion={studentEmotions[s.peerId]} isAnalyzing={false} serviceOnline={true} compact={true}/>
+                       </div>
+                    )}
                   </div>
                 ))
               )}
