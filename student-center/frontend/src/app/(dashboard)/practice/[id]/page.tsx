@@ -171,7 +171,7 @@ export default function PracticeRoomPage() {
 
   /** Reset to retake the quiz from scratch */
   const handleRetake = () => {
-    if (!confirm("Bài làm mới sẽ ghi đè điểm cũ. Bạn có chắc muốn làm lại không?")) return;
+    if (!confirm("Bài làm mới sẽ ghi đè điểm cũ. Điểm EXP chỉ được cộng 1 lần khi đạt ≥80%. Bạn có chắc muốn làm lại không?")) return;
     setAnswers({});
     setIsReviewMode(false);
     setFinalResult(null);
@@ -273,12 +273,30 @@ export default function PracticeRoomPage() {
                 <span className="text-xs font-bold text-gray-400 uppercase">Điểm Tối Đa</span>
               </div>
             </div>
+            
+            {assignment.quiz_data?.originalDocUrl && (
+               <div className="mt-8">
+                  <a href={assignment.quiz_data.originalDocUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-500/10 border border-indigo-500/20 rounded-xl hover:bg-indigo-500/20 text-sm font-bold text-indigo-500 transition-colors">
+                     <FileText className="w-5 h-5 text-indigo-500" />
+                     Xem Xem & Tải Đề Gốc Bản In
+                  </a>
+               </div>
+            )}
+            
             <button onClick={() => setStarted(true)} className="mt-10 px-10 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-2xl font-bold text-lg shadow-[0_10px_30px_rgba(99,102,241,0.4)] flex items-center justify-center gap-3 mx-auto transition-transform hover:-translate-y-1">
               <PlayCircle className="w-6 h-6" /> Bắt Đầu Làm Bài
             </button>
           </div>
         ) : (
           <div className="space-y-10 pb-20">
+            {assignment.quiz_data?.originalDocUrl && (
+               <div className="flex justify-end pt-4">
+                  <a href={assignment.quiz_data.originalDocUrl} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-indigo-500/10 hover:bg-indigo-500/20 rounded-xl text-sm font-bold text-indigo-500 transition-colors border border-indigo-500/20">
+                     <FileText className="w-4 h-4"/> Xem Đề Gốc (Bản PDF/Ảnh)
+                  </a>
+               </div>
+            )}
+            
             {isReviewMode && finalResult && (
               <div className={`rounded-3xl border-2 border-green-500/30 p-8 text-center mb-10 ${theme === "dark" ? "bg-green-500/10" : "bg-green-50"}`}>
                 <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
@@ -300,6 +318,42 @@ export default function PracticeRoomPage() {
                   >
                     <ArrowLeft className="w-5 h-5" /> Về Danh Sách Đề
                   </Link>
+                </div>
+              </div>
+            )}
+
+            {isReviewMode && (assignment.quiz_data?.solutionDocUrl || assignment.quiz_data?.solutionVideoUrl) && (
+              <div className={`rounded-3xl border-2 border-indigo-500/30 p-8 mb-10 ${theme === "dark" ? "bg-indigo-500/5 text-white" : "bg-white shadow-xl"}`}>
+                <h2 className="text-2xl font-black mb-6 flex items-center gap-3 text-indigo-500">
+                  <FileText className="w-8 h-8" /> GIẢI ĐÁP TỪ GIÁO VIÊN
+                </h2>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  {assignment.quiz_data?.solutionDocUrl && (
+                    <div className="flex flex-col gap-3">
+                      <h3 className="font-bold text-gray-500 uppercase tracking-widest text-sm">Tài Liệu Đính Kèm</h3>
+                      <a href={assignment.quiz_data.solutionDocUrl} target="_blank" rel="noreferrer" className="flex items-center gap-4 p-5 bg-indigo-500/10 hover:bg-indigo-500/20 rounded-2xl border border-indigo-500/20 text-indigo-500 transition-transform hover:-translate-y-1">
+                        <FileText className="w-8 h-8" />
+                        <span className="font-bold text-lg">Mở Lời Giải PDF / Ảnh</span>
+                      </a>
+                    </div>
+                  )}
+                  {assignment.quiz_data?.solutionVideoUrl && (
+                    <div className="flex flex-col gap-3">
+                      <h3 className="font-bold text-gray-500 uppercase tracking-widest text-sm">Video Chữa Bài</h3>
+                      {assignment.quiz_data.solutionVideoUrl.includes("youtube.com") || assignment.quiz_data.solutionVideoUrl.includes("youtu.be") ? (
+                        <iframe 
+                            className="w-full aspect-video rounded-2xl border border-white/10 shadow-lg"
+                            src={assignment.quiz_data.solutionVideoUrl.replace("watch?v=", "embed/").replace("youtu.be/", "youtube.com/embed/")} 
+                            allowFullScreen
+                        />
+                      ) : (
+                        <a href={assignment.quiz_data.solutionVideoUrl} target="_blank" rel="noreferrer" className="flex items-center gap-4 p-5 bg-red-500/10 hover:bg-red-500/20 rounded-2xl border border-red-500/20 text-red-500 transition-transform hover:-translate-y-1">
+                          <PlayCircle className="w-8 h-8" />
+                          <span className="font-bold text-lg">Mở Xem Video Giải Thích</span>
+                        </a>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -393,6 +447,13 @@ export default function PracticeRoomPage() {
                               {badgeText}
                             </span>
                           </h4>
+
+                          {/* Render hình ảnh đính kèm nếu có */}
+                          {q.imageUrl && (
+                            <div className="mb-6 pl-11">
+                              <img src={q.imageUrl} alt="minh họa câu hỏi" className="max-w-full max-h-[350px] rounded-xl border shadow-sm object-contain" />
+                            </div>
+                          )}
 
                           {/* ---- MCQ ---- */}
                           {sec.type === "mcq" && q.options && (

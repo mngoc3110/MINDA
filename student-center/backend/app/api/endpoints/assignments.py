@@ -23,8 +23,16 @@ def create_assignment(
     current_user: User = Depends(require_role("teacher", "admin")),
 ):
     """Tạo bài tập mới tự do (Teacher/Admin)."""
-    # Xử lý course_id optional có thể truyền trong data.model_dump()
-    assignment = Assignment(**data.model_dump(), teacher_id=current_user.id)
+    # Lấy ra thông tin assignee_ids
+    dump_data = data.model_dump()
+    assignee_ids = dump_data.pop("assignee_ids", [])
+    
+    assignment = Assignment(**dump_data, teacher_id=current_user.id)
+    
+    if hasattr(assignment, "is_assigned_to_all") and not assignment.is_assigned_to_all and assignee_ids:
+        students = db.query(User).filter(User.id.in_(assignee_ids)).all()
+        assignment.assignees = students
+
     db.add(assignment)
     
     # Cộng 10 EXP cho giáo viên
@@ -38,7 +46,21 @@ def create_assignment(
 @router.get("/courses/{course_id}/assignments", response_model=List[AssignmentResponse])
 def list_assignments(course_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Danh sách bài tập của khoá học."""
-    return db.query(Assignment).filter(Assignment.course_id == course_id).all()
+    assignments = db.query(Assignment).filter(Assignment.course_id == course_id).all()
+    
+    result = []
+    for a in assignments:
+        is_allowed = True
+        if current_user.role.value == "student" and not getattr(a, "is_assigned_to_all", True):
+            if not any(u.id == current_user.id for u in getattr(a, "assignees", [])):
+                is_allowed = False
+        
+        if is_allowed:
+            resp = AssignmentResponse.model_validate(a)
+            resp.assignee_ids = [u.id for u in a.assignees]
+            result.append(resp)
+            
+    return result
 
 
 @router.put("/assignments/{assignment_id}", response_model=AssignmentResponse)
@@ -56,8 +78,17 @@ def update_assignment(
         raise HTTPException(status_code=403, detail="Không có quyền sửa bài tập này")
     
     update_data = data.model_dump(exclude_unset=True)
+    assignee_ids = update_data.pop("assignee_ids", None)
+    
     for key, value in update_data.items():
         setattr(assignment, key, value)
+        
+    if assignee_ids is not None and not getattr(assignment, "is_assigned_to_all", True):
+        students = db.query(User).filter(User.id.in_(assignee_ids)).all()
+        assignment.assignees = students
+    elif getattr(assignment, "is_assigned_to_all", True):
+        assignment.assignees = []
+
     
     db.commit()
     db.refresh(assignment)
@@ -92,16 +123,36 @@ def submit_assignment(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_role("student")),
 ):
-    """Học sinh nộp bài tập."""
+    """Học sinh nộp bài tập. UPSERT: làm lại ghi đè bài cũ, EXP chỉ cộng 1 lần khi ≥80%."""
     assignment = db.query(Assignment).filter(Assignment.id == assignment_id).first()
     if not assignment:
         raise HTTPException(status_code=404, detail="Bài tập không tồn tại")
     
-    submission = AssignmentSubmission(
-        assignment_id=assignment_id,
-        student_id=current_user.id,
-        **data.model_dump(),
-    )
+    # ── UPSERT: Kiểm tra xem đã có submission cũ chưa ──
+    existing_submission = db.query(AssignmentSubmission).filter(
+        AssignmentSubmission.assignment_id == assignment_id,
+        AssignmentSubmission.student_id == current_user.id
+    ).first()
+    
+    # Ghi nhận xem lần trước đã từng đạt ≥80% và được cộng EXP chưa
+    already_earned_exp = False
+    if existing_submission and existing_submission.score is not None:
+        threshold = 0.8 * assignment.max_score
+        already_earned_exp = existing_submission.score >= threshold
+    
+    # Sử dụng submission cũ hoặc tạo mới
+    if existing_submission:
+        submission = existing_submission
+        # Cập nhật dữ liệu mới
+        for key, value in data.model_dump().items():
+            setattr(submission, key, value)
+        submission.submitted_at = datetime.utcnow()
+    else:
+        submission = AssignmentSubmission(
+            assignment_id=assignment_id,
+            student_id=current_user.id,
+            **data.model_dump(),
+        )
     
     # Auto-grader for quiz
     if assignment.assignment_type == "quiz" and assignment.quiz_data and data.quiz_answers:
@@ -196,10 +247,14 @@ def submit_assignment(
         except Exception as e:
             print("Auto-grade error:", e)
 
-    # Cộng 20 EXP cho học sinh
-    current_user.exp_points = (current_user.exp_points or 0) + 20
+    # ── EXP Logic: Chỉ cộng 1 lần duy nhất khi đạt ≥80% ──
+    if not already_earned_exp and submission.score is not None:
+        threshold = 0.8 * assignment.max_score
+        if submission.score >= threshold:
+            current_user.exp_points = (current_user.exp_points or 0) + 20
 
-    db.add(submission)
+    if not existing_submission:
+        db.add(submission)
     db.commit()
     db.refresh(submission)
     return submission
@@ -235,11 +290,24 @@ def grade_submission(
     return submission
 
 @router.get("/assignments/practice", response_model=List[AssignmentResponse])
-def get_practice_assignments(db: Session = Depends(get_db)):
+def get_practice_assignments(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Lấy danh sách các Bài tập luyện thi tự do (không thuộc khóa học nào)."""
     # course_id is None indicates standalone assignment
     assignments = db.query(Assignment).filter(Assignment.course_id == None).order_by(Assignment.created_at.desc()).all()
-    return assignments
+    
+    result = []
+    for a in assignments:
+        is_allowed = True
+        if current_user.role.value == "student" and not getattr(a, "is_assigned_to_all", True):
+            if not any(u.id == current_user.id for u in getattr(a, "assignees", [])):
+                is_allowed = False
+        
+        if is_allowed:
+            resp = AssignmentResponse.model_validate(a)
+            resp.assignee_ids = [u.id for u in getattr(a, "assignees", [])]
+            result.append(resp)
+            
+    return result
 
 @router.get("/assignments/{assignment_id}", response_model=AssignmentResponse)
 def get_assignment(assignment_id: int, db: Session = Depends(get_db)):

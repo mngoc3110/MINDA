@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { BrainCircuit, HardDrive, Star, Trophy, Users, BookOpen, Clock, Activity, FileText, UploadCloud, Loader2, ExternalLink } from "lucide-react";
-import Math3DViewer from "@/features/3d-math/Math3DViewer";
+import AILearningWorkspace from "@/features/3d-math/AILearningWorkspace";
 import Link from "next/link";
 
 export default function Dashboard() {
@@ -292,16 +292,16 @@ export default function Dashboard() {
             <div className="w-full bg-bg-hover rounded-full h-2 mb-2 overflow-hidden shadow-inner">
               <div className={`h-2 rounded-full transition-all duration-1000 ease-out ${isMystic ? 'bg-gradient-to-r from-yellow-400 via-red-500 to-fuchsia-500 animate-pulse w-full' : `bg-gradient-to-r ${stats.rank_color || 'from-slate-400 to-slate-600'}`}`} style={{ width: isMystic ? '100%' : `${stats.progress_percent || 0}%` }}></div>
             </div>
-            <p className="text-xs text-center text-text-secondary">Hoàn thành 1 bài tập hoặc 1 khoá học để nhận ⭐ và điểm EXP!</p>
+            <p className="text-xs text-center text-text-secondary">Đạt ≥80% điểm bài tập để nhận ⭐ và +20 EXP (ghi nhận 1 lần mỗi bài)!</p>
           </section>
 
           {/* Drive Section */}
           {renderDriveSection("text-indigo-500")}
         </div>
 
-        {/* Right Column: 3D Math Module */}
+        {/* Right Column: 3D Math Module + AI Chat */}
         <div className="lg:col-span-2 flex flex-col min-h-[500px] xl:min-h-[700px]">
-          <Math3DViewer />
+          <AILearningWorkspace />
         </div>
 
       </div>

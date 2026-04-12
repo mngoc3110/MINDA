@@ -72,7 +72,7 @@ def submit_exam(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_role("student")),
 ):
-    """Học sinh nộp bài kiểm tra. Tự động chấm điểm trắc nghiệm."""
+    """Học sinh nộp bài kiểm tra. UPSERT: làm lại ghi đè bài cũ."""
     exam = db.query(Exam).filter(Exam.id == exam_id).first()
     if not exam:
         raise HTTPException(status_code=404, detail="Đề thi không tồn tại")
@@ -85,14 +85,28 @@ def submit_exam(
         if student_answer and q.correct_answer and student_answer.strip().lower() == q.correct_answer.strip().lower():
             total_score += q.points
     
-    submission = ExamSubmission(
-        exam_id=exam_id,
-        student_id=current_user.id,
-        answers=data.answers,
-        score=total_score,
-        submitted_at=datetime.utcnow(),
-    )
-    db.add(submission)
+    # ── UPSERT: Kiểm tra xem đã có submission cũ chưa ──
+    existing_submission = db.query(ExamSubmission).filter(
+        ExamSubmission.exam_id == exam_id,
+        ExamSubmission.student_id == current_user.id
+    ).first()
+    
+    if existing_submission:
+        # Ghi đè bài cũ
+        existing_submission.answers = data.answers
+        existing_submission.score = total_score
+        existing_submission.submitted_at = datetime.utcnow()
+        submission = existing_submission
+    else:
+        submission = ExamSubmission(
+            exam_id=exam_id,
+            student_id=current_user.id,
+            answers=data.answers,
+            score=total_score,
+            submitted_at=datetime.utcnow(),
+        )
+        db.add(submission)
+    
     db.commit()
     db.refresh(submission)
     return submission
