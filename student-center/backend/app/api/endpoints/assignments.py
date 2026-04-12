@@ -336,9 +336,9 @@ def teacher_dashboard_assignments(db: Session = Depends(get_db), current_user: U
     
     result = []
     for a in assignments:
-        resp = AssignmentResponse.model_validate(a)
-        resp.assignee_ids = [u.id for u in getattr(a, "assignees", [])]
-        result.append(resp)
+        resp_dict = AssignmentResponse.model_validate(a).model_dump()
+        resp_dict["assignee_ids"] = [u.id for u in getattr(a, "assignees", [])]
+        result.append(resp_dict)
     return result
 
 @router.get("/assignments/student/my-submissions")
