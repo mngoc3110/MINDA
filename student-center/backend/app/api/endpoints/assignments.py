@@ -331,9 +331,15 @@ def get_my_submission(assignment_id: int, db: Session = Depends(get_db), current
 
 @router.get("/assignments/teacher/dashboard/assignments")
 def teacher_dashboard_assignments(db: Session = Depends(get_db), current_user: User = Depends(require_role("teacher", "admin"))):
-    """Lấy danh sách Bài tập đã tạo của Giáo viên."""
+    """Lấy danh sách Bài tập đã tạo của Giáo viên (kèm assignee_ids)."""
     assignments = db.query(Assignment).filter(Assignment.teacher_id == current_user.id).order_by(Assignment.created_at.desc()).all()
-    return assignments
+    
+    result = []
+    for a in assignments:
+        resp = AssignmentResponse.model_validate(a)
+        resp.assignee_ids = [u.id for u in getattr(a, "assignees", [])]
+        result.append(resp)
+    return result
 
 @router.get("/assignments/student/my-submissions")
 def get_all_my_submissions(db: Session = Depends(get_db), current_user: User = Depends(require_role("student", "admin"))):
