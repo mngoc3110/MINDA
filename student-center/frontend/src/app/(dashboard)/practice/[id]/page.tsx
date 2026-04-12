@@ -322,39 +322,47 @@ export default function PracticeRoomPage() {
               </div>
             )}
 
-            {isReviewMode && (assignment.quiz_data?.solutionDocUrl || assignment.quiz_data?.solutionVideoUrl) && (
+            {isReviewMode && (
               <div className={`rounded-3xl border-2 border-indigo-500/30 p-8 mb-10 ${theme === "dark" ? "bg-indigo-500/5 text-white" : "bg-white shadow-xl"}`}>
                 <h2 className="text-2xl font-black mb-6 flex items-center gap-3 text-indigo-500">
                   <FileText className="w-8 h-8" /> GIẢI ĐÁP TỪ GIÁO VIÊN
                 </h2>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  {assignment.quiz_data?.solutionDocUrl && (
-                    <div className="flex flex-col gap-3">
-                      <h3 className="font-bold text-gray-500 uppercase tracking-widest text-sm">Tài Liệu Đính Kèm</h3>
-                      <a href={assignment.quiz_data.solutionDocUrl} target="_blank" rel="noreferrer" className="flex items-center gap-4 p-5 bg-indigo-500/10 hover:bg-indigo-500/20 rounded-2xl border border-indigo-500/20 text-indigo-500 transition-transform hover:-translate-y-1">
-                        <FileText className="w-8 h-8" />
-                        <span className="font-bold text-lg">Mở Lời Giải PDF / Ảnh</span>
-                      </a>
-                    </div>
-                  )}
-                  {assignment.quiz_data?.solutionVideoUrl && (
-                    <div className="flex flex-col gap-3">
-                      <h3 className="font-bold text-gray-500 uppercase tracking-widest text-sm">Video Chữa Bài</h3>
-                      {assignment.quiz_data.solutionVideoUrl.includes("youtube.com") || assignment.quiz_data.solutionVideoUrl.includes("youtu.be") ? (
-                        <iframe 
-                            className="w-full aspect-video rounded-2xl border border-white/10 shadow-lg"
-                            src={assignment.quiz_data.solutionVideoUrl.replace("watch?v=", "embed/").replace("youtu.be/", "youtube.com/embed/")} 
-                            allowFullScreen
-                        />
-                      ) : (
-                        <a href={assignment.quiz_data.solutionVideoUrl} target="_blank" rel="noreferrer" className="flex items-center gap-4 p-5 bg-red-500/10 hover:bg-red-500/20 rounded-2xl border border-red-500/20 text-red-500 transition-transform hover:-translate-y-1">
-                          <PlayCircle className="w-8 h-8" />
-                          <span className="font-bold text-lg">Mở Xem Video Giải Thích</span>
+                {(!assignment.quiz_data?.solutionDocUrl && !assignment.quiz_data?.solutionVideoUrl) ? (
+                  <div className="flex flex-col items-center justify-center py-10 bg-indigo-500/5 rounded-2xl border border-indigo-500/20 border-dashed">
+                    <Clock className="w-12 h-12 text-indigo-400 mb-3 opacity-80" />
+                    <p className="text-xl font-bold text-indigo-500">Bài sửa sẽ được cập nhật lên sớm!</p>
+                    <p className="text-sm text-gray-500 mt-2">Giáo viên sẽ sớm đăng tải lời giải chi tiết và video giải đáp cho bài tập này.</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {assignment.quiz_data?.solutionDocUrl && (
+                      <div className="flex flex-col gap-3">
+                        <h3 className="font-bold text-gray-500 uppercase tracking-widest text-sm">Tài Liệu Đính Kèm</h3>
+                        <a href={assignment.quiz_data.solutionDocUrl} target="_blank" rel="noreferrer" className="flex items-center gap-4 p-5 bg-indigo-500/10 hover:bg-indigo-500/20 rounded-2xl border border-indigo-500/20 text-indigo-500 transition-transform hover:-translate-y-1">
+                          <FileText className="w-8 h-8" />
+                          <span className="font-bold text-lg">Mở Lời Giải PDF / Ảnh</span>
                         </a>
-                      )}
-                    </div>
-                  )}
-                </div>
+                      </div>
+                    )}
+                    {assignment.quiz_data?.solutionVideoUrl && (
+                      <div className="flex flex-col gap-3">
+                        <h3 className="font-bold text-gray-500 uppercase tracking-widest text-sm">Video Chữa Bài</h3>
+                        {assignment.quiz_data.solutionVideoUrl.includes("youtube.com") || assignment.quiz_data.solutionVideoUrl.includes("youtu.be") ? (
+                          <iframe 
+                              className="w-full aspect-video rounded-2xl border border-white/10 shadow-lg"
+                              src={assignment.quiz_data.solutionVideoUrl.replace("watch?v=", "embed/").replace("youtu.be/", "youtube.com/embed/")} 
+                              allowFullScreen
+                          />
+                        ) : (
+                          <a href={assignment.quiz_data.solutionVideoUrl} target="_blank" rel="noreferrer" className="flex items-center gap-4 p-5 bg-red-500/10 hover:bg-red-500/20 rounded-2xl border border-red-500/20 text-red-500 transition-transform hover:-translate-y-1">
+                            <PlayCircle className="w-8 h-8" />
+                            <span className="font-bold text-lg">Mở Xem Video Giải Thích</span>
+                          </a>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
 
