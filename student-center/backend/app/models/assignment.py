@@ -1,8 +1,14 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text, JSON
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text, JSON, Boolean, Table
 from sqlalchemy.orm import relationship
 from app.db.database import Base
 from datetime import datetime
 
+assignment_assignees = Table(
+    'assignment_assignees',
+    Base.metadata,
+    Column('assignment_id', Integer, ForeignKey('assignments.id', ondelete="CASCADE"), primary_key=True),
+    Column('student_id', Integer, ForeignKey('users.id', ondelete="CASCADE"), primary_key=True)
+)
 
 class Assignment(Base):
     __tablename__ = "assignments"
@@ -19,10 +25,12 @@ class Assignment(Base):
     due_date = Column(DateTime, nullable=True)
     max_score = Column(Integer, default=100)
     exam_format = Column(String, default="practice")  # "standard" (thang 10) or "practice" (thang 100)
+    is_assigned_to_all = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     course = relationship("Course", back_populates="assignments")
     submissions = relationship("AssignmentSubmission", back_populates="assignment", cascade="all, delete-orphan")
+    assignees = relationship("User", secondary=assignment_assignees, backref="assigned_tasks")
 
 
 class AssignmentSubmission(Base):

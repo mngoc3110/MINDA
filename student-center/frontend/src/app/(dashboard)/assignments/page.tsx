@@ -232,6 +232,14 @@ export default function AssignmentsPage() {
                       ) : (
                         <span className="text-xs px-2 py-1 bg-orange-500/10 text-orange-400 rounded border border-orange-500/20">Làm thêm tự do</span>
                       )}
+                      
+                      <div className="mt-1.5">
+                        {item.is_assigned_to_all === false ? (
+                           <span className="text-[10px] px-1.5 py-0.5 bg-blue-500/10 text-blue-400 rounded border border-blue-500/20 font-bold whitespace-nowrap">Riêng: {(item.assignee_ids || []).length} HS</span>
+                        ) : (
+                           <span className="text-[10px] px-1.5 py-0.5 bg-white/5 text-gray-500 rounded border border-white/10 whitespace-nowrap">Giao Chung</span>
+                        )}
+                      </div>
                     </td>
                     <td className="p-4 pr-6 text-right space-x-2">
                        <button onClick={() => { setEditAssignment(item); setShowCreateModal(true); }} className="p-1.5 text-blue-400 hover:bg-blue-500/20 rounded-lg transition-colors" title="Sửa Đề">
@@ -342,6 +350,7 @@ export default function AssignmentsPage() {
           courses={courses}
           onClose={() => setShowCreateModal(false)}
           onSuccess={fetchSubmissions}
+          editAssignment={editAssignment}
         />
       )}
     </div>

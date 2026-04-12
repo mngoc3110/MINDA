@@ -83,6 +83,8 @@ class AssignmentCreate(BaseModel):
     due_date: Optional[datetime] = None
     max_score: Optional[int] = 100
     exam_format: Optional[str] = "practice"
+    is_assigned_to_all: Optional[bool] = True
+    assignee_ids: Optional[List[int]] = None
 
 class AssignmentResponse(BaseModel):
     id: int
@@ -97,6 +99,8 @@ class AssignmentResponse(BaseModel):
     due_date: Optional[datetime]
     max_score: int
     exam_format: Optional[str] = "practice"
+    is_assigned_to_all: Optional[bool] = True
+    assignee_ids: Optional[List[int]] = None
     created_at: Optional[datetime]
     class Config:
         from_attributes = True

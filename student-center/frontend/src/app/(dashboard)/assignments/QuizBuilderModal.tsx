@@ -33,6 +33,31 @@ export default function QuizBuilderModal({
    const [newCourseTitle, setNewCourseTitle] = useState("");
    const [localCourses, setLocalCourses] = useState<any[]>([]);
    const [examFormat, setExamFormat] = useState<"standard" | "practice">("practice");
+   const [solutionDocUrl, setSolutionDocUrl] = useState("");
+   const [solutionVideoUrl, setSolutionVideoUrl] = useState("");
+   const [isUploadingVideo, setIsUploadingVideo] = useState(false);
+   const [isUploadingDoc, setIsUploadingDoc] = useState(false);
+   const [originalDocUrl, setOriginalDocUrl] = useState("");
+   const [isUploadingOrig, setIsUploadingOrig] = useState(false);
+   
+   const [students, setStudents] = useState<any[]>([]);
+   const [assigneeIds, setAssigneeIds] = useState<number[]>([]);
+   const [isAssignedToAll, setIsAssignedToAll] = useState(true);
+
+   // Fetch students
+   useEffect(() => {
+       const fetchStudents = async () => {
+           try {
+               const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/profile/students`, {
+                   headers: { Authorization: `Bearer ${localStorage.getItem("minda_token")}` }
+               });
+               if (res.ok) {
+                   setStudents(await res.json());
+               }
+           } catch(e) {}
+       };
+       fetchStudents();
+   }, []);
 
    // Initialize data if in edit mode
    useEffect(() => {
@@ -42,7 +67,15 @@ export default function QuizBuilderModal({
          if (editAssignment.course_id) setCourseId(editAssignment.course_id.toString());
          if (editAssignment.lesson_id) setLessonId(editAssignment.lesson_id.toString());
          if (editAssignment.exam_format) setExamFormat(editAssignment.exam_format);
-         if (editAssignment.quiz_data) setQuizData(editAssignment.quiz_data);
+         if (editAssignment.is_assigned_to_all !== undefined) setIsAssignedToAll(editAssignment.is_assigned_to_all);
+         if (editAssignment.assignee_ids) setAssigneeIds(editAssignment.assignee_ids);
+         
+         if (editAssignment.quiz_data) {
+             setQuizData(editAssignment.quiz_data);
+             if (editAssignment.quiz_data.solutionDocUrl) setSolutionDocUrl(editAssignment.quiz_data.solutionDocUrl);
+             if (editAssignment.quiz_data.solutionVideoUrl) setSolutionVideoUrl(editAssignment.quiz_data.solutionVideoUrl);
+             if (editAssignment.quiz_data.originalDocUrl) setOriginalDocUrl(editAssignment.quiz_data.originalDocUrl);
+         }
       }
    }, [editAssignment]);
 
@@ -180,6 +213,99 @@ export default function QuizBuilderModal({
       }
    };
 
+   const handleUploadOriginalDoc = async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      setIsUploadingOrig(true);
+      try {
+         const token = localStorage.getItem("minda_token");
+         const formData = new FormData();
+         formData.append("file", file);
+         
+         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/files/upload`, {
+            method: "POST",
+            headers: { "Authorization": `Bearer ${token}` },
+            body: formData
+         });
+         
+         if (res.ok) {
+            const data = await res.json();
+            setOriginalDocUrl(data.file_url);
+         } else {
+            const err = await res.json();
+            alert("Lỗi tải đề gốc: " + (err.detail || ""));
+         }
+      } catch (err) {
+         console.error(err);
+         alert("Lỗi mạng khi tải file.");
+      } finally {
+         setIsUploadingOrig(false);
+         if (e.target) e.target.value = '';
+      }
+   };
+
+   const handleUploadSolutionVideo = async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      setIsUploadingVideo(true);
+      try {
+         const token = localStorage.getItem("minda_token");
+         const formData = new FormData();
+         formData.append("file", file);
+         
+         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/files/upload`, {
+            method: "POST",
+            headers: { "Authorization": `Bearer ${token}` },
+            body: formData
+         });
+         
+         if (res.ok) {
+            const data = await res.json();
+            setSolutionVideoUrl(data.file_url);
+         } else {
+            const err = await res.json();
+            alert("Lỗi tải video chữa bài: " + (err.detail || ""));
+         }
+      } catch (err) {
+         console.error(err);
+         alert("Lỗi mạng khi tải file.");
+      } finally {
+         setIsUploadingVideo(false);
+         if (e.target) e.target.value = '';
+      }
+   };
+
+   const handleUploadSolutionDoc = async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      setIsUploadingDoc(true);
+      try {
+         const token = localStorage.getItem("minda_token");
+         const formData = new FormData();
+         formData.append("file", file);
+         
+         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/files/upload`, {
+            method: "POST",
+            headers: { "Authorization": `Bearer ${token}` },
+            body: formData
+         });
+         
+         if (res.ok) {
+            const data = await res.json();
+            setSolutionDocUrl(data.file_url);
+         } else {
+            const err = await res.json();
+            alert("Lỗi tải file chữa bài: " + (err.detail || ""));
+         }
+      } catch (err) {
+         console.error(err);
+         alert("Lỗi mạng khi tải file.");
+      } finally {
+         setIsUploadingDoc(false);
+         if (e.target) e.target.value = '';
+      }
+   };
+
    const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
       
@@ -192,11 +318,17 @@ export default function QuizBuilderModal({
             lesson_id: lessonId ? parseInt(lessonId) : null,
             course_id: courseId ? parseInt(courseId) : null,
             assignment_type: "quiz",
-            quiz_data: quizData,
+            quiz_data: {
+               ...quizData,
+               solutionDocUrl,
+               solutionVideoUrl,
+               originalDocUrl
+            },
             exam_format: examFormat,
-            max_score: examFormat === "standard" ? 10 : 100
+            max_score: examFormat === "standard" ? 10 : 100,
+            is_assigned_to_all: isAssignedToAll,
+            assignee_ids: assigneeIds
          };
-         
          
          let res;
          if (isEditing) {
@@ -365,6 +497,38 @@ export default function QuizBuilderModal({
                            </select>
                         )}
                      </div>
+                     
+                     {/* BỘ LỌC ĐỐI TƯỢNG GIAO BÀI */}
+                     <div className="col-span-1 md:col-span-2">
+                        <label className="block text-sm font-semibold text-gray-400 mb-2">ĐỐI TƯỢNG GIAO BÀI</label>
+                        <div className="flex flex-col gap-3 bg-[#1a1a1a] p-3 rounded-xl border border-white/10">
+                            <div className="flex gap-6">
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                    <input type="radio" checked={isAssignedToAll} onChange={() => setIsAssignedToAll(true)} className="accent-orange-500 w-4 h-4" />
+                                    <span className={isAssignedToAll ? "text-white font-bold text-sm" : "text-gray-400 text-sm"}>Giao toàn khoá</span>
+                                </label>
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                    <input type="radio" checked={!isAssignedToAll} onChange={() => setIsAssignedToAll(false)} className="accent-orange-500 w-4 h-4" />
+                                    <span className={!isAssignedToAll ? "text-white font-bold text-sm" : "text-gray-400 text-sm"}>Học sinh cụ thể</span>
+                                </label>
+                            </div>
+                            {!isAssignedToAll && (
+                                <div className="mt-1 flex flex-wrap gap-2 max-h-32 overflow-y-auto pr-2 custom-scrollbar">
+                                    {students.map(s => (
+                                        <button 
+                                            key={s.id} type="button"
+                                            onClick={() => setAssigneeIds(prev => prev.includes(s.id) ? prev.filter(id => id !== s.id) : [...prev, s.id])}
+                                            className={`px-3 py-1.5 rounded-lg border transition-all flex items-center gap-2 ${assigneeIds.includes(s.id) ? 'bg-orange-500/20 border-orange-500 text-orange-400 font-bold' : 'bg-white/5 border-white/10 text-gray-400 hover:border-white/30 text-sm'}`}
+                                        >
+                                            <img src={s.avatar_url || "https://ui-avatars.com/api/?name=" + encodeURIComponent(s.full_name)} className="w-5 h-5 rounded-full" alt="" />
+                                            {s.full_name}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                     </div>
+
                      <div>
                         <label className="block text-sm font-semibold text-gray-400 mb-2 flex justify-between">
                            Chương / Section (Tuỳ chọn)
@@ -404,6 +568,43 @@ export default function QuizBuilderModal({
                            placeholder="VD: Kiểm tra Toán Giữa kì I 2025"
                            className="w-full bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-orange-500 text-white" 
                         />
+                     </div>
+                  </div>
+
+                  {/* Tài liệu đính kèm */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-indigo-500/5 p-5 rounded-2xl border border-indigo-500/20">
+                     <div className="flex flex-col gap-2 bg-[#111] p-3 rounded-xl border border-white/5">
+                        <label className="text-sm font-semibold text-gray-300">Đề Gốc (PDF/Ảnh/Drive)</label>
+                        <div className="flex bg-[#1a1a1a] rounded-xl overflow-hidden border border-white/10 mt-1">
+                           <input type="text" value={originalDocUrl} onChange={e => setOriginalDocUrl(e.target.value)} placeholder="Dán link Google Drive..." className="flex-1 px-2 py-2 bg-transparent text-xs text-white outline-none" />
+                           <label className="bg-indigo-600 hover:bg-indigo-500 cursor-pointer px-3 py-2 text-xs font-bold text-white flex items-center transition-colors">
+                              {isUploadingOrig ? <Loader2 className="w-3 h-3 animate-spin"/> : <Upload className="w-3 h-3 mr-1" />}
+                              {!isUploadingOrig && "Tải file"}
+                              <input type="file" onChange={handleUploadOriginalDoc} accept="image/*,application/pdf" className="hidden" />
+                           </label>
+                        </div>
+                     </div>
+                     <div className="flex flex-col gap-2 bg-[#111] p-3 rounded-xl border border-white/5">
+                        <label className="text-sm font-semibold text-indigo-400">Tài Liệu Giải Chi Tiết</label>
+                        <div className="flex bg-[#1a1a1a] rounded-xl overflow-hidden border border-white/10 mt-1">
+                           <input type="text" value={solutionDocUrl} onChange={e => setSolutionDocUrl(e.target.value)} placeholder="Dán link Google Drive..." className="flex-1 px-2 py-2 bg-transparent text-xs text-white outline-none" />
+                           <label className="bg-indigo-600 hover:bg-indigo-500 cursor-pointer px-3 py-2 text-xs font-bold text-white flex items-center transition-colors">
+                              {isUploadingDoc ? <Loader2 className="w-3 h-3 animate-spin"/> : <Upload className="w-3 h-3 mr-1" />}
+                              {!isUploadingDoc && "Tải file"}
+                              <input type="file" onChange={handleUploadSolutionDoc} accept="image/*,application/pdf" className="hidden" />
+                           </label>
+                        </div>
+                     </div>
+                     <div className="flex flex-col gap-2 bg-[#111] p-3 rounded-xl border border-white/5">
+                        <label className="text-sm font-semibold text-indigo-400">Video Chữa Bài</label>
+                        <div className="flex bg-[#1a1a1a] rounded-xl overflow-hidden border border-white/10 mt-1">
+                           <input type="text" value={solutionVideoUrl} onChange={e => setSolutionVideoUrl(e.target.value)} placeholder="Link YT/Drive/Upload..." className="flex-1 px-2 py-2 bg-transparent text-xs text-white outline-none" />
+                           <label className="bg-indigo-600 hover:bg-indigo-500 cursor-pointer px-3 py-2 text-xs font-bold text-white flex items-center transition-colors">
+                              {isUploadingVideo ? <Loader2 className="w-3 h-3 animate-spin"/> : <Upload className="w-3 h-3 mr-1" />}
+                              {!isUploadingVideo && "Tải lên"}
+                              <input type="file" onChange={handleUploadSolutionVideo} accept="video/*" className="hidden" />
+                           </label>
+                        </div>
                      </div>
                   </div>
                   
