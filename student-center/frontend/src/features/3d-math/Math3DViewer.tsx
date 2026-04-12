@@ -5,32 +5,11 @@ import { OrbitControls, Grid, Environment, ContactShadows, Text } from "@react-t
 import { useState } from "react";
 import * as THREE from "three";
 
-type ShapeType = "cube" | "sphere" | "cone" | "torus" | "cylinder";
+export type ShapeType = "cube" | "sphere" | "cone" | "torus" | "cylinder";
 
-export default function Math3DViewer() {
-  const [shape, setShape] = useState<ShapeType>("cone");
-
+export default function Math3DViewer({ shape = "cone" }: { shape?: ShapeType }) {
   return (
-    <div className="w-full h-full flex flex-col bg-white rounded-3xl border border-slate-200 overflow-hidden relative shadow-sm">
-      <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50 z-10">
-        <h2 className="text-xl font-bold font-outfit text-slate-800">Phòng Thí nghiệm Toán học 3D</h2>
-        <div className="flex gap-2">
-          {(["cube", "sphere", "cone", "cylinder"] as ShapeType[]).map((type) => (
-            <button
-              key={type}
-              onClick={() => setShape(type)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors shadow-sm ${
-                shape === type 
-                  ? "bg-indigo-600 text-white" 
-                  : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 hover:text-indigo-600"
-              }`}
-            >
-              {type.charAt(0).toUpperCase() + type.slice(1)}
-            </button>
-          ))}
-        </div>
-      </div>
-
+    <div className="w-full h-full flex flex-col bg-slate-50 relative overflow-hidden">
       <div className="flex-1 w-full relative bg-radial from-slate-50 to-slate-200">
         <div className="absolute top-4 left-4 z-10 text-xs font-semibold text-indigo-700 bg-indigo-100/80 px-3 py-1.5 rounded-full border border-indigo-200 backdrop-blur-md shadow-sm">
            Chuột trái: Xoay | Cuộn chuột: Phóng to/Thu nhỏ | Chuột phải: Di chuyển

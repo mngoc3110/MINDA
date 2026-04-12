@@ -370,9 +370,9 @@ export default function LearningGalaxy({ isFullscreen = false }: { isFullscreen?
 
       {/* Thông báo khởi động TFJS */}
       {isFullscreen && !isReady && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 text-indigo-400 bg-black/80 backdrop-blur-md z-[5]">
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 text-indigo-400 bg-black/80 backdrop-blur-md z-[200]">
            <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-           <span className="text-sm font-bold tracking-widest uppercase">Đang đồng bộ Mô hình AI & Camera...</span>
+           <span className="text-sm font-bold tracking-widest uppercase text-center px-4">Đang đồng bộ AI... (Vui lòng cấp quyền Camera nếu được hỏi)</span>
         </div>
       )}
 
