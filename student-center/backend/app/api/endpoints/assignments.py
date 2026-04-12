@@ -393,17 +393,30 @@ async def parse_upload_to_quiz(
     file: UploadFile = File(...),
     current_user: User = Depends(require_role("teacher", "admin"))
 ):
-    """Bóc tách Đề (Pdf/Image) thành JSON cấu trúc quiz bằng Tesseract OCR + TextToLatex."""
+    """Bóc tách Đề (Pdf/Image) thành JSON cấu trúc quiz bằng Gemini AI (ưu tiên) hoặc Tesseract OCR (fallback)."""
     try:
         content = await file.read()
         mime_type = file.content_type
-        # === OFFLINE OCR: Tesseract + TextToLatex (Mamba) ===
-        if mime_type == "application/pdf":
-            quiz_data = extract_quiz_from_pdf_local(content)
-        elif mime_type.startswith("image/"):
-            quiz_data = extract_quiz_from_image_local(content)
-        else:
+        
+        if mime_type != "application/pdf" and not mime_type.startswith("image/"):
             raise HTTPException(status_code=400, detail="Chỉ hỗ trợ file PDF hoặc Hình ảnh")
+
+        # === ƯU TIÊN: Gemini AI (giải + parse chính xác) ===
+        quiz_data = None
+        try:
+            from app.services.gemini_parser import parse_exam_with_gemini
+            print("[Parse Upload] Đang dùng Gemini AI để phân tích đề...")
+            quiz_data = parse_exam_with_gemini(content, mime_type)
+        except Exception as gemini_err:
+            print(f"[Parse Upload] Gemini thất bại: {gemini_err}")
+            print("[Parse Upload] Chuyển sang Tesseract OCR (fallback)...")
+
+        # === FALLBACK: Tesseract OCR nếu Gemini thất bại ===
+        if quiz_data is None:
+            if mime_type == "application/pdf":
+                quiz_data = extract_quiz_from_pdf_local(content)
+            else:
+                quiz_data = extract_quiz_from_image_local(content)
         
         # Validation - hỗ trợ cả format sections (mới) và questions (cũ)
         has_sections = quiz_data.get("sections") and any(
@@ -412,9 +425,9 @@ async def parse_upload_to_quiz(
         has_questions = bool(quiz_data.get("questions"))
         
         if not has_sections and not has_questions:
-            raise ValueError("OCR không nhận diện được cấu trúc câu hỏi (Câu 1, A, B, C..)")
+            raise ValueError("AI không nhận diện được cấu trúc câu hỏi từ đề thi")
             
-        print("Tạo dữ liệu Quiz JSON Offline thành công!")
+        print("✅ Tạo dữ liệu Quiz JSON thành công!")
         return quiz_data
 
     except HTTPException:
@@ -422,3 +435,4 @@ async def parse_upload_to_quiz(
     except Exception as e:
         print(f"Error parsing upload: {e}")
         raise HTTPException(status_code=500, detail="Lỗi khi phân tích AI: " + str(e))
+
