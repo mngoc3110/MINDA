@@ -4,7 +4,7 @@ from app.db.database import get_db
 from app.core.security import get_current_user
 from app.models.user import User
 from app.models.file import FileItem
-from app.core.drive_service import upload_file as drive_upload, delete_file as drive_delete
+from app.core.cloudinary_service import cloudinary_service
 
 router = APIRouter()
 
@@ -15,12 +15,10 @@ async def upload_avatar(
     current_user: User = Depends(get_current_user)
 ):
     try:
-        # Nếu đã có avatar, thử xoá ảnh cũ trên Drive cá nhân
         if current_user.avatar_url:
-            drive_delete(current_user.avatar_url, current_user)
+            cloudinary_service.delete_file(current_user.avatar_url)
 
-        # Upload ảnh mới lên Google Drive cá nhân
-        drive_link = await drive_upload(file, current_user)
+        drive_link = await cloudinary_service.upload_file(file, current_user.full_name, current_user.id, current_user.role, "avatar")
 
         current_user.avatar_url = drive_link
         db.commit()
@@ -37,9 +35,9 @@ async def upload_cover(
 ):
     try:
         if current_user.cover_url:
-            drive_delete(current_user.cover_url, current_user)
+            cloudinary_service.delete_file(current_user.cover_url)
 
-        drive_link = await drive_upload(file, current_user)
+        drive_link = await cloudinary_service.upload_file(file, current_user.full_name, current_user.id, current_user.role, "cover")
 
         current_user.cover_url = drive_link
         db.commit()
@@ -76,7 +74,7 @@ async def upload_featured_image(
         raise HTTPException(status_code=400, detail="Qượt quá giới hạn 10 ảnh nổi bật. Vui lòng xoá bớt để thêm mới.")
 
     try:
-        drive_link = await drive_upload(file, current_user)
+        drive_link = await cloudinary_service.upload_file(file, current_user.full_name, current_user.id, current_user.role, "featured")
 
         size_mb = f"{file.size / (1024 * 1024):.2f} MB" if file.size else "Unknown"
         db_file = FileItem(
@@ -112,7 +110,7 @@ def delete_featured_image(
         raise HTTPException(status_code=404, detail="File not found")
 
     try:
-        drive_delete(db_file.file_url, current_user)
+        cloudinary_service.delete_file(db_file.file_url)
         db.delete(db_file)
         db.commit()
         return {"message": "Image deleted successfully"}
@@ -120,15 +118,15 @@ def delete_featured_image(
         raise HTTPException(status_code=500, detail=str(e))
 
 def get_rank_tier(exp_points: int) -> str:
-    if exp_points < 500: return "Sơ cấp"
-    if exp_points < 1500: return "Tập sự"
-    if exp_points < 3000: return "Chăm chỉ"
-    if exp_points < 5000: return "Ưu tú"
-    if exp_points < 8000: return "Tinh anh"
-    if exp_points < 12000: return "Chuyên gia"
-    if exp_points < 20000: return "Bậc thầy"
-    if exp_points < 35000: return "Cao thủ"
-    if exp_points < 60000: return "Chiến tướng"
+    if exp_points < 200: return "Sơ cấp"
+    if exp_points < 500: return "Tập sự"
+    if exp_points < 1000: return "Chăm chỉ"
+    if exp_points < 1500: return "Ưu tú"
+    if exp_points < 2500: return "Tinh anh"
+    if exp_points < 4000: return "Chuyên gia"
+    if exp_points < 6000: return "Bậc thầy"
+    if exp_points < 10000: return "Cao thủ"
+    if exp_points < 15000: return "Chiến tướng"
     return "Thần thoại"
 
 @router.get("/leaderboard")
@@ -211,6 +209,24 @@ def list_teachers(db: Session = Depends(get_db)):
             "email": t.email
         }
         for t in teachers
+    ]
+
+@router.get("/students")
+def list_students(db: Session = Depends(get_db)):
+    """API lấy danh sách học sinh để dùng cho chọn dropdown người gán bài tập"""
+    students = db.query(User).filter(
+        User.is_active == True,
+        User.role == "student"
+    ).all()
+    return [
+        {
+            "id": s.id,
+            "full_name": s.full_name,
+            "avatar_url": s.avatar_url,
+            "email": s.email,
+            "current_rank": get_rank_tier(s.exp_points or 0)
+        }
+        for s in students
     ]
 
 from app.core.security import require_role
