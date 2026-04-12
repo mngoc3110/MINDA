@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BrainCircuit, Grid, FolderOpen, Video, Trophy, LogOut, Sun, Moon, BookOpen, FileText, Star } from "lucide-react";
+import { BrainCircuit, Grid, FolderOpen, Video, Trophy, LogOut, Sun, Moon, BookOpen, FileText, Star, Wallet } from "lucide-react";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useEffect, useState } from "react";
 
@@ -13,6 +13,7 @@ const NAV_ITEMS = [
   { name: "Phòng Luyện Thi", href: "/practice", icon: FileText },
   { name: "Cặp xách (Drive)", href: "/drive", icon: Star },
   { name: "Bảng Thành tích", href: "/leaderboard", icon: Trophy },
+  { name: "Học phí", href: "/tuition", icon: Wallet },
 ];
 
 export default function StudentSidebar() {
@@ -87,10 +88,10 @@ export default function StudentSidebar() {
           <Link href="/" className="flex items-center justify-center w-full py-2.5 rounded-xl text-text-secondary hover:text-text-primary hover:bg-bg-hover transition-colors font-medium border border-transparent hover:border-border-card text-sm">
             Về Trang chủ MINDA
           </Link>
-          <Link href="/login" className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-text-secondary hover:text-red-500 hover:bg-red-500/10 transition-colors font-medium border border-transparent hover:border-red-500/20 text-sm">
+          <button onClick={() => { localStorage.clear(); window.location.href='/login'; }} className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-text-secondary hover:text-red-500 hover:bg-red-500/10 transition-colors font-medium border border-transparent hover:border-red-500/20 text-sm">
             <LogOut className="w-4 h-4" />
             Đăng xuất an toàn
-          </Link>
+          </button>
         </div>
       </div>
     </aside>

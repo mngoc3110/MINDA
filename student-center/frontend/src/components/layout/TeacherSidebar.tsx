@@ -2,14 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BrainCircuit, Grid, BookOpen, GraduationCap, ClipboardCheck, Wallet, LogOut, Sun, Moon, FileUser, Trophy } from "lucide-react";
+import { BrainCircuit, Grid, BookOpen, GraduationCap, ClipboardCheck, Wallet, LogOut, Sun, Moon, FileUser, Trophy, UserCircle } from "lucide-react";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useEffect, useState } from "react";
 
 const NAV_ITEMS = [
   { name: "Tổng quan", href: "/dashboard", icon: Grid },
   { name: "Bảng thành tích", href: "/leaderboard", icon: Trophy },
-  { name: "Hồ sơ CV", href: "/profile", icon: FileUser },
+  { name: "Trang cá nhân", href: "/profile", icon: UserCircle },
+  { name: "Hồ sơ CV", href: "/cv", icon: FileUser },
   { name: "Quản lý Khoá học", href: "/courses", icon: BookOpen },
   { name: "Lớp học Live", href: "/live", icon: GraduationCap },
   { name: "Chấm điểm & Bài tập", href: "/assignments", icon: ClipboardCheck },
@@ -93,10 +94,10 @@ export default function TeacherSidebar() {
           <Link href="/" className="flex items-center justify-center w-full py-2.5 rounded-xl text-text-secondary hover:text-text-primary hover:bg-bg-hover transition-colors font-medium border border-transparent hover:border-border-card text-sm">
             Về Trang chủ MINDA
           </Link>
-          <Link href="/login" className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-text-secondary hover:text-red-500 hover:bg-red-500/10 transition-colors font-medium border border-transparent hover:border-red-500/20 text-sm">
+          <button onClick={() => { localStorage.clear(); window.location.href='/login'; }} className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-text-secondary hover:text-red-500 hover:bg-red-500/10 transition-colors font-medium border border-transparent hover:border-red-500/20 text-sm">
             <LogOut className="w-4 h-4" />
             Đăng xuất an toàn
-          </Link>
+          </button>
         </div>
       </div>
     </aside>

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { Menu, X, ShieldAlert, BrainCircuit, Grid, Users, Settings, LogOut,
   LayoutDashboard, BookOpen, Radio, ClipboardCheck, Trophy, Wallet,
-  Dumbbell, User, Sun, Moon } from "lucide-react";
+  Dumbbell, User, Sun, Moon, UserCircle, FolderOpen } from "lucide-react";
 import Link from "next/link";
 import { useTheme } from "@/providers/ThemeProvider";
 
@@ -35,7 +35,8 @@ export default function MobileHeader() {
 
   const TEACHER_ITEMS = [
     { name: "Tổng quan", href: "/dashboard", icon: LayoutDashboard },
-    { name: "Hồ sơ CV", href: "/profile", icon: User },
+    { name: "Trang cá nhân", href: "/profile", icon: UserCircle },
+    { name: "Hồ sơ CV", href: "/cv", icon: User },
     { name: "Khoá học", href: "/courses", icon: BookOpen },
     { name: "Lớp Live", href: "/live", icon: Radio },
     { name: "Bài tập", href: "/assignments", icon: ClipboardCheck },
@@ -48,8 +49,9 @@ export default function MobileHeader() {
     { name: "Thư viện Lớp học", href: "/courses", icon: BookOpen },
     { name: "Phòng học Live", href: "/live", icon: Radio },
     { name: "Phòng Luyện Thi", href: "/practice", icon: Dumbbell },
-    { name: "Cặp xách (Drive)", href: "/drive", icon: Wallet },
+    { name: "Cặp xách (Drive)", href: "/drive", icon: FolderOpen },
     { name: "Bảng Thành tích", href: "/leaderboard", icon: Trophy },
+    { name: "Học phí", href: "/tuition", icon: Wallet },
   ];
 
   const navItems = isAdminMode ? ADMIN_ITEMS : role === "teacher" ? TEACHER_ITEMS : STUDENT_ITEMS;
@@ -165,13 +167,12 @@ export default function MobileHeader() {
           >
             🏠 Về Trang chủ MINDA
           </Link>
-          <Link
-            href="/login"
-            onClick={() => { localStorage.clear(); }}
+          <button
+            onClick={() => { localStorage.clear(); window.location.href='/login'; }}
             className="flex items-center gap-2 w-full px-4 py-2.5 rounded-xl text-sm font-semibold text-red-600 hover:bg-red-50 border border-transparent hover:border-red-200 transition-colors"
           >
             <LogOut className="w-4 h-4" /> Đăng xuất
-          </Link>
+          </button>
         </div>
       </div>
     </>

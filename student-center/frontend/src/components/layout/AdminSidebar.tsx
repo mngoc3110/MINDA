@@ -76,10 +76,10 @@ export default function AdminSidebar() {
             <Link href="/" className="flex items-center justify-center w-full py-2.5 rounded-xl text-gray-400 hover:text-t-primary hover:bg-b-hover transition-colors font-medium border border-transparent hover:border-white/10">
               <span className="text-sm">Về Trang chủ MINDA</span>
             </Link>
-            <Link href="/login" className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-colors font-medium border border-transparent hover:border-red-500/20">
+            <button onClick={() => { localStorage.clear(); window.location.href='/login'; }} className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-colors font-medium border border-transparent hover:border-red-500/20">
               <LogOut className="w-4 h-4" />
               <span className="text-sm">Đăng xuất an toàn</span>
-            </Link>
+            </button>
         </div>
       </div>
     </aside>
