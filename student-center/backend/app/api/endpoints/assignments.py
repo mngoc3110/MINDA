@@ -348,6 +348,14 @@ def get_all_my_submissions(db: Session = Depends(get_db), current_user: User = D
         AssignmentSubmission.student_id == current_user.id
     ).order_by(AssignmentSubmission.submitted_at.desc()).all()
     
+    unique_subs = {}
+    for sub in submissions:
+        if sub.assignment_id not in unique_subs:
+            unique_subs[sub.assignment_id] = sub
+        else:
+            if (sub.score or 0) > (unique_subs[sub.assignment_id].score or 0):
+                unique_subs[sub.assignment_id] = sub
+                
     return [
         {
             "id": sub.id,
@@ -355,7 +363,7 @@ def get_all_my_submissions(db: Session = Depends(get_db), current_user: User = D
             "score": sub.score,
             "submitted_at": sub.submitted_at.isoformat()
         }
-        for sub in submissions
+        for sub in unique_subs.values()
     ]
 
 @router.get("/assignments/teacher/dashboard/submissions")
