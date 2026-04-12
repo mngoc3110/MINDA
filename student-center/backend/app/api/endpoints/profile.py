@@ -117,17 +117,13 @@ def delete_featured_image(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+from app.api.endpoints.dashboard import get_student_rank, get_teacher_rank
+
 def get_rank_tier(exp_points: int) -> str:
-    if exp_points < 200: return "Sơ cấp"
-    if exp_points < 500: return "Tập sự"
-    if exp_points < 1000: return "Chăm chỉ"
-    if exp_points < 1500: return "Ưu tú"
-    if exp_points < 2500: return "Tinh anh"
-    if exp_points < 4000: return "Chuyên gia"
-    if exp_points < 6000: return "Bậc thầy"
-    if exp_points < 10000: return "Cao thủ"
-    if exp_points < 15000: return "Chiến tướng"
-    return "Thần thoại"
+    # Fallback legacy function if used anywhere without User object
+    from app.models.user import User
+    dummy_user = User(email="dummy", role="student")
+    return get_student_rank(dummy_user, exp_points)["rank_name"]
 
 @router.get("/leaderboard")
 def get_leaderboard(db: Session = Depends(get_db)):
@@ -146,12 +142,17 @@ def get_leaderboard(db: Session = Depends(get_db)):
             return u
         is_mystic = u.email in admin_emails
         exp = 99999999 if is_mystic else (u.exp_points or 0)
+        if getattr(u, "role", "student") == "teacher":
+            rank_name = get_teacher_rank(u, exp)["rank_name"]
+        else:
+            rank_name = get_student_rank(u, exp)["rank_name"]
+            
         return {
             "id": u.id,
             "full_name": u.full_name,
             "avatar_url": u.avatar_url,
             "exp_points": exp,
-            "current_rank": "Mystic" if is_mystic else get_rank_tier(exp)
+            "current_rank": "Mystic" if is_mystic else rank_name
         }
 
     # Lọc bỏ darber khỏi danh sách học sinh (để chỉ hiển thị bên giáo viên)
@@ -224,7 +225,7 @@ def list_students(db: Session = Depends(get_db)):
             "full_name": s.full_name,
             "avatar_url": s.avatar_url,
             "email": s.email,
-            "current_rank": get_rank_tier(s.exp_points or 0)
+            "current_rank": get_student_rank(s, s.exp_points or 0)["rank_name"]
         }
         for s in students
     ]
