@@ -155,31 +155,9 @@ def get_leaderboard(db: Session = Depends(get_db)):
             "current_rank": "Mystic" if is_mystic else rank_name
         }
 
-    # Lọc bỏ darber khỏi danh sách học sinh (để chỉ hiển thị bên giáo viên)
     student_dicts = [to_dict(u) for u in students if u.email not in admin_emails]
-    teacher_dicts = [to_dict(u) for u in teachers]
+    teacher_dicts = [to_dict(u) for u in teachers if (u.full_name != "Nguyễn Văn B" and u.email not in admin_emails)]
 
-    if admin_user:
-        # Đảm bảo admin_user có mặt ở BẢNG GIÁO VIÊN (theo yêu cầu của user)
-        # với điểm số Mystic 99999999
-        admin_dict = to_dict(admin_user)
-        
-        if not any(t.get("email") in admin_emails for t in teacher_dicts):
-            teacher_dicts.insert(0, admin_dict)
-            teacher_dicts = teacher_dicts[:limit]
-    else:
-        # If admin doesn't exist in DB, mock them into teacher lists!
-        mock_admin = {
-            "id": 9999,
-            "full_name": "Nguyễn Lê Minh Ngọc",
-            "avatar_url": None,
-            "exp_points": 99999999,
-            "current_rank": "Mystic",
-            "email": "darber3110@gmail.com"
-        }
-        teacher_dicts.insert(0, mock_admin)
-        teacher_dicts = teacher_dicts[:limit]
-            
     def sort_key(d):
         return d["exp_points"]
 
