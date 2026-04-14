@@ -616,7 +616,7 @@ export default function QuizBuilderModal({
                   {tab === "ai" && (
                      <>
                         <div>
-                           <label className="block text-sm font-semibold text-gray-400 mb-2">Bóc tách Đề Cương AI (PDF/Image)</label>
+                           <label className="block text-sm font-semibold text-gray-400 mb-2">Bóc tách Đề Cương AI (PDF/Image/LaTeX)</label>
                            <div className="border-2 border-dashed border-orange-500/30 bg-orange-500/5 rounded-xl p-8 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-orange-500/10 transition-colors" onClick={() => fileInputRef.current?.click()}>
                               {aiLoading ? (
                                  <>
@@ -626,11 +626,11 @@ export default function QuizBuilderModal({
                               ) : (
                                  <>
                                     <Wand2 className="w-10 h-10 text-orange-500 mb-3" />
-                                    <p className="font-semibold text-orange-400">Click để Upload Ảnh Đề hoặc PDF</p>
+                                    <p className="font-semibold text-orange-400">Click để Upload Ảnh Đề, PDF hoặc LaTeX (.tex)</p>
                                     <p className="text-xs text-gray-500 mt-1">Hệ thống hỗ trợ cấu trúc Trắc nghiệm 4 đáp án, Đúng/Sai đa mệnh đề, và Điền Số Ngắn.</p>
                                  </>
                               )}
-                              <input type="file" ref={fileInputRef} className="hidden" accept="image/*,application/pdf" onChange={handleFileUpload} />
+                              <input type="file" ref={fileInputRef} className="hidden" accept="image/*,application/pdf,.tex" onChange={handleFileUpload} />
                            </div>
                         </div>
                      </>

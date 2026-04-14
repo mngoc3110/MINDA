@@ -393,39 +393,57 @@ async def parse_upload_to_quiz(
     file: UploadFile = File(...),
     current_user: User = Depends(require_role("teacher", "admin"))
 ):
-    """Bóc tách Đề (Pdf/Image) thành JSON cấu trúc quiz bằng Gemini AI (ưu tiên) hoặc Tesseract OCR (fallback)."""
+    """Bóc tách Đề (Pdf/Image/Tex) thành JSON cấu trúc quiz bằng Gemini AI."""
     try:
         content = await file.read()
         mime_type = file.content_type
+        filename = file.filename.lower()
         
-        if mime_type != "application/pdf" and not mime_type.startswith("image/"):
-            raise HTTPException(status_code=400, detail="Chỉ hỗ trợ file PDF hoặc Hình ảnh")
+        is_tex = filename.endswith(".tex") or mime_type == "text/x-tex"
+        is_pdf = mime_type == "application/pdf"
+        is_image = mime_type.startswith("image/")
 
-        # === ƯU TIÊN: Gemini AI (giải + parse chính xác) ===
+        if not (is_tex or is_pdf or is_image):
+            raise HTTPException(status_code=400, detail="Chỉ hỗ trợ file PDF, Hình ảnh hoặc LaTeX (.tex)")
+
         quiz_data = None
+        
+        # === ƯU TIÊN: Gemini AI ===
         try:
-            from app.services.gemini_parser import parse_exam_with_gemini
-            print("[Parse Upload] Đang dùng Gemini AI để phân tích đề...")
-            quiz_data = parse_exam_with_gemini(content, mime_type)
+            from app.services.gemini_parser import parse_exam_with_gemini, parse_latex_with_gemini
+            
+            if is_tex:
+                print("[Parse Upload] Đang dùng Gemini AI để phân tích file LaTeX (.tex)...")
+                latex_text = content.decode("utf-8")
+                quiz_data = parse_latex_with_gemini(latex_text)
+            else:
+                print("[Parse Upload] Đang dùng Gemini AI để phân tích PDF/Image...")
+                quiz_data = parse_exam_with_gemini(content, mime_type)
+                
         except Exception as gemini_err:
             print(f"[Parse Upload] Gemini thất bại: {gemini_err}")
+            if is_tex:
+                raise ValueError(f"Không thể xử lý file LaTeX: {gemini_err}")
             print("[Parse Upload] Chuyển sang Tesseract OCR (fallback)...")
 
-        # === FALLBACK: Tesseract OCR nếu Gemini thất bại ===
-        if quiz_data is None:
-            if mime_type == "application/pdf":
+        # === FALLBACK: Tesseract OCR (chỉ cho PDF/Image) ===
+        if quiz_data is None and not is_tex:
+            if is_pdf:
                 quiz_data = extract_quiz_from_pdf_local(content)
             else:
                 quiz_data = extract_quiz_from_image_local(content)
         
-        # Validation - hỗ trợ cả format sections (mới) và questions (cũ)
+        if not quiz_data:
+            raise ValueError("Không thể trích xuất dữ liệu từ file upload")
+
+        # Validation
         has_sections = quiz_data.get("sections") and any(
             len(s.get("questions", [])) > 0 for s in quiz_data["sections"]
         )
         has_questions = bool(quiz_data.get("questions"))
         
         if not has_sections and not has_questions:
-            raise ValueError("AI không nhận diện được cấu trúc câu hỏi từ đề thi")
+            raise ValueError("AI không nhận diện được cấu trúc đề thi")
             
         print("✅ Tạo dữ liệu Quiz JSON thành công!")
         return quiz_data
