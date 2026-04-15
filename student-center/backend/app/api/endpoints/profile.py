@@ -160,7 +160,7 @@ def get_leaderboard(db: Session = Depends(get_db)):
         }
 
     student_dicts = [to_dict(u) for u in students if u.email not in admin_emails]
-    teacher_dicts = [to_dict(u) for u in teachers if u.email not in admin_emails]
+    teacher_dicts = [to_dict(u) for u in teachers]
 
     def sort_key(d):
         return d["exp_points"]
