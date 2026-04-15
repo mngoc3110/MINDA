@@ -132,8 +132,11 @@ def get_leaderboard(db: Session = Depends(get_db)):
 
     # Fetch top students
     students = db.query(User).filter(User.role == 'student').order_by(User.exp_points.desc()).limit(limit).all()
-    # Fetch top teachers  
-    teachers = db.query(User).filter(User.role == 'teacher').order_by(User.exp_points.desc()).limit(limit).all()
+    # Fetch top teachers (including admin with secondary_role=teacher)
+    from sqlalchemy import or_
+    teachers = db.query(User).filter(
+        or_(User.role == 'teacher', User.secondary_role == 'teacher')
+    ).order_by(User.exp_points.desc()).limit(limit).all()
 
     admin_user = db.query(User).filter(User.email.in_(admin_emails)).first()
     
@@ -142,7 +145,8 @@ def get_leaderboard(db: Session = Depends(get_db)):
             return u
         is_mystic = u.email in admin_emails
         exp = 99999999 if is_mystic else (u.exp_points or 0)
-        if getattr(u, "role", "student") == "teacher":
+        is_teacher = getattr(u, "role", "student") == "teacher" or getattr(u, "secondary_role", None) == "teacher"
+        if is_teacher:
             rank_name = get_teacher_rank(u, exp)["rank_name"]
         else:
             rank_name = get_student_rank(u, exp)["rank_name"]
@@ -156,7 +160,7 @@ def get_leaderboard(db: Session = Depends(get_db)):
         }
 
     student_dicts = [to_dict(u) for u in students if u.email not in admin_emails]
-    teacher_dicts = [to_dict(u) for u in teachers if (u.full_name != "Nguyễn Văn B" and u.email not in admin_emails)]
+    teacher_dicts = [to_dict(u) for u in teachers if u.email not in admin_emails]
 
     def sort_key(d):
         return d["exp_points"]
