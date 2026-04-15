@@ -247,16 +247,24 @@ def submit_assignment(
         except Exception as e:
             print("Auto-grade error:", e)
 
-    # ── EXP Logic: Cộng EXP theo mức điểm, chỉ 1 lần duy nhất ──
+    # ── EXP Logic: Quy đổi điểm thang 10 → EXP, chỉ 1 lần duy nhất ──
     if not already_earned_exp and submission.score is not None:
-        threshold_high = 0.8 * assignment.max_score
-        threshold_mid = 0.5 * assignment.max_score
-        if submission.score >= threshold_high:
-            current_user.exp_points = (current_user.exp_points or 0) + 20
-        elif submission.score >= threshold_mid:
-            current_user.exp_points = (current_user.exp_points or 0) + 10
+        # Quy về thang 10
+        if assignment.max_score and assignment.max_score > 0:
+            score_10 = round((submission.score / assignment.max_score) * 10)
         else:
-            current_user.exp_points = (current_user.exp_points or 0) + 5
+            score_10 = 0
+        
+        if score_10 >= 8:
+            exp_change = 20
+        elif score_10 >= 5:
+            exp_change = 10
+        else:
+            # Dưới trung bình: 4→-1, 3→-2, 2→-3, 1→-4, 0→-5
+            exp_change = -(5 - score_10)
+        
+        new_exp = (current_user.exp_points or 0) + exp_change
+        current_user.exp_points = max(new_exp, 0)  # Không cho EXP âm
 
     if not existing_submission:
         db.add(submission)
