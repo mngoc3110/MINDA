@@ -123,36 +123,26 @@ def submit_assignment(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_role("student")),
 ):
-    """Học sinh nộp bài tập. UPSERT: làm lại ghi đè bài cũ, EXP chỉ cộng 1 lần khi ≥80%."""
+    """Học sinh nộp bài tập. Mỗi lần nộp tạo record mới (lịch sử), EXP chỉ cộng 1 lần duy nhất/đề."""
     assignment = db.query(Assignment).filter(Assignment.id == assignment_id).first()
     if not assignment:
         raise HTTPException(status_code=404, detail="Bài tập không tồn tại")
     
-    # ── UPSERT: Kiểm tra xem đã có submission cũ chưa ──
-    existing_submission = db.query(AssignmentSubmission).filter(
+    # ── Kiểm tra đã có submission cũ chưa (để biết cộng EXP hay không) ──
+    existing_count = db.query(AssignmentSubmission).filter(
         AssignmentSubmission.assignment_id == assignment_id,
         AssignmentSubmission.student_id == current_user.id
-    ).first()
+    ).count()
     
-    # Ghi nhận xem lần trước đã từng đạt ≥80% và được cộng EXP chưa
-    already_earned_exp = False
-    if existing_submission and existing_submission.score is not None:
-        threshold = 0.8 * assignment.max_score
-        already_earned_exp = existing_submission.score >= threshold
+    # EXP chỉ cộng lần đầu tiên (chưa có submission nào trước đó)
+    already_earned_exp = existing_count > 0
     
-    # Sử dụng submission cũ hoặc tạo mới
-    if existing_submission:
-        submission = existing_submission
-        # Cập nhật dữ liệu mới
-        for key, value in data.model_dump().items():
-            setattr(submission, key, value)
-        submission.submitted_at = datetime.utcnow()
-    else:
-        submission = AssignmentSubmission(
-            assignment_id=assignment_id,
-            student_id=current_user.id,
-            **data.model_dump(),
-        )
+    # Luôn tạo submission mới (giữ lịch sử các lần làm)
+    submission = AssignmentSubmission(
+        assignment_id=assignment_id,
+        student_id=current_user.id,
+        **data.model_dump(),
+    )
     
     # Auto-grader for quiz
     if assignment.assignment_type == "quiz" and assignment.quiz_data and data.quiz_answers:
@@ -266,8 +256,7 @@ def submit_assignment(
         new_exp = (current_user.exp_points or 0) + exp_change
         current_user.exp_points = max(new_exp, 0)  # Không cho EXP âm
 
-    if not existing_submission:
-        db.add(submission)
+    db.add(submission)
     db.commit()
     db.refresh(submission)
     return submission
