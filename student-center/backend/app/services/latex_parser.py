@@ -1,6 +1,9 @@
 """
 LaTeX Direct Parser - Parse LaTeX exam files directly without AI.
-Supports common Vietnamese exam LaTeX packages: ex_test, exam, custom macros.
+Handles Vietnamese math exam format:
+  - \textbf{Câu X} with A./B./C./D. options
+  - Sections: Phần I (MCQ), Phần II (True/False), Phần III (Short Answer)
+  - a)/b)/c)/d) items for True/False
 """
 import re
 
@@ -13,54 +16,59 @@ def parse_latex_directly(latex_text: str) -> dict:
     print("[LaTeX Parser] Bắt đầu parse trực tiếp file LaTeX (không dùng AI)...")
 
     sections = []
-    
-    # Try multiple parsing strategies
-    mcq_questions = []
-    tf_questions = []
-    sa_questions = []
 
-    # ── Strategy 1: \begin{ex} ... \end{ex} with \choice ──
-    mcq_questions += _parse_ex_choice(latex_text)
+    # Detect section boundaries
+    section_splits = re.split(
+        r'\\section\*?\{(.*?)\}',
+        latex_text,
+        flags=re.DOTALL
+    )
+    # section_splits = [before_first_section, title1, content1, title2, content2, ...]
 
-    # ── Strategy 2: \Cau{} or \cmark macro style ──
-    if not mcq_questions:
-        mcq_questions += _parse_cau_macro(latex_text)
+    # If no \section found, treat entire document as one block
+    if len(section_splits) <= 1:
+        mcq, tf, sa = _parse_block(latex_text)
+        if mcq:
+            sections.append({"type": "mcq", "instruction": "Phần Trắc nghiệm", "questions": mcq})
+        if tf:
+            sections.append({"type": "true_false", "instruction": "Phần Đúng/Sai", "questions": tf})
+        if sa:
+            sections.append({"type": "short_answer", "instruction": "Phần Trả lời ngắn", "questions": sa})
+    else:
+        # Process each section
+        for i in range(1, len(section_splits), 2):
+            title = section_splits[i].strip()
+            content = section_splits[i + 1] if i + 1 < len(section_splits) else ""
 
-    # ── Strategy 3: \begin{questions} ... \question (exam class) ──
-    if not mcq_questions:
-        mcq_questions += _parse_exam_class(latex_text)
+            title_lower = title.lower()
 
-    # ── Strategy 4: Generic numbered questions (Câu 1, Câu 2...) ──
-    if not mcq_questions:
-        mcq_questions += _parse_generic_numbered(latex_text)
+            if any(kw in title_lower for kw in ['trắc nghiệm nhiều', 'phương án', 'trắc nghiệm']):
+                if 'đúng sai' not in title_lower and 'trả lời ngắn' not in title_lower:
+                    mcq = _parse_mcq_section(content)
+                    if mcq:
+                        sections.append({
+                            "type": "mcq",
+                            "instruction": title,
+                            "questions": mcq
+                        })
 
-    # ── Parse True/False sections ──
-    tf_questions += _parse_true_false(latex_text)
+            if 'đúng sai' in title_lower or 'đúng/sai' in title_lower:
+                tf = _parse_tf_section(content)
+                if tf:
+                    sections.append({
+                        "type": "true_false",
+                        "instruction": title,
+                        "questions": tf
+                    })
 
-    # ── Parse Short Answer sections ──
-    sa_questions += _parse_short_answer(latex_text)
-
-    # Build sections
-    if mcq_questions:
-        sections.append({
-            "type": "mcq",
-            "instruction": "Phần Trắc nghiệm",
-            "questions": mcq_questions
-        })
-
-    if tf_questions:
-        sections.append({
-            "type": "true_false",
-            "instruction": "Phần Đúng/Sai",
-            "questions": tf_questions
-        })
-
-    if sa_questions:
-        sections.append({
-            "type": "short_answer",
-            "instruction": "Phần Trả lời ngắn",
-            "questions": sa_questions
-        })
+            if 'trả lời ngắn' in title_lower:
+                sa = _parse_sa_section(content)
+                if sa:
+                    sections.append({
+                        "type": "short_answer",
+                        "instruction": title,
+                        "questions": sa
+                    })
 
     total = sum(len(s.get("questions", [])) for s in sections)
     print(f"[LaTeX Parser] ✅ Parsed {total} questions trực tiếp từ LaTeX")
@@ -72,18 +80,26 @@ def parse_latex_directly(latex_text: str) -> dict:
 
 
 def _clean_latex(text: str) -> str:
-    """Clean common LaTeX formatting for display, keep math intact."""
+    """Clean LaTeX formatting for display. Keep $math$ intact."""
     text = text.strip()
-    # Remove \textbf, \textit wrappers but keep content
+    # Remove \textbf, \textit etc. but keep content
     text = re.sub(r'\\textbf\{([^}]*)\}', r'\1', text)
     text = re.sub(r'\\textit\{([^}]*)\}', r'\1', text)
     text = re.sub(r'\\underline\{([^}]*)\}', r'\1', text)
     text = re.sub(r'\\emph\{([^}]*)\}', r'\1', text)
-    # Remove \vspace, \hspace, \noindent
+    # Remove layout commands
     text = re.sub(r'\\[vh]space\*?\{[^}]*\}', '', text)
     text = re.sub(r'\\noindent\b', '', text)
     text = re.sub(r'\\newline\b', ' ', text)
-    text = re.sub(r'\\\\', ' ', text)
+    # Remove \begin{center}...\end{center} with images inside
+    text = re.sub(r'\\begin\{center\}.*?\\end\{center\}', '', text, flags=re.DOTALL)
+    # Remove standalone \includegraphics
+    text = re.sub(r'\\includegraphics\[.*?\]\{.*?\}', '', text)
+    # Remove \\IfFileExists blocks
+    text = re.sub(r'\\IfFileExists\{[^}]*\}\{.*?\}\{.*?\}', '', text, flags=re.DOTALL)
+    # Remove trailing \\
+    text = re.sub(r'\\\\\s*$', '', text)
+    text = re.sub(r'\\\\(?!\S)', ' ', text)
     # Remove \item
     text = re.sub(r'\\item\b', '', text)
     # Collapse whitespace
@@ -91,88 +107,30 @@ def _clean_latex(text: str) -> str:
     return text.strip()
 
 
-def _extract_correct_answer_index(block: str) -> int:
-    """Try to find correct answer marker in the block."""
-    # \dmark{A} or \dmark A or \DAP{A}
-    m = re.search(r'\\(?:dmark|DAP|ans|answer|DapAn)\s*\{?\s*([A-Da-d])\s*\}?', block)
-    if m:
-        return ord(m.group(1).upper()) - ord('A')
-    
-    # \True after choice -> marked correct
-    # \choice[\True] pattern (ex_test package)
-    choices_with_true = re.finditer(r'\\choice\[\\True\]', block)
-    choice_idx = 0
-    for match in re.finditer(r'\\choice(?:\[\\True\])?', block):
-        if '\\True' in match.group(0):
-            return choice_idx
-        choice_idx += 1
-    
-    return 0  # Default to A if no marker found
-
-
-def _parse_ex_choice(latex_text: str) -> list:
-    """Parse \\begin{ex}...\\end{ex} blocks with \\choice options."""
+def _split_questions(content: str) -> list:
+    """Split content by \\textbf{Câu X} markers. Returns list of (number, block)."""
+    # Pattern: \textbf{Câu X}  or  \textbf{Câu X.}
+    pattern = r'\\textbf\{Câu\s+(\d+)\s*\.?\}'
+    parts = re.split(pattern, content)
+    # parts = [before, num1, block1, num2, block2, ...]
     questions = []
-    
-    # Find all \begin{ex} ... \end{ex} blocks
-    pattern = r'\\begin\{ex\}(.*?)\\end\{ex\}'
-    blocks = re.findall(pattern, latex_text, re.DOTALL)
-    
-    for idx, block in enumerate(blocks):
-        # Split into question text and choices
-        # Look for \choice pattern
-        choice_pattern = r'\\choice(?:\[\\True\])?\s*\{([^}]*(?:\{[^}]*\}[^}]*)*)\}'
-        choices = re.findall(choice_pattern, block)
-        
-        if not choices and '\\choice' in block:
-            # Alternative: choices separated by \choice
-            parts = re.split(r'\\choice(?:\[\\True\])?', block)
-            if len(parts) > 1:
-                q_text = parts[0]
-                choices = []
-                for p in parts[1:]:
-                    p = p.strip()
-                    if p:
-                        # Get content until next \choice or end
-                        choice_text = re.sub(r'[\{\}]', '', p).strip()
-                        if choice_text:
-                            choices.append(choice_text)
-        
-        if len(choices) >= 2:
-            # Get question text (everything before first \choice)
-            q_text = re.split(r'\\choice', block)[0]
-            q_text = _clean_latex(q_text)
-            
-            correct = _extract_correct_answer_index(block)
-            
-            questions.append({
-                "id": f"q{idx + 1}",
-                "text": q_text,
-                "options": [_clean_latex(c) for c in choices[:4]],
-                "correctAnswer": correct,
-                "explanation": ""
-            })
-    
+    for i in range(1, len(parts), 2):
+        num = parts[i]
+        block = parts[i + 1] if i + 1 < len(parts) else ""
+        questions.append((num, block.strip()))
     return questions
 
 
-def _parse_cau_macro(latex_text: str) -> list:
-    """Parse \\Cau{} or custom numbered question macros."""
+def _parse_mcq_section(content: str) -> list:
+    """Parse MCQ section: \textbf{Câu X} with A./B./C./D. options."""
     questions = []
-    
-    # Match: \Cau{1} question text \begin{opts} A. ... B. ... etc.
-    pattern = r'\\[Cc]au\s*\{?\s*(\d+)\s*\}?\s*[.:]?\s*(.*?)(?=\\[Cc]au\s*\{?\s*\d+|$)'
-    matches = re.findall(pattern, latex_text, re.DOTALL)
-    
-    for num, block in matches:
+    q_blocks = _split_questions(content)
+
+    for num, block in q_blocks:
         options = _extract_abcd_options(block)
-        if options:
-            q_text = block
-            # Remove options part from question text
-            for letter in ['A', 'B', 'C', 'D']:
-                q_text = re.split(rf'\b{letter}\s*[.)]\s', q_text)[0]
-            q_text = _clean_latex(q_text)
-            
+        if len(options) >= 2:
+            # Question text = everything before first "A." option line
+            q_text = _get_question_text(block)
             questions.append({
                 "id": f"q{num}",
                 "text": q_text,
@@ -180,134 +138,151 @@ def _parse_cau_macro(latex_text: str) -> list:
                 "correctAnswer": 0,
                 "explanation": ""
             })
-    
+
     return questions
 
 
-def _parse_exam_class(latex_text: str) -> list:
-    """Parse exam document class style: \\question ... \\begin{choices}."""
-    questions = []
-    
-    pattern = r'\\question\s*(.*?)(?=\\question\b|\\end\{questions\}|$)'
-    matches = re.findall(pattern, latex_text, re.DOTALL)
-    
-    for idx, block in enumerate(matches):
-        # Look for \choice items
-        choice_pattern = r'\\(?:choice|CorrectChoice)\s+(.*?)(?=\\(?:choice|CorrectChoice)\b|\\end\{|$)'
-        choices = re.findall(choice_pattern, block, re.DOTALL)
-        
-        correct = 0
-        correct_matches = list(re.finditer(r'\\CorrectChoice', block))
-        if correct_matches:
-            all_choices = list(re.finditer(r'\\(?:choice|CorrectChoice)', block))
-            for i, m in enumerate(all_choices):
-                if 'CorrectChoice' in m.group(0):
-                    correct = i
-                    break
-        
-        if choices:
-            q_text = re.split(r'\\begin\{(?:choices|oneparchoices)\}', block)[0]
-            q_text = _clean_latex(q_text)
-            
-            questions.append({
-                "id": f"q{idx + 1}",
-                "text": q_text,
-                "options": [_clean_latex(c) for c in choices[:4]],
-                "correctAnswer": correct,
-                "explanation": ""
-            })
-        
-    return questions
+def _get_question_text(block: str) -> str:
+    """Extract question text from block (everything before A. option)."""
+    # Find where the options start: look for a line starting with A. or A)
+    # Options can be on same line or separate lines
+    lines = block.split('\n')
+    q_lines = []
+    found_option = False
+    for line in lines:
+        stripped = line.strip()
+        # Check if this line starts with "A." or "A)" (the first option)
+        if re.match(r'^A\s*[.)]\s', stripped):
+            found_option = True
+            break
+        q_lines.append(line)
 
+    if not found_option:
+        # Maybe options are inline, try splitting by "A."
+        parts = re.split(r'(?:^|\n)\s*A\s*[.)]\s', block, maxsplit=1)
+        if len(parts) > 1:
+            return _clean_latex(parts[0])
+        return _clean_latex(block)
 
-def _parse_generic_numbered(latex_text: str) -> list:
-    """Parse generic format: Câu 1: ... A. ... B. ... C. ... D. ..."""
-    questions = []
-    
-    # Match: Câu X. or Câu X: or Câu X) 
-    pattern = r'(?:Câu|C[aâ]u|Question)\s*(\d+)\s*[.:)]\s*(.*?)(?=(?:Câu|C[aâ]u|Question)\s*\d+\s*[.:)]|$)'
-    matches = re.findall(pattern, latex_text, re.DOTALL | re.IGNORECASE)
-    
-    for num, block in matches:
-        options = _extract_abcd_options(block)
-        if options:
-            # Question text is everything before first option
-            q_text = re.split(r'\n\s*A\s*[.):]', block)[0]
-            q_text = _clean_latex(q_text)
-            
-            questions.append({
-                "id": f"q{num}",
-                "text": q_text,
-                "options": [_clean_latex(o) for o in options],
-                "correctAnswer": 0,
-                "explanation": ""
-            })
-    
-    return questions
+    return _clean_latex('\n'.join(q_lines))
 
 
 def _extract_abcd_options(block: str) -> list:
-    """Extract A/B/C/D options from a text block."""
+    """Extract A/B/C/D options from a text block. Handles \\\\ separators."""
     options = []
-    
-    # Pattern: A. text B. text C. text D. text
-    # or A) text B) text ...
-    pattern = r'(?:^|\n)\s*([A-D])\s*[.)]\s*(.*?)(?=(?:^|\n)\s*[A-D]\s*[.)]|$)'
-    matches = re.findall(pattern, block, re.DOTALL | re.MULTILINE)
-    
+
+    # Strategy 1: Options on separate lines or separated by \\
+    # Normalize: replace \\ with newlines for easier parsing
+    normalized = block.replace('\\\\', '\n')
+
+    # Match: A. text, B. text, C. text, D. text
+    pattern = r'(?:^|\n)\s*([A-D])\s*[.)]\s*(.*?)(?=(?:^|\n)\s*[A-D]\s*[.)]|\Z)'
+    matches = re.findall(pattern, normalized, re.DOTALL | re.MULTILINE)
+
     if len(matches) >= 2:
         for letter, text in matches:
-            options.append(text.strip())
-    
+            cleaned = text.strip()
+            # Remove trailing \\ or newlines
+            cleaned = re.sub(r'\\\\\s*$', '', cleaned).strip()
+            if cleaned:
+                options.append(cleaned)
+
     return options
 
 
-def _parse_true_false(latex_text: str) -> list:
-    """Parse True/False question blocks."""
+def _parse_tf_section(content: str) -> list:
+    """Parse True/False section with a)/b)/c)/d) items."""
     questions = []
-    
-    # Look for \begin{bt} (bai tap) with a), b), c), d) items that are Đúng/Sai
-    # This is highly format-specific, start with common patterns
-    tf_pattern = r'\\begin\{tf\}(.*?)\\end\{tf\}'
-    blocks = re.findall(tf_pattern, latex_text, re.DOTALL)
-    
-    for idx, block in enumerate(blocks):
-        items = []
-        item_pattern = r'([a-d])\s*[.)]\s*(.*?)(?=[a-d]\s*[.)]|$)'
-        matches = re.findall(item_pattern, block, re.DOTALL)
-        for label, text in matches:
-            items.append({
-                "label": label,
-                "text": _clean_latex(text),
-                "isTrue": False
-            })
-        
+    q_blocks = _split_questions(content)
+
+    for num, block in q_blocks:
+        # Extract question context (before a))
+        context_match = re.split(r'\n\s*a\s*\)', block, maxsplit=1)
+        q_text = _clean_latex(context_match[0]) if context_match else ""
+
+        # Extract a), b), c), d) items
+        items = _extract_abcd_items(block)
         if items:
             questions.append({
-                "id": f"tf{idx + 1}",
-                "text": "",
+                "id": f"tf{num}",
+                "text": q_text,
                 "items": items
             })
-    
+
     return questions
 
 
-def _parse_short_answer(latex_text: str) -> list:
-    """Parse short answer questions."""
+def _extract_abcd_items(block: str) -> list:
+    """Extract a)/b)/c)/d) items for True/False questions."""
+    items = []
+
+    # Normalize \\ to newlines
+    normalized = block.replace('\\\\', '\n')
+
+    # Match a) text, b) text, c) text, d) text
+    pattern = r'(?:^|\n)\s*([a-d])\s*\)\s*(.*?)(?=(?:^|\n)\s*[a-d]\s*\)|\Z)'
+    matches = re.findall(pattern, normalized, re.DOTALL | re.MULTILINE)
+
+    for label, text in matches:
+        cleaned = _clean_latex(text)
+        if cleaned:
+            items.append({
+                "label": label,
+                "text": cleaned,
+                "isTrue": False  # Teacher sẽ tự điền đáp án sau
+            })
+
+    return items
+
+
+def _parse_sa_section(content: str) -> list:
+    """Parse Short Answer section."""
     questions = []
-    
-    # Look for \begin{sa} blocks
-    sa_pattern = r'\\begin\{sa\}(.*?)\\end\{sa\}'
-    blocks = re.findall(sa_pattern, latex_text, re.DOTALL)
-    
-    for idx, block in enumerate(blocks):
+    q_blocks = _split_questions(content)
+
+    for num, block in q_blocks:
         q_text = _clean_latex(block)
         if q_text:
             questions.append({
-                "id": f"sa{idx + 1}",
+                "id": f"sa{num}",
                 "text": q_text,
                 "correctAnswer": "",
                 "explanation": ""
             })
-    
+
+    return questions
+
+
+def _parse_block(content: str) -> tuple:
+    """Fallback: parse an entire block without section headers."""
+    mcq = _parse_mcq_section(content)
+
+    # If no \textbf{Câu} found, try generic format
+    if not mcq:
+        mcq = _parse_generic_numbered(content)
+
+    tf = []  # Can't distinguish without section headers
+    sa = []
+    return mcq, tf, sa
+
+
+def _parse_generic_numbered(latex_text: str) -> list:
+    """Fallback: parse Câu X. or Câu X: format (without \\textbf)."""
+    questions = []
+
+    pattern = r'(?:Câu|C[aâ]u)\s*(\d+)\s*[.:)}\s]\s*(.*?)(?=(?:Câu|C[aâ]u)\s*\d+\s*[.:)}\s]|\Z)'
+    matches = re.findall(pattern, latex_text, re.DOTALL | re.IGNORECASE)
+
+    for num, block in matches:
+        options = _extract_abcd_options(block)
+        if options:
+            q_text = _get_question_text(block)
+            questions.append({
+                "id": f"q{num}",
+                "text": q_text,
+                "options": [_clean_latex(o) for o in options],
+                "correctAnswer": 0,
+                "explanation": ""
+            })
+
     return questions
