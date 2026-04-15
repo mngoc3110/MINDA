@@ -404,6 +404,7 @@ def teacher_dashboard_submissions(db: Session = Depends(get_db), current_user: U
             "id": sub.id,
             "student_id": sub.student_id,
             "student_name": sub.student.full_name or f"Học sinh #{sub.student_id}",
+            "student_avatar": sub.student.avatar_url,
             "course_title": sub.assignment.course.title if sub.assignment.course else None,
             "assignment_id": sub.assignment_id,
             "assignment_title": sub.assignment.title,

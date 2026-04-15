@@ -159,5 +159,6 @@ def get_student_stats(
     return {
         "exp": rank_info.get("xp", current_xp),
         "student_id": f"#MND-{current_user.id * 1234}",
+        "avatar_url": current_user.avatar_url,
         **rank_info
     }

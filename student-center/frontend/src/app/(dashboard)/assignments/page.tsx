@@ -7,6 +7,7 @@ import QuizBuilderModal from "./QuizBuilderModal";
 interface SubmissionGroup {
   student_id: number;
   student_name: string;
+  student_avatar: string | null;
   assignment_id: number;
   assignment_title: string;
   course_title: string;
@@ -25,6 +26,7 @@ function groupSubmissions(raw: any[]): SubmissionGroup[] {
       map.set(key, {
         student_id: item.student_id,
         student_name: item.student_name,
+        student_avatar: item.student_avatar || null,
         assignment_id: item.assignment_id,
         assignment_title: item.assignment_title,
         course_title: item.course_title,
@@ -309,8 +311,12 @@ export default function AssignmentsPage() {
                     className={`flex items-center gap-3 p-4 pl-6 pr-5 transition-colors ${canExpand ? "cursor-pointer hover:bg-bg-hover" : "cursor-pointer hover:bg-bg-hover"}`}
                     onClick={() => canExpand ? toggleExpand(key) : handleViewSubmission(g.attempts[0])}
                   >
-                    <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center shrink-0">
-                      <User className="w-4 h-4 text-text-secondary" />
+                    <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center shrink-0 overflow-hidden">
+                      {g.student_avatar ? (
+                        <img src={g.student_avatar} alt={g.student_name} className="w-full h-full object-cover" />
+                      ) : (
+                        <User className="w-4 h-4 text-text-secondary" />
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-sm text-text-primary truncate">{g.student_name}</p>

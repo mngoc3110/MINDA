@@ -236,8 +236,12 @@ export default function Dashboard() {
           <div className="relative p-[2px] rounded-3xl bg-gradient-to-br from-indigo-400/50 via-purple-300/20 to-transparent overflow-hidden shadow-lg">
             <div className="relative bg-bg-card rounded-[22px] p-6 flex flex-col border border-border-card">
               <div className="flex items-center justify-between mb-5">
-                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-indigo-500 to-cyan-400 flex items-center justify-center shadow-lg border-2 border-white">
-                  <span className="font-bold text-xl text-white">{userName.charAt(0).toUpperCase()}</span>
+                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-indigo-500 to-cyan-400 flex items-center justify-center shadow-lg border-2 border-white overflow-hidden">
+                  {stats.avatar_url ? (
+                    <img src={stats.avatar_url as string} alt={userName} className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="font-bold text-xl text-white">{userName.charAt(0).toUpperCase()}</span>
+                  )}
                 </div>
                 <div className="text-right">
                   <p className="text-[10px] text-text-secondary uppercase tracking-widest font-bold">MINDA.EDU ID</p>
