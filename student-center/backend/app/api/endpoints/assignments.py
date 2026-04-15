@@ -402,12 +402,16 @@ def teacher_dashboard_submissions(db: Session = Depends(get_db), current_user: U
     return [
         {
             "id": sub.id,
+            "student_id": sub.student_id,
             "student_name": sub.student.full_name or f"Học sinh #{sub.student_id}",
             "course_title": sub.assignment.course.title if sub.assignment.course else None,
+            "assignment_id": sub.assignment_id,
             "assignment_title": sub.assignment.title,
+            "max_score": sub.assignment.max_score,
             "status": "graded" if sub.score is not None else "pending",
             "score": sub.score,
-            "submitted_at": sub.submitted_at.isoformat()
+            "submitted_at": sub.submitted_at.isoformat(),
+            "quiz_answers": sub.quiz_answers,
         }
         for sub in submissions
     ]

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ClipboardCheck, Search, Clock, FileText, User, ChevronDown, ChevronRight, Trophy, PenLine, Trash2 } from "lucide-react";
+import { ClipboardCheck, Search, Clock, FileText, User, ChevronDown, ChevronRight, Trophy, PenLine, Trash2, Eye, X } from "lucide-react";
 import QuizBuilderModal from "./QuizBuilderModal";
 
 interface SubmissionGroup {
@@ -73,6 +73,8 @@ export default function AssignmentsPage() {
   const [editAssignment, setEditAssignment] = useState<any>(null);
   const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState("");
+  const [viewingSubmission, setViewingSubmission] = useState<any>(null);
+  const [viewingQuizData, setViewingQuizData] = useState<any>(null);
 
   const fetchSubmissions = async () => {
     try {
@@ -139,6 +141,21 @@ export default function AssignmentsPage() {
       next.has(key) ? next.delete(key) : next.add(key);
       return next;
     });
+  };
+
+  const handleViewSubmission = async (attempt: any) => {
+    setViewingSubmission(attempt);
+    // Fetch quiz_data from assignment
+    try {
+      const token = localStorage.getItem("minda_token");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/assignments/${attempt.assignment_id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setViewingQuizData(data.quiz_data);
+      }
+    } catch (e) { console.error(e); }
   };
 
   // Tất cả role được truy cập, backend sẽ phân quyền theo role
@@ -289,8 +306,8 @@ export default function AssignmentsPage() {
                 <div key={key} className="border-b border-border-card last:border-0">
                   {/* Summary row */}
                   <div
-                    className={`flex items-center gap-3 p-4 pl-6 pr-5 transition-colors ${canExpand ? "cursor-pointer hover:bg-bg-hover" : ""}`}
-                    onClick={() => canExpand && toggleExpand(key)}
+                    className={`flex items-center gap-3 p-4 pl-6 pr-5 transition-colors ${canExpand ? "cursor-pointer hover:bg-bg-hover" : "cursor-pointer hover:bg-bg-hover"}`}
+                    onClick={() => canExpand ? toggleExpand(key) : handleViewSubmission(g.attempts[0])}
                   >
                     <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center shrink-0">
                       <User className="w-4 h-4 text-text-secondary" />
@@ -311,7 +328,9 @@ export default function AssignmentsPage() {
                             : <ChevronRight className="w-4 h-4 text-text-secondary" />}
                         </div>
                       ) : (
-                        <span className="text-xs text-gray-600">1 lần</span>
+                        <button onClick={(e) => { e.stopPropagation(); handleViewSubmission(g.attempts[0]); }} className="flex items-center gap-1.5 text-xs text-indigo-400 hover:text-indigo-300 transition-colors">
+                          <Eye className="w-3.5 h-3.5" /> Xem bài
+                        </button>
                       )}
                     </div>
                   </div>
@@ -325,7 +344,8 @@ export default function AssignmentsPage() {
                       {g.attempts.map((att, idx) => (
                         <div
                           key={att.id}
-                          className="flex items-center gap-3 px-6 py-2.5 border-b border-border-card last:border-0 last:pb-3"
+                          className="flex items-center gap-3 px-6 py-2.5 border-b border-border-card last:border-0 last:pb-3 hover:bg-bg-hover cursor-pointer transition-colors"
+                          onClick={(e) => { e.stopPropagation(); handleViewSubmission(att); }}
                         >
                           <span className={`text-xs font-bold w-5 text-center ${idx === 0 ? "text-yellow-400" : "text-gray-600"}`}>
                             {idx === 0 ? "🏆" : `#${idx + 1}`}
@@ -334,6 +354,7 @@ export default function AssignmentsPage() {
                             {new Date(att.submitted_at).toLocaleString("vi-VN")}
                           </span>
                           <ScoreBadge score={att.score} max={g.max_score} />
+                          <Eye className="w-4 h-4 text-indigo-400 opacity-50 hover:opacity-100" />
                         </div>
                       ))}
                     </div>
@@ -352,6 +373,114 @@ export default function AssignmentsPage() {
           onSuccess={fetchSubmissions}
           editAssignment={editAssignment}
         />
+      )}
+
+      {/* Modal xem bài làm của học sinh */}
+      {viewingSubmission && (
+        <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => { setViewingSubmission(null); setViewingQuizData(null); }}>
+          <div className="bg-bg-card rounded-2xl w-full max-w-3xl max-h-[85vh] overflow-hidden border border-border-card shadow-2xl flex flex-col" onClick={(e) => e.stopPropagation()}>
+            {/* Header */}
+            <div className="flex items-center justify-between p-5 border-b border-border-card shrink-0">
+              <div>
+                <h3 className="text-lg font-bold text-text-primary flex items-center gap-2">
+                  <Eye className="w-5 h-5 text-indigo-400" />
+                  Bài làm của {viewingSubmission.student_name}
+                </h3>
+                <p className="text-sm text-text-secondary mt-0.5">
+                  {viewingSubmission.assignment_title} · Điểm: <span className="font-bold text-text-primary">{viewingSubmission.score ?? 'Chưa chấm'}/{viewingSubmission.max_score ?? 10}đ</span>
+                  · {new Date(viewingSubmission.submitted_at).toLocaleString('vi-VN')}
+                </p>
+              </div>
+              <button onClick={() => { setViewingSubmission(null); setViewingQuizData(null); }} className="w-8 h-8 rounded-full bg-bg-hover flex items-center justify-center hover:bg-red-500/20 transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="overflow-y-auto flex-1 p-5">
+              {!viewingQuizData ? (
+                <div className="text-center py-10 text-text-muted">Đang tải đề bài...</div>
+              ) : (() => {
+                const answers = viewingSubmission.quiz_answers || {};
+                const sections = viewingQuizData.sections || [];
+                let qCount = 0;
+                return sections.map((section: any, sIdx: number) => (
+                  <div key={sIdx} className="mb-6">
+                    <h4 className="text-sm font-bold text-indigo-400 uppercase tracking-wider mb-3">
+                      {section.type === 'mcq' ? '📝 Trắc nghiệm' : section.type === 'true_false' ? '✅ Đúng/Sai' : '✍️ Tự luận ngắn'}
+                    </h4>
+                    {(section.questions || []).map((q: any, qIdx: number) => {
+                      qCount++;
+                      const qid = `s${sIdx}_${q.id || qIdx}`;
+                      const studentAns = answers[qid];
+                      const correctAns = q.correctAnswer;
+                      const isCorrect = section.type === 'mcq'
+                        ? String(studentAns || '').trim() === String(correctAns || '').trim()
+                        : section.type === 'short_answer'
+                        ? String(studentAns || '').trim().toLowerCase() === String(correctAns || '').trim().toLowerCase()
+                        : null;
+
+                      return (
+                        <div key={qid} className={`mb-3 p-4 rounded-xl border ${isCorrect === true ? 'border-green-500/30 bg-green-500/5' : isCorrect === false ? 'border-red-500/30 bg-red-500/5' : 'border-border-card bg-bg-hover'}`}>
+                          <p className="font-medium text-sm mb-2">
+                            <span className="text-text-muted mr-1">Câu {qCount}.</span>
+                            {q.question || q.content}
+                          </p>
+
+                          {section.type === 'mcq' && (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 mb-2">
+                              {(q.options || []).map((opt: string, oIdx: number) => {
+                                const optLabel = String.fromCharCode(65 + oIdx);
+                                const isStudentChoice = String(studentAns || '') === optLabel;
+                                const isCorrectChoice = String(correctAns || '') === optLabel;
+                                return (
+                                  <div key={oIdx} className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs ${
+                                    isCorrectChoice ? 'bg-green-500/20 text-green-400 font-bold border border-green-500/30'
+                                    : isStudentChoice ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+                                    : 'bg-white/5 text-text-secondary'
+                                  }`}>
+                                    <span className="font-bold">{optLabel}.</span> {opt}
+                                    {isCorrectChoice && <span className="ml-auto">✓</span>}
+                                    {isStudentChoice && !isCorrectChoice && <span className="ml-auto">✗</span>}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+
+                          {section.type === 'true_false' && (
+                            <div className="space-y-1 mb-2">
+                              {(q.items || []).map((item: any) => {
+                                const tfAnswer = studentAns && typeof studentAns === 'object' ? studentAns[item.label] : undefined;
+                                const correctTF = item.isTrue;
+                                const isRight = tfAnswer !== undefined && (String(tfAnswer).toLowerCase() === 'true') === Boolean(correctTF);
+                                return (
+                                  <div key={item.label} className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs ${isRight ? 'bg-green-500/10 text-green-400' : tfAnswer !== undefined ? 'bg-red-500/10 text-red-400' : 'bg-white/5 text-text-secondary'}`}>
+                                    <span className="font-bold">{item.label}.</span>
+                                    <span className="flex-1">{item.content}</span>
+                                    <span>HS: {tfAnswer !== undefined ? (String(tfAnswer).toLowerCase() === 'true' ? 'Đ' : 'S') : '—'}</span>
+                                    <span>| ĐA: {correctTF ? 'Đ' : 'S'}</span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+
+                          {section.type === 'short_answer' && (
+                            <div className="flex gap-4 text-xs">
+                              <span className="text-text-secondary">HS trả lời: <span className={`font-bold ${isCorrect ? 'text-green-400' : 'text-red-400'}`}>{studentAns || '(bỏ trống)'}</span></span>
+                              <span className="text-text-secondary">Đáp án: <span className="font-bold text-green-400">{correctAns}</span></span>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ));
+              })()}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
