@@ -271,6 +271,67 @@ def my_offline_students(db: Session = Depends(get_db), current_user: User = Depe
         for s in students
     ]
 
+@router.get("/search-students")
+def search_students(q: str = "", db: Session = Depends(get_db), current_user: User = Depends(require_role("teacher", "admin"))):
+    """Tìm kiếm học sinh theo tên hoặc email (cho giáo viên thêm vào lớp)."""
+    from app.models.user import TeacherStudentLink
+    
+    # Lấy danh sách ID đã có trong lớp
+    linked_ids = [link.student_id for link in db.query(TeacherStudentLink).filter(
+        TeacherStudentLink.teacher_id == current_user.id
+    ).all()]
+    
+    query = db.query(User).filter(User.role == "student")
+    if q:
+        query = query.filter(
+            (User.full_name.ilike(f"%{q}%")) | (User.email.ilike(f"%{q}%"))
+        )
+    students = query.order_by(User.full_name).limit(50).all()
+    
+    return [
+        {
+            "id": s.id,
+            "full_name": s.full_name,
+            "avatar_url": s.avatar_url,
+            "email": s.email,
+            "already_linked": s.id in linked_ids
+        }
+        for s in students
+    ]
+
+@router.post("/add-student-to-class")
+def add_student_to_class(data: dict, db: Session = Depends(get_db), current_user: User = Depends(require_role("teacher", "admin"))):
+    """Giáo viên thêm học sinh vào lớp (tạo TeacherStudentLink)."""
+    from app.models.user import TeacherStudentLink
+    
+    student_ids = data.get("student_ids", [])
+    added = 0
+    for sid in student_ids:
+        existing = db.query(TeacherStudentLink).filter(
+            TeacherStudentLink.student_id == sid,
+            TeacherStudentLink.teacher_id == current_user.id
+        ).first()
+        if not existing:
+            link = TeacherStudentLink(student_id=sid, teacher_id=current_user.id)
+            db.add(link)
+            added += 1
+    db.commit()
+    return {"message": f"Đã thêm {added} học sinh vào lớp", "added": added}
+
+@router.delete("/remove-student/{student_id}")
+def remove_student_from_class(student_id: int, db: Session = Depends(get_db), current_user: User = Depends(require_role("teacher", "admin"))):
+    """Giáo viên xoá học sinh khỏi lớp."""
+    from app.models.user import TeacherStudentLink
+    link = db.query(TeacherStudentLink).filter(
+        TeacherStudentLink.student_id == student_id,
+        TeacherStudentLink.teacher_id == current_user.id
+    ).first()
+    if not link:
+        raise HTTPException(status_code=404, detail="Không tìm thấy liên kết này")
+    db.delete(link)
+    db.commit()
+    return {"message": "Đã xoá học sinh khỏi lớp"}
+
 # --- CV ENDPOINTS ---
 import json
 from pydantic import BaseModel

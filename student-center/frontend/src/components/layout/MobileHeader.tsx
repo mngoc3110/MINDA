@@ -38,6 +38,7 @@ export default function MobileHeader() {
     { name: "Trang cá nhân", href: "/profile", icon: UserCircle },
     { name: "Hồ sơ CV", href: "/cv", icon: User },
     { name: "Khoá học", href: "/courses", icon: BookOpen },
+    { name: "Học sinh", href: "/my-students", icon: Users },
     { name: "Lớp Live", href: "/live", icon: Radio },
     { name: "Bài tập", href: "/assignments", icon: ClipboardCheck },
     { name: "Bảng xếp hạng", href: "/leaderboard", icon: Trophy },
