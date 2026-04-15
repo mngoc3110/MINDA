@@ -302,11 +302,16 @@ def grade_submission(
     db.refresh(submission)
     return submission
 
-@router.get("/assignments/practice", response_model=List[AssignmentResponse])
+@router.get("/assignments/practice")
 def get_practice_assignments(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Lấy danh sách các Bài tập luyện thi tự do (không thuộc khóa học nào)."""
-    # course_id is None indicates standalone assignment
     assignments = db.query(Assignment).filter(Assignment.course_id == None).order_by(Assignment.created_at.desc()).all()
+    
+    # Lấy tất cả submissions của user hiện tại
+    my_subs = db.query(AssignmentSubmission).filter(
+        AssignmentSubmission.student_id == current_user.id
+    ).all()
+    sub_map = {s.assignment_id: s for s in my_subs}
     
     result = []
     for a in assignments:
@@ -318,7 +323,13 @@ def get_practice_assignments(db: Session = Depends(get_db), current_user: User =
         if is_allowed:
             resp = AssignmentResponse.model_validate(a)
             resp.assignee_ids = [u.id for u in getattr(a, "assignees", [])]
-            result.append(resp)
+            
+            # Thêm info submission của student
+            sub = sub_map.get(a.id)
+            item = resp.model_dump()
+            item["my_score"] = sub.score if sub else None
+            item["my_submitted_at"] = str(sub.submitted_at) if sub else None
+            result.append(item)
             
     return result
 

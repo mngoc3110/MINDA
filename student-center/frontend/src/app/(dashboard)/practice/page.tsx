@@ -66,14 +66,25 @@ export default function PracticePage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 relative z-10">
           {assignments.map((assignment) => (
-            <div key={assignment.id} className={`group flex flex-col rounded-3xl border transition-all duration-300 hover:-translate-y-1 hover:shadow-xl overflow-hidden ${theme === 'dark' ? 'bg-[#0a0a0a] border-white/10 hover:border-indigo-500/50 hover:shadow-indigo-500/10' : 'bg-white border-gray-200 hover:border-indigo-400 hover:shadow-indigo-500/5'}`}>
-               <div className="h-32 bg-gradient-to-br from-indigo-900/40 to-purple-900/40 relative flex items-center justify-center owerflow-hidden">
+            <div key={assignment.id} className={`group flex flex-col rounded-3xl border transition-all duration-300 hover:-translate-y-1 hover:shadow-xl overflow-hidden ${assignment.my_score !== null && assignment.my_score !== undefined ? (theme === 'dark' ? 'bg-[#0a0a0a] border-green-500/30' : 'bg-white border-green-400') : (theme === 'dark' ? 'bg-[#0a0a0a] border-white/10 hover:border-indigo-500/50 hover:shadow-indigo-500/10' : 'bg-white border-gray-200 hover:border-indigo-400 hover:shadow-indigo-500/5')}`}>
+               <div className={`h-32 relative flex items-center justify-center overflow-hidden ${assignment.my_score !== null && assignment.my_score !== undefined ? 'bg-gradient-to-br from-green-900/40 to-emerald-900/40' : 'bg-gradient-to-br from-indigo-900/40 to-purple-900/40'}`}>
                   <div className="absolute inset-0 bg-black/20" />
-                  <FileText className="w-12 h-12 text-indigo-400/50 relative z-10" />
-                  <div className="absolute top-4 right-4 bg-black/40 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 flex items-center gap-1.5">
-                     <Clock className="w-3.5 h-3.5 text-indigo-400" />
-                     <span className="text-xs font-bold text-white">Toàn thời gian</span>
-                  </div>
+                  {assignment.my_score !== null && assignment.my_score !== undefined ? (
+                    <CheckCircle className="w-12 h-12 text-green-400/70 relative z-10" />
+                  ) : (
+                    <FileText className="w-12 h-12 text-indigo-400/50 relative z-10" />
+                  )}
+                  {assignment.my_score !== null && assignment.my_score !== undefined ? (
+                    <div className="absolute top-4 right-4 bg-green-500/90 backdrop-blur-md px-3 py-1 rounded-full border border-green-400/30 flex items-center gap-1.5">
+                       <CheckCircle className="w-3.5 h-3.5 text-white" />
+                       <span className="text-xs font-bold text-white">Đã làm: {assignment.my_score}đ</span>
+                    </div>
+                  ) : (
+                    <div className="absolute top-4 right-4 bg-black/40 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 flex items-center gap-1.5">
+                       <Clock className="w-3.5 h-3.5 text-indigo-400" />
+                       <span className="text-xs font-bold text-white">Chưa làm</span>
+                    </div>
+                  )}
                </div>
                
                <div className="p-6 flex-1 flex flex-col">
@@ -84,14 +95,14 @@ export default function PracticePage() {
                   
                   <div className="flex items-center justify-between pt-4 border-t border-dashed border-white/10">
                      <div className="flex items-center gap-2">
-                        <CheckCircle className="w-4 h-4 text-green-500 opacity-50" />
+                        <CheckCircle className={`w-4 h-4 ${assignment.my_score !== null && assignment.my_score !== undefined ? 'text-green-500' : 'text-green-500 opacity-50'}`} />
                         <span className="text-xs font-semibold text-gray-500 uppercase">Điểm tối đa: {assignment.max_score || 100} đ</span>
                      </div>
                      <Link 
                         href={`/practice/${assignment.id}`}
-                        className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold rounded-xl transition-colors shadow-lg shadow-indigo-500/20"
+                        className={`px-4 py-2 text-white text-sm font-bold rounded-xl transition-colors shadow-lg ${assignment.my_score !== null && assignment.my_score !== undefined ? 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/20' : 'bg-indigo-600 hover:bg-indigo-500 shadow-indigo-500/20'}`}
                      >
-                        Tham gia
+                        {assignment.my_score !== null && assignment.my_score !== undefined ? 'Làm lại' : 'Tham gia'}
                      </Link>
                   </div>
                </div>
