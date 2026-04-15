@@ -52,6 +52,9 @@ def connect_google_drive(current_user: User = Depends(get_current_user)):
 def google_auth_callback(request: Request, state: str, code: str, db: Session = Depends(get_db)):
     """Xử lý Callback từ Google, lưu Token vào DB và thiết lập thư mục Gốc"""
     try:
+        print(f"[Google OAuth] Callback received: state={state}, code={code[:20]}...")
+        print(f"[Google OAuth] Using REDIRECT_URI={REDIRECT_URI}")
+        
         user_id = int(state)
         user = db.query(User).filter(User.id == user_id).first()
         if not user:
@@ -70,7 +73,7 @@ def google_auth_callback(request: Request, state: str, code: str, db: Session = 
         token_data = token_res.json()
 
         if "error" in token_data:
-            print(f"Token Endpoint Error: {token_data}")
+            print(f"[Google OAuth] Token Endpoint Error: {token_data}")
             return RedirectResponse(url=f"{FRONTEND_URL}/profile?google_error=true")
 
         # Lưu Token vào DB
