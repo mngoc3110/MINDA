@@ -76,11 +76,13 @@ def google_auth_callback(request: Request, state: str, code: str, db: Session = 
             print(f"[Google OAuth] Token Endpoint Error: {token_data}")
             return RedirectResponse(url=f"{FRONTEND_URL}/profile?google_error=true")
 
+        print(f"[Google OAuth] Token exchange OK, saving to DB...")
         # Lưu Token vào DB
         user.google_access_token = token_data.get("access_token")
         if token_data.get("refresh_token"):
             user.google_refresh_token = token_data.get("refresh_token")
         db.commit()
+        print(f"[Google OAuth] Tokens saved. Building Drive service...")
 
         # Khởi tạo Credentials cho SDK
         credentials = Credentials(
@@ -93,13 +95,16 @@ def google_auth_callback(request: Request, state: str, code: str, db: Session = 
 
         # Tạo thư mục rễ ngay sau khi Connect thành công
         service = build('drive', 'v3', credentials=credentials)
+        print(f"[Google OAuth] Drive service built. Folder ID existing: {user.google_folder_id}")
         if not user.google_folder_id:
             folder_metadata = {
                 'name': 'MINDA EduCenter (App)',
                 'mimeType': 'application/vnd.google-apps.folder'
             }
+            print(f"[Google OAuth] Creating Drive folder...")
             folder = service.files().create(body=folder_metadata, fields='id').execute()
             user.google_folder_id = folder.get('id')
+            print(f"[Google OAuth] Folder created: {user.google_folder_id}")
             
             # Cấp quyền public đọc để Avatar hiển thị được cho web
             service.permissions().create(
@@ -107,12 +112,15 @@ def google_auth_callback(request: Request, state: str, code: str, db: Session = 
                 body={'type': 'anyone', 'role': 'reader'}
             ).execute()
             db.commit()
+            print(f"[Google OAuth] Permissions set and committed.")
 
         # Redirect thành công về Frontend Profile Page
+        print(f"[Google OAuth] SUCCESS! Redirecting to {FRONTEND_URL}/profile?google_connected=true")
         return RedirectResponse(url=f"{FRONTEND_URL}/profile?google_connected=true")
 
     except Exception as e:
         import traceback
+        print(f"[Google OAuth] EXCEPTION: {type(e).__name__}: {e}")
         traceback.print_exc()
         return RedirectResponse(url=f"{FRONTEND_URL}/profile?google_error=true")
 
