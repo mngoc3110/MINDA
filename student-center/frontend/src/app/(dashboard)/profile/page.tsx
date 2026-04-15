@@ -351,12 +351,7 @@ export default function ProfilePage() {
 
   const getFilteredInfos = () => profileInfos.filter(i => !i.roleTarget || i.roleTarget === role);
 
-  if (role === "teacher") {
-    // Render the webflow CV directly in dashboard instead of Facebook-like social layout
-    const id = teacherId || localStorage.getItem("minda_user_id");
-    if (!id) return <div className="min-h-screen flex items-center justify-center bg-bg-main"><Loader2 className="w-8 h-8 animate-spin text-indigo-500" /></div>;
-    return <TeacherCVView teacherId={id} enableGoBack={false} />;
-  }
+  // Removed: teacher profile no longer shows CV — CV has its own route at /cv
 
   return (
     <div className="min-h-screen bg-bg-main text-text-primary font-sans pb-20 relative overflow-x-hidden">
