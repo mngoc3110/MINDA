@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.models.file import FileItem
 from app.schemas.file import FileResponse
-from app.core.security import get_current_user
+from app.core.security import get_current_user, require_role
 from app.models.user import User
 from app.core.drive_service import upload_file as drive_upload
 from typing import List
@@ -38,6 +38,10 @@ async def upload_file_to_drive(
         owner_id=current_user.id
     )
     db.add(db_file)
+    
+    # Reward EXP for uploading documents
+    current_user.exp_points = (current_user.exp_points or 0) + 10
+    
     db.commit()
     db.refresh(db_file)
     return db_file
@@ -109,3 +113,26 @@ async def upload_scorm_package(
     db.commit()
     db.refresh(db_file)
     return db_file
+
+@router.post("/upload-video")
+async def upload_video(
+    file: UploadFile = File(...),
+    current_user: User = Depends(require_role("teacher", "admin"))
+):
+    """API lưu trữ video bài giảng trực tiếp vào máy chủ cục bộ."""
+    valid_extensions = ["mp4", "webm", "ogg", "mov", "avi"]
+    ext = file.filename.split('.')[-1].lower() if '.' in file.filename else ''
+    if ext not in valid_extensions:
+        raise HTTPException(status_code=400, detail="Định dạng không hỗ trợ. Hãy chọn tệp Video (MP4, WebM...).")
+        
+    unique_id = str(uuid.uuid4())
+    save_dir = os.path.join("static", "videos")
+    os.makedirs(save_dir, exist_ok=True)
+    
+    safe_name = f"{unique_id}_{file.filename.replace(' ', '_')}"
+    file_path = os.path.join(save_dir, safe_name)
+    
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+        
+    return {"video_url": f"/static/videos/{safe_name}", "filename": safe_name}

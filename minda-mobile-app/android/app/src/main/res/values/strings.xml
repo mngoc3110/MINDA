@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">MindaMobile</string>
+    <string name="title_activity_main">MindaMobile</string>
+    <string name="package_name">vn.edu.hcmue.minda</string>
+    <string name="custom_url_scheme">vn.edu.hcmue.minda</string>
+</resources>

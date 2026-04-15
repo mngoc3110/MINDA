@@ -22,8 +22,8 @@ export default function AdminSidebar() {
       
       {/* App Logo */}
       <Link href="/" className="p-8 pb-6 flex items-center gap-4 hover:opacity-80 transition-opacity">
-        <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-red-600 to-orange-600 flex items-center justify-center shadow-[0_0_20px_rgba(220,38,38,0.5)]">
-          <ShieldAlert className="w-7 h-7 text-white" />
+        <div className="w-12 h-12 rounded-2xl overflow-hidden shadow-[0_0_20px_rgba(220,38,38,0.5)]">
+          <img src="/logo.png" alt="MINDA" className="w-full h-full object-cover" />
         </div>
         <div>
            <span className="font-bold text-2xl tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400 block leading-none">MINDA</span>

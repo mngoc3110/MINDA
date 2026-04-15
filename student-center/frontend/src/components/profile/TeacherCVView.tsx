@@ -3,7 +3,7 @@ import React from "react";
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Phone, Mail, Globe, Link as LinkIcon, Link2, Edit3, Save, X, Plus, Trash2, MapPin, Award, BookOpen, Presentation, Code2, Loader2, ChevronLeft } from "lucide-react";
+import { Phone, Mail, Globe, Link as LinkIcon, Link2, Edit3, Save, X, Plus, Trash2, MapPin, Award, BookOpen, Presentation, Code2, Loader2, ChevronLeft, Cloud } from "lucide-react";
 import Link from "next/link";
 
 interface TeacherCVViewProps {
@@ -28,11 +28,41 @@ export default function TeacherCVView({ teacherId, enableGoBack = true }: Teache
   const [savingBasicProfile, setSavingBasicProfile] = useState(false);
   
   const [isOwner, setIsOwner] = useState(false);
+  const [isGoogleConnected, setIsGoogleConnected] = useState(false);
   const avatarInputRef = React.useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetchProfile();
   }, [teacherId]);
+
+  useEffect(() => {
+    if (isOwner) {
+       const checkGoogle = async () => {
+          try {
+             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/auth/me`, {
+                 headers: { Authorization: `Bearer ${localStorage.getItem("minda_token")}` }
+             });
+             if (res.ok) {
+                const data = await res.json();
+                setIsGoogleConnected(data.is_google_connected);
+             }
+          } catch {}
+       };
+       checkGoogle();
+    }
+  }, [isOwner]);
+
+  const handleConnectGoogle = async () => {
+      try {
+         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/auth/google/connect`, { 
+             headers: { Authorization: `Bearer ${localStorage.getItem("minda_token")}` }
+         });
+         const data = await res.json();
+         if (data.authorization_url) window.location.href = data.authorization_url;
+      } catch {
+         alert("Lỗi kết nối OAuth Server!");
+      }
+  };
 
   const defaultProfile = () => ({
     full_name: localStorage.getItem("minda_user_name") || "Họ và Tên",
@@ -228,15 +258,15 @@ export default function TeacherCVView({ teacherId, enableGoBack = true }: Teache
     <div className={`min-h-screen bg-transparent font-sans selection:bg-[#1a365d]/20 text-[#2d3748] py-10 px-4 md:px-10 ${activeLayout === 'futuristic' ? '!text-white' : ''}`}>
       
       {/* Fixed Header Toolbar */}
-      <div className="max-w-6xl mx-auto flex items-center justify-between mb-6">
+      <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
          {enableGoBack ? (
-           <button onClick={() => router.back()} className="flex items-center gap-2 text-[#1a365d] hover:text-[#2d5a9e] font-bold transition-colors">
+           <button onClick={() => router.back()} className="flex items-center gap-2 w-full md:w-auto text-[#1a365d] hover:text-[#2d5a9e] font-bold transition-colors">
               <ChevronLeft className="w-5 h-5"/> Trở về
            </button>
-         ) : <div />}
+         ) : <div className="hidden md:block" />}
          
          {isOwner && (
-            <div className="flex gap-3">
+            <div className="flex flex-wrap items-center justify-center md:justify-end gap-2 w-full md:w-auto">
                {isEditing ? (
                   <>
                      <button onClick={() => { setEditForm(JSON.parse(JSON.stringify(profile))); setIsEditing(false); }} className="px-5 py-2.5 rounded-full text-gray-600 bg-white hover:bg-gray-100 font-bold border border-gray-200 transition-all flex items-center gap-2 shadow-sm">
@@ -248,6 +278,11 @@ export default function TeacherCVView({ teacherId, enableGoBack = true }: Teache
                   </>
                ) : (
                   <>
+                    {!isGoogleConnected && (
+                       <button onClick={handleConnectGoogle} className="px-5 py-2.5 rounded-full text-blue-600 bg-blue-50 border border-blue-200 hover:bg-blue-100 hover:scale-105 font-bold shadow-sm transition-all flex items-center gap-2 text-sm animate-pulse">
+                          <Cloud className="w-4 h-4" /> Liên kết GD<span className="hidden md:inline">rive</span>
+                       </button>
+                    )}
                     <button onClick={() => { setEditFullName(profile.full_name); setEditPhone(profile.phone); setIsEditingBasicProfile(true); }} className="px-5 py-2.5 rounded-full text-white bg-indigo-600 hover:bg-indigo-700 font-bold shadow-lg transition-all flex items-center gap-2 text-sm">
                        <Edit3 className="w-4 h-4" /> Cài đặt tài khoản
                     </button>
@@ -339,7 +374,7 @@ export default function TeacherCVView({ teacherId, enableGoBack = true }: Teache
         )}
         
         {/* ================= LEFT SIDEBAR ================= */}
-        <div className={`w-full ${activeLayout === "classic" ? "md:w-full" : "md:w-[35%]"} left-sidebar text-white p-10 flex flex-col items-center transition-colors`} style={activeLayout === 'futuristic' ? {} : { backgroundColor: activeColor }}>
+        <div className={`w-full ${activeLayout === "classic" ? "md:w-full" : "md:w-[35%]"} left-sidebar text-white py-12 px-6 md:p-10 flex flex-col items-center transition-colors border-b-8 md:border-b-0 border-[#f1f5f9]`} style={activeLayout === 'futuristic' ? {} : { backgroundColor: activeColor }}>
            
            <div className="w-48 h-48 rounded-full overflow-hidden border-4 border-white/20 mb-10 shadow-2xl shrink-0 bg-white/5 relative group avatar-glow">
               <img src={profile.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} alt="Avatar" className="w-full h-full object-cover" />
@@ -474,7 +509,7 @@ export default function TeacherCVView({ teacherId, enableGoBack = true }: Teache
 
 
         {/* ================= RIGHT MAIN BODY (White) ================= */}
-        <div className={`w-full ${activeLayout === "classic" ? "md:w-full" : "md:w-[65%]"} p-10 md:p-14 bg-white right-main flex flex-col gap-10`}>
+        <div className={`w-full ${activeLayout === "classic" ? "md:w-full" : "md:w-[65%]"} py-12 px-5 md:p-14 bg-white right-main flex flex-col gap-10`}>
            
            {/* TITLE HEADER */}
            <div>

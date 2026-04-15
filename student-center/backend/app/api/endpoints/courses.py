@@ -201,6 +201,16 @@ def get_curriculum(course_id: int, db: Session = Depends(get_db), current_user: 
            # Get assignments and exams for this lesson
            assignments = db.query(Assignment).filter(Assignment.lesson_id == less.id).all()
            exams = db.query(Exam).filter(Exam.lesson_id == less.id).all()
+           
+           filtered_assignments = []
+           for a in assignments:
+               is_allowed = True
+               if current_user.role == "student" and not getattr(a, "is_assigned_to_all", True):
+                   if not any(u.id == current_user.id for u in getattr(a, "assignees", [])):
+                        is_allowed = False
+               if is_allowed:
+                   filtered_assignments.append(a)
+           
            lessons_data.append({
                "id": less.id,
                "chapter_id": less.chapter_id,
@@ -210,7 +220,7 @@ def get_curriculum(course_id: int, db: Session = Depends(get_db), current_user: 
                "document_url": less.document_url,
                "order_index": less.order_index,
                "duration_seconds": less.duration_seconds,
-               "assignments": [{"id": a.id, "course_id": a.course_id, "lesson_id": a.lesson_id, "teacher_id": a.teacher_id, "title": a.title, "description": a.description, "due_date": a.due_date, "max_score": a.max_score, "created_at": a.created_at} for a in assignments],
+               "assignments": [{"id": a.id, "course_id": a.course_id, "lesson_id": a.lesson_id, "teacher_id": a.teacher_id, "title": a.title, "description": a.description, "due_date": a.due_date, "max_score": a.max_score, "created_at": a.created_at} for a in filtered_assignments],
                "exams": [{"id": e.id, "course_id": e.course_id, "lesson_id": e.lesson_id, "teacher_id": e.teacher_id, "title": e.title, "description": e.description, "duration_minutes": e.duration_minutes, "max_score": e.max_score, "start_time": e.start_time, "end_time": e.end_time, "created_at": e.created_at} for e in exams]
            })
        curriculum.append({

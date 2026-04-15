@@ -15,7 +15,7 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 PROMPT = """
 You are an expert Math Teacher in Vietnam. I am giving you an exam paper.
 1. Parse the structure of the exam (Trắc nghiệm, Đúng/Sai, Trả lời ngắn).
-2. SOLVE ALL THE QUESTIONS correctly. Show your work in explanations.
+2. Extract the content of questions and options exactly. DO NOT solve them or provide explanations.
 3. Output raw JSON ONLY with no markdown formatting. The format MUST BE:
 {
   "sections": [
@@ -28,7 +28,7 @@ You are an expert Math Teacher in Vietnam. I am giving you an exam paper.
               "text": "Full question text with math in LaTeX like $x^2 + 1$",
               "options": ["Option A text", "Option B text", "Option C text", "Option D text"],
               "correctAnswer": 0,
-              "explanation": "Giải thích chi tiết"
+              "explanation": ""
            }
         ]
      },
@@ -55,23 +55,23 @@ You are an expert Math Teacher in Vietnam. I am giving you an exam paper.
             {
                "id": "sa1",
                "text": "Question text",
-               "correctAnswer": "42",
-               "explanation": "Giải thích chi tiết"
+               "correctAnswer": "",
+               "explanation": ""
             }
          ]
      }
   ]
 }
-IMPORTANT:
-- correctAnswer for MCQ is the INDEX (0=A, 1=B, 2=C, 3=D)
-- For true_false, isTrue is a boolean
-- For short_answer, correctAnswer is a string
+- Set "correctAnswer" to 0 for MCQ (default index).
+- Set "isTrue" to false for all True/False items.
+- Set "correctAnswer" to "" for short answer.
+- Set "explanation" to "" for all questions.
 - Use LaTeX notation for math: $x^2$, $\\frac{a}{b}$, $\\sqrt{x}$
-- If the exam only has MCQ (no True/False or Short Answer), just output 1 section with type "mcq"
 - DO NOT output ANY markdown. Just the raw JSON object.
 """
 
 MODELS_TO_TRY = [
+    "gemini-flash-latest",
     "gemini-2.5-flash",
     "gemini-2.0-flash-lite",
     "gemini-2.0-flash",

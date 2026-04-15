@@ -1,0 +1,9 @@
+{
+  "appId": "vn.edu.hcmue.minda",
+  "appName": "MindaMobile",
+  "webDir": "www",
+  "server": {
+    "url": "https://minda.io.vn",
+    "cleartext": true
+  }
+}

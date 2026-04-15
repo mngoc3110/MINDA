@@ -33,8 +33,8 @@ export default function StudentSidebar() {
       
       {/* Logo */}
       <Link href="/" className="p-8 pb-6 flex items-center gap-4 hover:opacity-80 transition-opacity">
-        <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center shadow-md shadow-indigo-500/20">
-          <BrainCircuit className="w-7 h-7 text-white" />
+        <div className="w-12 h-12 rounded-2xl overflow-hidden shadow-md shadow-indigo-500/20">
+          <img src="/logo.png" alt="MINDA" className="w-full h-full object-cover" />
         </div>
         <div>
            <span className="font-black text-2xl tracking-tighter text-text-primary block leading-none">MINDA</span>

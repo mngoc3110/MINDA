@@ -5,8 +5,9 @@ import { Bird } from "../models/Bird";
 import { Island } from "../models/Island";
 import { Plane } from "../models/Plane";
 import { Sky } from "../models/Sky";
-import { Html } from "@react-three/drei";
+import { Html, Stars } from "@react-three/drei";
 import { ArrowDown } from "lucide-react";
+import { useTheme } from "@/providers/ThemeProvider";
 
 function Loader() {
   return (
@@ -23,6 +24,7 @@ export default function IslandHero() {
   const [isRotating, setIsRotating] = useState(false);
   const [currentStage, setCurrentStage] = useState<number | null>(1);
   const [isMounted, setIsMounted] = useState(false);
+  const { theme } = useTheme();
 
   useEffect(() => {
     setIsMounted(true);
@@ -58,7 +60,11 @@ export default function IslandHero() {
   const [islandScale, islandPosition] = adjustIslandForScreenSize();
 
   return (
-    <section className="w-full h-screen relative bg-gradient-to-b from-[#ffd3a5] via-[#ffb1b1] to-[#cba3ff] overflow-hidden">
+    <section className={`w-full h-screen relative overflow-hidden transition-colors duration-1000 ${
+        theme === 'dark' 
+        ? 'bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-930' 
+        : 'bg-gradient-to-b from-[#ffd3a5] via-[#ffb1b1] to-[#cba3ff]'
+    }`}>
       
       {/* Cửa sổ Canvas 3D chứa mọi thứ */}
       <Canvas
@@ -68,13 +74,23 @@ export default function IslandHero() {
         performance={{ min: 0.5 }} // Cho phép tự giảm chất lượng nếu FPS tụt
       >
         <Suspense fallback={<Loader />}>
-          {/* Tối ưu hóa: Chỉ giữ lại 3 nguồn sáng thiết yếu nhất để giảm khối lượng tính toán nội suy */}
-          <directionalLight position={[1, 1, 1]} intensity={2} color="#ffe2b3" />
-          <ambientLight intensity={0.6} color="#ffd4df" />
-          <hemisphereLight groundColor="#000000" intensity={1} color="#ffaebc" />
+          {theme === 'dark' ? (
+            <>
+              <directionalLight position={[1, 1, 1]} intensity={0.5} color="#b3d4ff" />
+              <ambientLight intensity={0.3} color="#2b2b40" />
+              <hemisphereLight groundColor="#000000" intensity={0.4} color="#65658b" />
+              <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
+            </>
+          ) : (
+            <>
+              <directionalLight position={[1, 1, 1]} intensity={2} color="#ffe2b3" />
+              <ambientLight intensity={0.6} color="#ffd4df" />
+              <hemisphereLight groundColor="#000000" intensity={1} color="#ffaebc" />
+              <Sky isRotating={isRotating} />
+            </>
+          )}
 
           <Bird />
-          <Sky isRotating={isRotating} />
           <Island
             isRotating={isRotating}
             setIsRotating={setIsRotating}

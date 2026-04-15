@@ -16,8 +16,9 @@ from app.core.security import get_current_user
 
 router = APIRouter()
 
-SCOPES = ['https://www.googleapis.com/auth/drive.file']
-REDIRECT_URI = "http://localhost:8000/api/auth/google/callback"
+FRONTEND_URL = os.getenv("FRONTEND_URL", "https://minda.io.vn")
+API_URL = os.getenv("API_URL", "https://minda.io.vn")
+REDIRECT_URI = f"{API_URL}/api/auth/google/callback"
 
 def get_google_credentials():
     client_id = os.getenv("GOOGLE_CLIENT_ID")
@@ -70,7 +71,7 @@ def google_auth_callback(request: Request, state: str, code: str, db: Session = 
 
         if "error" in token_data:
             print(f"Token Endpoint Error: {token_data}")
-            return RedirectResponse(url="http://localhost:3000/profile?google_error=true")
+            return RedirectResponse(url=f"{FRONTEND_URL}/profile?google_error=true")
 
         # Lưu Token vào DB
         user.google_access_token = token_data.get("access_token")
@@ -105,9 +106,18 @@ def google_auth_callback(request: Request, state: str, code: str, db: Session = 
             db.commit()
 
         # Redirect thành công về Frontend Profile Page
-        return RedirectResponse(url="http://localhost:3000/profile?google_connected=true")
+        return RedirectResponse(url=f"{FRONTEND_URL}/profile?google_connected=true")
 
     except Exception as e:
         import traceback
         traceback.print_exc()
-        return RedirectResponse(url="http://localhost:3000/profile?google_error=true")
+        return RedirectResponse(url=f"{FRONTEND_URL}/profile?google_error=true")
+
+@router.post("/disconnect")
+def disconnect_google_drive(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    """Xóa bỏ liên kết Google Drive của người dùng"""
+    current_user.google_access_token = None
+    current_user.google_refresh_token = None
+    current_user.google_folder_id = None
+    db.commit()
+    return {"message": "Đã ngắt kết nối Google Drive"}

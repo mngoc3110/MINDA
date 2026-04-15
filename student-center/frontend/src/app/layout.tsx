@@ -11,6 +11,10 @@ const outfit = Inter({
 export const metadata: Metadata = {
   title: "MINDA | AI-Powered Learning Center",
   description: "Next Generation Interactive Learning Management System",
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({

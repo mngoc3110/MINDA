@@ -1,6 +1,12 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, field_validator
 from typing import Optional
 from datetime import datetime
+import re
+
+def validate_password_strength(v: str) -> str:
+    if len(v) < 4:
+        raise ValueError("Mật khẩu phải có ít nhất 4 ký tự.")
+    return v
 
 
 class UserBase(BaseModel):
@@ -12,6 +18,10 @@ class UserCreate(UserBase):
     password: str
     phone: Optional[str] = None
     role: Optional[str] = "student"  # student / teacher / admin
+
+    @field_validator("password")
+    def validate_password(cls, v):
+        return validate_password_strength(v)
 
 
 class UserUpdate(BaseModel):
@@ -52,4 +62,25 @@ class Token(BaseModel):
     full_name: Optional[str] = None
     avatar_url: Optional[str] = None
     cover_url: Optional[str] = None
+    requires_phone: bool = False
+
+
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str
+
+    @field_validator("new_password")
+    def validate_new_password(cls, v):
+        return validate_password_strength(v)
+
+
+class ContactUsRequest(BaseModel):
+    name: str
+    email: EmailStr
+    message: str
 

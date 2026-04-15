@@ -116,10 +116,10 @@ def get_teacher_stats(
     # Tổng số khoá học
     active_courses = db.query(Course).filter(Course.teacher_id == current_user.id).count()
 
-    # Tổng học sinh đã duyệt (enrolled)
-    total_students = db.query(Enrollment).join(Course).filter(
-        Course.teacher_id == current_user.id,
-        Enrollment.status == "enrolled"
+    # Tổng học sinh kết nối offline
+    from app.models.user import TeacherStudentLink
+    total_students = db.query(TeacherStudentLink).filter(
+        TeacherStudentLink.teacher_id == current_user.id
     ).count()
 
     # Học sinh đang chờ phê duyệt

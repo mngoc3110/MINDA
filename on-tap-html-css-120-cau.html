@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ôn Tập Trắc Nghiệm HTML & CSS - 120 Câu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8f9fc;
+      --card: #ffffff;
+      --card-hover: #f3f4f8;
+      --border: rgba(0,0,0,0.08);
+      --text: #1e1e2e;
+      --text-muted: #6b7280;
+      --accent: #6366f1;
+      --accent-glow: rgba(99,102,241,0.1);
+      --correct: #10b981;
+      --correct-bg: rgba(16,185,129,0.08);
+      --correct-border: rgba(16,185,129,0.35);
+      --wrong: #ef4444;
+      --wrong-bg: rgba(239,68,68,0.07);
+      --wrong-border: rgba(239,68,68,0.3);
+      --pink: #ec4899;
+      --orange: #f97316;
+      --cyan: #06b6d4;
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* Animated gradient background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background:
+        radial-gradient(ellipse at 20% 20%, rgba(99,102,241,0.06), transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(236,72,153,0.04), transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(6,182,212,0.03), transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px 16px 100px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ─── HERO ─── */
+    .hero {
+      text-align: center;
+      padding: 60px 20px 40px;
+      position: relative;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--accent-glow);
+      border: 1px solid rgba(129,140,248,0.2);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 16px;
+      border-radius: 100px;
+      margin-bottom: 20px;
+      letter-spacing: 0.5px;
+    }
+    .hero h1 {
+      font-size: clamp(28px, 5vw, 48px);
+      font-weight: 900;
+      background: linear-gradient(135deg, #818cf8, #f472b6, #22d3ee);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.2;
+      margin-bottom: 12px;
+    }
+    .hero p {
+      color: var(--text-muted);
+      font-size: 16px;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    /* ─── STATS BAR ─── */
+    .stats-bar {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 30px 0;
+    }
+    .stat-item {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px 24px;
+      text-align: center;
+      min-width: 120px;
+      transition: all 0.3s;
+    }
+    .stat-item { box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+    .stat-item:hover { border-color: rgba(99,102,241,0.25); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(99,102,241,0.1); }
+    .stat-number {
+      font-size: 28px;
+      font-weight: 800;
+      display: block;
+    }
+    .stat-number.accent { color: var(--accent); }
+    .stat-number.correct { color: var(--correct); }
+    .stat-number.wrong { color: var(--wrong); }
+    .stat-number.orange { color: var(--orange); }
+    .stat-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 4px;
+    }
+
+    /* ─── PROGRESS BAR ─── */
+    .progress-wrapper {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px 24px;
+      margin-bottom: 30px;
+    }
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .progress-header span {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 100px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--pink));
+      border-radius: 100px;
+      transition: width 0.5s ease;
+      width: 0%;
+    }
+
+    /* ─── MODE TOGGLE ─── */
+    .mode-toggle {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+    .mode-btn {
+      padding: 10px 20px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text-muted);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-family: inherit;
+    }
+    .mode-btn:hover { border-color: rgba(129,140,248,0.3); color: var(--text); }
+    .mode-btn.active {
+      background: var(--accent-glow);
+      border-color: rgba(129,140,248,0.4);
+      color: var(--accent);
+    }
+
+    /* ─── SECTION HEADER ─── */
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 24px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      margin: 24px 0 16px;
+      cursor: pointer;
+      transition: all 0.3s;
+      user-select: none;
+    }
+    .section-header { box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+    .section-header:hover { border-color: rgba(99,102,241,0.2); background: var(--card-hover); }
+    .section-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    .section-header h2 {
+      font-size: 16px;
+      font-weight: 700;
+      flex: 1;
+    }
+    .section-count {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: rgba(255,255,255,0.05);
+      padding: 4px 12px;
+      border-radius: 100px;
+    }
+    .section-arrow {
+      color: var(--text-muted);
+      transition: transform 0.3s;
+      font-size: 18px;
+    }
+    .section-header.open .section-arrow { transform: rotate(180deg); }
+
+    /* ─── QUESTION CARD ─── */
+    .questions-list { display: none; }
+    .questions-list.open { display: block; }
+
+    .q-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 12px;
+      transition: all 0.4s;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .q-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--pink));
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .q-card:hover::before { opacity: 1; }
+    .q-card.answered-correct {
+      border-color: var(--correct-border);
+      background: var(--correct-bg);
+    }
+    .q-card.answered-wrong {
+      border-color: var(--wrong-border);
+      background: var(--wrong-bg);
+    }
+
+    .q-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .q-number {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 800;
+      flex-shrink: 0;
+      background: var(--accent-glow);
+      color: var(--accent);
+      border: 1px solid rgba(129,140,248,0.2);
+    }
+    .q-card.answered-correct .q-number {
+      background: var(--correct-bg);
+      color: var(--correct);
+      border-color: var(--correct-border);
+    }
+    .q-card.answered-wrong .q-number {
+      background: var(--wrong-bg);
+      color: var(--wrong);
+      border-color: var(--wrong-border);
+    }
+    .q-text {
+      font-size: 15px;
+      font-weight: 600;
+      line-height: 1.6;
+      padding-top: 6px;
+    }
+
+    /* ─── OPTIONS ─── */
+    .options {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      margin-left: 48px;
+    }
+    @media (min-width: 640px) {
+      .options.grid-2 { grid-template-columns: 1fr 1fr; }
+    }
+    .opt-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #f9fafb;
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.25s;
+      font-family: inherit;
+      font-size: 14px;
+      text-align: left;
+      width: 100%;
+      line-height: 1.5;
+    }
+    .opt-btn:hover:not(.disabled) {
+      border-color: rgba(99,102,241,0.35);
+      background: rgba(99,102,241,0.06);
+    }
+    .opt-btn .opt-letter {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 13px;
+      flex-shrink: 0;
+      background: #eef0f4;
+      border: 1px solid var(--border);
+      transition: all 0.3s;
+    }
+    .opt-btn.selected .opt-letter {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .opt-btn.correct-answer .opt-letter {
+      background: var(--correct) !important;
+      color: #fff !important;
+      border-color: var(--correct) !important;
+    }
+    .opt-btn.wrong-answer .opt-letter {
+      background: var(--wrong) !important;
+      color: #fff !important;
+      border-color: var(--wrong) !important;
+    }
+    .opt-btn.correct-answer {
+      border-color: var(--correct-border) !important;
+      background: var(--correct-bg) !important;
+    }
+    .opt-btn.wrong-answer {
+      border-color: var(--wrong-border) !important;
+      background: var(--wrong-bg) !important;
+    }
+    .opt-btn.disabled { cursor: default; opacity: 0.6; }
+    .opt-btn.correct-answer, .opt-btn.wrong-answer { opacity: 1 !important; }
+
+    /* ─── FEEDBACK ─── */
+    .feedback {
+      margin-top: 12px;
+      margin-left: 48px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      display: none;
+    }
+    .feedback.show { display: flex; align-items: center; gap: 8px; }
+    .feedback.correct {
+      background: var(--correct-bg);
+      color: var(--correct);
+      border: 1px solid var(--correct-border);
+    }
+    .feedback.wrong {
+      background: var(--wrong-bg);
+      color: var(--wrong);
+      border: 1px solid var(--wrong-border);
+    }
+
+    /* ─── FLOATING ACTIONS ─── */
+    .floating-actions {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      display: flex;
+      gap: 10px;
+      z-index: 100;
+    }
+    .fab {
+      padding: 14px 24px;
+      border-radius: 16px;
+      border: none;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    }
+    .fab:hover { transform: translateY(-2px); }
+    .fab-primary {
+      background: linear-gradient(135deg, var(--accent), #a78bfa);
+      color: #fff;
+    }
+    .fab-reset {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    /* ─── RESULT MODAL ─── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(8px);
+      z-index: 200;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 40px;
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+      animation: modalIn 0.4s ease;
+    }
+    @keyframes modalIn {
+      from { transform: scale(0.9) translateY(20px); opacity: 0; }
+      to { transform: scale(1) translateY(0); opacity: 1; }
+    }
+    .modal .score-circle {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      border: 4px solid;
+    }
+    .modal .score-circle .big { font-size: 36px; font-weight: 900; }
+    .modal .score-circle .small { font-size: 13px; font-weight: 600; opacity: 0.7; }
+    .modal h2 { font-size: 24px; font-weight: 800; margin-bottom: 8px; }
+    .modal p { color: var(--text-muted); font-size: 15px; margin-bottom: 24px; }
+    .modal-btn {
+      padding: 14px 32px;
+      border-radius: 14px;
+      border: none;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--accent), #a78bfa);
+      color: #fff;
+      transition: all 0.3s;
+    }
+    .modal-btn:hover { transform: scale(1.05); }
+
+    /* ─── SCROLL TO TOP ─── */
+    .scroll-top {
+      position: fixed;
+      bottom: 24px;
+      left: 24px;
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 20px;
+      z-index: 100;
+      transition: all 0.3s;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    }
+    .scroll-top:hover { color: var(--accent); border-color: rgba(99,102,241,0.3); }
+    .scroll-top.show { display: flex; }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 640px) {
+      .options { margin-left: 0; }
+      .feedback { margin-left: 0; }
+      .floating-actions { bottom: 16px; right: 16px; }
+      .fab { padding: 12px 16px; font-size: 13px; }
+      .q-card { padding: 18px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-badge">📝 Ôn tập kiến thức</div>
+    <h1>Trắc Nghiệm HTML & CSS</h1>
+    <p>120 câu hỏi ôn tập kiến thức HTML và CSS cơ bản. Chọn đáp án và kiểm tra ngay!</p>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-bar">
+    <div class="stat-item">
+      <span class="stat-number accent" id="totalQ">120</span>
+      <span class="stat-label">Tổng câu</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-number correct" id="correctCount">0</span>
+      <span class="stat-label">Đúng</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-number wrong" id="wrongCount">0</span>
+      <span class="stat-label">Sai</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-number orange" id="answeredCount">0</span>
+      <span class="stat-label">Đã làm</span>
+    </div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress-wrapper">
+    <div class="progress-header">
+      <span>Tiến độ ôn tập</span>
+      <span id="progressText">0 / 120</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+  </div>
+
+  <!-- MODE TOGGLE -->
+  <div class="mode-toggle">
+    <button class="mode-btn active" onclick="setMode('practice')">🎯 Luyện tập</button>
+    <button class="mode-btn" onclick="setMode('exam')">📋 Thi thử</button>
+    <button class="mode-btn" onclick="showAllAnswers()">👁️ Xem đáp án</button>
+  </div>
+
+  <!-- QUESTIONS -->
+  <div id="questionsContainer"></div>
+</div>
+
+<!-- FLOATING ACTIONS -->
+<div class="floating-actions">
+  <button class="fab fab-reset" onclick="resetAll()">🔄 Làm lại</button>
+  <button class="fab fab-primary" onclick="submitExam()" id="submitBtn" style="display:none;">✅ Nộp bài</button>
+</div>
+
+<!-- SCROLL TO TOP -->
+<button class="scroll-top" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<!-- RESULT MODAL -->
+<div class="modal-overlay" id="resultModal">
+  <div class="modal">
+    <div class="score-circle" id="scoreCircle">
+      <span class="big" id="scoreText">0</span>
+      <span class="small">/ 120</span>
+    </div>
+    <h2 id="resultTitle"></h2>
+    <p id="resultDesc"></p>
+    <button class="modal-btn" onclick="closeModal()">Đóng</button>
+  </div>
+</div>
+
+<script>
+const sections = [
+  { title: "Phần 1: Khái niệm cơ bản và Liên kết", icon: "🔗", color: "#818cf8", start: 0, count: 20 },
+  { title: "Phần 2: Hình ảnh và Đa phương tiện", icon: "🖼️", color: "#f472b6", start: 20, count: 20 },
+  { title: "Phần 3: Biểu mẫu – Form", icon: "📝", color: "#fb923c", start: 40, count: 30 },
+  { title: "Phần 4: CSS Căn bản và Bộ chọn", icon: "🎨", color: "#22d3ee", start: 70, count: 20 },
+  { title: "Phần 5: Thuộc tính CSS, Bố cục & Display", icon: "📦", color: "#a78bfa", start: 90, count: 30 },
+];
+const questions = [
+  // ═══ Phần 1 (1-20) ═══
+  {q:"Siêu văn bản là gì?", opts:["Một loại văn bản chỉ chứa văn bản thuần túy.","Văn bản chứa nhiều loại dữ liệu và các liên kết tới siêu văn bản khác.","Văn bản chứa hình ảnh và âm thanh.","Văn bản chỉ chứa liên kết tới các trang web khác."], ans:1},
+  {q:"Đường dẫn tương đối là gì?", opts:["Đường dẫn chứa giao thức và tên miền đầy đủ.","Đường dẫn chỉ cần cung cấp tên đường dẫn đến tài liệu trong cùng máy chủ.","Đường dẫn chứa thông tin về địa chỉ IP của máy chủ.","Đường dẫn chỉ cần chứa tên tệp tin."], ans:1},
+  {q:"Thẻ HTML nào được sử dụng để tạo liên kết?", opts:["Thẻ link.","Thẻ a.","Thẻ href.","Thẻ anchor."], ans:1},
+  {q:"Để tạo liên kết tới một trang web khác trên Internet, ta sử dụng loại đường dẫn nào?", opts:["Đường dẫn tuyệt đối.","Đường dẫn tương đối.","Đường dẫn ảo.","Đường dẫn tĩnh."], ans:0},
+  {q:"Liên kết nội bộ là gì?", opts:["Liên kết tới một trang web khác trên Internet.","Liên kết tới một phần khác của cùng trang web.","Liên kết tới một máy chủ khác.","Liên kết tới một tài liệu khác trên cùng máy chủ."], ans:1},
+  {q:"Thẻ HTML nào được sử dụng để tạo mã định danh cho phần tử, giúp liên kết đến vị trí cụ thể trong trang web?", opts:["Thẻ class.","Thẻ div.","Thẻ id.","Thẻ section."], ans:2},
+  {q:"Thuộc tính nào của thẻ a dùng để xác định đường dẫn liên kết?", opts:["src.","href.","link.","target."], ans:1},
+  {q:"Để mở liên kết trong một cửa sổ hoặc tab mới, ta sử dụng thuộc tính nào của thẻ a?", opts:["target=\"_blank\".","href=\"_blank\".","rel=\"_blank\".","window=\"_blank\"."], ans:0},
+  {q:"Để tạo liên kết đến hình ảnh, ta cần chỉ định URL của hình ảnh vào thuộc tính nào của thẻ a?", opts:["src.","img.","href.","alt."], ans:0},
+  {q:"Trong HTML, để tạo liên kết nội bộ đến một phần tử có id là footer, cú pháp đúng là gì?", opts:["a href=\"#footer\"","a link=\"footer\"","a id=\"footer\"","a href=\"footer\""], ans:0},
+  {q:"Liên kết chỉ có thể dẫn đến một trang web khác, không thể liên kết đến tệp trong máy tính là phát biểu đúng hay sai?", opts:["Đúng","Sai"], ans:1},
+  {q:"Liên kết có thể được tạo từ văn bản, hình ảnh hoặc bất kỳ phần tử nào trên trang web là phát biểu đúng hay sai?", opts:["Đúng","Sai"], ans:0},
+  {q:"Khi nhấp vào một liên kết, nó sẽ luôn mở trong cùng một cửa sổ trình duyệt, không thể thay đổi hành vi này là đúng hay sai?", opts:["Đúng","Sai"], ans:1},
+  {q:"Thẻ a có bắt buộc phải luôn có thuộc tính href để tạo liên kết hoạt động được không?", opts:["Bắt buộc phải có","Không bắt buộc"], ans:1},
+  {q:"Đường dẫn tương đối có luôn bắt đầu bằng http:// hoặc https:// không?", opts:["Có, luôn bắt đầu bằng http:// hoặc https://","Không, đường dẫn tương đối dựa trên vị trí tệp hiện tại"], ans:1},
+  {q:"Ký tự nào được sử dụng cùng với giá trị id để tạo liên kết đến một vị trí cụ thể trong trang?", opts:["Ký tự @","Ký tự #","Ký tự $","Ký tự *"], ans:1},
+  {q:"Văn bản siêu liên kết mặc định có đặc điểm nhận dạng cơ bản nào trên trình duyệt?", opts:["Gạch chân và có màu xanh dương","In đậm và có màu đỏ","In nghiêng và có màu đen","Gạch bỏ và có màu xám"], ans:0},
+  {q:"Thẻ nào xác định nội dung chính của toàn bộ tài liệu HTML hiển thị cho người dùng?", opts:["Thẻ head","Thẻ body","Thẻ title","Thẻ html"], ans:1},
+  {q:"Mục đích chính của việc sử dụng siêu liên kết (hyperlink) là gì?", opts:["Giúp điều hướng giữa các trang hoặc tài liệu khác nhau.","Giúp định dạng văn bản đẹp hơn.","Giúp chèn hình ảnh vào trang.","Giúp thay đổi màu nền của web."], ans:0},
+  {q:"Để hiển thị một chú thích nhỏ khi di chuột qua liên kết, ta sử dụng thuộc tính nào trong thẻ a?", opts:["title","tooltip","hover","alt"], ans:0},
+  // ═══ Phần 2 (21-40) ═══
+  {q:"Thẻ nào được sử dụng để chèn ảnh vào trang web?", opts:["Thẻ img","Thẻ picture","Thẻ photo","Thẻ image"], ans:0},
+  {q:"Thuộc tính nào của thẻ img là bắt buộc?", opts:["alt","src","width","height"], ans:1},
+  {q:"Để thiết lập kích thước cho ảnh trong HTML, bạn nên sử dụng thuộc tính nào?", opts:["size","dimension","width và height","scale"], ans:2},
+  {q:"Thẻ nào được sử dụng để chèn video vào trang web?", opts:["Thẻ audio","Thẻ media","Thẻ video","Thẻ movie"], ans:2},
+  {q:"Thuộc tính nào không có trong thẻ audio?", opts:["controls","autoplay","poster","src"], ans:2},
+  {q:"Thẻ nào được sử dụng để chèn âm thanh vào trang web?", opts:["Thẻ music","Thẻ audio","Thẻ sound","Thẻ track"], ans:1},
+  {q:"Khi chèn khung nội tuyến vào trang web, bạn nên sử dụng thẻ nào?", opts:["Thẻ iframe","Thẻ frame","Thẻ embed","Thẻ object"], ans:0},
+  {q:"Thuộc tính nào của thẻ iframe không đúng?", opts:["src","width","height","alt"], ans:3},
+  {q:"Để video tự động phát khi trang web được mở, bạn cần sử dụng thuộc tính nào trong thẻ video?", opts:["controls","poster","autoplay","loop"], ans:2},
+  {q:"Khi chèn liên kết đến trang web khác vào khung nội tuyến bằng thẻ iframe, thuộc tính nào xác định nội dung hiển thị?", opts:["src","link","ref","url"], ans:0},
+  {q:"Thẻ video chỉ hỗ trợ hiển thị video mà không thể phát âm thanh là đúng hay sai?", opts:["Đúng","Sai"], ans:1},
+  {q:"Thẻ iframe có thể được dùng để nhúng một trang web khác vào trang hiện tại là đúng hay sai?", opts:["Đúng","Sai"], ans:0},
+  {q:"Thuộc tính alt trong thẻ img là bắt buộc và không thể bỏ qua là đúng hay sai?", opts:["Đúng","Sai"], ans:1},
+  {q:"Thẻ nào không hỗ trợ thuộc tính width và height?", opts:["Thẻ video","Thẻ audio","Thẻ img","Thẻ iframe"], ans:1},
+  {q:"Để một đoạn video tự động lặp lại từ đầu khi kết thúc, ta dùng thuộc tính nào?", opts:["autoplay","loop","repeat","rewind"], ans:1},
+  {q:"Nội dung văn bản được đặt giữa thẻ mở và thẻ đóng của thẻ video sẽ hiển thị khi nào?", opts:["Luôn luôn hiển thị bên dưới video","Chỉ hiển thị khi video đang phát","Hiển thị khi trình duyệt không hỗ trợ thẻ video","Không bao giờ hiển thị"], ans:2},
+  {q:"Ảnh có định dạng nào sau đây hỗ trợ nền trong suốt?", opts:["JPG","PNG","BMP","PDF"], ans:1},
+  {q:"Thuộc tính controls trong thẻ audio có tác dụng gì?", opts:["Tự động phát âm thanh","Hiển thị thanh điều khiển phát, tạm dừng, âm lượng","Giấu tệp âm thanh khỏi trang web","Tự động lặp lại âm thanh"], ans:1},
+  {q:"Đường dẫn src=\"images/logo.png\" là loại đường dẫn nào?", opts:["Đường dẫn tuyệt đối","Đường dẫn tương đối","Đường dẫn ảo","Đường dẫn gốc"], ans:1},
+  {q:"Để đặt hình ảnh đại diện hiển thị trước khi video bắt đầu phát, ta dùng thuộc tính nào của thẻ video?", opts:["cover","thumbnail","poster","preview"], ans:2},
+  // ═══ Phần 3 (41-70): FORM – 30 câu ═══
+  {q:"Thẻ nào được sử dụng để tạo biểu mẫu trên web?", opts:["Thẻ input","Thẻ label","Thẻ form","Thẻ select"], ans:2},
+  {q:"Thuộc tính nào của thẻ input được sử dụng để xác định loại dữ liệu mà phần tử input chứa?", opts:["id","name","type","value"], ans:2},
+  {q:"Thẻ nào được sử dụng để nhóm các phần tử có liên quan trong biểu mẫu?", opts:["Thẻ fieldset","Thẻ legend","Thẻ label","Thẻ select"], ans:0},
+  {q:"Thẻ label thường được sử dụng để?", opts:["Nhập dữ liệu.","Nhóm phần tử.","Định nghĩa nhãn cho phần tử input.","Hiển thị các lựa chọn."], ans:2},
+  {q:"Để tạo một danh sách thả xuống cho phép người dùng chọn một trong các lựa chọn, thẻ nào được sử dụng?", opts:["Thẻ input","Thẻ label","Thẻ select","Thẻ textarea"], ans:2},
+  {q:"Khi sử dụng thẻ input với type=\"radio\", mục đích của nó là để?", opts:["Cho phép chọn nhiều tùy chọn.","Cho phép chọn một tùy chọn duy nhất trong một nhóm.","Nhập dữ liệu dạng chữ.","Nhập dữ liệu dạng số."], ans:1},
+  {q:"Để tạo một trường nhập dữ liệu cho số, thẻ input nên sử dụng thuộc tính nào?", opts:["type=\"text\"","type=\"number\"","type=\"date\"","type=\"checkbox\""], ans:1},
+  {q:"Thuộc tính nào của thẻ input không phải là thuộc tính chính để xác định dữ liệu nhập vào?", opts:["id","name","type","value"], ans:0},
+  {q:"Để tạo một nút gửi thông tin trong biểu mẫu, thẻ input nên sử dụng thuộc tính nào?", opts:["type=\"text\"","type=\"submit\"","type=\"button\"","type=\"reset\""], ans:1},
+  {q:"Thẻ form bắt buộc phải có thuộc tính action để chỉ định nơi dữ liệu được gửi đến là đúng hay sai?", opts:["Đúng","Sai"], ans:1},
+  {q:"Thẻ input với thuộc tính type=\"text\" cho phép người dùng nhập văn bản một dòng là đúng hay sai?", opts:["Đúng","Sai"], ans:0},
+  {q:"Thuộc tính method=\"get\" gửi dữ liệu biểu mẫu qua URL, phù hợp cho các biểu mẫu tìm kiếm là đúng hay sai?", opts:["Đúng","Sai"], ans:0},
+  {q:"Thẻ textarea chỉ cho phép nhập tối đa 50 ký tự bất kể kích thước được định nghĩa là đúng hay sai?", opts:["Đúng","Sai"], ans:1},
+  {q:"Để tạo một ô checkbox (cho phép chọn nhiều mục), thẻ input cần có thuộc tính nào?", opts:["type=\"radio\"","type=\"checkbox\"","type=\"select\"","type=\"multi\""], ans:1},
+  {q:"Thuộc tính nào của thẻ input tạo ra chuỗi văn bản mờ ảo hiển thị gợi ý bên trong ô nhập liệu?", opts:["value","hint","placeholder","suggest"], ans:2},
+  {q:"Để tạo một trường nhập mật khẩu (ẩn ký tự), thẻ input dùng thuộc tính nào?", opts:["type=\"hidden\"","type=\"password\"","type=\"text\"","type=\"secret\""], ans:1},
+  {q:"Nút dùng để xóa trắng tất cả dữ liệu vừa nhập trong form sử dụng thẻ input với thuộc tính nào?", opts:["type=\"clear\"","type=\"delete\"","type=\"reset\"","type=\"remove\""], ans:2},
+  {q:"Các lựa chọn riêng lẻ bên trong một danh sách thả xuống (thẻ select) được tạo bằng thẻ nào?", opts:["Thẻ item","Thẻ list","Thẻ choice","Thẻ option"], ans:3},
+  {q:"Thuộc tính nào bắt buộc người dùng phải điền vào ô nhập liệu trước khi bấm nút Gửi?", opts:["required","readonly","disabled","mandatory"], ans:0},
+  {q:"Dữ liệu khi gửi đi bằng phương thức post sẽ như thế nào?", opts:["Hiển thị công khai trên thanh địa chỉ URL","Được mã hóa và ẩn khỏi URL, bảo mật hơn get","Chỉ có thể chứa văn bản thuần túy","Bị giới hạn ở 255 ký tự"], ans:1},
+  {q:"Thẻ textarea khác thẻ input type=\"text\" ở điểm nào?", opts:["textarea chỉ nhập được số.","textarea cho phép nhập văn bản nhiều dòng.","textarea không thể đặt trong thẻ form.","textarea không hỗ trợ thuộc tính name."], ans:1},
+  {q:"Thuộc tính rows và cols của thẻ textarea dùng để làm gì?", opts:["Xác định màu nền.","Xác định số dòng và số cột hiển thị của ô nhập liệu.","Xác định số ký tự tối đa.","Xác định vị trí của ô nhập trên trang."], ans:1},
+  {q:"Để các nút radio thuộc cùng một nhóm (chỉ chọn được 1), chúng phải có cùng giá trị của thuộc tính nào?", opts:["id","value","name","type"], ans:2},
+  {q:"Thẻ legend trong biểu mẫu dùng để làm gì?", opts:["Tạo nhãn cho ô nhập liệu.","Tạo tiêu đề cho nhóm phần tử (fieldset).","Tạo nút bấm.","Tạo danh sách thả xuống."], ans:1},
+  {q:"Thuộc tính action trong thẻ form có chức năng gì?", opts:["Xác định phương thức gửi dữ liệu.","Xác định địa chỉ URL nơi dữ liệu biểu mẫu được gửi đến.","Xác định kiểu dữ liệu của form.","Xác định tên của biểu mẫu."], ans:1},
+  {q:"Thuộc tính method trong thẻ form có thể nhận những giá trị nào?", opts:["send và receive","upload và download","get và post","input và output"], ans:2},
+  {q:"Thẻ input với type=\"email\" có tác dụng gì?", opts:["Tự động gửi email.","Tạo ô nhập liệu có kiểm tra định dạng email hợp lệ.","Hiển thị danh sách email.","Ẩn địa chỉ email."], ans:1},
+  {q:"Thuộc tính disabled trên thẻ input có tác dụng gì?", opts:["Xóa ô nhập liệu khỏi trang.","Vô hiệu hóa ô nhập liệu, người dùng không thể tương tác.","Ẩn ô nhập liệu.","Bắt buộc người dùng phải nhập."], ans:1},
+  {q:"Thẻ button và thẻ input type=\"submit\" khác nhau ở điểm nào?", opts:["Không có sự khác biệt.","Thẻ button có thể chứa nội dung HTML bên trong (hình ảnh, icon...).","Thẻ button không thể gửi form.","Thẻ input type=submit có thể chứa hình ảnh bên trong."], ans:1},
+  {q:"Thuộc tính for trong thẻ label có chức năng gì?", opts:["Liên kết nhãn với phần tử input thông qua giá trị id của input đó.","Định dạng nhãn.","Xác định vị trí nhãn trên trang.","Tạo liên kết đến trang khác."], ans:0},
+  // ═══ Phần 4 (71-90): CSS Căn bản và Bộ chọn ═══
+  {q:"CSS viết tắt của từ nào trong tiếng Anh?", opts:["Cascading Style Sheets.","Cascading Script Sheets.","Color Style Sheets.","Cascading Style Systems."], ans:0},
+  {q:"Trong cấu trúc CSS, phần nào xác định các thẻ HTML nào sẽ được áp dụng định dạng?", opts:["Vùng mô tả.","Thuộc tính.","Bộ chọn.","Giá trị."], ans:2},
+  {q:"Đoạn mã nào sau đây là ví dụ về CSS với nhiều quy định trong vùng mô tả?", opts:["h1 {color: red;}","p {text-indent: 15px; color: blue;}","div {background: yellow;}","a {font-size: 14px;}"], ans:1},
+  {q:"Cách nào không phải là một cách thiết lập CSS?", opts:["CSS trong.","CSS ngoài.","CSS nội tuyến.","CSS tích hợp."], ans:3},
+  {q:"Để kết nối tệp CSS với tệp HTML, bạn có thể sử dụng thẻ nào trong phần head?", opts:["Thẻ script.","Thẻ style.","Thẻ link.","Thẻ import."], ans:2},
+  {q:"Cấu trúc của một mẫu định dạng CSS đơn giản nhất bao gồm phần nào?", opts:["Chỉ bộ chọn.","Chỉ vùng mô tả.","Bộ chọn và vùng mô tả.","Bộ chọn, vùng mô tả và thuộc tính."], ans:2},
+  {q:"Cách nào cho phép định dạng CSS trực tiếp trong các phần tử HTML?", opts:["CSS trong.","CSS ngoài.","CSS nội tuyến.","CSS liên kết."], ans:2},
+  {q:"Nếu bạn muốn định dạng tất cả các thẻ h1, h2, h3 cùng một lúc, bạn nên viết CSS như thế nào?", opts:["h1 h2 h3 {color: red;}","h1, h2, h3 {color: red;}","h1 h2, h3 {color: red;}","h1, h2, h3 {color red}"], ans:1},
+  {q:"Mẫu định dạng nào dưới đây là CSS nội tuyến?", opts:["&lt;style&gt; p {color: green;} &lt;/style&gt;","&lt;link rel='stylesheet' href='styles.css'&gt;","&lt;p style='color: green;'&gt;Text&lt;/p&gt;","h1 {color: green;}"], ans:2},
+  {q:"Tại sao việc sử dụng CSS có lợi hơn việc định dạng HTML trực tiếp?", opts:["CSS không cần phải viết mã.","CSS giúp tách nội dung và định dạng, giảm công việc và tăng tính đồng nhất.","CSS làm cho trang web không cần thiết phải định dạng.","CSS không hỗ trợ đa dạng kiểu định dạng."], ans:1},
+  {q:"Tính kế thừa trong CSS có nghĩa là gì?", opts:["Một thuộc tính chỉ áp dụng cho một phần tử cụ thể.","Một thuộc tính CSS áp dụng cho phần tử cha cũng được áp dụng cho các phần tử con, cháu.","CSS chỉ áp dụng cho phần tử cuối cùng.","Không có sự kế thừa trong CSS."], ans:1},
+  {q:"Thuộc tính nào có ưu tiên cao nhất trong CSS khi được sử dụng cùng với !important?", opts:["color.","font-size.","margin.","Tất cả các thuộc tính với !important."], ans:3},
+  {q:"Bộ chọn CSS nào áp dụng định dạng cho các phần tử p là con trực tiếp của div?", opts:["div p","div > p","div + p","div ~ p"], ans:1},
+  {q:"Để áp dụng một màu cụ thể cho tất cả các phần tử HTML trong trang, bạn sử dụng bộ chọn CSS nào?", opts:["body","Ký tự *","html","all"], ans:1},
+  {q:"Để định dạng một nhóm phần tử có cùng ý nghĩa, ta nên sử dụng bộ chọn nào?", opts:["ID","Class","Inline","Block"], ans:1},
+  {q:"Mỗi phần tử HTML có thể có bao nhiêu ID?", opts:["Nhiều ID.","Một ID.","Không có ID.","Tùy thuộc vào phần tử."], ans:1},
+  {q:"Khi đặt tên cho ID và class, điều nào không đúng?", opts:["Tên phải phân biệt chữ hoa và chữ thường.","Tên bắt đầu bằng số.","Không chứa dấu cách và các ký tự đặc biệt.","Phải có ít nhất một ký tự không phải là số."], ans:1},
+  {q:"Bộ chọn CSS với ID được viết như thế nào?", opts:[".idname {thuộc tính: giá trị;}","#idname {thuộc tính: giá trị;}","id idname {thuộc tính: giá trị;}",".id {thuộc tính: giá trị;}"], ans:1},
+  {q:"Phần tử có thể thuộc nhiều class bằng cách nào?", opts:["Dùng dấu phẩy giữa các tên class.","Dùng dấu chấm giữa các tên class.","Đặt các tên class cách nhau bởi dấu cách.","Không thể có nhiều class."], ans:2},
+  {q:"Khai báo nào sau đây đúng cấu trúc một lệnh CSS?", opts:["{color: blue;} h1","h1 {color: blue;}","h1: color=blue;","h1 (color: blue;)"], ans:1},
+  // ═══ Phần 5 (91-120): Thuộc tính CSS, Bố cục & Display – 30 câu ═══
+  {q:"CSS có thể định dạng phông chữ qua thuộc tính nào?", opts:["font-family.","font-size.","font-weight.","Tất cả các lựa chọn còn lại đều đúng."], ans:3},
+  {q:"Định dạng nào sau đây được sử dụng để thiết lập màu chữ trong CSS?", opts:["color.","font-color.","text-color.","background-color."], ans:0},
+  {q:"Trong CSS, thuộc tính line-height dùng để?", opts:["Định nghĩa chiều cao của phần tử.","Thiết lập khoảng cách giữa các dòng văn bản.","Định nghĩa độ rộng của chữ.","Thiết lập khoảng cách giữa các ký tự."], ans:1},
+  {q:"Để căn lề dòng đầu tiên của đoạn văn bản trong CSS, ta dùng thuộc tính nào?", opts:["text-align.","margin.","text-indent.","padding."], ans:2},
+  {q:"Trong CSS, thuộc tính text-align: center; dùng để?", opts:["Căn lề trái cho văn bản.","Căn lề phải cho văn bản.","Căn giữa văn bản.","Căn đều hai bên văn bản."], ans:2},
+  {q:"Phần tử inline trong HTML có đặc điểm gì?", opts:["Luôn bắt đầu trên một dòng mới.","Chiếm toàn bộ chiều rộng trang.","Chỉ chiếm đúng phần không gian cần thiết, không xuống dòng.","Không thể chứa văn bản."], ans:2},
+  {q:"Bộ chọn phần tử (element selector) trong CSS được viết như thế nào?", opts:["#tenphanttu {thuộc tính: giá trị;}",".tenphanttu {thuộc tính: giá trị;}","tenphanttu {thuộc tính: giá trị;}","*tenphanttu {thuộc tính: giá trị;}"], ans:2},
+  {q:"Bộ chọn lớp (class selector) trong CSS sử dụng ký hiệu nào đứng trước tên lớp?", opts:["Ký hiệu #","Ký hiệu .","Ký hiệu *","Ký hiệu @"], ans:1},
+  {q:"Thuộc tính CSS nào dùng để thay đổi kiểu viền (nét đứt, nét liền, nét chấm)?", opts:["border-width.","border-color.","border-style.","border-radius."], ans:2},
+  {q:"Trong CSS, thuộc tính background-color được sử dụng để làm gì?", opts:["Định dạng màu viền.","Định dạng màu nền.","Định dạng màu chữ.","Định dạng cỡ chữ."], ans:1},
+  {q:"Phần tử khối (block) trong HTML thường có đặc điểm gì?", opts:["Luôn nằm trong một phần tử khác.","Không có chiều rộng cố định.","Bắt đầu từ đầu hàng và kéo dài suốt chiều rộng của trang web.","Luôn là phần tử inline."], ans:2},
+  {q:"Để chuyển phần tử block thành phần tử inline, ta dùng thuộc tính CSS nào?", opts:["display: block;","display: inline;","display: flex;","display: hidden;"], ans:1},
+  {q:"Thuộc tính border-style có thể nhận giá trị solid để tạo viền liền nét là đúng hay sai?", opts:["Đúng","Sai"], ans:0},
+  {q:"Thuộc tính border có thể kết hợp cả độ dày, kiểu viền và màu sắc trong một dòng (ví dụ border: 2px solid red) là đúng hay sai?", opts:["Đúng","Sai"], ans:0},
+  {q:"Trong HTML, các phần tử bảng được tạo bằng thẻ nào?", opts:["Thẻ div","Thẻ p","Thẻ table","Thẻ span"], ans:2},
+  {q:"Để định dạng ô tiêu đề trong bảng HTML, ta sử dụng thẻ nào?", opts:["Thẻ td","Thẻ th","Thẻ tr","Thẻ caption"], ans:1},
+  {q:"Trong mô hình hộp CSS (Box Model), thuộc tính nào tạo khoảng cách lề bên ngoài (nằm ngoài đường viền)?", opts:["padding","margin","border","outline"], ans:1},
+  {q:"Trong mô hình hộp CSS, thuộc tính nào tạo khoảng đệm bên trong (từ nội dung đến đường viền)?", opts:["padding","margin","border","offset"], ans:0},
+  {q:"Trong bố cục trang web, thẻ nào thường được dùng để nhóm các phần tử thành một khối nhằm dễ dàng định dạng bằng CSS?", opts:["Thẻ span","Thẻ div","Thẻ p","Thẻ a"], ans:1},
+  {q:"Thuộc tính background-color có thể nhận giá trị transparent để làm nền trong suốt là đúng hay sai?", opts:["Đúng","Sai"], ans:0},
+  {q:"Thẻ nào là phần tử inline (nội tuyến) trong HTML?", opts:["Thẻ div","Thẻ p","Thẻ span","Thẻ h1"], ans:2},
+  {q:"Thuộc tính display: block; có tác dụng gì?", opts:["Ẩn phần tử.","Chuyển phần tử thành phần tử khối, chiếm toàn bộ chiều rộng.","Hiển thị phần tử như một phần tử nội tuyến.","Xóa phần tử khỏi trang."], ans:1},
+  {q:"Thuộc tính CSS nào dùng để thiết lập chiều rộng của phần tử?", opts:["height","size","width","length"], ans:2},
+  {q:"Trong mô hình hộp CSS (Box Model), thứ tự từ trong ra ngoài là gì?", opts:["margin → border → padding → content","content → padding → border → margin","border → margin → content → padding","padding → content → border → margin"], ans:1},
+  {q:"Thuộc tính font-weight: bold; dùng để?", opts:["In nghiêng văn bản.","In đậm văn bản.","Gạch chân văn bản.","Thay đổi cỡ chữ."], ans:1},
+  {q:"Thuộc tính font-style: italic; dùng để?", opts:["In đậm văn bản.","Gạch chân văn bản.","In nghiêng văn bản.","Thay đổi phông chữ."], ans:2},
+  {q:"Thuộc tính text-decoration: underline; dùng để?", opts:["In đậm văn bản.","Gạch chân văn bản.","Xóa gạch chân.","In nghiêng văn bản."], ans:1},
+  {q:"Thuộc tính CSS nào thiết lập chiều cao của phần tử?", opts:["width","size","height","top"], ans:2},
+  {q:"Thẻ nào sau đây là phần tử block (khối) trong HTML?", opts:["Thẻ span","Thẻ a","Thẻ strong","Thẻ div"], ans:3},
+  {q:"Thuộc tính display: none; khác visibility: hidden; ở điểm nào?", opts:["Không có sự khác biệt.","display: none xóa phần tử khỏi luồng trang (không chiếm chỗ), visibility: hidden chỉ ẩn nhưng vẫn chiếm chỗ.","display: none chỉ ẩn nhưng vẫn chiếm chỗ.","Cả hai đều xóa phần tử khỏi trang."], ans:1},
+];
+const TOTAL = questions.length;
+let mode = 'practice';
+let userAnswers = new Array(TOTAL).fill(-1);
+let revealed = new Array(TOTAL).fill(false);
+function render() {
+  const container = document.getElementById('questionsContainer');
+  document.getElementById('totalQ').textContent = TOTAL;
+  let html = '';
+  sections.forEach((sec, sIdx) => {
+    const start = sec.start;
+    const end = start + sec.count;
+    const rangeText = 'Câu ' + (start+1) + ' – ' + end;
+    html += '<div class="section-header open" onclick="toggleSection('+sIdx+')" id="sec-header-'+sIdx+'">';
+    html += '<div class="section-icon" style="background:'+sec.color+'20; color:'+sec.color+'">'+sec.icon+'</div>';
+    html += '<h2>'+sec.title+'</h2>';
+    html += '<span class="section-count">'+rangeText+'</span>';
+    html += '<span class="section-arrow">▼</span></div>';
+    html += '<div class="questions-list open" id="sec-list-'+sIdx+'">';
+    for (let i = start; i < end; i++) {
+      const q = questions[i];
+      const isShort = q.opts.length <= 2 || q.opts.every(o => o.length < 60);
+      html += '<div class="q-card" id="qcard-'+i+'"><div class="q-header">';
+      html += '<div class="q-number">'+(i+1)+'</div>';
+      html += '<div class="q-text">'+q.q+'</div></div>';
+      html += '<div class="options '+(isShort?'grid-2':'')+'">';
+      q.opts.forEach((opt, oIdx) => {
+        html += '<button class="opt-btn" id="opt-'+i+'-'+oIdx+'" onclick="selectAnswer('+i+','+oIdx+')">';
+        html += '<span class="opt-letter">'+String.fromCharCode(65+oIdx)+'</span>';
+        html += '<span>'+opt+'</span></button>';
+      });
+      html += '</div><div class="feedback" id="fb-'+i+'"></div></div>';
+    }
+    html += '</div>';
+  });
+  container.innerHTML = html;
+}
+function toggleSection(idx){document.getElementById('sec-header-'+idx).classList.toggle('open');document.getElementById('sec-list-'+idx).classList.toggle('open');}
+function selectAnswer(qIdx,optIdx){
+  if(revealed[qIdx]&&mode==='practice')return;
+  const q=questions[qIdx];const card=document.getElementById('qcard-'+qIdx);
+  q.opts.forEach((_,oIdx)=>{document.getElementById('opt-'+qIdx+'-'+oIdx).classList.remove('selected','correct-answer','wrong-answer','disabled');});
+  card.classList.remove('answered-correct','answered-wrong');
+  userAnswers[qIdx]=optIdx;document.getElementById('opt-'+qIdx+'-'+optIdx).classList.add('selected');
+  if(mode==='practice')revealAnswer(qIdx);updateStats();
+}
+function revealAnswer(qIdx){
+  if(revealed[qIdx])return;revealed[qIdx]=true;
+  const q=questions[qIdx];const card=document.getElementById('qcard-'+qIdx);const fb=document.getElementById('fb-'+qIdx);
+  const isCorrect=userAnswers[qIdx]===q.ans;
+  document.getElementById('opt-'+qIdx+'-'+q.ans).classList.add('correct-answer');
+  if(!isCorrect&&userAnswers[qIdx]>=0)document.getElementById('opt-'+qIdx+'-'+userAnswers[qIdx]).classList.add('wrong-answer');
+  q.opts.forEach((_,oIdx)=>{document.getElementById('opt-'+qIdx+'-'+oIdx).classList.add('disabled');});
+  if(userAnswers[qIdx]>=0){card.classList.add(isCorrect?'answered-correct':'answered-wrong');
+  fb.className='feedback show '+(isCorrect?'correct':'wrong');
+  fb.innerHTML=isCorrect?'✅ Chính xác!':'❌ Sai rồi! Đáp án đúng: <strong>'+String.fromCharCode(65+q.ans)+'. '+q.opts[q.ans]+'</strong>';}
+}
+function updateStats(forceShow){
+  const answered=userAnswers.filter(a=>a>=0).length;const correct=userAnswers.filter((a,i)=>a===questions[i].ans).length;const wrong=answered-correct;
+  document.getElementById('answeredCount').textContent=answered;
+  document.getElementById('progressText').textContent=answered+' / '+TOTAL;
+  document.getElementById('progressFill').style.width=(answered/TOTAL*100)+'%';
+  if(mode==='exam'&&!forceShow){document.getElementById('correctCount').textContent='?';document.getElementById('wrongCount').textContent='?';}
+  else{document.getElementById('correctCount').textContent=correct;document.getElementById('wrongCount').textContent=wrong;}
+}
+function setMode(m){mode=m;document.querySelectorAll('.mode-btn').forEach((btn,idx)=>{btn.classList.toggle('active',(m==='practice'&&idx===0)||(m==='exam'&&idx===1));});
+  document.getElementById('submitBtn').style.display=m==='exam'?'flex':'none';resetAll();}
+function showAllAnswers(){questions.forEach((q,i)=>{
+  const card=document.getElementById('qcard-'+i);const fb=document.getElementById('fb-'+i);
+  document.getElementById('opt-'+i+'-'+q.ans).classList.add('correct-answer');
+  q.opts.forEach((_,oIdx)=>{document.getElementById('opt-'+i+'-'+oIdx).classList.add('disabled');});revealed[i]=true;
+  if(userAnswers[i]>=0){const isCorrect=userAnswers[i]===q.ans;if(!isCorrect)document.getElementById('opt-'+i+'-'+userAnswers[i]).classList.add('wrong-answer');
+  card.classList.add(isCorrect?'answered-correct':'answered-wrong');fb.className='feedback show '+(isCorrect?'correct':'wrong');
+  fb.innerHTML=isCorrect?'✅ Chính xác!':'❌ Đáp án đúng: <strong>'+String.fromCharCode(65+q.ans)+'. '+q.opts[q.ans]+'</strong>';
+  }else{fb.className='feedback show correct';fb.innerHTML='💡 Đáp án: <strong>'+String.fromCharCode(65+q.ans)+'. '+q.opts[q.ans]+'</strong>';}});}
+function submitExam(){
+  const answered=userAnswers.filter(a=>a>=0).length;
+  if(answered<TOTAL&&!confirm('Bạn mới làm '+answered+'/'+TOTAL+' câu. Nộp bài ngay?'))return;
+  questions.forEach((_,i)=>revealAnswer(i));const correct=userAnswers.filter((a,i)=>a===questions[i].ans).length;updateStats(true);
+  const modal=document.getElementById('resultModal');const circle=document.getElementById('scoreCircle');
+  const scoreText=document.getElementById('scoreText');const title=document.getElementById('resultTitle');const desc=document.getElementById('resultDesc');
+  scoreText.textContent=correct;document.querySelector('.modal .score-circle .small').textContent='/ '+TOTAL;
+  const pct=correct/TOTAL*100;
+  if(pct>=80){circle.style.borderColor='var(--correct)';scoreText.style.color='var(--correct)';title.textContent='🎉 Xuất sắc!';desc.textContent='Bạn nắm vững kiến thức HTML & CSS rồi!';}
+  else if(pct>=50){circle.style.borderColor='var(--orange)';scoreText.style.color='var(--orange)';title.textContent='👍 Khá tốt!';desc.textContent='Cần ôn lại một số phần để hoàn thiện hơn.';}
+  else{circle.style.borderColor='var(--wrong)';scoreText.style.color='var(--wrong)';title.textContent='📖 Cần cố gắng thêm!';desc.textContent='Hãy xem lại đáp án và ôn tập thêm nhé!';}
+  modal.classList.add('show');window.scrollTo({top:0,behavior:'smooth'});}
+function closeModal(){document.getElementById('resultModal').classList.remove('show');}
+function resetAll(){userAnswers=new Array(TOTAL).fill(-1);revealed=new Array(TOTAL).fill(false);render();updateStats();window.scrollTo({top:0,behavior:'smooth'});}
+window.addEventListener('scroll',()=>{document.getElementById('scrollTopBtn').classList.toggle('show',window.scrollY>400);});
+render();
+</script>
+</body>
+</html>

@@ -25,6 +25,21 @@ def create_tuition_record(
     return record
 
 
+@router.get("/my-fees", response_model=List[TuitionResponse])
+def get_my_tuition(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Học sinh tự xem danh sách học phí của mình."""
+    if current_user.role.value != "student":
+        raise HTTPException(status_code=403, detail="Chỉ học sinh mới có thể xem học phí cá nhân của mình qua cổng này.")
+    
+    records = db.query(TuitionRecord).filter(TuitionRecord.student_id == current_user.id).all()
+    # Sort from newest to oldest
+    records.sort(key=lambda r: r.created_at, reverse=True)
+    return records
+
+
 @router.get("/student/{student_id}", response_model=List[TuitionResponse])
 def get_student_tuition(
     student_id: int,

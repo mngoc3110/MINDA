@@ -63,11 +63,7 @@ export default function MobileHeader() {
       {/* Mobile Top Header — chỉ hiện dưới lg */}
       <header className="lg:hidden fixed top-0 left-0 right-0 z-50 h-14 bg-bg-main/95 backdrop-blur-xl border-b border-border-card flex items-center justify-between px-4">
         <div className="flex items-center gap-2.5">
-          {isAdminMode ? (
-            <ShieldAlert className="w-6 h-6 text-red-500" />
-          ) : (
-            <BrainCircuit className="w-6 h-6 text-pink-500" />
-          )}
+          <img src="/logo.png" alt="MINDA" className="w-7 h-7 rounded-lg object-cover" />
           <span className="font-black text-base tracking-tight text-text-primary">
             MINDA{isAdminMode && <span className="text-red-500 text-xs ml-1 font-bold uppercase">Admin</span>}
           </span>
@@ -106,15 +102,9 @@ export default function MobileHeader() {
         {/* Drawer Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-border-card">
           <div className="flex items-center gap-2.5">
-            {isAdminMode ? (
-              <div className="w-9 h-9 rounded-xl bg-red-500 flex items-center justify-center">
-                <ShieldAlert className="w-5 h-5 text-white" />
-              </div>
-            ) : (
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center">
-                <BrainCircuit className="w-5 h-5 text-white" />
-              </div>
-            )}
+            <div className="w-9 h-9 rounded-xl overflow-hidden">
+              <img src="/logo.png" alt="MINDA" className="w-full h-full object-cover" />
+            </div>
             <div>
               <p className="font-black text-sm text-text-primary">
                 {isAdminMode ? "Admin Console" : "MINDA.EDU"}

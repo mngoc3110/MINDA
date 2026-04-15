@@ -375,7 +375,7 @@ export default function ProfilePage() {
           <div className="w-full h-[350px] relative rounded-b-xl overflow-hidden group bg-linear-to-br from-indigo-900 to-purple-900">
              <img src={coverPhoto} alt="Cover" className="w-full h-full object-cover" />
              <input type="file" accept="image/*" className="hidden" ref={coverInputRef} onChange={handleCoverUpload} />
-             <button onClick={() => isGoogleConnected ? coverInputRef.current?.click() : alert("Vui lòng Liên kết Google Drive trước!")} disabled={!isGoogleConnected || uploadingCover} className="absolute bottom-4 right-4 bg-white text-black px-3 py-1.5 rounded-md flex items-center gap-2 font-bold text-sm hover:bg-gray-200 transition-colors z-20 shadow-lg disabled:opacity-50">
+             <button onClick={() => coverInputRef.current?.click()} disabled={uploadingCover} className="absolute bottom-4 right-4 bg-white text-black px-3 py-1.5 rounded-md flex items-center gap-2 font-bold text-sm hover:bg-gray-200 transition-colors z-20 shadow-lg disabled:opacity-50">
                 {uploadingCover ? <Loader2 className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4" />}
                 {uploadingCover ? "Đang tải..." : "Chỉnh sửa ảnh bìa"}
              </button>
@@ -390,7 +390,7 @@ export default function ProfilePage() {
                     {uploadingAvatar ? <Loader2 className="w-10 h-10 animate-spin text-white" /> : renderAvatar(avatarPhoto, userName, "w-[168px] h-[168px]", "text-6xl")}
                  </div>
                  <input type="file" accept="image/*" className="hidden" ref={avatarInputRef} onChange={handleAvatarUpload} />
-                 <button onClick={() => isGoogleConnected ? avatarInputRef.current?.click() : alert("Vui lòng Liên kết Google Drive trước!")} disabled={!isGoogleConnected || uploadingAvatar} className="absolute bottom-2 right-2 w-9 h-9 bg-bg-hover hover:bg-bg-hover rounded-full flex items-center justify-center border border-bg-card transition-colors shadow-lg z-30 disabled:opacity-50">
+                 <button onClick={() => avatarInputRef.current?.click()} disabled={uploadingAvatar} className="absolute bottom-2 right-2 w-9 h-9 bg-bg-hover hover:bg-bg-hover rounded-full flex items-center justify-center border border-bg-card transition-colors shadow-lg z-30 disabled:opacity-50">
                     <Camera className="w-5 h-5 text-text-primary" />
                  </button>
                </div>

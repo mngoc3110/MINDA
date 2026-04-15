@@ -116,6 +116,9 @@ async def upload_file(file: UploadFile, user: User) -> str:
     except Exception as e:
         import traceback
         traceback.print_exc()
+        error_msg = str(e)
+        if "invalid_grant" in error_msg:
+            raise Exception("Liên kết Google Drive đã hết hạn hoặc bị lỗi! Vui lòng vào mục 'Trang cá nhân', bấm 'Ngắt kết nối' rồi 'Liên Kết Drive Ngay' để cấp quyền lại.")
         raise Exception(f"Lỗi hệ thống Drive API: {e}")
     finally:
         if os.path.exists(temp_path):
