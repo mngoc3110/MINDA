@@ -247,11 +247,16 @@ def submit_assignment(
         except Exception as e:
             print("Auto-grade error:", e)
 
-    # ── EXP Logic: Chỉ cộng 1 lần duy nhất khi đạt ≥80% ──
+    # ── EXP Logic: Cộng EXP theo mức điểm, chỉ 1 lần duy nhất ──
     if not already_earned_exp and submission.score is not None:
-        threshold = 0.8 * assignment.max_score
-        if submission.score >= threshold:
+        threshold_high = 0.8 * assignment.max_score
+        threshold_mid = 0.5 * assignment.max_score
+        if submission.score >= threshold_high:
             current_user.exp_points = (current_user.exp_points or 0) + 20
+        elif submission.score >= threshold_mid:
+            current_user.exp_points = (current_user.exp_points or 0) + 10
+        else:
+            current_user.exp_points = (current_user.exp_points or 0) + 5
 
     if not existing_submission:
         db.add(submission)
