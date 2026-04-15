@@ -408,23 +408,34 @@ async def parse_upload_to_quiz(
 
         quiz_data = None
         
-        # === ƯU TIÊN: Gemini AI ===
-        try:
-            from app.services.gemini_parser import parse_exam_with_gemini, parse_latex_with_gemini
-            
-            if is_tex:
-                print("[Parse Upload] Đang dùng Gemini AI để phân tích file LaTeX (.tex)...")
+        # === LaTeX: Parse trực tiếp (KHÔNG CẦN AI) ===
+        if is_tex:
+            try:
+                from app.services.latex_parser import parse_latex_directly
+                print("[Parse Upload] Parse trực tiếp file LaTeX (không dùng AI)...")
                 latex_text = content.decode("utf-8")
-                quiz_data = parse_latex_with_gemini(latex_text)
-            else:
+                quiz_data = parse_latex_directly(latex_text)
+                print(f"[Parse Upload] ✅ Parse LaTeX trực tiếp thành công!")
+            except Exception as latex_err:
+                print(f"[Parse Upload] Parse LaTeX trực tiếp thất bại: {latex_err}")
+                # Fallback sang Gemini AI nếu parse trực tiếp không được
+                try:
+                    from app.services.gemini_parser import parse_latex_with_gemini
+                    print("[Parse Upload] Thử fallback sang Gemini AI...")
+                    quiz_data = parse_latex_with_gemini(latex_text)
+                except Exception as gemini_err:
+                    print(f"[Parse Upload] Gemini cũng thất bại: {gemini_err}")
+                    raise ValueError(f"Không thể xử lý file LaTeX: {latex_err}")
+        
+        # === PDF/Image: Dùng Gemini AI ===
+        if not is_tex:
+            try:
+                from app.services.gemini_parser import parse_exam_with_gemini
                 print("[Parse Upload] Đang dùng Gemini AI để phân tích PDF/Image...")
                 quiz_data = parse_exam_with_gemini(content, mime_type)
-                
-        except Exception as gemini_err:
-            print(f"[Parse Upload] Gemini thất bại: {gemini_err}")
-            if is_tex:
-                raise ValueError(f"Không thể xử lý file LaTeX: {gemini_err}")
-            print("[Parse Upload] Chuyển sang Tesseract OCR (fallback)...")
+            except Exception as gemini_err:
+                print(f"[Parse Upload] Gemini thất bại: {gemini_err}")
+                print("[Parse Upload] Chuyển sang Tesseract OCR (fallback)...")
 
         # === FALLBACK: Tesseract OCR (chỉ cho PDF/Image) ===
         if quiz_data is None and not is_tex:
