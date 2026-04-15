@@ -52,54 +52,56 @@ export default function LeaderboardPage() {
           shadow: "shadow-[0_0_10px_#94a3b8]", frameGrad: "from-slate-400 via-slate-600 to-slate-800",
           gem: "from-slate-300 to-slate-500", bracketColor: "border-slate-500", glowGrad: "from-slate-500 via-transparent to-transparent"
       };
-      case "Tập sự": return { 
-          img: "bronze", color: "text-orange-700", borders: "border-orange-700", grad: "from-orange-700/30 to-amber-900/50", 
-          shadow: "shadow-[0_0_15px_#c2410c]", frameGrad: "from-orange-500 via-orange-800 to-amber-900",
-          gem: "from-orange-400 to-orange-600", bracketColor: "border-orange-600", glowGrad: "from-orange-600 via-transparent to-transparent"
+      case "Tân binh": return { 
+          img: "bronze", color: "text-green-500", borders: "border-green-500", grad: "from-green-500/30 to-emerald-700/50", 
+          shadow: "shadow-[0_0_15px_#22c55e]", frameGrad: "from-green-400 via-emerald-600 to-emerald-800",
+          gem: "from-green-300 to-emerald-500", bracketColor: "border-green-500", glowGrad: "from-green-500 via-transparent to-transparent"
       };
-      case "Chăm chỉ": return { 
-          img: "silver", color: "text-slate-300", borders: "border-slate-300", grad: "from-slate-300/30 to-slate-500/50", 
-          shadow: "shadow-[0_0_15px_#cbd5e1]", frameGrad: "from-gray-100 via-slate-300 to-slate-500",
-          gem: "from-transparent to-slate-200", bracketColor: "border-slate-100", glowGrad: "from-slate-300 via-transparent to-transparent"
+      case "Học bá": return { 
+          img: "silver", color: "text-blue-400", borders: "border-blue-400", grad: "from-blue-400/30 to-indigo-600/50", 
+          shadow: "shadow-[0_0_20px_#60a5fa]", frameGrad: "from-blue-300 via-blue-500 to-indigo-700",
+          gem: "from-blue-200 to-indigo-500", bracketColor: "border-blue-400", glowGrad: "from-blue-400 via-transparent to-transparent"
       };
-      case "Ưu tú": return { 
-          img: "gold", color: "text-yellow-400", borders: "border-yellow-400", grad: "from-yellow-400/30 to-amber-600/50", 
-          shadow: "shadow-[0_0_20px_#facc15]", frameGrad: "from-yellow-200 via-yellow-500 to-amber-700",
-          gem: "from-yellow-100 to-amber-400", bracketColor: "border-yellow-400", glowGrad: "from-yellow-400 via-transparent to-transparent"
-      };
-      case "Tinh anh": return { 
-          img: "platinum", color: "text-cyan-400", borders: "border-cyan-400", grad: "from-cyan-400/30 to-blue-600/50", 
-          shadow: "shadow-[0_0_20px_#22d3ee]", frameGrad: "from-cyan-300 via-cyan-600 to-blue-800",
-          gem: "from-emerald-300 to-cyan-500", bracketColor: "border-cyan-300", glowGrad: "from-cyan-400 via-transparent to-transparent"
-      };
-      case "Chuyên gia": return { 
-          img: "diamond", color: "text-purple-400", borders: "border-purple-400", grad: "from-purple-400/30 to-indigo-600/50", 
-          shadow: "shadow-[0_0_25px_#c084fc]", frameGrad: "from-purple-300 via-fuchsia-500 to-indigo-900",
+      case "Học thần": return { 
+          img: "gold", color: "text-purple-400", borders: "border-purple-400", grad: "from-purple-400/30 to-pink-600/50", 
+          shadow: "shadow-[0_0_25px_#c084fc]", frameGrad: "from-purple-300 via-fuchsia-500 to-pink-800",
           gem: "from-purple-200 to-fuchsia-600", bracketColor: "border-purple-400", glowGrad: "from-purple-500 via-transparent to-transparent"
       };
-      case "Bậc thầy": return { 
-          img: "master", color: "text-fuchsia-500", borders: "border-fuchsia-500", grad: "from-fuchsia-500/30 to-purple-800/50", 
-          shadow: "shadow-[0_0_30px_#d946ef]", frameGrad: "from-pink-400 via-purple-600 to-indigo-900",
-          gem: "from-pink-300 to-purple-500", bracketColor: "border-fuchsia-400", glowGrad: "from-fuchsia-500 via-transparent to-transparent"
+      case "Thủ khoa": return { 
+          img: "diamond", color: "text-amber-400", borders: "border-amber-400", grad: "from-amber-400/30 to-orange-600/50", 
+          shadow: "shadow-[0_0_30px_#fbbf24]", frameGrad: "from-yellow-300 via-amber-500 to-orange-700",
+          gem: "from-yellow-200 to-amber-500", bracketColor: "border-yellow-400", glowGrad: "from-amber-400 via-transparent to-transparent"
       };
-      case "Cao thủ": return { 
-          img: "grandmaster", color: "text-red-500", borders: "border-red-500", grad: "from-red-500/30 to-rose-800/50", 
+      // Teacher ranks
+      case "Trợ giảng": return { 
+          img: "iron", color: "text-stone-400", borders: "border-stone-400", grad: "from-stone-400/30 to-stone-600/50", 
+          shadow: "shadow-[0_0_10px_#a8a29e]", frameGrad: "from-stone-400 via-stone-600 to-stone-800",
+          gem: "from-stone-300 to-stone-500", bracketColor: "border-stone-500", glowGrad: "from-stone-500 via-transparent to-transparent"
+      };
+      case "Giáo viên": return { 
+          img: "bronze", color: "text-blue-500", borders: "border-blue-500", grad: "from-blue-500/30 to-blue-700/50", 
+          shadow: "shadow-[0_0_15px_#3b82f6]", frameGrad: "from-blue-400 via-blue-600 to-blue-800",
+          gem: "from-blue-300 to-blue-600", bracketColor: "border-blue-500", glowGrad: "from-blue-500 via-transparent to-transparent"
+      };
+      case "Chuyên gia": return { 
+          img: "silver", color: "text-violet-400", borders: "border-violet-400", grad: "from-violet-400/30 to-purple-600/50", 
+          shadow: "shadow-[0_0_20px_#8b5cf6]", frameGrad: "from-violet-300 via-purple-500 to-purple-800",
+          gem: "from-violet-200 to-purple-500", bracketColor: "border-violet-400", glowGrad: "from-violet-400 via-transparent to-transparent"
+      };
+      case "Thạc sĩ": return { 
+          img: "gold", color: "text-amber-500", borders: "border-amber-500", grad: "from-amber-500/30 to-orange-700/50", 
+          shadow: "shadow-[0_0_25px_#f59e0b]", frameGrad: "from-amber-300 via-amber-500 to-orange-700",
+          gem: "from-amber-200 to-orange-500", bracketColor: "border-amber-400", glowGrad: "from-amber-500 via-transparent to-transparent"
+      };
+      case "Tiến sĩ GS": return { 
+          img: "mythic", color: "text-red-500", borders: "border-red-500", grad: "from-red-500/30 to-rose-800/50", 
           shadow: "shadow-[0_0_35px_#ef4444]", frameGrad: "from-yellow-400 via-red-600 to-rose-900",
           gem: "from-red-300 to-red-700", bracketColor: "border-yellow-400", glowGrad: "from-red-500 via-transparent to-transparent"
       };
-      case "Chiến tướng": return { 
-          img: "challenger", color: "text-yellow-300", borders: "border-yellow-300", grad: "from-yellow-300/50 to-orange-500/70", 
-          shadow: "shadow-[0_0_40px_#fde047]", frameGrad: "from-pink-400 via-purple-600 to-fuchsia-900",
-          gem: "from-pink-200 to-purple-500", bracketColor: "border-pink-300", glowGrad: "from-purple-600 via-transparent to-transparent"
-      };
-      case "Thần thoại": 
-      case "Tiến sĩ GS":
-          return { 
-          img: "mythic", color: "text-purple-500", borders: "border-purple-500", grad: "from-indigo-400/50 to-violet-800/70", 
-          shadow: "shadow-[0_0_45px_#a855f7]", frameGrad: "from-red-500 via-rose-600 to-red-900",
-          gem: "from-rose-300 to-red-600", bracketColor: "border-rose-400", glowGrad: "from-rose-500 via-transparent to-transparent"
-      };
-      case "Mystic": return {
+      case "Mystic":
+      case "Thần Thoại (Mystic)":
+      case "Tối Thượng (Mystic)":
+          return {
           img: "mythic", color: "text-pink-500", borders: "border-pink-500", grad: "from-yellow-400/50 via-red-500/50 to-fuchsia-500/70",
           shadow: "shadow-[0_0_50px_#ec4899]", frameGrad: "from-yellow-400 via-red-500 to-fuchsia-500",
           gem: "from-yellow-300 to-red-500", bracketColor: "border-yellow-400", glowGrad: "from-fuchsia-500 via-red-500 to-yellow-500"
