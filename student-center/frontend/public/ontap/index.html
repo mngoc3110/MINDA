@@ -791,11 +791,13 @@ function revealAnswer(qIdx){
   fb.className='feedback show '+(isCorrect?'correct':'wrong');
   fb.innerHTML=isCorrect?'✅ Chính xác!':'❌ Sai rồi! Đáp án đúng: <strong>'+String.fromCharCode(65+q.ans)+'. '+q.opts[q.ans]+'</strong>';}
 }
-function updateStats(){
+function updateStats(forceShow){
   const answered=userAnswers.filter(a=>a>=0).length;const correct=userAnswers.filter((a,i)=>a===questions[i].ans).length;const wrong=answered-correct;
-  document.getElementById('answeredCount').textContent=answered;document.getElementById('correctCount').textContent=correct;
-  document.getElementById('wrongCount').textContent=wrong;document.getElementById('progressText').textContent=answered+' / '+TOTAL;
+  document.getElementById('answeredCount').textContent=answered;
+  document.getElementById('progressText').textContent=answered+' / '+TOTAL;
   document.getElementById('progressFill').style.width=(answered/TOTAL*100)+'%';
+  if(mode==='exam'&&!forceShow){document.getElementById('correctCount').textContent='?';document.getElementById('wrongCount').textContent='?';}
+  else{document.getElementById('correctCount').textContent=correct;document.getElementById('wrongCount').textContent=wrong;}
 }
 function setMode(m){mode=m;document.querySelectorAll('.mode-btn').forEach((btn,idx)=>{btn.classList.toggle('active',(m==='practice'&&idx===0)||(m==='exam'&&idx===1));});
   document.getElementById('submitBtn').style.display=m==='exam'?'flex':'none';resetAll();}
@@ -810,7 +812,7 @@ function showAllAnswers(){questions.forEach((q,i)=>{
 function submitExam(){
   const answered=userAnswers.filter(a=>a>=0).length;
   if(answered<TOTAL&&!confirm('Bạn mới làm '+answered+'/'+TOTAL+' câu. Nộp bài ngay?'))return;
-  questions.forEach((_,i)=>revealAnswer(i));const correct=userAnswers.filter((a,i)=>a===questions[i].ans).length;updateStats();
+  questions.forEach((_,i)=>revealAnswer(i));const correct=userAnswers.filter((a,i)=>a===questions[i].ans).length;updateStats(true);
   const modal=document.getElementById('resultModal');const circle=document.getElementById('scoreCircle');
   const scoreText=document.getElementById('scoreText');const title=document.getElementById('resultTitle');const desc=document.getElementById('resultDesc');
   scoreText.textContent=correct;document.querySelector('.modal .score-circle .small').textContent='/ '+TOTAL;
