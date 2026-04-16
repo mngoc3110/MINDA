@@ -149,7 +149,7 @@ export default function LiveRoomPage() {
   const { room_id } = useParams();
   const router = useRouter();
 
-  const [userInfo, setUserInfo] = useState<{ full_name: string; role: string } | null>(null);
+  const [userInfo, setUserInfo] = useState<{ full_name: string; role: string; isRoomOwner: boolean } | null>(null);
   const [sessionId, setSessionId] = useState<number | null>(null);
   const [hasJoined, setHasJoined] = useState(false);
 
@@ -201,8 +201,15 @@ export default function LiveRoomPage() {
       const role  = localStorage.getItem("minda_role") ?? "student";
       const name  = localStorage.getItem("minda_user_name") ?? "Học sinh";
       if (!token) return;
-      setUserInfo({ full_name: name, role });
 
+      // Decode JWT to get user id
+      let myUserId: number | null = null;
+      try {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        myUserId = parseInt(payload.sub);
+      } catch {}
+
+      let isRoomOwner = false;
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/live-sessions/`, {
           headers: { Authorization: `Bearer ${token}` },
@@ -210,9 +217,14 @@ export default function LiveRoomPage() {
         if (res.ok) {
           const sessions = await res.json();
           const s = sessions.find((x: any) => x.room_id === room_id);
-          if (s) setSessionId(s.id);
+          if (s) {
+            setSessionId(s.id);
+            isRoomOwner = myUserId !== null && s.teacher_id === myUserId;
+          }
         }
       } catch { /* ignore */ }
+
+      setUserInfo({ full_name: name, role, isRoomOwner });
 
       try {
         const hRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/emotion/health`);
@@ -267,12 +279,17 @@ export default function LiveRoomPage() {
 
       const PeerJs = (await import("peerjs")).default;
 
-      // Teacher takes room_id as fixed peer ID so students can find them
+      // isTeacher = có role GV/admin → hiển thị UI giáo viên
+      // isRoomOwner = người TẠO phòng → dùng peer ID cố định = room_id
       const isTeacher = userInfo.role === "teacher" || userInfo.role === "admin";
-      // Student dùng stable peer ID (userId + roomId) để reconnect không tạo call mới
+      const isRoomOwner = userInfo.isRoomOwner;
       const userId = localStorage.getItem("minda_user_id") || "u";
+      // Room owner: peer ID = room_id (học sinh tìm tới được)
+      // Guest teacher: peer ID = t-{userId}-{roomId} (tránh xung đột)
+      // Student: peer ID = s-{userId}-{roomId}
       const stableStudentId = `s-${userId}-${(room_id as string).replace(/[^a-z0-9]/gi, "").toLowerCase()}`;
-      const peerId = isTeacher ? (room_id as string) : stableStudentId;
+      const guestTeacherId  = `t-${userId}-${(room_id as string).replace(/[^a-z0-9]/gi, "").toLowerCase()}`;
+      const peerId = isRoomOwner ? (room_id as string) : (isTeacher ? guestTeacherId : stableStudentId);
 
       const peerConfig: any = {
         host:   PEER_HOST,
