@@ -172,6 +172,16 @@ def reset_password(req: ResetPasswordRequest, email: str, db: Session = Depends(
     user = db.query(User).filter(User.email == email).first()
     if not user:
         raise HTTPException(status_code=400, detail="Người dùng không hợp lệ.")
+    
+    # Kiểm tra giới hạn 30 ngày đổi mật khẩu
+    if user.password_changed_at:
+        days_since = (datetime.utcnow() - user.password_changed_at).days
+        if days_since < 30:
+            days_remaining = 30 - days_since
+            raise HTTPException(
+                status_code=400,
+                detail=f"Bạn chỉ có thể đổi mật khẩu 1 lần mỗi 30 ngày. Còn {days_remaining} ngày nữa mới được đổi."
+            )
         
     secret = SECRET_KEY + user.hashed_password
     try:
@@ -187,6 +197,7 @@ def reset_password(req: ResetPasswordRequest, email: str, db: Session = Depends(
 
     # Valid token. Change password.
     user.hashed_password = get_password_hash(req.new_password)
+    user.password_changed_at = datetime.utcnow()
     db.commit()
     
     return {"message": "Đặt lại mật khẩu thành công!"}
