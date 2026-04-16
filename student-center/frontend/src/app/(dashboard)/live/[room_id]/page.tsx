@@ -116,12 +116,23 @@ function VideoRefPlayer({ stream, mirrored = false, className = "" }: {
   className?: string;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  
   useEffect(() => {
-    if (videoRef.current && stream) {
-      videoRef.current.srcObject = stream;
-      videoRef.current.onloadedmetadata = () => videoRef.current?.play().catch(() => {});
+    const video = videoRef.current;
+    if (video && stream) {
+      video.srcObject = stream;
+      video.onloadedmetadata = () => video.play().catch(console.error);
+
+      // Lắng nghe sự kiện thêm track mạng (thường gặp ở Safari/Mobile WebRTC)
+      const onAddTrack = () => {
+         video.srcObject = stream;
+         video.play().catch(console.error);
+      };
+      stream.addEventListener("addtrack", onAddTrack);
+      return () => stream.removeEventListener("addtrack", onAddTrack);
     }
   }, [stream]);
+
   return (
     <video
       ref={videoRef}
@@ -220,7 +231,7 @@ export default function LiveRoomPage() {
       try {
         stream = await navigator.mediaDevices.getUserMedia({
           video: { width: { max: 640 }, height: { max: 480 }, frameRate: { max: 24 } },
-          audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 },
+          audio: { echoCancellation: true }, // Bỏ các rule khắt khe gây tắt mic trên điện thoại
         });
       } catch (err) {
         console.error("Camera/Mic permission denied:", err);
