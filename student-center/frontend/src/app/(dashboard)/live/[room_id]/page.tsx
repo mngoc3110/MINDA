@@ -150,6 +150,7 @@ export default function LiveRoomPage() {
 
   const [userInfo, setUserInfo] = useState<{ full_name: string; role: string } | null>(null);
   const [sessionId, setSessionId] = useState<number | null>(null);
+  const [hasJoined, setHasJoined] = useState(false);
 
   // WebRTC states
   const [peerStatus, setPeerStatus] = useState<"connecting" | "connected" | "error">("connecting");
@@ -223,7 +224,7 @@ export default function LiveRoomPage() {
 
   // --- 4. WebRTC setup
   useEffect(() => {
-    if (!userInfo) return;
+    if (!userInfo || !hasJoined) return;
     let isMounted = true;
 
     const setupWebRTC = async () => {
@@ -406,7 +407,7 @@ export default function LiveRoomPage() {
       if (peerInstance.current) peerInstance.current.destroy();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userInfo, room_id]);
+  }, [userInfo, room_id, hasJoined]);
 
   // --- 5. Emotion analysis (students only)
     const captureAndAnalyze = useCallback(async () => {
@@ -553,7 +554,33 @@ export default function LiveRoomPage() {
 
   const isTeacher = userInfo?.role === "teacher" || userInfo?.role === "admin";
 
-  // ─── Render ───────────────────────────────────────────────────────────────
+  // ─── Render Pre-join Lobby ──────────────────────────────────────────────────
+  if (!hasJoined) {
+    return (
+      <div className="w-full h-[calc(100vh-60px)] flex flex-col items-center justify-center bg-black text-white font-outfit relative overflow-hidden">
+        {/* Background elements */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-500/20 blur-[120px] rounded-full pointer-events-none" />
+        
+        <div className="bg-[#111] border border-white/10 p-8 rounded-3xl max-w-sm w-full text-center flex flex-col items-center gap-6 shadow-2xl relative z-10">
+          <div className="w-20 h-20 bg-indigo-500/10 rounded-full flex items-center justify-center border border-indigo-500/30">
+            <Video className="w-10 h-10 text-indigo-400" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold mb-2">Phòng học Live</h2>
+            <p className="text-sm text-white/50 px-4">Trình duyệt yêu cầu xác nhận để bật Camera và Microphone.</p>
+          </div>
+          <button
+            onClick={() => setHasJoined(true)}
+            className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-[0_0_20px_rgba(99,102,241,0.3)] mt-2"
+          >
+            Tham gia lớp học
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ─── Render Main Room ───────────────────────────────────────────────────────
   return (
     <div className="w-full h-[calc(100vh-60px)] relative overflow-hidden bg-black flex flex-col font-outfit text-white">
       <canvas ref={canvasRef} className="hidden" />
