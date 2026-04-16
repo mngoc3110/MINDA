@@ -12,7 +12,9 @@
   --color-bg-input:       var(--c-bg-input);
   --color-border-card:    var(--c-border-card);
   --color-text-primary:   var(--c-text-primary);
+  --color-t-primary:      var(--c-text-primary);
   --color-text-secondary: var(--c-text-secondary);
+  --color-t-secondary:    var(--c-text-secondary);
   --color-text-muted:     var(--c-text-muted);
   --color-accent:         var(--c-accent);
   --color-accent-soft:    var(--c-accent-soft);

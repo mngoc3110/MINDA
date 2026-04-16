@@ -1,6 +1,6 @@
 "use client";
 import { a } from "@react-spring/three";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useMemo } from "react";
 import { useGLTF } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
@@ -9,16 +9,34 @@ export function Island({
   isRotating,
   setIsRotating,
   setCurrentStage,
+  season = "spring",
   ...props
 }: {
   isRotating: boolean;
   setIsRotating: (val: boolean) => void;
   setCurrentStage?: (val: number | null) => void;
+  season?: "spring" | "summer" | "autumn" | "winter";
   [key: string]: any;
 }) {
   const islandRef = useRef<THREE.Group>(null);
   const { gl, viewport } = useThree();
   const { nodes, materials } = useGLTF("/3d/island.glb") as any;
+
+  // Use cloned material for seasonal tinting
+  const seasonMaterial = useMemo(() => {
+    if (!materials || !materials.PaletteMaterial001) return null;
+    const mat = materials.PaletteMaterial001.clone();
+    if (season === "autumn") {
+      mat.color = new THREE.Color("#ffb480"); // cam lá vàng
+    } else if (season === "winter") {
+      mat.color = new THREE.Color("#e2f1ff"); // xanh tuyết
+    } else if (season === "summer") {
+        mat.color = new THREE.Color("#b5ffb2"); // xanh tươi nắng
+    } else {
+      mat.color = new THREE.Color("#ffffff"); // nguyên bản mùa xuân
+    }
+    return mat;
+  }, [materials, season]);
 
   const lastX = useRef(0);
   const rotationSpeed = useRef(0);
@@ -110,13 +128,13 @@ export function Island({
 
   return (
     <a.group ref={islandRef as any} {...props}>
-      <mesh geometry={nodes.polySurface944_tree_body_0.geometry} material={materials.PaletteMaterial001} />
-      <mesh geometry={nodes.polySurface945_tree1_0.geometry} material={materials.PaletteMaterial001} />
-      <mesh geometry={nodes.polySurface946_tree2_0.geometry} material={materials.PaletteMaterial001} />
-      <mesh geometry={nodes.polySurface947_tree1_0.geometry} material={materials.PaletteMaterial001} />
-      <mesh geometry={nodes.polySurface948_tree_body_0.geometry} material={materials.PaletteMaterial001} />
-      <mesh geometry={nodes.polySurface949_tree_body_0.geometry} material={materials.PaletteMaterial001} />
-      <mesh geometry={nodes.pCube11_rocks1_0.geometry} material={materials.PaletteMaterial001} />
+      <mesh geometry={nodes.polySurface944_tree_body_0.geometry} material={seasonMaterial || materials.PaletteMaterial001} />
+      <mesh geometry={nodes.polySurface945_tree1_0.geometry} material={seasonMaterial || materials.PaletteMaterial001} />
+      <mesh geometry={nodes.polySurface946_tree2_0.geometry} material={seasonMaterial || materials.PaletteMaterial001} />
+      <mesh geometry={nodes.polySurface947_tree1_0.geometry} material={seasonMaterial || materials.PaletteMaterial001} />
+      <mesh geometry={nodes.polySurface948_tree_body_0.geometry} material={seasonMaterial || materials.PaletteMaterial001} />
+      <mesh geometry={nodes.polySurface949_tree_body_0.geometry} material={seasonMaterial || materials.PaletteMaterial001} />
+      <mesh geometry={nodes.pCube11_rocks1_0.geometry} material={seasonMaterial || materials.PaletteMaterial001} />
     </a.group>
   );
 }
