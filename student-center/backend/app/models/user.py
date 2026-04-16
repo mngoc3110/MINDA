@@ -23,7 +23,7 @@ class User(Base):
     secondary_role = Column(String, nullable=True)  # "teacher", "admin", etc. — vai trò phụ thứ hai
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
-    
+    password_changed_at = Column(DateTime, nullable=True)  # Giới hạn đổi mật khẩu 30 ngày/lần
     # Profile Images
     avatar_url = Column(String, nullable=True)
     cover_url = Column(String, nullable=True)
