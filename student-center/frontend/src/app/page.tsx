@@ -275,58 +275,51 @@ export default function Home() {
       <section id="teachers" className="py-24 relative z-10 border-t border-border-card bg-bg-main">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-black mb-5 tracking-tight uppercase text-indigo-600">Đội ngũ Giáo viên</h2>
-            <p className="text-t-secondary text-lg font-light max-w-2xl mx-auto">MINDA hiện đang hợp tác với {teachers.length} giáo viên xuất sắc từ các trường Đại học trọng điểm và Chuyên trên toàn quốc.</p>
-          </div>
-          
-          <div className="flex flex-wrap justify-center gap-8 max-w-4xl mx-auto">
-             {teachers.map(t => (
-                <div key={t.id} className="w-full md:w-[280px] bg-bg-card rounded-3xl border border-border-card hover:border-indigo-300 p-6 flex flex-col items-center group transition-all hover:translate-y-[-5px] shadow-sm hover:shadow-md">
-                   <div className="w-24 h-24 rounded-full overflow-hidden mb-4 border-2 border-border-card group-hover:border-indigo-400 transition-colors">
-                      <img src={t.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} alt={t.full_name} className="w-full h-full object-cover" />
-                   </div>
-                   <h3 className="text-xl font-bold text-t-primary text-center mb-1">{t.full_name}</h3>
-                   <span className="text-xs text-t-secondary uppercase tracking-widest font-bold mb-6">Giáo viên MINDA</span>
-                   
-                   <Link href={`/teachers/${t.id}`} className="mt-auto px-6 py-2.5 w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-xl transition-all font-bold text-center flex items-center justify-center gap-2">
-                      Xem Học Vấn & CV <ArrowRight className="w-4 h-4"/>
-                   </Link>
-                </div>
-             ))}
-             {teachers.length === 0 && (
-                <div className="col-span-full text-center text-t-secondary italic">Hệ thống đang cập nhật danh sách giáo viên...</div>
-             )}
+            <h2 className="text-3xl md:text-5xl font-black mb-5 tracking-tight uppercase text-indigo-600">Đội ngũ MINDA</h2>
+            <p className="text-t-secondary text-lg font-light max-w-2xl mx-auto">Giáo viên, nhà phát triển và tester — những người xây dựng MINDA mỗi ngày.</p>
           </div>
 
-          {/* Đội ngũ Tester */}
-          <div className="mt-16 text-center">
-            <p className="text-xs uppercase tracking-widest text-t-secondary font-bold mb-6 flex items-center justify-center gap-2">
-              <span className="h-px w-12 bg-border-card inline-block" />
-              🧪 Đội ngũ Tester & Phát triển
-              <span className="h-px w-12 bg-border-card inline-block" />
-            </p>
-            <div className="flex flex-wrap justify-center gap-6">
-              {/* Nguyễn Lê Minh Ngọc — Developer */}
-              <div className="w-[220px] bg-bg-card rounded-3xl border border-indigo-500/20 hover:border-indigo-400/50 p-5 flex flex-col items-center group transition-all hover:translate-y-[-4px] shadow-sm hover:shadow-indigo-500/10">
-                <div className="w-20 h-20 rounded-full overflow-hidden mb-3 border-2 border-indigo-500/30 group-hover:border-indigo-400 transition-colors">
-                  <img src="https://res.cloudinary.com/dxgel6jfo/image/upload/v1775743103/MINDA_Storage/avatar/admin_1/46645a31_ava.jpg" alt="Nguyễn Lê Minh Ngọc" className="w-full h-full object-cover" />
+          {/* Tất cả thành viên — 1 hàng */}
+          <div className="flex flex-wrap justify-center gap-6 max-w-5xl mx-auto">
+
+            {/* Giáo viên từ API */}
+            {teachers.map(t => (
+              <div key={t.id} className="w-[200px] bg-bg-card rounded-3xl border border-border-card hover:border-indigo-300 p-5 flex flex-col items-center group transition-all hover:translate-y-[-4px] shadow-sm hover:shadow-md">
+                <div className="w-20 h-20 rounded-full overflow-hidden mb-3 border-2 border-border-card group-hover:border-indigo-400 transition-colors">
+                  <img src={t.avatar_url || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} alt={t.full_name} className="w-full h-full object-cover" />
                 </div>
-                <h3 className="text-base font-bold text-t-primary text-center mb-1">Nguyễn Lê Minh Ngọc</h3>
-                <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/25 uppercase tracking-wider">
-                  💻 Developer
+                <h3 className="text-sm font-bold text-t-primary text-center mb-1 leading-tight">{t.full_name}</h3>
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-full bg-indigo-500/10 text-indigo-500 border border-indigo-200 uppercase tracking-wider mb-4">
+                  👩‍🏫 Giáo viên
                 </span>
+                <Link href={`/teachers/${t.id}`} className="mt-auto text-xs px-4 py-2 w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-xl font-bold text-center flex items-center justify-center gap-1 transition-all">
+                  Xem CV <ArrowRight className="w-3 h-3"/>
+                </Link>
               </div>
-              {/* Phạm Trần Đăng Khoa — Tester */}
-              <div className="w-[220px] bg-bg-card rounded-3xl border border-cyan-500/20 hover:border-cyan-400/50 p-5 flex flex-col items-center group transition-all hover:translate-y-[-4px] shadow-sm hover:shadow-cyan-500/10">
-                <div className="w-20 h-20 rounded-full overflow-hidden mb-3 border-2 border-cyan-500/30 group-hover:border-cyan-400 transition-colors">
-                  <img src="https://ui-avatars.com/api/?name=Ph%E1%BA%A1m+Tr%E1%BA%A7n+%C4%90%C4%83ng+Khoa&background=06b6d4&color=fff&size=200" alt="Phạm Trần Đăng Khoa" className="w-full h-full object-cover" />
-                </div>
-                <h3 className="text-base font-bold text-t-primary text-center mb-1">Phạm Trần Đăng Khoa</h3>
-                <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/25 uppercase tracking-wider">
-                  🧪 Tester
-                </span>
+            ))}
+
+            {/* Nguyễn Lê Minh Ngọc — Developer */}
+            <div className="w-[200px] bg-bg-card rounded-3xl border border-indigo-500/25 hover:border-indigo-400/60 p-5 flex flex-col items-center group transition-all hover:translate-y-[-4px] shadow-sm hover:shadow-indigo-500/10">
+              <div className="w-20 h-20 rounded-full overflow-hidden mb-3 border-2 border-indigo-500/30 group-hover:border-indigo-400 transition-colors">
+                <img src="https://res.cloudinary.com/dxgel6jfo/image/upload/v1775743103/MINDA_Storage/avatar/admin_1/46645a31_ava.jpg" alt="Nguyễn Lê Minh Ngọc" className="w-full h-full object-cover" />
               </div>
+              <h3 className="text-sm font-bold text-t-primary text-center mb-1 leading-tight">Nguyễn Lê Minh Ngọc</h3>
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/25 uppercase tracking-wider">
+                💻 Developer
+              </span>
             </div>
+
+            {/* Phạm Trần Đăng Khoa — Tester */}
+            <div className="w-[200px] bg-bg-card rounded-3xl border border-cyan-500/25 hover:border-cyan-400/60 p-5 flex flex-col items-center group transition-all hover:translate-y-[-4px] shadow-sm hover:shadow-cyan-500/10">
+              <div className="w-20 h-20 rounded-full overflow-hidden mb-3 border-2 border-cyan-500/30 group-hover:border-cyan-400 transition-colors">
+                <img src="https://ui-avatars.com/api/?name=Ph%E1%BA%A1m+Tr%E1%BA%A7n+%C4%90%C4%83ng+Khoa&background=06b6d4&color=fff&size=200" alt="Phạm Trần Đăng Khoa" className="w-full h-full object-cover" />
+              </div>
+              <h3 className="text-sm font-bold text-t-primary text-center mb-1 leading-tight">Phạm Trần Đăng Khoa</h3>
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/25 uppercase tracking-wider">
+                🧪 Tester
+              </span>
+            </div>
+
           </div>
         </div>
       </section>
