@@ -298,15 +298,23 @@ export default function Home() {
               </div>
             ))}
 
-            {/* Nguyễn Lê Minh Ngọc — Developer */}
+            {/* Nguyễn Lê Minh Ngọc — Developer + Giáo viên */}
             <div className="w-[200px] bg-bg-card rounded-3xl border border-indigo-500/25 hover:border-indigo-400/60 p-5 flex flex-col items-center group transition-all hover:translate-y-[-4px] shadow-sm hover:shadow-indigo-500/10">
               <div className="w-20 h-20 rounded-full overflow-hidden mb-3 border-2 border-indigo-500/30 group-hover:border-indigo-400 transition-colors">
                 <img src="https://res.cloudinary.com/dxgel6jfo/image/upload/v1775743103/MINDA_Storage/avatar/admin_1/46645a31_ava.jpg" alt="Nguyễn Lê Minh Ngọc" className="w-full h-full object-cover" />
               </div>
-              <h3 className="text-sm font-bold text-t-primary text-center mb-1 leading-tight">Nguyễn Lê Minh Ngọc</h3>
-              <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/25 uppercase tracking-wider">
-                💻 Developer
-              </span>
+              <h3 className="text-sm font-bold text-t-primary text-center mb-2 leading-tight">Nguyễn Lê Minh Ngọc</h3>
+              <div className="flex flex-col gap-1 items-center mb-4">
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/25 uppercase tracking-wider">
+                  👩‍🏫 Giáo viên
+                </span>
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-full bg-violet-500/10 text-violet-400 border border-violet-500/25 uppercase tracking-wider">
+                  💻 Developer
+                </span>
+              </div>
+              <Link href="/teachers/1" className="mt-auto text-xs px-4 py-2 w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-xl font-bold text-center flex items-center justify-center gap-1 transition-all">
+                Xem CV <ArrowRight className="w-3 h-3"/>
+              </Link>
             </div>
 
             {/* Phạm Trần Đăng Khoa — Tester */}
