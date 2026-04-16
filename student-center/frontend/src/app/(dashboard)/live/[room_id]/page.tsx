@@ -239,7 +239,10 @@ export default function LiveRoomPage() {
 
       // Teacher takes room_id as fixed peer ID so students can find them
       const isTeacher = userInfo.role === "teacher" || userInfo.role === "admin";
-      const peerId = isTeacher ? (room_id as string) : undefined;
+      // Student dùng stable peer ID (userId + roomId) để reconnect không tạo call mới
+      const userId = localStorage.getItem("minda_user_id") || "u";
+      const stableStudentId = `s-${userId}-${(room_id as string).replace(/[^a-z0-9]/gi, "").toLowerCase()}`;
+      const peerId = isTeacher ? (room_id as string) : stableStudentId;
 
       const peerConfig: any = {
         host:   PEER_HOST,
@@ -256,7 +259,7 @@ export default function LiveRoomPage() {
         debug: 0,
       };
 
-      const peer = peerId ? new PeerJs(peerId, peerConfig) : new PeerJs(peerConfig);
+      const peer = new PeerJs(peerId, peerConfig);
       peerInstance.current = peer;
 
       // ── Peer is open ──────────────────────────────────────────────
@@ -320,8 +323,9 @@ export default function LiveRoomPage() {
             if (!isMounted) return;
             const studentName = call.metadata?.name ?? `Học sinh (${call.peer.substring(0, 6)})`;
             setStudentStreams((prev) => {
-              if (prev.find(p => p.peerId === call.peer)) return prev;
-              return [...prev, { peerId: call.peer, stream: remoteStream, name: studentName }];
+              // Replace existing entry with same name (reconnect) hoặc same peerId
+              const filtered = prev.filter(p => p.peerId !== call.peer && p.name !== studentName);
+              return [...filtered, { peerId: call.peer, stream: remoteStream, name: studentName }];
             });
           });
           call.on("close", () => {
@@ -341,7 +345,28 @@ export default function LiveRoomPage() {
       peer.on("error", (err) => {
         console.error("[PeerJS] Error:", err.type, err);
         if (err.type === "unavailable-id") {
-          alert("Phòng học đã có giáo viên khác. Vui lòng đổi tên phòng.");
+          if (isTeacher) {
+            alert("Phòng học đã có giáo viên khác. Vui lòng đổi tên phòng.");
+          } else {
+            // Học sinh: stable ID bị chiếm (session cũ chưa expire) → dùng fallback ID
+            console.warn("[PeerJS] Stable peer ID unavailable, retrying with fallback...");
+            peer.destroy();
+            // Tạo peer mới với ID ngẫu nhiên (sẽ không stable, nhưng vẫn kết nối được)
+            const fallbackPeer = new PeerJs(peerConfig);
+            peerInstance.current = fallbackPeer;
+            fallbackPeer.on("open", (myId) => {
+              if (!isMounted) return;
+              setPeerStatus("connected");
+              const call = fallbackPeer.call(room_id as string, stream, {
+                metadata: { name: userInfo.full_name },
+              });
+              if (call) {
+                call.on("stream", (remoteStream) => { if (isMounted) setTeacherStream(remoteStream); });
+              }
+              const conn = fallbackPeer.connect(room_id as string, { metadata: { peerId: myId } });
+              conn.on("open", () => { dataConnRef.current = conn; });
+            });
+          }
         } else if (err.type === "server-error" || err.type === "network") {
           setPeerStatus("error");
         }
@@ -355,8 +380,18 @@ export default function LiveRoomPage() {
 
     setupWebRTC();
 
+    // Khi tab bị ẩn/hiện lại, reconnect nếu bị ngắt kết nối
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible" && peerInstance.current?.disconnected) {
+        console.log("[PeerJS] Tab active — reconnecting...");
+        peerInstance.current.reconnect();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+
     return () => {
       isMounted = false;
+      document.removeEventListener("visibilitychange", handleVisibility);
       if (callRetryRef.current) clearTimeout(callRetryRef.current);
       if (localStream) localStream.getTracks().forEach(t => t.stop());
       if (peerInstance.current) peerInstance.current.destroy();
