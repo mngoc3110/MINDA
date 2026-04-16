@@ -4,18 +4,21 @@ import { useEffect, useRef, useMemo } from "react";
 import { useGLTF } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
+import { ZodiacAnimal } from "./ZodiacAnimal";
 
 export function Island({
   isRotating,
   setIsRotating,
   setCurrentStage,
   season = "spring",
+  showZodiac = false,
   ...props
 }: {
   isRotating: boolean;
   setIsRotating: (val: boolean) => void;
   setCurrentStage?: (val: number | null) => void;
   season?: "spring" | "summer" | "autumn" | "winter";
+  showZodiac?: boolean;
   [key: string]: any;
 }) {
   const islandRef = useRef<THREE.Group>(null);
@@ -135,6 +138,14 @@ export function Island({
       <mesh geometry={nodes.polySurface948_tree_body_0.geometry} material={seasonMaterial || materials.PaletteMaterial001} />
       <mesh geometry={nodes.polySurface949_tree_body_0.geometry} material={seasonMaterial || materials.PaletteMaterial001} />
       <mesh geometry={nodes.pCube11_rocks1_0.geometry} material={seasonMaterial || materials.PaletteMaterial001} />
+      
+      {showZodiac && (
+        <ZodiacAnimal 
+          position={[0, 0, 1.5]} 
+          scale={[0.5, 0.5, 0.5]} 
+          rotation={[0, 0, 0]}
+        />
+      )}
     </a.group>
   );
 }

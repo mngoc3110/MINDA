@@ -44,15 +44,15 @@ export default function IslandHero() {
       biplanePosition = [0, -1.5, 0] as [number, number, number];
       islandScale = [0.9, 0.9, 0.9] as [number, number, number];
       islandPosition = [0, -6.5, -43.4] as [number, number, number];
-      zodiacScale = [0.8, 0.8, 0.8] as [number, number, number];
-      zodiacPosition = [0, -2, -5] as [number, number, number];
+      zodiacScale = [2, 2, 2] as [number, number, number];
+      zodiacPosition = [0, -3, -5] as [number, number, number];
     } else {
       biplaneScale = [3, 3, 3] as [number, number, number];
       biplanePosition = [0, -4, -4] as [number, number, number];
       islandScale = [1, 1, 1] as [number, number, number];
       islandPosition = [0, -6.5, -43.4] as [number, number, number];
-      zodiacScale = [1.5, 1.5, 1.5] as [number, number, number];
-      zodiacPosition = [0, -2.5, -6] as [number, number, number];
+      zodiacScale = [3.5, 3.5, 3.5] as [number, number, number]; // Huge
+      zodiacPosition = [0, -4, -6] as [number, number, number];
     }
     return { biplaneScale, biplanePosition, islandScale, islandPosition, zodiacScale, zodiacPosition };
   };
@@ -110,8 +110,9 @@ export default function IslandHero() {
              <ZodiacAnimal 
                position={zodiacPosition} 
                scale={zodiacScale} 
-               rotation={[0.1, 0, 0]}
+               rotation={[0.1, 1.5, 0]} // initially facing right (1.5 rad ~= 90 deg)
                onClick={handleZodiacClick}
+               isIntro={true}
              />
           )}
 
@@ -126,6 +127,7 @@ export default function IslandHero() {
                   rotation={[0.1, 4.7077, 0]}
                   scale={islandScale}
                   season={season}
+                  showZodiac={true}
                 />
                 <Plane
                   isRotating={isRotating}
