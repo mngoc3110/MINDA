@@ -4,8 +4,9 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
   Loader2, Brain, Wifi, WifiOff, Users,
-  Mic, MicOff, Video, VideoOff, MonitorUp, PhoneOff,
+  Mic, MicOff, Video, VideoOff, MonitorUp, PhoneOff, BookOpen,
 } from "lucide-react";
+import AnnotationBoard from "./AnnotationBoard";
 import type Peer from "peerjs";
 
 // ─── Types & Constants ────────────────────────────────────────────────────────
@@ -163,6 +164,13 @@ export default function LiveRoomPage() {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const recordWsRef = useRef<WebSocket | null>(null);
   const [canShareScreen, setCanShareScreen] = useState(true);
+
+  // Annotation states
+  const [annotationOpen, setAnnotationOpen] = useState(false);
+  const [annotationFileUrl, setAnnotationFileUrl] = useState("");
+  const [remoteStrokes, setRemoteStrokes] = useState<any[]>([]);
+  const [showFilePicker, setShowFilePicker] = useState(false);
+  const [myFiles, setMyFiles] = useState<{ id: number; filename: string; file_url: string; file_type: string }[]>([]);
 
   // Streams
   const [localStream, setLocalStream]     = useState<MediaStream | null>(null);
@@ -331,6 +339,17 @@ export default function LiveRoomPage() {
           try {
             if (data.type === "emotion" && data.peerId) {
               setStudentEmotions(prev => ({ ...prev, [data.peerId]: data.emotion }));
+            }
+            // Annotation strokes from teacher → students
+            if (data.type?.startsWith("stroke_")) {
+              setRemoteStrokes(prev => [...prev, data]);
+            }
+            if (data.type === "annotation_open") {
+              setAnnotationFileUrl(data.fileUrl);
+              setAnnotationOpen(true);
+            }
+            if (data.type === "annotation_close") {
+              setAnnotationOpen(false);
             }
           } catch(e) {}
         });
@@ -904,6 +923,25 @@ export default function LiveRoomPage() {
             </button>
           )}
 
+          {/* Annotation button - for teacher */}
+          {isTeacher && (
+            <button
+              onClick={async () => {
+                // Fetch my files
+                const token = localStorage.getItem("minda_token");
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/files/my-drive`, {
+                  headers: { Authorization: `Bearer ${token}` }
+                });
+                if (res.ok) setMyFiles(await res.json());
+                setShowFilePicker(true);
+              }}
+              title="Mở bảng chữa bài"
+              className={`w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-lg ${annotationOpen ? "bg-amber-500 text-white shadow-[0_0_15px_rgba(245,158,11,0.5)]" : "bg-white/10 hover:bg-white/20 text-white"}`}
+            >
+              <BookOpen className="w-5 h-5" />
+            </button>
+          )}
+
           <button
             onClick={handleLeave}
             className="bg-rose-600 hover:bg-rose-500 text-white font-black px-6 py-3 rounded-full flex items-center gap-2 shadow-[0_0_20px_rgba(244,63,94,0.4)] transition-all ml-2"
@@ -925,6 +963,107 @@ export default function LiveRoomPage() {
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
       `}</style>
+
+      {/* ── File Picker Modal ── */}
+      {showFilePicker && (
+        <div className="fixed inset-0 z-[90] bg-black/70 flex items-center justify-center p-4">
+          <div className="bg-gray-900 border border-white/10 rounded-2xl w-full max-w-lg max-h-[80vh] flex flex-col">
+            <div className="flex items-center justify-between p-5 border-b border-white/10">
+              <h3 className="font-black text-white text-lg">📄 Chọn tài liệu cần chữa bài</h3>
+              <button onClick={() => setShowFilePicker(false)} className="text-white/50 hover:text-white">✕</button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-2">
+              {/* Upload new */}
+              <label className="flex items-center gap-3 p-4 rounded-xl border border-dashed border-white/20 hover:border-amber-500/50 cursor-pointer transition-colors group">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center group-hover:bg-amber-500/20 transition-colors">
+                  <span className="text-xl">📤</span>
+                </div>
+                <div>
+                  <div className="text-white font-bold text-sm">Upload file mới</div>
+                  <div className="text-white/40 text-xs">PDF, ảnh JPG/PNG</div>
+                </div>
+                <input type="file" accept=".pdf,image/*" className="hidden" onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  const token = localStorage.getItem("minda_token");
+                  const form = new FormData();
+                  form.append("file", file);
+                  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/files/upload`, {
+                    method: "POST",
+                    headers: { Authorization: `Bearer ${token}` },
+                    body: form
+                  });
+                  if (res.ok) {
+                    const data = await res.json();
+                    const fileUrl = data.file_url;
+                    setAnnotationFileUrl(fileUrl);
+                    setAnnotationOpen(true);
+                    setShowFilePicker(false);
+                    // Broadcast to students
+                    const conns = (peerInstance.current as any)?.connections || {};
+                    for (const id in conns) {
+                      conns[id]?.forEach((c: any) => {
+                        if (c.type === "data" && c.open) c.send({ type: "annotation_open", fileUrl });
+                      });
+                    }
+                  }
+                }} />
+              </label>
+              {/* My Drive files */}
+              {myFiles.filter(f => f.file_type?.includes("pdf") || f.file_type?.includes("image")).map(f => (
+                <button key={f.id} onClick={() => {
+                  setAnnotationFileUrl(f.file_url);
+                  setAnnotationOpen(true);
+                  setShowFilePicker(false);
+                  const conns = (peerInstance.current as any)?.connections || {};
+                  for (const id in conns) {
+                    conns[id]?.forEach((c: any) => {
+                      if (c.type === "data" && c.open) c.send({ type: "annotation_open", fileUrl: f.file_url });
+                    });
+                  }
+                }} className="flex items-center gap-3 p-4 rounded-xl border border-white/10 hover:border-amber-500/50 hover:bg-amber-500/5 text-left transition-colors">
+                  <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center shrink-0">
+                    <span className="text-xl">{f.file_type?.includes("pdf") ? "📕" : "🖼️"}</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-white font-bold text-sm truncate">{f.filename}</div>
+                    <div className="text-white/40 text-xs uppercase">{f.file_type}</div>
+                  </div>
+                </button>
+              ))}
+              {myFiles.filter(f => f.file_type?.includes("pdf") || f.file_type?.includes("image")).length === 0 && (
+                <div className="text-center py-10 text-white/30 text-sm">Chưa có file nào. Upload file PDF/ảnh ở trên nhé!</div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Annotation Board ── */}
+      {annotationOpen && (
+        <AnnotationBoard
+          fileUrl={annotationFileUrl}
+          isTeacher={isTeacher}
+          onStroke={(data) => {
+            const conns = (peerInstance.current as any)?.connections || {};
+            for (const id in conns) {
+              conns[id]?.forEach((c: any) => {
+                if (c.type === "data" && c.open) c.send(data);
+              });
+            }
+          }}
+          remoteStrokes={remoteStrokes}
+          onClose={() => {
+            setAnnotationOpen(false);
+            const conns = (peerInstance.current as any)?.connections || {};
+            for (const id in conns) {
+              conns[id]?.forEach((c: any) => {
+                if (c.type === "data" && c.open) c.send({ type: "annotation_close" });
+              });
+            }
+          }}
+        />
+      )}
     </div>
   );
 }
