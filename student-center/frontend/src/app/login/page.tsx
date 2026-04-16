@@ -97,7 +97,7 @@ export default function LoginPage() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <label className="text-sm font-medium text-text-secondary">Mật khẩu</label>
-                <Link href="#" className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors">Quên mật khẩu?</Link>
+                <Link href="/forgot-password" className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors">Quên mật khẩu?</Link>
               </div>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">

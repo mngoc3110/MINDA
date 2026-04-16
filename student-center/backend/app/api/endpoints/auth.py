@@ -156,12 +156,13 @@ def forgot_password(request: Request, req: ForgotPasswordRequest, background_tas
         
     reset_link = f"{frontend_url}/reset-password?token={encoded_jwt}&email={user.email}"
     
-    # Send email in background
+    # Send email in background (chỉ gửi nếu SMTP đã cấu hình đúng)
     background_tasks.add_task(send_reset_password_email, email=user.email, reset_link=reset_link)
     
+    # TODO: Khi Gmail App Password đã cài, xoá dòng reset_link bên dưới để ẩn khỏi response
     return {
-        "message": "Vui lòng kiểm tra email của bạn để lấy liên kết đặt lại mật khẩu.",
-        "reset_link": None  # Removed to enforce checking email
+        "message": "Liên kết đặt lại mật khẩu đã được tạo. Vui lòng dùng liên kết bên dưới.",
+        "reset_link": reset_link  # Hiển thị tạm thời vì chưa cấu hình email
     }
 
 
