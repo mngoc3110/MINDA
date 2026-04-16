@@ -265,7 +265,7 @@ export default function RanksPage() {
           </div>
           <div className="flex flex-col gap-3">
             {STUDENT_RANKS.map((rank, i) => (
-              <RankCard key={rank.name} rank={rank} index={i} role="student" />
+              <RankCard key={rank.name} rank={rank} index={i} />
             ))}
           </div>
         </div>
@@ -278,7 +278,7 @@ export default function RanksPage() {
           </div>
           <div className="flex flex-col gap-3">
             {TEACHER_RANKS.map((rank, i) => (
-              <RankCard key={rank.name} rank={rank} index={i} role="teacher" />
+              <RankCard key={rank.name} rank={rank} index={i} />
             ))}
           </div>
         </div>
