@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Wallet, CheckCircle2, XCircle, Ban, Plus, Filter, Search, BarChart3 } from "lucide-react";
+import { Wallet, CheckCircle2, XCircle, Ban, Plus, Filter, Search, BarChart3, Pencil, Trash2 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from "recharts";
 
 type TuitionRecord = {
@@ -135,6 +135,9 @@ function TeacherTuitionView() {
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [formData, setFormData] = useState({ student_id: "", amount: "", note: "", billing_cycle: "2026-04" });
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editRecord, setEditRecord] = useState<TuitionRecord | null>(null);
+  const [editForm, setEditForm] = useState({ amount: "", note: "", billing_cycle: "" });
   const [selectedMonth, setSelectedMonth] = useState("");
   const [revenueView, setRevenueView] = useState("all");
 
@@ -180,6 +183,34 @@ function TeacherTuitionView() {
       body: JSON.stringify({ paid_amount: record.amount, status: newStatus })
     });
     if (res.ok) fetchRecords(); else { const err = await res.json(); alert(err.detail || "Lỗi cập nhật"); }
+  };
+
+  const handleOpenEdit = (record: TuitionRecord) => {
+    setEditRecord(record);
+    setEditForm({ amount: record.amount.toString(), note: record.note || "", billing_cycle: record.billing_cycle || "" });
+    setShowEditModal(true);
+  };
+
+  const handleUpdateTuition = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editRecord) return;
+    const token = localStorage.getItem("minda_token");
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/tuition/${editRecord.id}`, {
+      method: "PUT",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ student_id: 0, amount: parseInt(editForm.amount), note: editForm.note, billing_cycle: editForm.billing_cycle })
+    });
+    if (res.ok) { setShowEditModal(false); setEditRecord(null); fetchRecords(); }
+    else { const err = await res.json(); alert(err.detail || "Lỗi cập nhật"); }
+  };
+
+  const handleDelete = async (record: TuitionRecord) => {
+    if (!confirm(`Xóa phiếu học phí của ${record.student_name}?`)) return;
+    const token = localStorage.getItem("minda_token");
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/tuition/${record.id}`, {
+      method: "DELETE", headers: { Authorization: `Bearer ${token}` }
+    });
+    if (res.ok) fetchRecords(); else { const err = await res.json(); alert(err.detail || "Lỗi xóa"); }
   };
 
   const filteredRecords = records.filter(r => {
@@ -343,8 +374,14 @@ function TeacherTuitionView() {
                         <span onClick={() => handleConfirmPayment(item)} className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-500/10 text-amber-700 border border-amber-500/20 rounded-full text-xs font-bold cursor-pointer hover:bg-amber-100 transition-colors">
                           <XCircle className="w-3 h-3" /> Chưa đóng — Xác nhận
                         </span>
+                        <button onClick={() => handleOpenEdit(item)} title="Chỉnh sửa phiếu" className="p-1.5 text-text-secondary hover:bg-blue-500/10 hover:text-blue-500 rounded-full transition-colors border border-transparent hover:border-blue-500/20">
+                          <Pencil className="w-4 h-4" />
+                        </button>
                         <button onClick={() => handleConfirmPayment(item, "quit")} title="Đánh dấu nghỉ học" className="p-1.5 text-text-secondary hover:bg-red-500/10 hover:text-red-500 rounded-full transition-colors border border-transparent hover:border-red-500/20">
                           <Ban className="w-4 h-4" />
+                        </button>
+                        <button onClick={() => handleDelete(item)} title="Xóa phiếu" className="p-1.5 text-text-secondary hover:bg-red-500/10 hover:text-red-600 rounded-full transition-colors border border-transparent hover:border-red-500/20">
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </>
                     )}
@@ -384,6 +421,34 @@ function TeacherTuitionView() {
               <div className="flex justify-end gap-3 mt-2">
                 <button type="button" onClick={() => setShowCreateModal(false)} className="px-5 py-2.5 rounded-xl text-text-secondary hover:bg-bg-hover border border-border-card text-sm font-bold transition-colors">Hủy</button>
                 <button type="submit" className="px-5 py-2.5 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-sm font-bold shadow-md transition-all">Phát hành</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Modal */}
+      {showEditModal && editRecord && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-bg-card border border-border-card rounded-3xl w-full max-w-sm p-6 shadow-2xl">
+            <h3 className="text-xl font-bold text-text-primary mb-1">Chỉnh sửa Phiếu Thu</h3>
+            <p className="text-sm text-text-secondary mb-5">Học sinh: <strong className="text-text-primary">{editRecord.student_name}</strong></p>
+            <form onSubmit={handleUpdateTuition} className="flex flex-col gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-text-secondary mb-1">Số tiền (VNĐ)</label>
+                <input type="number" value={editForm.amount} onChange={e => setEditForm({...editForm, amount: e.target.value})} className="w-full bg-bg-hover border border-border-card rounded-xl px-4 py-3 outline-none focus:border-purple-400 text-sm text-text-primary" required />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-text-secondary mb-1">Tháng thu</label>
+                <input type="month" value={editForm.billing_cycle} onChange={e => setEditForm({...editForm, billing_cycle: e.target.value})} className="w-full bg-bg-hover border border-border-card rounded-xl px-4 py-3 outline-none focus:border-purple-400 text-sm text-text-primary" required />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-text-secondary mb-1">Ghi chú</label>
+                <input type="text" value={editForm.note} onChange={e => setEditForm({...editForm, note: e.target.value})} className="w-full bg-bg-hover border border-border-card rounded-xl px-4 py-3 outline-none focus:border-purple-400 text-sm text-text-primary" placeholder="VD: Học phí T4/2026" />
+              </div>
+              <div className="flex justify-end gap-3 mt-2">
+                <button type="button" onClick={() => { setShowEditModal(false); setEditRecord(null); }} className="px-5 py-2.5 rounded-xl text-text-secondary hover:bg-bg-hover border border-border-card text-sm font-bold transition-colors">Hủy</button>
+                <button type="submit" className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-bold shadow-md transition-all">Lưu thay đổi</button>
               </div>
             </form>
           </div>

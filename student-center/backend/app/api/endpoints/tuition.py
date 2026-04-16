@@ -84,6 +84,45 @@ def pay_tuition(
     return record
 
 
+@router.put("/{record_id}", response_model=TuitionResponse)
+def update_tuition_record(
+    record_id: int,
+    data: TuitionCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role("teacher", "admin")),
+):
+    """Chỉnh sửa phiếu học phí chưa đóng (Teacher/Admin)."""
+    record = db.query(TuitionRecord).filter(TuitionRecord.id == record_id).first()
+    if not record:
+        raise HTTPException(status_code=404, detail="Bản ghi học phí không tồn tại")
+    if record.status.value == "paid":
+        raise HTTPException(status_code=400, detail="Không thể chỉnh sửa phiếu đã đóng.")
+    
+    record.amount = data.amount
+    record.note = data.note
+    record.billing_cycle = data.billing_cycle
+    db.commit()
+    db.refresh(record)
+    return record
+
+
+@router.delete("/{record_id}")
+def delete_tuition_record(
+    record_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role("teacher", "admin")),
+):
+    """Xóa phiếu học phí chưa đóng (Teacher/Admin)."""
+    record = db.query(TuitionRecord).filter(TuitionRecord.id == record_id).first()
+    if not record:
+        raise HTTPException(status_code=404, detail="Bản ghi học phí không tồn tại")
+    if record.status.value == "paid":
+        raise HTTPException(status_code=400, detail="Không thể xóa phiếu đã đóng.")
+    db.delete(record)
+    db.commit()
+    return {"message": "Đã xóa phiếu học phí"}
+
+
 @router.get("/teacher/dashboard")
 def teacher_dashboard_tuition(db: Session = Depends(get_db), current_user: User = Depends(require_role("teacher", "admin"))):
     """Dashboard: Lấy toàn bộ giao dịch học phí liên quan đến giáo viên này (bao gồm cả offline class)."""
