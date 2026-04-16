@@ -110,9 +110,10 @@ function EmotionOverlay({ emotion, isAnalyzing, serviceOnline, compact = false }
 }
 
 // ─── VideoRefPlayer Helper ────────────────────────────────────────────────────
-function VideoRefPlayer({ stream, mirrored = false, className = "" }: {
+function VideoRefPlayer({ stream, mirrored = false, muted = false, className = "" }: {
   stream: MediaStream;
   mirrored?: boolean;
+  muted?: boolean;
   className?: string;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -128,6 +129,7 @@ function VideoRefPlayer({ stream, mirrored = false, className = "" }: {
       className={`w-full h-full object-cover ${mirrored ? "scale-x-[-1]" : ""} ${className}`}
       autoPlay
       playsInline
+      muted={muted}
     />
   );
 }
@@ -640,21 +642,37 @@ export default function LiveRoomPage() {
                   >
                     {/* Aspect video box */}
                     <div className="aspect-video relative">
-                      <VideoRefPlayer stream={s.stream} mirrored />
+                      {/* muted=true để tránh echo/feedback âm thanh */}
+                      <VideoRefPlayer stream={s.stream} mirrored muted />
+
+                      {/* Emotion Overlay — Giáo viên xem cảm xúc học sinh */}
+                      {studentEmotions[s.peerId] ? (
+                        <div className="absolute bottom-2 left-2 right-2 z-20">
+                          <div className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 border text-xs font-bold backdrop-blur-sm ${
+                            EMOTION_COLORS[studentEmotions[s.peerId].label] ?? "bg-white/10 border-white/20 text-white"
+                          }`}>
+                            <Brain className="w-3 h-3 shrink-0" />
+                            <span className="text-sm">{studentEmotions[s.peerId].emoji}</span>
+                            <span>{studentEmotions[s.peerId].label}</span>
+                            <span className="ml-auto font-mono">{Math.round(studentEmotions[s.peerId].confidence * 100)}%</span>
+                          </div>
+                        </div>
+                      ) : serviceOnline && (
+                        <div className="absolute bottom-2 left-2 z-20">
+                          <div className="flex items-center gap-1.5 text-[10px] text-white/40 bg-black/50 backdrop-blur-sm px-2 py-1 rounded-lg">
+                            <Brain className="w-2.5 h-2.5" />
+                            <span>Đang quét...</span>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                                        {/* Name tag */}
+                    {/* Name tag */}
                     <div className="px-3 py-2 flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
                         <span className="text-xs font-bold truncate">{s.name}</span>
                       </div>
                     </div>
-                    {/* Emotion Overlay (Teacher sees Student's Emotion) */}
-                    {studentEmotions[s.peerId] && (
-                       <div className="absolute top-2 right-2 scale-75 origin-top-right">
-                          <EmotionOverlay emotion={studentEmotions[s.peerId]} isAnalyzing={false} serviceOnline={true} compact={true}/>
-                       </div>
-                    )}
                   </div>
                 ))
               )}
