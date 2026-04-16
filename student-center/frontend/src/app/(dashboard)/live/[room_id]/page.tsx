@@ -533,7 +533,14 @@ export default function LiveRoomPage() {
           });
         }
       };
-    } catch (err: any) { console.error("Screen share error:", err); alert("Không thể chia sẻ màn hình: " + err.message); }
+    } catch (err: any) {
+      console.error("Screen share error:", err);
+      if (!navigator.mediaDevices?.getDisplayMedia) {
+        alert("Thiết bị của bạn chưa hỗ trợ Share màn hình qua trình duyệt này.\n\nNếu bạn đang dùng iPad/iPhone:\n→ Hãy mở trang bằng Safari (không phải Chrome)\n→ Đảm bảo iPadOS/iOS phiên bản 18 trở lên");
+      } else {
+        alert("Không thể chia sẻ màn hình: " + err.message);
+      }
+    }
   };
 
   const toggleRecording = async () => {
@@ -879,15 +886,13 @@ export default function LiveRoomPage() {
             {camEnabled ? <Video className="w-5 h-5" /> : <VideoOff className="w-5 h-5" />}
           </button>
           
-          {canShareScreen && (
-            <button
-              onClick={toggleScreenShare}
-              title={isScreenSharing ? "Dừng chia sẻ" : "Chia sẻ màn hình"}
-              className={`w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-lg ${isScreenSharing ? "bg-indigo-500 text-white shadow-[0_0_15px_rgba(99,102,241,0.5)]" : "bg-white/10 hover:bg-white/20 text-white"}`}
-            >
-              <MonitorUp className="w-5 h-5" />
-            </button>
-          )}
+          <button
+            onClick={toggleScreenShare}
+            title={isScreenSharing ? "Dừng chia sẻ" : "Chia sẻ màn hình"}
+            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-lg ${isScreenSharing ? "bg-indigo-500 text-white shadow-[0_0_15px_rgba(99,102,241,0.5)]" : "bg-white/10 hover:bg-white/20 text-white"}`}
+          >
+            <MonitorUp className="w-5 h-5" />
+          </button>
           
           {isTeacher && canShareScreen && (
             <button
