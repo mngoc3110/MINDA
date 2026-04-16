@@ -18,7 +18,12 @@ export default function LiveClassRoom() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ 
         video: true, 
-        audio: true 
+        audio: {
+          echoCancellation: true,   // Khử echo/tiếng vang
+          noiseSuppression: true,   // Lọc tiếng ồn nền
+          autoGainControl: true,    // Tự chỉnh âm lượng
+          sampleRate: 48000,        // Chất lượng audio cao hơn
+        }
       });
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
