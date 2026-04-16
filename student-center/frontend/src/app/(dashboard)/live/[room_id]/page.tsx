@@ -110,10 +110,9 @@ function EmotionOverlay({ emotion, isAnalyzing, serviceOnline, compact = false }
 }
 
 // ─── VideoRefPlayer Helper ────────────────────────────────────────────────────
-function VideoRefPlayer({ stream, mirrored = false, muted = false, className = "" }: {
+function VideoRefPlayer({ stream, mirrored = false, className = "" }: {
   stream: MediaStream;
   mirrored?: boolean;
-  muted?: boolean;
   className?: string;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -129,7 +128,6 @@ function VideoRefPlayer({ stream, mirrored = false, muted = false, className = "
       className={`w-full h-full object-cover ${mirrored ? "scale-x-[-1]" : ""} ${className}`}
       autoPlay
       playsInline
-      muted={muted}
     />
   );
 }
@@ -677,8 +675,7 @@ export default function LiveRoomPage() {
                   >
                     {/* Aspect video box */}
                     <div className="aspect-video relative">
-                      {/* muted=true để tránh echo/feedback âm thanh */}
-                      <VideoRefPlayer stream={s.stream} mirrored muted />
+                      <VideoRefPlayer stream={s.stream} mirrored />
 
                       {/* Emotion Overlay — Giáo viên xem cảm xúc học sinh */}
                       {studentEmotions[s.peerId] ? (
