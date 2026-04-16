@@ -398,11 +398,14 @@ export default function ProfilePage() {
                  {/* Badge đặc biệt */}
                  {secondaryRole && (
                    <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full mt-1 ${
-                     secondaryRole === 'tester' ? 'bg-cyan-500/15 text-cyan-400 border border-cyan-500/30' :
-                     secondaryRole === 'admin'  ? 'bg-red-500/15 text-red-400 border border-red-500/30'   :
-                     'bg-indigo-500/15 text-indigo-400 border border-indigo-500/30'
+                     secondaryRole === 'tester'    ? 'bg-cyan-500/15 text-cyan-400 border border-cyan-500/30' :
+                     secondaryRole === 'developer' ? 'bg-indigo-500/15 text-indigo-400 border border-indigo-500/30' :
+                     secondaryRole === 'admin'     ? 'bg-red-500/15 text-red-400 border border-red-500/30' :
+                     'bg-purple-500/15 text-purple-400 border border-purple-500/30'
                    }`}>
-                     {secondaryRole === 'tester' ? '🧪 Tester' : secondaryRole === 'admin' ? '👑 Admin' : secondaryRole}
+                     {secondaryRole === 'tester'    ? '🧪 Tester' :
+                      secondaryRole === 'developer' ? '💻 Developer' :
+                      secondaryRole === 'admin'     ? '👑 Admin' : secondaryRole}
                    </span>
                  )}
                  <p className="text-text-secondary font-medium hover:underline cursor-pointer">340 người bạn chung</p>

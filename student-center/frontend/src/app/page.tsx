@@ -306,6 +306,16 @@ export default function Home() {
               <span className="h-px w-12 bg-border-card inline-block" />
             </p>
             <div className="flex flex-wrap justify-center gap-6">
+              {/* Nguyễn Lê Minh Ngọc — Developer */}
+              <div className="w-[220px] bg-bg-card rounded-3xl border border-indigo-500/20 hover:border-indigo-400/50 p-5 flex flex-col items-center group transition-all hover:translate-y-[-4px] shadow-sm hover:shadow-indigo-500/10">
+                <div className="w-20 h-20 rounded-full overflow-hidden mb-3 border-2 border-indigo-500/30 group-hover:border-indigo-400 transition-colors">
+                  <img src="https://res.cloudinary.com/dxgel6jfo/image/upload/v1775743103/MINDA_Storage/avatar/admin_1/46645a31_ava.jpg" alt="Nguyễn Lê Minh Ngọc" className="w-full h-full object-cover" />
+                </div>
+                <h3 className="text-base font-bold text-t-primary text-center mb-1">Nguyễn Lê Minh Ngọc</h3>
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/25 uppercase tracking-wider">
+                  💻 Developer
+                </span>
+              </div>
               {/* Phạm Trần Đăng Khoa — Tester */}
               <div className="w-[220px] bg-bg-card rounded-3xl border border-cyan-500/20 hover:border-cyan-400/50 p-5 flex flex-col items-center group transition-all hover:translate-y-[-4px] shadow-sm hover:shadow-cyan-500/10">
                 <div className="w-20 h-20 rounded-full overflow-hidden mb-3 border-2 border-cyan-500/30 group-hover:border-cyan-400 transition-colors">
