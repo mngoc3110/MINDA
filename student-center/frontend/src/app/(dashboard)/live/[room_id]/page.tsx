@@ -953,7 +953,7 @@ export default function LiveRoomPage() {
                 setShowFilePicker(true);
               }}
               title="Mở bảng chữa bài"
-              className={`w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-lg ${annotationOpen ? "bg-amber-500 text-white shadow-[0_0_15px_rgba(245,158,11,0.5)]" : "bg-white/10 hover:bg-white/20 text-white"}`}
+              className={`w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-lg ${annotationOpen ? "bg-amber-600 text-white shadow-[0_0_15px_rgba(245,158,11,0.6)]" : "bg-amber-500/20 text-amber-500 border border-amber-500/50 hover:bg-amber-500/40"}`}
             >
               <BookOpen className="w-5 h-5" />
             </button>
