@@ -8,68 +8,56 @@ import { ArrowLeft, Zap, Crown, Star } from "lucide-react";
 
 const STUDENT_RANKS = [
   {
-    name: "Sơ cấp",
-    abbr: "S1",
-    minXp: 0,
-    maxXp: 99,
-    icon: "🌱",
+    name: "Sơ cấp", abbr: "S1", minXp: 0, maxXp: 99,
+    icon: "🌱", img: "iron",
     gradient: "from-slate-400 to-slate-600",
-    glow: "rgba(100,116,139,0.4)",
+    frameGrad: "from-slate-400 via-slate-600 to-slate-800",
+    glow: "rgba(100,116,139,0.5)",
     description: "Khởi đầu hành trình. Hoàn thành bài tập đầu tiên để thăng hạng!",
     perks: ["Truy cập kho bài tập cơ bản", "Tham gia lớp học trực tuyến"],
   },
   {
-    name: "Tân binh",
-    abbr: "T2",
-    minXp: 100,
-    maxXp: 299,
-    icon: "⚡",
+    name: "Tân binh", abbr: "T2", minXp: 100, maxXp: 299,
+    icon: "⚡", img: "bronze",
     gradient: "from-green-400 to-emerald-600",
-    glow: "rgba(52,211,153,0.4)",
+    frameGrad: "from-green-400 via-emerald-600 to-emerald-800",
+    glow: "rgba(52,211,153,0.5)",
     description: "Đã quen với nền tảng. Thử thách bản thân với các đề khó hơn!",
     perks: ["Mở khóa thêm dạng bài luận", "Huy hiệu Tân Binh trên hồ sơ"],
   },
   {
-    name: "Học bá",
-    abbr: "H3",
-    minXp: 300,
-    maxXp: 799,
-    icon: "📘",
+    name: "Học bá", abbr: "H3", minXp: 300, maxXp: 799,
+    icon: "📘", img: "silver",
     gradient: "from-blue-400 to-indigo-600",
-    glow: "rgba(99,102,241,0.4)",
+    frameGrad: "from-blue-300 via-blue-500 to-indigo-700",
+    glow: "rgba(99,102,241,0.5)",
     description: "Học lực vượt trội. Bắt đầu leo bảng xếp hạng toàn trường!",
     perks: ["Huy hiệu xanh đặc biệt", "Hiển thị nổi bật trên Leaderboard"],
   },
   {
-    name: "Học thần",
-    abbr: "H4",
-    minXp: 800,
-    maxXp: 1999,
-    icon: "🔮",
+    name: "Học thần", abbr: "H4", minXp: 800, maxXp: 1999,
+    icon: "🔮", img: "gold",
     gradient: "from-purple-400 to-pink-600",
-    glow: "rgba(168,85,247,0.4)",
+    frameGrad: "from-purple-300 via-fuchsia-500 to-pink-800",
+    glow: "rgba(168,85,247,0.5)",
     description: "Đỉnh cao tri thức! Chỉ thiểu số học sinh đạt được bậc này.",
     perks: ["Danh hiệu tím huyền bí", "Quyền đề xuất đề thi thử"],
   },
   {
-    name: "Thủ khoa",
-    abbr: "T5",
-    minXp: 2000,
-    maxXp: null,
-    icon: "🏆",
+    name: "Thủ khoa", abbr: "T5", minXp: 2000, maxXp: null,
+    icon: "🏆", img: "diamond",
     gradient: "from-amber-400 to-orange-600",
-    glow: "rgba(251,191,36,0.5)",
+    frameGrad: "from-yellow-300 via-amber-500 to-orange-700",
+    glow: "rgba(251,191,36,0.6)",
     description: "Bậc cao nhất cho học sinh. Huyền thoại thực sự của MINDA!",
-    perks: ["Khung vàng trên avatar", "Biệt danh Thủ Khoa vĩnh viễn", "Được gắn sao trên mọi bảng xếp hạng"],
+    perks: ["Khung vàng trên avatar", "Biệt danh Thủ Khoa vĩnh viễn", "Gắn sao trên mọi bảng xếp hạng"],
   },
   {
-    name: "Thần Thoại (Mystic)",
-    abbr: "👑",
-    minXp: 99999999,
-    maxXp: null,
-    icon: "👑",
+    name: "Thần Thoại (Mystic)", abbr: "👑", minXp: 99999999, maxXp: null,
+    icon: "👑", img: "mythic",
     gradient: "from-yellow-400 via-red-500 to-fuchsia-500",
-    glow: "rgba(250,204,21,0.6)",
+    frameGrad: "from-yellow-400 via-red-500 to-fuchsia-500",
+    glow: "rgba(250,204,21,0.7)",
     description: "Danh hiệu đặc biệt dành riêng cho Admin và những cống hiến phi thường.",
     perks: ["Quyền tối thượng", "Ẩn tất cả giới hạn", "Biểu tượng vương miện vĩnh viễn"],
     isMystic: true,
@@ -78,84 +66,70 @@ const STUDENT_RANKS = [
 
 const TEACHER_RANKS = [
   {
-    name: "Trợ giảng",
-    minXp: 0,
-    maxXp: 49,
-    icon: "📖",
-    color: "#78716c",
+    name: "Trợ giảng", minXp: 0, maxXp: 49,
+    icon: "📖", img: "iron",
     gradient: "from-stone-400 to-stone-600",
-    glow: "rgba(120,113,108,0.4)",
+    frameGrad: "from-stone-400 via-stone-600 to-stone-800",
+    glow: "rgba(120,113,108,0.5)",
     description: "Bước đầu xây dựng lớp học và quản lý học sinh.",
     perks: ["Tạo lớp học cơ bản", "Đăng bài tập"],
   },
   {
-    name: "Giáo viên",
-    minXp: 50,
-    maxXp: 149,
-    icon: "✏️",
-    color: "#3b82f6",
+    name: "Giáo viên", minXp: 50, maxXp: 149,
+    icon: "✏️", img: "bronze",
     gradient: "from-blue-400 to-blue-600",
-    glow: "rgba(59,130,246,0.4)",
+    frameGrad: "from-blue-400 via-blue-600 to-blue-800",
+    glow: "rgba(59,130,246,0.5)",
     description: "Đã có kinh nghiệm giảng dạy. Học sinh bắt đầu tin tưởng!",
     perks: ["Mở khóa bộ đề nâng cao", "Thống kê chi tiết lớp học"],
   },
   {
-    name: "Chuyên gia",
-    minXp: 150,
-    maxXp: 299,
-    icon: "🎓",
-    color: "#8b5cf6",
+    name: "Chuyên gia", minXp: 150, maxXp: 299,
+    icon: "🎓", img: "silver",
     gradient: "from-violet-400 to-purple-600",
-    glow: "rgba(139,92,246,0.4)",
+    frameGrad: "from-violet-300 via-purple-500 to-purple-800",
+    glow: "rgba(139,92,246,0.5)",
     description: "Kỹ năng sư phạm nổi bật. Được học sinh và phụ huynh đánh giá cao.",
     perks: ["Huy hiệu tím chuyên gia", "Ưu tiên hiển thị trang giáo viên"],
   },
   {
-    name: "Thạc sĩ",
-    minXp: 300,
-    maxXp: 599,
-    icon: "🏆",
-    color: "#f59e0b",
+    name: "Thạc sĩ", minXp: 300, maxXp: 599,
+    icon: "🏆", img: "gold",
     gradient: "from-amber-400 to-yellow-600",
-    glow: "rgba(245,158,11,0.5)",
+    frameGrad: "from-amber-300 via-amber-500 to-orange-700",
+    glow: "rgba(245,158,11,0.6)",
     description: "Bậc thầy trong lĩnh vực. Uy tín vàng trên nền tảng MINDA!",
     perks: ["Khung vàng trên avatar", "Tính năng phân tích AI độc quyền"],
   },
   {
-    name: "Tiến sĩ GS",
-    minXp: 600,
-    maxXp: null,
-    icon: "⭐",
-    color: "#ef4444",
+    name: "Tiến sĩ GS", minXp: 600, maxXp: null,
+    icon: "⭐", img: "mythic",
     gradient: "from-red-400 to-rose-600",
-    glow: "rgba(239,68,68,0.5)",
+    frameGrad: "from-yellow-400 via-red-600 to-rose-900",
+    glow: "rgba(239,68,68,0.6)",
     description: "Đỉnh cao giảng dạy. Là hình mẫu cho toàn bộ hệ sinh thái MINDA.",
     perks: ["Danh hiệu đỏ huyền thoại", "Ưu tiên cộng tác đặc biệt"],
   },
   {
-    name: "Tối Thượng (Mystic)",
-    minXp: 99999999,
-    maxXp: null,
-    icon: "👑",
-    color: "#fbbf24",
+    name: "Tối Thượng (Mystic)", minXp: 99999999, maxXp: null,
+    icon: "👑", img: "mythic",
     gradient: "from-yellow-400 via-red-500 to-fuchsia-500",
-    glow: "rgba(250,204,21,0.6)",
+    frameGrad: "from-yellow-400 via-red-500 to-fuchsia-500",
+    glow: "rgba(250,204,21,0.7)",
     description: "Danh hiệu tối thượng dành riêng cho Admin hệ thống.",
     perks: ["Quyền tối thượng", "Tất cả tính năng", "Biểu tượng vương miện"],
     isMystic: true,
   },
 ];
 
-function RankCard({ rank, index, role }: { rank: any; index: number; role: "student" | "teacher" }) {
+function RankCard({ rank, index }: { rank: any; index: number }) {
   const isMystic = rank.isMystic;
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: index * 0.08 }}
-      className={`relative rounded-2xl border overflow-hidden ${
-        isMystic ? "border-yellow-400/50" : "border-white/10"
-      }`}
+      transition={{ duration: 0.4, delay: index * 0.07 }}
+      className={`relative rounded-2xl border overflow-hidden ${isMystic ? "border-yellow-400/50" : "border-white/10"}`}
       style={{
         background: isMystic
           ? "linear-gradient(135deg, rgba(251,191,36,0.12), rgba(239,68,68,0.08), rgba(217,70,239,0.12))"
@@ -170,31 +144,46 @@ function RankCard({ rank, index, role }: { rank: any; index: number; role: "stud
         </div>
       )}
 
-      <div className="p-6 flex gap-5">
-        {/* Icon + XP badge */}
-        <div className="flex flex-col items-center gap-2 min-w-[72px]">
+      <div className="p-5 flex gap-5 items-center">
+        {/* Rank Logo với khung gradient */}
+        <div className="shrink-0 flex flex-col items-center gap-2">
           <div
-            className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${rank.gradient} flex items-center justify-center text-3xl shadow-lg`}
-            style={{ boxShadow: `0 8px 24px ${rank.glow}` }}
+            className={`w-20 h-20 rounded-2xl p-[3px] bg-gradient-to-b ${rank.frameGrad}`}
+            style={{ boxShadow: `0 0 24px ${rank.glow}, 0 0 8px ${rank.glow}` }}
           >
-            {rank.icon}
+            <div className="w-full h-full rounded-[14px] bg-bg-main overflow-hidden flex items-center justify-center">
+              <img
+                src={`/ranks/${rank.img}.png`}
+                alt={rank.name}
+                className="w-full h-full object-contain p-1 drop-shadow-lg"
+                style={{ filter: `drop-shadow(0 0 6px ${rank.glow})` }}
+              />
+            </div>
           </div>
-          {!isMystic && (
+          {!isMystic ? (
             <span className="text-[10px] font-bold text-text-muted bg-white/10 px-2 py-0.5 rounded-full whitespace-nowrap">
-              {rank.minXp} EXP
+              {rank.minXp}+ EXP
             </span>
+          ) : (
+            <Crown className="w-4 h-4 text-yellow-400" />
           )}
-          {isMystic && <Crown className="w-4 h-4 text-yellow-400 mt-1" />}
         </div>
 
         {/* Info */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
+          <div className="flex items-center gap-2 mb-1 flex-wrap">
             <h3 className={`text-lg font-black ${isMystic ? "bg-gradient-to-r from-yellow-300 via-red-400 to-fuchsia-400 bg-clip-text text-transparent" : "text-text-primary"}`}>
               {rank.name}
             </h3>
             {!isMystic && rank.maxXp && (
-              <span className="text-[10px] text-text-muted font-medium">→ {rank.maxXp} EXP</span>
+              <span className="text-[10px] text-text-muted font-mono bg-white/8 px-2 py-0.5 rounded-full border border-white/10">
+                {rank.minXp} – {rank.maxXp} EXP
+              </span>
+            )}
+            {!isMystic && !rank.maxXp && (
+              <span className="text-[10px] text-amber-400 font-mono bg-amber-400/10 px-2 py-0.5 rounded-full border border-amber-400/20">
+                {rank.minXp}+ EXP
+              </span>
             )}
           </div>
           <p className="text-xs text-text-secondary mb-3 leading-relaxed">{rank.description}</p>
@@ -219,6 +208,7 @@ function RankCard({ rank, index, role }: { rank: any; index: number; role: "stud
     </motion.div>
   );
 }
+
 
 export default function RanksPage() {
   return (
