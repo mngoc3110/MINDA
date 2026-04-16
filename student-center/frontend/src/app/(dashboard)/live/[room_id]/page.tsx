@@ -172,6 +172,11 @@ export default function LiveRoomPage() {
   const [showFilePicker, setShowFilePicker] = useState(false);
   const [myFiles, setMyFiles] = useState<{ id: number; filename: string; file_url: string; file_type: string }[]>([]);
 
+  // Screen share viewer states
+  const [screenShareActive, setScreenShareActive] = useState(false);
+  const screenCanvasRef = useRef<HTMLCanvasElement>(null);
+  const screenWsRef = useRef<WebSocket | null>(null);
+
   // Streams
   const [localStream, setLocalStream]     = useState<MediaStream | null>(null);
   const [teacherStream, setTeacherStream] = useState<MediaStream | null>(null);
@@ -536,6 +541,11 @@ export default function LiveRoomPage() {
       return;
     }
 
+    // Try native iOS screen share first (Capacitor + ReplayKit)
+    const nativeOk = await startNativeScreenShare();
+    if (nativeOk) return; // Success via native — screen frames go through server WebSocket
+
+    // Fallback to browser getDisplayMedia
     try {
       const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
       const screenTrack  = screenStream.getVideoTracks()[0];
@@ -572,7 +582,7 @@ export default function LiveRoomPage() {
     } catch (err: any) {
       console.error("Screen share error:", err);
       if (!navigator.mediaDevices?.getDisplayMedia) {
-        alert("Thiết bị của bạn chưa hỗ trợ Share màn hình qua trình duyệt này.\n\nNếu bạn đang dùng iPad/iPhone:\n→ Hãy mở trang bằng Safari (không phải Chrome)\n→ Đảm bảo iPadOS/iOS phiên bản 18 trở lên");
+        alert("Thiết bị chưa hỗ trợ Share màn hình trong trình duyệt.\n\nĐể share màn hình GoodNotes trên iPad:\n→ Cài app MINDA qua AltStore\n→ Mở app MINDA thay vì trình duyệt");
       } else {
         alert("Không thể chia sẻ màn hình: " + err.message);
       }
@@ -686,6 +696,75 @@ export default function LiveRoomPage() {
 
   const isTeacher = userInfo?.role === "teacher" || userInfo?.role === "admin";
 
+  // ── Screen Share Viewer (students receive JPEG frames via WebSocket) ─────────
+  useEffect(() => {
+    if (!hasJoined || !userInfo) return;
+    const token = localStorage.getItem("minda_token");
+    if (!token) return;
+
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+    const wsBase = apiUrl.replace("http", "ws");
+    const wsUrl = `${wsBase}/api/live-sessions/${room_id}/screen-share?token=${token}&role=viewer`;
+    
+    const ws = new WebSocket(wsUrl);
+    screenWsRef.current = ws;
+
+    ws.onmessage = (evt) => {
+      if (typeof evt.data === "string") {
+        try {
+          const msg = JSON.parse(evt.data);
+          if (msg.type === "screen_start") setScreenShareActive(true);
+          if (msg.type === "screen_stop") setScreenShareActive(false);
+        } catch {}
+        return;
+      }
+      // Binary = JPEG frame
+      setScreenShareActive(true);
+      const blob = evt.data as Blob;
+      const url = URL.createObjectURL(blob);
+      const img = new Image();
+      img.onload = () => {
+        const canvas = screenCanvasRef.current;
+        if (!canvas) { URL.revokeObjectURL(url); return; }
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        const ctx = canvas.getContext("2d");
+        if (ctx) ctx.drawImage(img, 0, 0);
+        URL.revokeObjectURL(url);
+      };
+      img.src = url;
+    };
+
+    ws.onerror = () => {};
+    ws.onclose = () => { setScreenShareActive(false); };
+
+    return () => { ws.close(); screenWsRef.current = null; };
+  }, [hasJoined, userInfo, room_id]);
+
+  // ── Native iOS Screen Share (Capacitor + ReplayKit) ───────────────────────────
+  const startNativeScreenShare = async () => {
+    try {
+      const { Capacitor } = await import("@capacitor/core");
+      if (!Capacitor.isNativePlatform()) return false;
+
+      // Use the ScreenShare Capacitor plugin
+      const { registerPlugin } = await import("@capacitor/core");
+      const ScreenShare = registerPlugin("ScreenShare") as any;
+
+      const token = localStorage.getItem("minda_token") || "";
+      const serverUrl = process.env.NEXT_PUBLIC_API_URL || "https://minda.io.vn";
+      
+      // Store room info so the Broadcast Extension can connect
+      await ScreenShare.setRoomInfo({ roomId: room_id, token, serverUrl });
+      // Show the system broadcast picker
+      await ScreenShare.startShare();
+      setIsScreenSharing(true);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
   // ─── Render Pre-join Lobby ──────────────────────────────────────────────────
   if (!hasJoined) {
     return (
@@ -716,6 +795,20 @@ export default function LiveRoomPage() {
   return (
     <div className="w-full h-[calc(100vh-60px)] relative overflow-hidden bg-black flex flex-col font-outfit text-white">
       <canvas ref={canvasRef} className="hidden" />
+
+      {/* ── Screen Share Overlay (JPEG frames from iPad ReplayKit) ── */}
+      {screenShareActive && (
+        <div className="absolute inset-0 z-50 bg-black flex items-center justify-center">
+          <canvas
+            ref={screenCanvasRef}
+            className="max-w-full max-h-full object-contain"
+          />
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-indigo-600/90 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg backdrop-blur-sm">
+            <MonitorUp className="w-4 h-4" />
+            Giáo viên đang Share màn hình
+          </div>
+        </div>
+      )}
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden relative">

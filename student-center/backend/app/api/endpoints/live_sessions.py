@@ -201,3 +201,83 @@ async def record_session(websocket: WebSocket, session_id: str, token: str, db: 
                 os.remove(file_path)
 
     asyncio.get_event_loop().run_in_executor(None, background_upload)
+
+# ── Screen Share relay (ReplayKit → Students) ──────────────────────────────────
+# Dict lưu danh sách viewer WebSocket theo room_id
+screen_viewers: dict[str, list[WebSocket]] = {}
+screen_sources: dict[str, WebSocket] = {}
+
+@router.websocket("/{room_id}/screen-share")
+async def screen_share_ws(websocket: WebSocket, room_id: str, token: str = "", role: str = "viewer"):
+    """
+    WebSocket endpoint for screen sharing.
+    - role=source (from iOS Broadcast Extension): sends JPEG frames
+    - role=viewer (from student browser): receives JPEG frames
+    """
+    await websocket.accept()
+
+    # Authenticate
+    if token:
+        try:
+            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM])
+            user_id = payload.get("sub")
+        except Exception:
+            await websocket.close(code=1008)
+            return
+    else:
+        await websocket.close(code=1008)
+        return
+
+    if role == "source":
+        # Teacher/Extension is the screen source
+        screen_sources[room_id] = websocket
+        if room_id not in screen_viewers:
+            screen_viewers[room_id] = []
+
+        try:
+            while True:
+                data = await websocket.receive()
+                # Broadcast to all viewers
+                viewers = screen_viewers.get(room_id, [])
+                dead = []
+                for v in viewers:
+                    try:
+                        if "bytes" in data:
+                            await v.send_bytes(data["bytes"])
+                        elif "text" in data:
+                            await v.send_text(data["text"])
+                    except Exception:
+                        dead.append(v)
+                # Clean up disconnected viewers
+                for d in dead:
+                    viewers.remove(d)
+        except WebSocketDisconnect:
+            pass
+        except Exception as e:
+            print(f"Screen source error: {e}")
+        finally:
+            screen_sources.pop(room_id, None)
+            # Notify viewers that sharing stopped
+            for v in screen_viewers.get(room_id, []):
+                try:
+                    await v.send_text('{"type":"screen_stop"}')
+                except:
+                    pass
+
+    else:
+        # Student viewer
+        if room_id not in screen_viewers:
+            screen_viewers[room_id] = []
+        screen_viewers[room_id].append(websocket)
+
+        try:
+            while True:
+                # Keep connection alive, viewer only receives
+                await websocket.receive_text()
+        except WebSocketDisconnect:
+            pass
+        except Exception:
+            pass
+        finally:
+            if room_id in screen_viewers and websocket in screen_viewers[room_id]:
+                screen_viewers[room_id].remove(websocket)
