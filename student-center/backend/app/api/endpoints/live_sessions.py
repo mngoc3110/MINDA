@@ -147,7 +147,8 @@ def update_session_status(
 from jose import jwt
 import os
 import asyncio
-from app.core.security import SECRET_KEY, ALGORITHM
+from app.core.security import ALGORITHM
+from app.core.config import settings
 from app.core.drive_service import upload_local_file_to_drive
 
 @router.websocket("/{session_id}/record")
@@ -155,9 +156,9 @@ async def record_session(websocket: WebSocket, session_id: str, token: str, db: 
     await websocket.accept()
     
     try:
-        payload = jwt.decode(token, os.getenv("SECRET_KEY", SECRET_KEY), algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
-        user = db.query(User).filter(User.username == username).first()
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        user = db.query(User).filter(User.id == int(user_id)).first()
         if not user or user.role.value not in ["teacher", "admin"]:
             await websocket.close(code=1008)
             return
