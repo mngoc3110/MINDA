@@ -203,6 +203,11 @@ export default function LeaderboardPage() {
              Giáo viên
            </button>
         </div>
+
+        {/* Link đến trang bậc rank */}
+        <a href="/ranks" className="mt-4 inline-flex items-center gap-1.5 text-xs text-amber-400 hover:text-amber-300 transition-colors font-medium border border-amber-400/30 bg-amber-400/8 px-4 py-1.5 rounded-full hover:bg-amber-400/15">
+          ⭐ Xem tất cả các bậc Rank & đặc quyền →
+        </a>
       </header>
 
       {/* Podium Top 3 */}
