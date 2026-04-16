@@ -123,3 +123,44 @@ async def upload_file(file: UploadFile, user: User) -> str:
     finally:
         if os.path.exists(temp_path):
             os.remove(temp_path)
+
+def upload_local_file_to_drive(file_path: str, filename: str, content_type: str, user: User) -> str:
+    """
+    Upload file cứng (từ đường dẫn local) lên thẳng Google Drive cá nhân của người dùng.
+    """
+    try:
+        service = get_user_drive_service(user)
+    except Exception as e:
+        raise Exception(f"UNAUTHORIZED_DRIVE: {e}")
+
+    user_folder_id = user.google_folder_id
+    if not user_folder_id:
+        raise Exception("Không tìm thấy folder cấu hình gốc. Vui lòng Liên kết lại Google Drive.")
+
+    try:
+        file_metadata = {
+            'name': filename,
+            'parents': [user_folder_id]
+        }
+        media = MediaFileUpload(file_path, mimetype=content_type, resumable=True)
+        
+        uploaded_file = service.files().create(
+            body=file_metadata,
+            media_body=media,
+            fields='id, webViewLink, webContentLink'
+        ).execute()
+
+        file_id = uploaded_file.get('id')
+        service.permissions().create(
+            fileId=file_id,
+            body={'type': 'anyone', 'role': 'reader'}
+        ).execute()
+
+        return uploaded_file.get('webViewLink')
+
+    except Exception as e:
+        print(f"Lỗi upload Drive Record: {e}")
+        return ""
+    finally:
+        if os.path.exists(file_path):
+            os.remove(file_path)

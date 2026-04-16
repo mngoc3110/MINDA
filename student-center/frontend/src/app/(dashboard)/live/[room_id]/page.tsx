@@ -157,6 +157,11 @@ export default function LiveRoomPage() {
   const [micEnabled, setMicEnabled]   = useState(true);
   const [camEnabled, setCamEnabled]   = useState(true);
   const [isScreenSharing, setIsScreenSharing] = useState(false);
+  
+  // Recording states
+  const [isRecording, setIsRecording] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const recordWsRef = useRef<WebSocket | null>(null);
 
   // Streams
   const [localStream, setLocalStream]     = useState<MediaStream | null>(null);
@@ -524,6 +529,83 @@ export default function LiveRoomPage() {
     } catch (err) { console.error("Screen share error:", err); }
   };
 
+  const toggleRecording = async () => {
+    if (isRecording) {
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+        mediaRecorderRef.current.stop();
+      }
+      setIsRecording(false);
+      return;
+    }
+
+    try {
+      // Bắt đầu Record và mix âm thanh PC + Mic
+      const displayStream = await navigator.mediaDevices.getDisplayMedia({
+        video: { displaySurface: "browser" },
+        audio: true, // Cố gắng lấy âm thanh từ tab nếu trình duyệt hỗ trợ
+      });
+
+      const AudioContext = (window as any).AudioContext || (window as any).webkitAudioContext;
+      const audioCtx = new AudioContext();
+      const dest = audioCtx.createMediaStreamDestination();
+
+      if (displayStream.getAudioTracks().length > 0) {
+        const displaySource = audioCtx.createMediaStreamSource(displayStream);
+        displaySource.connect(dest);
+      }
+      
+      if (localStream && localStream.getAudioTracks().length > 0) {
+        const micSource = audioCtx.createMediaStreamSource(localStream);
+        micSource.connect(dest);
+      }
+
+      const mixedAudioTrack = dest.stream.getAudioTracks()[0];
+      const videoTrack = displayStream.getVideoTracks()[0];
+      
+      const mixedStream = new MediaStream([videoTrack]);
+      if (mixedAudioTrack) mixedStream.addTrack(mixedAudioTrack);
+
+      const wsUrl = `${process.env.NEXT_PUBLIC_API_URL?.replace("http", "ws") || "ws://localhost:8000"}/api/live-sessions/${room_id}/record`;
+      const ws = new WebSocket(wsUrl);
+      recordWsRef.current = ws;
+
+      ws.onopen = () => {
+        const recorder = new MediaRecorder(mixedStream, { mimeType: 'video/webm' });
+        mediaRecorderRef.current = recorder;
+
+        recorder.ondataavailable = async (e) => {
+          if (e.data && e.data.size > 0 && ws.readyState === WebSocket.OPEN) {
+            const buffer = await e.data.arrayBuffer();
+            ws.send(buffer);
+          }
+        };
+
+        recorder.onstop = () => {
+          if (ws.readyState === WebSocket.OPEN) {
+             ws.send(JSON.stringify({ type: "EOF" })); 
+             ws.close();
+          }
+          displayStream.getTracks().forEach(t => t.stop());
+          setIsRecording(false);
+          alert("Đã kết thúc ghi hình. File sẽ được uploard lên Google Drive tự động.");
+        };
+
+        recorder.start(2000); 
+        setIsRecording(true);
+      };
+
+      ws.onerror = (e) => {
+        console.error("Ghi hình thất bại:", e);
+        alert("Lỗi kết nối Máy chủ ghi hình WebSocket.");
+        setIsRecording(false);
+      };
+
+    } catch (err) {
+      console.error(err);
+      setIsRecording(false);
+    }
+  };
+
   const handleLeave = async () => {
     if (intervalRef.current) clearInterval(intervalRef.current);
     if (callRetryRef.current) clearTimeout(callRetryRef.current);
@@ -789,15 +871,24 @@ export default function LiveRoomPage() {
           >
             {camEnabled ? <Video className="w-5 h-5" /> : <VideoOff className="w-5 h-5" />}
           </button>
+          <button
+            onClick={toggleScreenShare}
+            title={isScreenSharing ? "Dừng chia sẻ" : "Chia sẻ màn hình"}
+            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-lg ${isScreenSharing ? "bg-indigo-500 text-white shadow-[0_0_15px_rgba(99,102,241,0.5)]" : "bg-white/10 hover:bg-white/20 text-white"}`}
+          >
+            <MonitorUp className="w-5 h-5" />
+          </button>
+          
           {isTeacher && (
             <button
-              onClick={toggleScreenShare}
-              title={isScreenSharing ? "Dừng chia sẻ" : "Chia sẻ màn hình"}
-              className={`w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-lg ${isScreenSharing ? "bg-indigo-500 text-white shadow-[0_0_15px_rgba(99,102,241,0.5)]" : "bg-white/10 hover:bg-white/20 text-white"}`}
+               onClick={toggleRecording}
+               title={isRecording ? "Dừng ghi hình" : "Bắt đầu ghi hình trên Server"}
+               className={`w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-lg ${isRecording ? "bg-red-500/20 text-red-500 border border-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.5)]" : "bg-white/10 hover:bg-white/20 text-white"}`}
             >
-              <MonitorUp className="w-5 h-5" />
+               <div className={`w-4 h-4 rounded-full ${isRecording ? "bg-red-500 animate-pulse" : "bg-rose-500"}`} />
             </button>
           )}
+
           <button
             onClick={handleLeave}
             className="bg-rose-600 hover:bg-rose-500 text-white font-black px-6 py-3 rounded-full flex items-center gap-2 shadow-[0_0_20px_rgba(244,63,94,0.4)] transition-all ml-2"

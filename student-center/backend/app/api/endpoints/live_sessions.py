@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, WebSocket, WebSocketDisconnect
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime
@@ -143,3 +143,60 @@ def update_session_status(
         return {"message": f"Trạng thái lớp chuyển thành '{status}' thành công."}
     except ValueError:
         raise HTTPException(status_code=400, detail="Trạng thái không hợp lệ")
+
+from jose import jwt
+import os
+import asyncio
+from app.core.security import SECRET_KEY, ALGORITHM
+from app.core.drive_service import upload_local_file_to_drive
+
+@router.websocket("/{session_id}/record")
+async def record_session(websocket: WebSocket, session_id: str, token: str, db: Session = Depends(get_db)):
+    await websocket.accept()
+    
+    try:
+        payload = jwt.decode(token, os.getenv("SECRET_KEY", SECRET_KEY), algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        user = db.query(User).filter(User.username == username).first()
+        if not user or user.role.value not in ["teacher", "admin"]:
+            await websocket.close(code=1008)
+            return
+    except Exception:
+        await websocket.close(code=1008)
+        return
+
+    temp_dir = "temp_uploads"
+    os.makedirs(temp_dir, exist_ok=True)
+    file_path = f"{temp_dir}/recording_{session_id}_{user.id}.webm"
+    
+    try:
+        with open(file_path, "wb") as f:
+            while True:
+                data = await websocket.receive()
+                if "bytes" in data:
+                    f.write(data["bytes"])
+                elif "text" in data:
+                    if data["text"] == '{"type":"EOF"}':
+                        break
+    except WebSocketDisconnect:
+        pass
+    except Exception as e:
+        print(f"WebSocket Record error: {e}")
+        
+    try:
+        await websocket.close()
+    except:
+        pass
+    
+    def background_upload():
+        try:
+            filename = f"Lop_Hoc_Recording_{session_id}.webm"
+            print(f"Bắt đầu upload {filename} lên Drive của {user.username}...")
+            url = upload_local_file_to_drive(file_path, filename, "video/webm", user)
+            print(f"✅ Đã tải Recording {session_id} lên mạng: {url}")
+        except Exception as e:
+            print(f"❌ Upload Recording Error: {e}")
+            if os.path.exists(file_path):
+                os.remove(file_path)
+
+    asyncio.get_event_loop().run_in_executor(None, background_upload)
