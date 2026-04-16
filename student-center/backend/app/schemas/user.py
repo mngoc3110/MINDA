@@ -33,6 +33,7 @@ class UserResponse(UserBase):
     id: int
     phone: Optional[str] = None
     role: str
+    secondary_role: Optional[str] = None  # badge đặc biệt: tester, admin, v.v.
     is_active: bool
     exp_points: int
     current_rank: str

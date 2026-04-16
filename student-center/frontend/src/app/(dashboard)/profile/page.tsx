@@ -68,6 +68,7 @@ export default function ProfilePage() {
   const router = useRouter();
   const [userName, setUserName] = useState<string>("Học Viên");
   const [role, setRole] = useState<string>("student");
+  const [secondaryRole, setSecondaryRole] = useState<string | null>(null);
   const [teacherId, setTeacherId] = useState<string | null>(null);
   const [isGoogleConnected, setIsGoogleConnected] = useState<boolean>(false);
   
@@ -152,6 +153,7 @@ export default function ProfilePage() {
              localStorage.setItem("minda_user_name", data.full_name);
            }
            if (data.phone) setEditPhone(data.phone);
+           if (data.secondary_role) setSecondaryRole(data.secondary_role);
         }
       } catch (e) {}
     };
@@ -393,6 +395,16 @@ export default function ProfilePage() {
                {/* Name & Stats */}
                <div className="flex-1 mt-4 md:mt-0 text-center md:text-left mb-2 md:mb-4">
                  <h1 className="text-3xl font-bold text-text-primary">{userName}</h1>
+                 {/* Badge đặc biệt */}
+                 {secondaryRole && (
+                   <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full mt-1 ${
+                     secondaryRole === 'tester' ? 'bg-cyan-500/15 text-cyan-400 border border-cyan-500/30' :
+                     secondaryRole === 'admin'  ? 'bg-red-500/15 text-red-400 border border-red-500/30'   :
+                     'bg-indigo-500/15 text-indigo-400 border border-indigo-500/30'
+                   }`}>
+                     {secondaryRole === 'tester' ? '🧪 Tester' : secondaryRole === 'admin' ? '👑 Admin' : secondaryRole}
+                   </span>
+                 )}
                  <p className="text-text-secondary font-medium hover:underline cursor-pointer">340 người bạn chung</p>
                  <div className="flex -space-x-2 mt-2 justify-center md:justify-start">
                     {[1,2,3,4,5,6].map((i) => (

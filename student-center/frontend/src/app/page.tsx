@@ -297,6 +297,27 @@ export default function Home() {
                 <div className="col-span-full text-center text-t-secondary italic">Hệ thống đang cập nhật danh sách giáo viên...</div>
              )}
           </div>
+
+          {/* Đội ngũ Tester */}
+          <div className="mt-16 text-center">
+            <p className="text-xs uppercase tracking-widest text-t-secondary font-bold mb-6 flex items-center justify-center gap-2">
+              <span className="h-px w-12 bg-border-card inline-block" />
+              🧪 Đội ngũ Tester & Phát triển
+              <span className="h-px w-12 bg-border-card inline-block" />
+            </p>
+            <div className="flex flex-wrap justify-center gap-6">
+              {/* Phạm Trần Đăng Khoa — Tester */}
+              <div className="w-[220px] bg-bg-card rounded-3xl border border-cyan-500/20 hover:border-cyan-400/50 p-5 flex flex-col items-center group transition-all hover:translate-y-[-4px] shadow-sm hover:shadow-cyan-500/10">
+                <div className="w-20 h-20 rounded-full overflow-hidden mb-3 border-2 border-cyan-500/30 group-hover:border-cyan-400 transition-colors">
+                  <img src="https://ui-avatars.com/api/?name=Ph%E1%BA%A1m+Tr%E1%BA%A7n+%C4%90%C4%83ng+Khoa&background=06b6d4&color=fff&size=200" alt="Phạm Trần Đăng Khoa" className="w-full h-full object-cover" />
+                </div>
+                <h3 className="text-base font-bold text-t-primary text-center mb-1">Phạm Trần Đăng Khoa</h3>
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/25 uppercase tracking-wider">
+                  🧪 Tester
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
