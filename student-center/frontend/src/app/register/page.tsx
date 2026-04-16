@@ -10,6 +10,7 @@ export default function RegisterPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState("");
   const [role, setRole] = useState("student");
   const [loading, setLoading] = useState(false);
 
@@ -20,12 +21,12 @@ export default function RegisterPage() {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, full_name: name, role }),
+        body: JSON.stringify({ email, password, full_name: name, role, phone }),
       });
       
       if (res.ok) {
         if (role === "teacher") {
-          alert("\u0110ăng ký Giáo viên thành công!\n\n⚠️ Tài khoản của bạn đang chờ Admin phê duyệt. Bạn sẽ nhận được thông báo sau khi được chấp thuận.");
+          alert("Đăng ký Giáo viên thành công!\n\n⚠️ Tài khoản của bạn đang chờ Admin phê duyệt. Bạn sẽ nhận được thông báo sau khi được chấp thuận.");
           router.push("/login?registered=teacher");
         } else {
           router.push("/login?registered=student");
@@ -126,6 +127,22 @@ export default function RegisterPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 bg-transparent border border-border-card rounded-xl focus:outline-none focus:border-pink-500/50 focus:bg-bg-main transition-colors text-text-primary placeholder-gray-500"
                   placeholder="••••••••"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-text-secondary">Số điện thoại</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <span className="text-text-muted text-sm font-medium">📱</span>
+                </div>
+                <input 
+                  type="tel" 
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 bg-transparent border border-border-card rounded-xl focus:outline-none focus:border-pink-500/50 focus:bg-bg-main transition-colors text-text-primary placeholder-gray-500"
+                  placeholder="0912 345 678"
                 />
               </div>
             </div>
