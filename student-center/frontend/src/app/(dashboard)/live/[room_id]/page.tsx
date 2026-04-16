@@ -968,9 +968,14 @@ export default function LiveRoomPage() {
           </button>
         </div>
 
-        {/* Right: room id */}
-        <div className="text-white/30 font-mono text-xs font-bold hidden md:block">
-          ROOM: {room_id}
+        {/* Right: room id & role debug */}
+        <div className="flex flex-col items-end gap-1 mr-2">
+          <div className="text-white/20 font-mono text-[9px] uppercase tracking-tighter hidden sm:block">
+            ROOM: {room_id}
+          </div>
+          <div className={`px-2 py-0.5 rounded text-[10px] font-black uppercase shadow-sm ${isTeacher ? "bg-amber-500/20 text-amber-500 border border-amber-500/30" : "bg-blue-500/20 text-blue-400 border border-blue-500/30"}`}>
+            {isTeacher ? "Giáo viên" : "Học sinh"}
+          </div>
         </div>
       </div>
 
