@@ -526,7 +526,7 @@ export default function LiveRoomPage() {
           });
         }
       };
-    } catch (err) { console.error("Screen share error:", err); }
+    } catch (err: any) { console.error("Screen share error:", err); alert("Không thể chia sẻ màn hình: " + err.message); }
   };
 
   const toggleRecording = async () => {
