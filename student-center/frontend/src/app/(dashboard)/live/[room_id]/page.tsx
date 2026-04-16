@@ -162,6 +162,7 @@ export default function LiveRoomPage() {
   const [isRecording, setIsRecording] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const recordWsRef = useRef<WebSocket | null>(null);
+  const [canShareScreen, setCanShareScreen] = useState(true);
 
   // Streams
   const [localStream, setLocalStream]     = useState<MediaStream | null>(null);
@@ -229,6 +230,12 @@ export default function LiveRoomPage() {
 
   // --- 4. WebRTC setup
   useEffect(() => {
+    if (typeof window !== "undefined") {
+       if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
+          setCanShareScreen(false);
+       }
+    }
+
     if (!userInfo || !hasJoined) return;
     let isMounted = true;
 
@@ -871,15 +878,18 @@ export default function LiveRoomPage() {
           >
             {camEnabled ? <Video className="w-5 h-5" /> : <VideoOff className="w-5 h-5" />}
           </button>
-          <button
-            onClick={toggleScreenShare}
-            title={isScreenSharing ? "Dừng chia sẻ" : "Chia sẻ màn hình"}
-            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-lg ${isScreenSharing ? "bg-indigo-500 text-white shadow-[0_0_15px_rgba(99,102,241,0.5)]" : "bg-white/10 hover:bg-white/20 text-white"}`}
-          >
-            <MonitorUp className="w-5 h-5" />
-          </button>
           
-          {isTeacher && (
+          {canShareScreen && (
+            <button
+              onClick={toggleScreenShare}
+              title={isScreenSharing ? "Dừng chia sẻ" : "Chia sẻ màn hình"}
+              className={`w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-lg ${isScreenSharing ? "bg-indigo-500 text-white shadow-[0_0_15px_rgba(99,102,241,0.5)]" : "bg-white/10 hover:bg-white/20 text-white"}`}
+            >
+              <MonitorUp className="w-5 h-5" />
+            </button>
+          )}
+          
+          {isTeacher && canShareScreen && (
             <button
                onClick={toggleRecording}
                title={isRecording ? "Dừng ghi hình" : "Bắt đầu ghi hình trên Server"}
