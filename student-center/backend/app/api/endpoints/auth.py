@@ -39,9 +39,7 @@ def register(user_in: UserCreate, db: Session = Depends(get_db)):
     avatar_id = random.randint(1, 70)
     default_avatar = f"https://i.pravatar.cc/300?img={avatar_id}"
 
-    # Validate phone
-    if not user_in.phone:
-        raise HTTPException(status_code=400, detail="Số điện thoại là bắt buộc để đăng ký tài khoản.")
+    # Phone là tùy chọn — không bắt buộc
 
     # Giáo viên phải chờ admin phê duyệt trước khi được kích hoạt
     is_active = role != UserRole.teacher

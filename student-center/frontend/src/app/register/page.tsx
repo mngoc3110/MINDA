@@ -32,7 +32,16 @@ export default function RegisterPage() {
         }
       } else {
         const err = await res.json();
-        alert("Lỗi: " + err.detail);
+        // err.detail có thể là string hoặc array object từ Pydantic validation
+        let errMsg = "Đăng ký thất bại.";
+        if (typeof err.detail === "string") {
+          errMsg = err.detail;
+        } else if (Array.isArray(err.detail)) {
+          errMsg = err.detail.map((e: any) => e.msg || JSON.stringify(e)).join(", ");
+        } else if (err.detail) {
+          errMsg = JSON.stringify(err.detail);
+        }
+        alert("Lỗi: " + errMsg);
       }
     } catch (error) {
       alert("Không thể kết nối đến máy chủ.");
