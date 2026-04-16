@@ -565,7 +565,7 @@ export default function LiveRoomPage() {
       const mixedStream = new MediaStream([videoTrack]);
       if (mixedAudioTrack) mixedStream.addTrack(mixedAudioTrack);
 
-      const wsUrl = `${process.env.NEXT_PUBLIC_API_URL?.replace("http", "ws") || "ws://localhost:8000"}/api/live-sessions/${room_id}/record`;
+      const wsUrl = `${process.env.NEXT_PUBLIC_API_URL?.replace("http", "ws") || "ws://localhost:8000"}/api/live-sessions/${room_id}/record?token=${localStorage.getItem("minda_token")}`;
       const ws = new WebSocket(wsUrl);
       recordWsRef.current = ws;
 
