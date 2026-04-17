@@ -42,7 +42,7 @@ export default function CourseBuilderPage() {
 
   const fetchCurriculum = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/courses/${courseId}/curriculum`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/courses/${courseId}/curriculum`);
       if (res.ok) {
         const data = await res.json();
         setCurriculum(data.chapters);
@@ -52,7 +52,7 @@ export default function CourseBuilderPage() {
 
   const fetchCourseInfo = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/courses/${courseId}`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/courses/${courseId}`);
       if (res.ok) setCourse(await res.json());
     } catch(e) { console.error(e); }
   };
@@ -75,8 +75,8 @@ export default function CourseBuilderPage() {
     
     const isScorm = file.name.toLowerCase().endsWith(".zip");
     const endpoint = isScorm 
-        ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/files/upload_scorm` 
-        : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/files/upload`;
+        ? `${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/files/upload_scorm` 
+        : `${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/files/upload`;
 
     try {
       const res = await fetch(endpoint, {
@@ -97,7 +97,7 @@ export default function CourseBuilderPage() {
   const handleCreateChapter = async (e: React.FormEvent) => {
     e.preventDefault();
     const token = localStorage.getItem("minda_token");
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/courses/${courseId}/chapters`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/courses/${courseId}/chapters`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify({ title: chapterTitle, order_index: curriculum.length })
@@ -112,7 +112,7 @@ export default function CourseBuilderPage() {
   const handleCreateLesson = async (e: React.FormEvent) => {
     e.preventDefault();
     const token = localStorage.getItem("minda_token");
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/courses/chapters/${activeChapterId}/lessons`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/courses/chapters/${activeChapterId}/lessons`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify(lessonForm)
@@ -127,7 +127,7 @@ export default function CourseBuilderPage() {
   const handleCreateAssignment = async (e: React.FormEvent) => {
       e.preventDefault();
       const token = localStorage.getItem("minda_token");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/courses/${courseId}/assignments`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/courses/${courseId}/assignments`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({...assignmentForm, lesson_id: activeLessonId})
@@ -142,7 +142,7 @@ export default function CourseBuilderPage() {
   const handleCreateExam = async (e: React.FormEvent) => {
       e.preventDefault();
       const token = localStorage.getItem("minda_token");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/courses/${courseId}/exams`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/courses/${courseId}/exams`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({...examForm, lesson_id: activeLessonId})

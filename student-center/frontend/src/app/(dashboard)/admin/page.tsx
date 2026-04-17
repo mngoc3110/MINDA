@@ -12,7 +12,7 @@ export default function AdminDashboardPage() {
     const fetchStats = async () => {
       try {
         const token = localStorage.getItem("minda_token");
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/admin/stats`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/admin/stats`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (res.ok) {

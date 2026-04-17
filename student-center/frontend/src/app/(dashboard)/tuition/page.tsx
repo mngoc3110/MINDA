@@ -34,7 +34,7 @@ function StudentTuitionView() {
   useEffect(() => {
     const token = localStorage.getItem("minda_token");
     if (!token) return;
-    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/tuition/my-fees`, {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/tuition/my-fees`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.ok ? res.json() : [])
@@ -145,7 +145,7 @@ function TeacherTuitionView() {
     const token = localStorage.getItem("minda_token");
     if (!token) return;
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/tuition/teacher/dashboard`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/tuition/teacher/dashboard`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) setRecords(await res.json());
@@ -156,7 +156,7 @@ function TeacherTuitionView() {
   useEffect(() => {
     const token = localStorage.getItem("minda_token");
     if (!token) return;
-    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/profile/my-offline-students`, {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/profile/my-offline-students`, {
       headers: { Authorization: `Bearer ${token}` }
     }).then(r => r.ok ? r.json() : []).then(setOfflineStudents).catch(console.error);
     fetchRecords();
@@ -166,7 +166,7 @@ function TeacherTuitionView() {
     e.preventDefault();
     if (!formData.student_id || !formData.amount) { alert("Vui lòng điền đầy đủ thông tin"); return; }
     const token = localStorage.getItem("minda_token");
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/tuition/`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/tuition/`, {
       method: "POST",
       headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
       body: JSON.stringify({ student_id: parseInt(formData.student_id), course_id: null, amount: parseInt(formData.amount), note: formData.note || "Học phí lớp Offline", billing_cycle: formData.billing_cycle })
@@ -178,7 +178,7 @@ function TeacherTuitionView() {
   const handleConfirmPayment = async (record: TuitionRecord, newStatus = "paid") => {
     if (!confirm(newStatus === "quit" ? `Xác nhận ${record.student_name} đã nghỉ học?` : `Xác nhận thu ${record.amount.toLocaleString()}₫ từ ${record.student_name}?`)) return;
     const token = localStorage.getItem("minda_token");
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/tuition/${record.id}/pay`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/tuition/${record.id}/pay`, {
       method: "PUT", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
       body: JSON.stringify({ paid_amount: record.amount, status: newStatus })
     });
@@ -195,7 +195,7 @@ function TeacherTuitionView() {
     e.preventDefault();
     if (!editRecord) return;
     const token = localStorage.getItem("minda_token");
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/tuition/${editRecord.id}`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/tuition/${editRecord.id}`, {
       method: "PUT",
       headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
       body: JSON.stringify({ student_id: 0, amount: parseInt(editForm.amount), note: editForm.note, billing_cycle: editForm.billing_cycle })
@@ -207,7 +207,7 @@ function TeacherTuitionView() {
   const handleDelete = async (record: TuitionRecord) => {
     if (!confirm(`Xóa phiếu học phí của ${record.student_name}?`)) return;
     const token = localStorage.getItem("minda_token");
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/tuition/${record.id}`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/tuition/${record.id}`, {
       method: "DELETE", headers: { Authorization: `Bearer ${token}` }
     });
     if (res.ok) fetchRecords(); else { const err = await res.json(); alert(err.detail || "Lỗi xóa"); }

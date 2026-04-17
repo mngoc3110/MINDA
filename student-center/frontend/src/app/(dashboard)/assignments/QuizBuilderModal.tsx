@@ -48,7 +48,7 @@ export default function QuizBuilderModal({
    useEffect(() => {
        const fetchStudents = async () => {
            try {
-               const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/profile/students`, {
+               const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/profile/students`, {
                    headers: { Authorization: `Bearer ${localStorage.getItem("minda_token")}` }
                });
                if (res.ok) {
@@ -95,7 +95,7 @@ export default function QuizBuilderModal({
       const fetchCurriculum = async () => {
          try {
             const token = localStorage.getItem("minda_token");
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/courses/${courseId}/curriculum`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/courses/${courseId}/curriculum`, {
                headers: { Authorization: `Bearer ${token}` }
             });
             if (res.ok) {
@@ -123,7 +123,7 @@ export default function QuizBuilderModal({
       try {
          const token = localStorage.getItem("minda_token");
          const payload = { title: newCourseTitle };
-         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/courses/`, {
+         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/courses/`, {
             method: "POST",
             headers: { 
                "Authorization": `Bearer ${token}`,
@@ -148,7 +148,7 @@ export default function QuizBuilderModal({
       try {
          const token = localStorage.getItem("minda_token");
          const payload = { title: newChapterTitle, order_index: lessons.length + 1 };
-         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/courses/${courseId}/chapters`, {
+         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/courses/${courseId}/chapters`, {
             method: "POST",
             headers: { 
                "Authorization": `Bearer ${token}`,
@@ -160,7 +160,7 @@ export default function QuizBuilderModal({
             setNewChapterTitle("");
             setIsCreatingChapter(false);
             // Trigger simple re-fetch
-            const curRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/courses/${courseId}/curriculum`, {
+            const curRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/courses/${courseId}/curriculum`, {
                headers: { Authorization: `Bearer ${token}` }
             });
             if (curRes.ok) {
@@ -189,7 +189,7 @@ export default function QuizBuilderModal({
          const formData = new FormData();
          formData.append("file", file);
          
-         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/assignments/parse-upload`, {
+         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/assignments/parse-upload`, {
             method: "POST",
             headers: { "Authorization": `Bearer ${token}` },
             body: formData
@@ -222,7 +222,7 @@ export default function QuizBuilderModal({
          const formData = new FormData();
          formData.append("file", file);
          
-         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/files/upload`, {
+         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/files/upload`, {
             method: "POST",
             headers: { "Authorization": `Bearer ${token}` },
             body: formData
@@ -253,7 +253,7 @@ export default function QuizBuilderModal({
          const formData = new FormData();
          formData.append("file", file);
          
-         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/files/upload`, {
+         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/files/upload`, {
             method: "POST",
             headers: { "Authorization": `Bearer ${token}` },
             body: formData
@@ -284,7 +284,7 @@ export default function QuizBuilderModal({
          const formData = new FormData();
          formData.append("file", file);
          
-         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/files/upload`, {
+         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/files/upload`, {
             method: "POST",
             headers: { "Authorization": `Bearer ${token}` },
             body: formData
@@ -332,7 +332,7 @@ export default function QuizBuilderModal({
          
          let res;
          if (isEditing) {
-             res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/assignments/${editAssignment.id}`, {
+             res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/assignments/${editAssignment.id}`, {
                 method: "PUT",
                 headers: { 
                    "Authorization": `Bearer ${token}`,
@@ -341,7 +341,7 @@ export default function QuizBuilderModal({
                 body: JSON.stringify(payload)
              });
          } else {
-             res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/assignments`, {
+             res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/assignments`, {
                 method: "POST",
                 headers: { 
                    "Authorization": `Bearer ${token}`,

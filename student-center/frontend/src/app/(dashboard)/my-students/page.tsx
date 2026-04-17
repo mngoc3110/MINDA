@@ -20,7 +20,7 @@ export default function MyStudentsPage() {
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [loading, setLoading] = useState(true);
 
-  const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+  const API = process.env.NEXT_PUBLIC_API_URL || "https://minda.io.vn";
   const getToken = () => localStorage.getItem("minda_token");
 
   const fetchMyStudents = useCallback(async () => {

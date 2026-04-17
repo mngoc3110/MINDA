@@ -18,12 +18,12 @@ export default function Dashboard() {
     const token = localStorage.getItem("minda_token");
     if (!token) return;
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/files/my-drive`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/files/my-drive`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       if (res.ok) setFiles(await res.json());
       
-      const authRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/auth/me`, {
+      const authRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/auth/me`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       if (authRes.ok) {
@@ -31,7 +31,7 @@ export default function Dashboard() {
         setIsGoogleConnected(authData.is_google_connected);
       }
 
-      const statsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/dashboard/${savedRole === 'teacher' ? 'teacher-stats' : 'student-stats'}`, {
+      const statsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/dashboard/${savedRole === 'teacher' ? 'teacher-stats' : 'student-stats'}`, {
          headers: { "Authorization": `Bearer ${token}` }
       });
       if (statsRes.ok) setStats(await statsRes.json());
@@ -55,7 +55,7 @@ export default function Dashboard() {
     const formData = new FormData();
     formData.append("file", file);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/files/upload`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/files/upload`, {
         method: "POST",
         headers: { "Authorization": `Bearer ${token}` },
         body: formData

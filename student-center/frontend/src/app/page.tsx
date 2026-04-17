@@ -30,7 +30,7 @@ export default function Home() {
     e.preventDefault();
     setContactStatus("loading");
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/contact/submit`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/contact/submit`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(contactForm)
@@ -47,7 +47,7 @@ export default function Home() {
     setUserName(localStorage.getItem("minda_user_name"));
     setRole(localStorage.getItem("minda_role"));
 
-    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/profile/teachers`)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/profile/teachers`)
       .then(res => res.json())
       .then(data => {
         const filtered = data.filter((t: TeacherInfo) => t.full_name === "Nguyễn Lê Minh Ngọc");

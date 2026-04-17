@@ -45,7 +45,7 @@ export default function AILogicSolver({ onDetectedShape }: AILogicSolverProps) {
 
     try {
       const token = localStorage.getItem("minda_token");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/ai/solve-math`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/ai/solve-math`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",

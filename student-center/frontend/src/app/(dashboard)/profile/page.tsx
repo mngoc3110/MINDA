@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, Camera, MoreHorizontal, Plus, PenTool, Image as ImageIcon, Video, Briefcase, GraduationCap, MapPin, Heart, Clock, Send, Trash2, Edit2, X, PlusCircle, Loader2 } from "lucide-react";
 import TeacherCVView from "@/components/profile/TeacherCVView";
 
-const API_BASE = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api`;
+const API_BASE = `${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api`;
 
 type ProfileInfo = {
   id: string;

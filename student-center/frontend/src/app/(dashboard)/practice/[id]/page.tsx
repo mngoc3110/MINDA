@@ -31,7 +31,7 @@ export default function PracticeRoomPage() {
     const fetchAssignment = async () => {
       try {
         const token = localStorage.getItem("minda_token");
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/assignments/${id}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/assignments/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) {
@@ -40,7 +40,7 @@ export default function PracticeRoomPage() {
 
           // Kiểm tra xem học sinh đã có bài nộp chưa (silent – không crash nếu lỗi)
           try {
-            const subRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/assignments/${id}/my-submission`, {
+            const subRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/assignments/${id}/my-submission`, {
               headers: { Authorization: `Bearer ${token}` },
             });
             if (subRes.ok) {
@@ -142,7 +142,7 @@ export default function PracticeRoomPage() {
         });
       }
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/assignments/${assignment.id}/submit`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/assignments/${assignment.id}/submit`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({

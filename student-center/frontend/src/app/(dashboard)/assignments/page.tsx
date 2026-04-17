@@ -82,13 +82,13 @@ export default function AssignmentsPage() {
     try {
       const token = localStorage.getItem("minda_token");
       const [submissionsRes, assignmentsRes, coursesRes] = await Promise.all([
-        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/assignments/teacher/dashboard/submissions`, {
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/assignments/teacher/dashboard/submissions`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
-        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/assignments/teacher/dashboard/assignments`, {
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/assignments/teacher/dashboard/assignments`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
-        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/courses/`, {
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/courses/`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
       ]);
@@ -121,7 +121,7 @@ export default function AssignmentsPage() {
     
     try {
        const token = localStorage.getItem("minda_token");
-       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/assignments/${id}`, {
+       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/assignments/${id}`, {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` }
        });
@@ -150,7 +150,7 @@ export default function AssignmentsPage() {
     // Fetch quiz_data from assignment
     try {
       const token = localStorage.getItem("minda_token");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/assignments/${attempt.assignment_id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/assignments/${attempt.assignment_id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {

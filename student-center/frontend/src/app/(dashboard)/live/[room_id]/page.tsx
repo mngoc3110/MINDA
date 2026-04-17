@@ -33,14 +33,15 @@ const EMOTION_COLORS: Record<string, string> = {
 
 const ANALYZE_INTERVAL_MS = 3000;
 
-// PeerJS config:
-// - Production (HTTPS): route through nginx /peerjs/ proxy on port 443
-// - Development (HTTP localhost): connect directly to port 9000
-const IS_LOCALHOST = typeof window !== "undefined" && window.location.hostname === "localhost";
-const PEER_HOST   = typeof window !== "undefined" ? window.location.hostname : "localhost";
-const PEER_PORT   = IS_LOCALHOST ? 9000 : (window?.location.protocol === "https:" ? 443 : 80);
-const PEER_PATH   = IS_LOCALHOST ? "/" : "/peerjs/";
-const PEER_SECURE = typeof window !== "undefined" && window.location.protocol === "https:";
+// PeerJS config: Force production settings for iPad App
+const PEER_HOST   = "minda.io.vn";
+const PEER_PORT   = 443;
+const PEER_PATH   = "/peerjs/";
+const PEER_SECURE = true;
+const PEER_DEBUG  = 1;
+
+// Detect if running on native device
+const IS_NATIVE_APP = typeof window !== "undefined" && (!!(window as any).Capacitor || window.location.protocol === "capacitor:" || !window.location.port);
 
 // ─── Emotion Overlay Component ────────────────────────────────────────────────
 function EmotionOverlay({ emotion, isAnalyzing, serviceOnline, compact = false }: {
@@ -168,6 +169,7 @@ export default function LiveRoomPage() {
   // Annotation states
   const [annotationOpen, setAnnotationOpen] = useState(false);
   const [annotationFileUrl, setAnnotationFileUrl] = useState("");
+  const [annotationFileType, setAnnotationFileType] = useState("");
   const [remoteStrokes, setRemoteStrokes] = useState<any[]>([]);
   const [showFilePicker, setShowFilePicker] = useState(false);
   const [myFiles, setMyFiles] = useState<{ id: number; filename: string; file_url: string; file_type: string }[]>([]);
@@ -216,7 +218,7 @@ export default function LiveRoomPage() {
 
       let isRoomOwner = false;
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/live-sessions/`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://minda.io.vn"}/api/live-sessions/`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) {
@@ -232,7 +234,7 @@ export default function LiveRoomPage() {
       setUserInfo({ full_name: name, role, isRoomOwner });
 
       try {
-        const hRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/emotion/health`);
+        const hRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://minda.io.vn"}/api/emotion/health`);
         if (hRes.ok) {
           const h = await hRes.json();
           setServiceOnline(h.inference_service === "online");
@@ -268,13 +270,13 @@ export default function LiveRoomPage() {
       let stream: MediaStream;
       try {
         stream = await navigator.mediaDevices.getUserMedia({
-          video: { width: { max: 640 }, height: { max: 480 }, frameRate: { max: 24 } },
-          audio: { echoCancellation: true }, // Bỏ các rule khắt khe gây tắt mic trên điện thoại
+          video: IS_NATIVE_APP ? true : { width: { max: 640 }, height: { max: 480 }, frameRate: { max: 24 } },
+          audio: true,
         });
-      } catch (err) {
+      } catch (err: any) {
         console.error("Camera/Mic permission denied:", err);
         setPeerStatus("error");
-        alert("Vui lòng cấp quyền Camera & Microphone để vào lớp học.");
+        alert("Lỗi Camera/Mic: " + (err?.name || err?.message || JSON.stringify(err)) + "\nVui lòng cấp quyền trong Cài đặt iPhone/iPad.");
         return;
       }
 
@@ -368,6 +370,7 @@ export default function LiveRoomPage() {
             }
             if (data.type === "annotation_open") {
               setAnnotationFileUrl(data.fileUrl);
+              setAnnotationFileType(data.fileType || "");
               setAnnotationOpen(true);
             }
             if (data.type === "annotation_close") {
@@ -482,7 +485,7 @@ export default function LiveRoomPage() {
     setIsAnalyzing(true);
     try {
       const token = localStorage.getItem("minda_token");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/emotion/analyze`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://minda.io.vn"}/api/emotion/analyze`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ frame_b64, session_id: sessionId }),
@@ -676,14 +679,14 @@ export default function LiveRoomPage() {
       const token = localStorage.getItem("minda_token");
       const isTeacher = userInfo?.role === "teacher" || userInfo?.role === "admin";
       if (isTeacher) {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/live-sessions/`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://minda.io.vn"}/api/live-sessions/`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) {
           const sessions = await res.json();
           const cur = sessions.find((s: any) => s.room_id === room_id);
           if (cur) {
-            await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/live-sessions/${cur.id}/status?status=ended`, {
+            await fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://minda.io.vn"}/api/live-sessions/${cur.id}/status?status=ended`, {
               method: "PUT",
               headers: { Authorization: `Bearer ${token}` },
             });
@@ -702,7 +705,7 @@ export default function LiveRoomPage() {
     const token = localStorage.getItem("minda_token");
     if (!token) return;
 
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://minda.io.vn";
     const wsBase = apiUrl.replace("http", "ws");
     const wsUrl = `${wsBase}/api/live-sessions/${room_id}/screen-share?token=${token}&role=viewer`;
     
@@ -747,20 +750,22 @@ export default function LiveRoomPage() {
       const { Capacitor } = await import("@capacitor/core");
       if (!Capacitor.isNativePlatform()) return false;
 
-      // Use the ScreenShare Capacitor plugin
       const { registerPlugin } = await import("@capacitor/core");
       const ScreenShare = registerPlugin("ScreenShare") as any;
 
       const token = localStorage.getItem("minda_token") || "";
-      const serverUrl = process.env.NEXT_PUBLIC_API_URL || "https://minda.io.vn";
+      const serverUrl = "https://minda.io.vn";
       
-      // Store room info so the Broadcast Extension can connect
+      console.log("Preparing native share with room:", room_id);
+      
       await ScreenShare.setRoomInfo({ roomId: room_id, token, serverUrl });
-      // Show the system broadcast picker
+      await new Promise(r => setTimeout(r, 100));
+      
       await ScreenShare.startShare();
       setIsScreenSharing(true);
       return true;
-    } catch {
+    } catch (err: any) {
+      console.error("Native screen share error detail:", err?.message || JSON.stringify(err) || String(err));
       return false;
     }
   };
@@ -1039,7 +1044,7 @@ export default function LiveRoomPage() {
               onClick={async () => {
                 // Fetch my files
                 const token = localStorage.getItem("minda_token");
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/files/my-drive`, {
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://minda.io.vn"}/api/files/my-drive`, {
                   headers: { Authorization: `Bearer ${token}` }
                 });
                 if (res.ok) setMyFiles(await res.json());
@@ -1103,7 +1108,7 @@ export default function LiveRoomPage() {
                   const token = localStorage.getItem("minda_token");
                   const form = new FormData();
                   form.append("file", file);
-                  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/files/upload`, {
+                  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://minda.io.vn"}/api/files/upload`, {
                     method: "POST",
                     headers: { Authorization: `Bearer ${token}` },
                     body: form
@@ -1111,6 +1116,8 @@ export default function LiveRoomPage() {
                   if (res.ok) {
                     const data = await res.json();
                     const fileUrl = data.file_url;
+                    const fileType = file.type.includes("image") ? "image" : "pdf";
+                    setAnnotationFileType(fileType);
                     setAnnotationFileUrl(fileUrl);
                     setAnnotationOpen(true);
                     setShowFilePicker(false);
@@ -1118,7 +1125,7 @@ export default function LiveRoomPage() {
                     const conns = (peerInstance.current as any)?.connections || {};
                     for (const id in conns) {
                       conns[id]?.forEach((c: any) => {
-                        if (c.type === "data" && c.open) c.send({ type: "annotation_open", fileUrl });
+                        if (c.type === "data" && c.open) c.send({ type: "annotation_open", fileUrl, fileType });
                       });
                     }
                   }
@@ -1127,13 +1134,15 @@ export default function LiveRoomPage() {
               {/* My Drive files */}
               {myFiles.filter(f => f.file_type?.includes("pdf") || f.file_type?.includes("image")).map(f => (
                 <button key={f.id} onClick={() => {
+                  const fileType = f.file_type || "";
+                  setAnnotationFileType(fileType);
                   setAnnotationFileUrl(f.file_url);
                   setAnnotationOpen(true);
                   setShowFilePicker(false);
                   const conns = (peerInstance.current as any)?.connections || {};
                   for (const id in conns) {
                     conns[id]?.forEach((c: any) => {
-                      if (c.type === "data" && c.open) c.send({ type: "annotation_open", fileUrl: f.file_url });
+                      if (c.type === "data" && c.open) c.send({ type: "annotation_open", fileUrl: f.file_url, fileType });
                     });
                   }
                 }} className="flex items-center gap-3 p-4 rounded-xl border border-white/10 hover:border-amber-500/50 hover:bg-amber-500/5 text-left transition-colors">
@@ -1158,6 +1167,7 @@ export default function LiveRoomPage() {
       {annotationOpen && (
         <AnnotationBoard
           fileUrl={annotationFileUrl}
+          fileType={annotationFileType}
           isTeacher={isTeacher}
           onStroke={(data) => {
             const conns = (peerInstance.current as any)?.connections || {};

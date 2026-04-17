@@ -93,8 +93,8 @@ export default function CoursePlayerPage() {
       const headers = { "Authorization": `Bearer ${token}` };
 
       const urls = [
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/courses/${course_id}`,
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/courses/${course_id}/curriculum`
+        `${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/courses/${course_id}`,
+        `${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/courses/${course_id}/curriculum`
       ];
 
       const [courseRes, curRes] = await Promise.all(
@@ -141,7 +141,7 @@ export default function CoursePlayerPage() {
   const handleMarkLessonComplete = async (lessonId: number) => {
     try {
       const token = localStorage.getItem("minda_token");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/courses/lessons/${lessonId}/progress?completed=true`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/courses/lessons/${lessonId}/progress?completed=true`, {
         method: "POST",
         headers: { "Authorization": `Bearer ${token}` }
       });
@@ -158,7 +158,7 @@ export default function CoursePlayerPage() {
     setSubmittingAss(true);
     try {
       const token = localStorage.getItem("minda_token");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/assignments/${assignmentId}/submit`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/assignments/${assignmentId}/submit`, {
         method: "POST",
         headers: { 
            "Authorization": `Bearer ${token}`,
@@ -192,7 +192,7 @@ export default function CoursePlayerPage() {
     setExamAnswers({});
     try {
        const token = localStorage.getItem("minda_token");
-       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/exams/${examId}/questions`, {
+       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/exams/${examId}/questions`, {
          headers: { "Authorization": `Bearer ${token}` }
        });
        if (res.ok) {
@@ -213,7 +213,7 @@ export default function CoursePlayerPage() {
      setSubmittingExam(true);
      try {
        const token = localStorage.getItem("minda_token");
-       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/exams/${activeItemId}/submit`, {
+       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/exams/${activeItemId}/submit`, {
          method: "POST",
          headers: { 
             "Authorization": `Bearer ${token}`,

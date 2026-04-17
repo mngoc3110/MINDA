@@ -17,6 +17,7 @@ interface Stroke {
 
 interface AnnotationBoardProps {
   fileUrl: string;
+  fileType?: string;
   isTeacher: boolean;
   onStroke: (data: Stroke) => void;
   remoteStrokes: Stroke[];
@@ -31,7 +32,7 @@ const COLORS = [
   { name: "Tím", value: "#a855f7" },
 ];
 
-export default function AnnotationBoard({ fileUrl, isTeacher, onStroke, remoteStrokes, onClose }: AnnotationBoardProps) {
+export default function AnnotationBoard({ fileUrl, fileType, isTeacher, onStroke, remoteStrokes, onClose }: AnnotationBoardProps) {
   const bgCanvasRef = useRef<HTMLCanvasElement>(null);   // PDF / image layer
   const drawCanvasRef = useRef<HTMLCanvasElement>(null); // Drawing overlay
   const containerRef = useRef<HTMLDivElement>(null);
@@ -120,7 +121,14 @@ export default function AnnotationBoard({ fileUrl, isTeacher, onStroke, remoteSt
     }
 
     const ext = fileUrl.split("?")[0].toLowerCase();
-    const isImg = ext.endsWith(".jpg") || ext.endsWith(".jpeg") || ext.endsWith(".png") || ext.endsWith(".gif") || ext.includes("image");
+    
+    // Validate if it is an image using either the explicitly passed prop or the url extension
+    let isImg = false;
+    if (fileType && fileType.toLowerCase().includes("image")) {
+      isImg = true;
+    } else if (ext.endsWith(".jpg") || ext.endsWith(".jpeg") || ext.endsWith(".png") || ext.endsWith(".gif") || ext.includes("image")) {
+      isImg = true;
+    }
 
     if (isImg) {
       setIsImage(true);

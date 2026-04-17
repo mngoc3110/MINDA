@@ -302,7 +302,7 @@ export default function LearningGalaxy({ isFullscreen = false }: { isFullscreen?
       try {
         const token = localStorage.getItem("minda_token");
         if (!token) return;
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/assignments/student/my-submissions`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/assignments/student/my-submissions`, {
           headers: { "Authorization": `Bearer ${token}` }
         });
         if (res.ok) {

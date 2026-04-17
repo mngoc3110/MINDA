@@ -13,7 +13,7 @@ export default function AdminUsersPage() {
   const fetchUsers = async () => {
     try {
       const token = localStorage.getItem("minda_token");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/admin/users`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/admin/users`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -34,7 +34,7 @@ export default function AdminUsersPage() {
     if (!confirm(`Bạn có chắc chắn đổi quyền của ID ${userId} thành ${newRole.toUpperCase()} không?`)) return;
     try {
       const token = localStorage.getItem("minda_token");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/admin/users/${userId}/role?new_role=${newRole}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/admin/users/${userId}/role?new_role=${newRole}`, {
         method: "PUT",
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -53,7 +53,7 @@ export default function AdminUsersPage() {
     if (!confirm(`Bạn có chắc chắn vô hiệu hoá / khoá tài khoản có ID ${userId} không? Hành động này sẽ khiến người dùng không thể đăng nhập.`)) return;
     try {
       const token = localStorage.getItem("minda_token");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/admin/users/${userId}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/admin/users/${userId}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -72,7 +72,7 @@ export default function AdminUsersPage() {
     if (!confirm(`Bạn có duyệt đơn đăng ký Giáo viên cho ID ${userId}?`)) return;
     try {
       const token = localStorage.getItem("minda_token");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/admin/users/${userId}/approve`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/admin/users/${userId}/approve`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` }
       });

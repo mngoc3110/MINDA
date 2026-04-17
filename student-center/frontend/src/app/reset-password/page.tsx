@@ -32,7 +32,7 @@ function ResetPasswordForm() {
     setError("");
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/auth/reset-password?email=${encodeURIComponent(email)}`,
+        `${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/auth/reset-password?email=${encodeURIComponent(email)}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

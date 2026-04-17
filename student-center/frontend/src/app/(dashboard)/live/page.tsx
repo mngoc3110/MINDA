@@ -59,7 +59,7 @@ export default function LiveSchedulePage() {
          } catch (e) {}
       }
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/live-sessions/`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/live-sessions/`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       if (res.ok) {
@@ -77,7 +77,7 @@ export default function LiveSchedulePage() {
      setFormLoading(true);
      try {
        const token = localStorage.getItem("minda_token");
-       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/live-sessions/`, {
+       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/live-sessions/`, {
          method: "POST",
          headers: { 
             "Authorization": `Bearer ${token}`,
@@ -103,7 +103,7 @@ export default function LiveSchedulePage() {
   const handleStartClass = async (session: LiveSession) => {
      try {
        const token = localStorage.getItem("minda_token");
-       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/live-sessions/${session.id}/status?status=live`, {
+       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/live-sessions/${session.id}/status?status=live`, {
          method: "PUT",
          headers: { "Authorization": `Bearer ${token}` }
        });
@@ -121,7 +121,7 @@ export default function LiveSchedulePage() {
      if (!confirm("Bạn có chắc chắn muốn kết thúc buổi học này?")) return;
      try {
        const token = localStorage.getItem("minda_token");
-       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/live-sessions/${session.id}/status?status=ended`, {
+       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/live-sessions/${session.id}/status?status=ended`, {
          method: "PUT",
          headers: { "Authorization": `Bearer ${token}` }
        });
@@ -146,7 +146,7 @@ export default function LiveSchedulePage() {
      try {
        const token = localStorage.getItem("minda_token");
        // 1. POST Khởi tạo lớp
-       const postRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/live-sessions/`, {
+       const postRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/live-sessions/`, {
          method: "POST",
          headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
          body: JSON.stringify({
@@ -160,7 +160,7 @@ export default function LiveSchedulePage() {
        if(postRes.ok) {
           const newSession = await postRes.json();
           // 2. Kích hoạt trực tiếp status sang LIVE để học sinh thấy ngay lập tức
-          await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/live-sessions/${newSession.id}/status?status=live`, {
+          await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/live-sessions/${newSession.id}/status?status=live`, {
              method: "PUT",
              headers: { "Authorization": `Bearer ${token}` }
           });
@@ -181,7 +181,7 @@ export default function LiveSchedulePage() {
     setShowAnalyticsModal(sessionId);
     try {
       const token = localStorage.getItem("minda_token");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/emotion/session/${sessionId}/summary`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/emotion/session/${sessionId}/summary`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       if (res.ok) {

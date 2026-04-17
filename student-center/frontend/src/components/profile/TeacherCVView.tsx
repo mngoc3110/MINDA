@@ -39,7 +39,7 @@ export default function TeacherCVView({ teacherId, enableGoBack = true }: Teache
     if (isOwner) {
        const checkGoogle = async () => {
           try {
-             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/auth/me`, {
+             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/auth/me`, {
                  headers: { Authorization: `Bearer ${localStorage.getItem("minda_token")}` }
              });
              if (res.ok) {
@@ -54,7 +54,7 @@ export default function TeacherCVView({ teacherId, enableGoBack = true }: Teache
 
   const handleConnectGoogle = async () => {
       try {
-         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/auth/google/connect`, { 
+         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/auth/google/connect`, { 
              headers: { Authorization: `Bearer ${localStorage.getItem("minda_token")}` }
          });
          const data = await res.json();
@@ -88,7 +88,7 @@ export default function TeacherCVView({ teacherId, enableGoBack = true }: Teache
 
   const fetchProfile = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/profile/teachers/${teacherId}/cv`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/profile/teachers/${teacherId}/cv`);
       if (res.ok) {
         const data = await res.json();
         
@@ -150,7 +150,7 @@ export default function TeacherCVView({ teacherId, enableGoBack = true }: Teache
     const formData = new FormData();
     formData.append("file", file);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/profile/avatar`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/profile/avatar`, {
         method: "POST",
         headers: { "Authorization": `Bearer ${token}` },
         body: formData,
@@ -198,7 +198,7 @@ export default function TeacherCVView({ teacherId, enableGoBack = true }: Teache
         full_name: editForm.full_name,
       };
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/profile/teachers/cv`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/profile/teachers/cv`, {
         method: "PUT",
         headers: {
           "Authorization": `Bearer ${token}`,
@@ -742,7 +742,7 @@ export default function TeacherCVView({ teacherId, enableGoBack = true }: Teache
               <button onClick={async () => {
                 setSavingBasicProfile(true);
                 try {
-                  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/auth/me`, {
+                  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/auth/me`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json", "Authorization": `Bearer ${localStorage.getItem("minda_token")}` },
                     body: JSON.stringify({ full_name: editFullName, phone: editPhone })
