@@ -6,14 +6,55 @@ from app.schemas.file import FileResponse
 from app.core.security import get_current_user, require_role
 from app.models.user import User
 from app.core.drive_service import upload_file as drive_upload
+from fastapi.responses import StreamingResponse
+import requests
+import re
 from typing import List
 import os
 import uuid
 import zipfile
 import shutil
-from typing import List
 
 router = APIRouter()
+
+@router.get("/proxy")
+def proxy_google_drive(url: str):
+    """Proxy Google Drive files to bypass CORS and HTML view issues cho PDF.js & Image."""
+    try:
+        file_id = ""
+        match = re.search(r'/d/([^/]+)', url)
+        if match:
+            file_id = match.group(1)
+        else:
+            match = re.search(r'id=([^&]+)', url)
+            if match:
+                file_id = match.group(1)
+        
+        if not file_id:
+            res = requests.get(url, stream=True)
+            return StreamingResponse(res.iter_content(chunk_size=1024*1024), media_type=res.headers.get("content-type"))
+            
+        download_url = f"https://drive.google.com/uc?export=download&id={file_id}"
+        session = requests.Session()
+        res = session.get(download_url, stream=True)
+        
+        # Nếu Google Drive yêu cầu xác nhận tải file lớn (virus scan warning)
+        if "google.com" in download_url and res.status_code == 200 and "text/html" in res.headers.get("Content-Type", ""):
+            # Lấy confirm token
+            content = res.content.decode('utf-8')
+            confirm_match = re.search(r'confirm=([a-zA-Z0-9_-]+)', content)
+            if confirm_match:
+                confirm_token = confirm_match.group(1)
+                download_url = f"{download_url}&confirm={confirm_token}"
+                res = session.get(download_url, stream=True)
+
+        return StreamingResponse(
+            res.iter_content(chunk_size=1024*1024), 
+            media_type=res.headers.get("Content-Type") or "application/pdf"
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.post("/upload", response_model=FileResponse)
 async def upload_file_to_drive(

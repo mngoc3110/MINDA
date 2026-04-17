@@ -113,6 +113,12 @@ export default function AnnotationBoard({ fileUrl, isTeacher, onStroke, remoteSt
   // ── Load file ──────────────────────────────────────────────────────────────
   useEffect(() => {
     setLoading(true);
+
+    let actualUrl = fileUrl;
+    if (fileUrl.includes("drive.google.com")) {
+      actualUrl = `${process.env.NEXT_PUBLIC_API_URL || "https://minda.io.vn"}/api/files/proxy?url=${encodeURIComponent(fileUrl)}`;
+    }
+
     const ext = fileUrl.split("?")[0].toLowerCase();
     const isImg = ext.endsWith(".jpg") || ext.endsWith(".jpeg") || ext.endsWith(".png") || ext.endsWith(".gif") || ext.includes("image");
 
@@ -134,14 +140,14 @@ export default function AnnotationBoard({ fileUrl, isTeacher, onStroke, remoteSt
         setLoading(false);
       };
       img.onerror = () => setLoading(false);
-      img.src = fileUrl;
+      img.src = actualUrl;
     } else {
       // Load as PDF
       (async () => {
         try {
           const pdfjsLib = await import("pdfjs-dist");
           pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
-          const pdf = await pdfjsLib.getDocument({ url: fileUrl, cMapUrl: "https://unpkg.com/pdfjs-dist/cmaps/", cMapPacked: true }).promise;
+          const pdf = await pdfjsLib.getDocument({ url: actualUrl, cMapUrl: "https://unpkg.com/pdfjs-dist/cmaps/", cMapPacked: true }).promise;
           pdfDocRef.current = pdf;
           setTotalPages(pdf.numPages);
           await renderPage(0);
