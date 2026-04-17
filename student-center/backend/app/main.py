@@ -38,6 +38,14 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 # Parse CORS_ORIGINS từ chuỗi ngăn cách bởi dấu phẩy
 cors_origins = [origin.strip() for origin in settings.CORS_ORIGINS.split(',')] if settings.CORS_ORIGINS else []
 
+# Bổ sung các origin cần thiết cho Capacitor iOS và Local Development
+cors_origins.extend([
+    "capacitor://localhost",
+    "http://localhost",
+    "http://localhost:3000",
+    "https://minda.io.vn",
+    "https://www.minda.io.vn"
+])
 
 app.add_middleware(
     CORSMiddleware,
