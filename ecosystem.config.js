@@ -22,7 +22,7 @@ module.exports = {
     {
       name: "minda-peerjs",
       script: "npx",
-      args: "peerjs --port 9000",
+      args: "peerjs --port 9000 --proxied true --cors",
       cwd: "./student-center/frontend",
       env: {
         NODE_ENV: "production",
