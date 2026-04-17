@@ -361,7 +361,14 @@ class CVProfileUpdate(BaseModel):
 def get_teacher_cv(teacher_id: int, db: Session = Depends(get_db)):
     from app.models.user import TeacherProfile, User
     teacher = db.query(User).filter(User.id == teacher_id).first()
-    if not teacher or (teacher.role.value != "teacher" and teacher.secondary_role != "teacher"):
+    # Check if user is either a teacher or an admin
+    is_teacher = getattr(teacher, "role", None) in ["teacher", "admin"] or getattr(teacher, "secondary_role", None) == "teacher"
+    # Also handle the case where teacher.role might be an Enum
+    if not is_teacher and hasattr(getattr(teacher, "role", None), "value"):
+        role_val = teacher.role.value
+        is_teacher = role_val in ["teacher", "admin"]
+
+    if not teacher or not is_teacher:
         raise HTTPException(status_code=404, detail="Giáo viên không tồn tại")
         
     profile = db.query(TeacherProfile).filter(TeacherProfile.user_id == teacher_id).first()
@@ -397,7 +404,7 @@ def get_teacher_cv(teacher_id: int, db: Session = Depends(get_db)):
     }
 
 @router.put("/teachers/cv")
-def update_my_cv(data: CVProfileUpdate, db: Session = Depends(get_db), current_user: User = Depends(require_role("teacher"))):
+def update_my_cv(data: CVProfileUpdate, db: Session = Depends(get_db), current_user: User = Depends(require_role("teacher", "admin"))):
     from app.models.user import TeacherProfile
     profile = db.query(TeacherProfile).filter(TeacherProfile.user_id == current_user.id).first()
     
