@@ -132,10 +132,10 @@ def get_leaderboard(db: Session = Depends(get_db)):
 
     # Fetch top students
     students = db.query(User).filter(User.role == 'student').order_by(User.exp_points.desc()).limit(limit).all()
-    # Fetch top teachers (including admin with secondary_role=teacher)
+    # Fetch top teachers (including admin and secondary_role=teacher)
     from sqlalchemy import or_
     teachers = db.query(User).filter(
-        or_(User.role == 'teacher', User.secondary_role == 'teacher')
+        or_(User.role == 'teacher', User.secondary_role == 'teacher', User.role == 'admin')
     ).order_by(User.exp_points.desc()).limit(limit).all()
 
     admin_user = db.query(User).filter(User.email.in_(admin_emails)).first()
@@ -145,7 +145,7 @@ def get_leaderboard(db: Session = Depends(get_db)):
             return u
         is_mystic = u.email in admin_emails
         exp = 99999999 if is_mystic else (u.exp_points or 0)
-        is_teacher = getattr(u, "role", "student") == "teacher" or getattr(u, "secondary_role", None) == "teacher"
+        is_teacher = getattr(u, "role", "student") in ["teacher", "admin"] or getattr(u, "secondary_role", None) == "teacher"
         if is_teacher:
             rank_name = get_teacher_rank(u, exp)["rank_name"]
         else:

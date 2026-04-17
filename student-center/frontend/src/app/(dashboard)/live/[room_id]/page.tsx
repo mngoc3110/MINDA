@@ -439,8 +439,12 @@ export default function LiveRoomPage() {
       });
 
       peer.on("disconnected", () => {
-        console.warn("[PeerJS] Disconnected — reconnecting...");
-        peer.reconnect();
+        console.warn("[PeerJS] Disconnected — reconnecting in 3s...");
+        setTimeout(() => {
+          if (peer && !peer.destroyed) {
+            peer.reconnect();
+          }
+        }, 3000);
       });
     };
 
