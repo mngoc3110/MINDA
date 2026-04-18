@@ -41,7 +41,7 @@ const PEER_SECURE = true;
 const PEER_DEBUG  = 1;
 
 // Detect if running on native device
-const IS_NATIVE_APP = typeof window !== "undefined" && (!!(window as any).Capacitor || window.location.protocol === "capacitor:" || !window.location.port);
+const IS_NATIVE_APP = typeof window !== "undefined" && (!!(window as any).Capacitor || window.location.protocol === "capacitor:");
 
 // ─── Emotion Overlay Component ────────────────────────────────────────────────
 function EmotionOverlay({ emotion, isAnalyzing, serviceOnline, compact = false }: {
@@ -271,7 +271,12 @@ export default function LiveRoomPage() {
       let stream: MediaStream;
       try {
         stream = await navigator.mediaDevices.getUserMedia({
-          video: IS_NATIVE_APP ? true : { width: { max: 640 }, height: { max: 480 }, frameRate: { max: 24 } },
+          video: IS_NATIVE_APP ? true : { 
+            facingMode: "user",
+            width: { ideal: 320, max: 640 }, 
+            height: { ideal: 240, max: 480 }, 
+            frameRate: { ideal: 15, max: 24 } 
+          },
           audio: true,
         });
       } catch (err: any) {
