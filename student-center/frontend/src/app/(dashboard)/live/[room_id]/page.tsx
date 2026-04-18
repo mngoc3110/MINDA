@@ -141,6 +141,7 @@ function VideoRefPlayer({ stream, mirrored = false, className = "" }: {
       className={`w-full h-full object-cover ${mirrored ? "scale-x-[-1]" : ""} ${className}`}
       autoPlay
       playsInline
+      muted={true} // Bắt buộc mute để Safari cho phép AutoPlay nếu gặp STUN block hoặc không tương tác
     />
   );
 }
@@ -349,11 +350,23 @@ export default function LiveRoomPage() {
           
           const connectData = () => {
              if (!isMounted || !peerInstance.current) return;
+             // Tránh kết nối lại nếu đã có
+             if (dataConnRef.current && dataConnRef.current.open) return;
              const conn = peerInstance.current.connect(room_id as string, { metadata: { peerId: peerInstance.current.id }});
              conn.on("open", () => { dataConnRef.current = conn; });
              conn.on("error", () => { setTimeout(connectData, 3000); });
+             // Khi bị disconnect do GV refresh mạng
+             conn.on("close", () => { dataConnRef.current = null; setTimeout(connectData, 3000); });
           };
           connectData();
+          // Polyfill retry connectData vì STUN/Peer đôi khi nuốt sự kiện error
+          const retryDataInterval = setInterval(() => {
+             if (isMounted && (!dataConnRef.current || !dataConnRef.current.open)) {
+                 connectData();
+             }
+          }, 5000);
+          
+          return () => clearInterval(retryDataInterval);
         }
       });
 
@@ -513,6 +526,7 @@ export default function LiveRoomPage() {
     }
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
   }, [localStream, captureAndAnalyze, userInfo?.role]);
+
 
   // --- 6. Control actions
   const toggleMic = () => {
