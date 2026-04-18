@@ -473,7 +473,7 @@ export default function LiveRoomPage() {
     const captureAndAnalyze = useCallback(async () => {
     if (isAnalyzing) return;
     const videoNode = localVideoRef.current || pipVideoRef.current;
-    if (!canvasRef.current || !videoNode || !serviceOnline) return;
+    if (!canvasRef.current || !videoNode) return;
     if (userInfo?.role === "teacher" || userInfo?.role === "admin") return;
     const video = videoNode;
     if (video.readyState < 2) return;
@@ -494,24 +494,25 @@ export default function LiveRoomPage() {
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ frame_b64, session_id: sessionId }),
       });
-            if (res.ok) {
+      if (res.ok) {
         const emData = await res.json();
         setEmotion(emData);
-        if (dataConnRef.current && dataConnRef.current.open) {
+        // Gửi thẳng qua Data Channel tới GV (bỏ qua conn.open vì PeerJS đôi khi không update state open kịp)
+        if (dataConnRef.current) {
           dataConnRef.current.send({ type: "emotion", peerId: peerInstance.current?.id, emotion: emData });
         }
       }
     } catch { /* ignore */ }
     finally { setIsAnalyzing(false); }
-  }, [isAnalyzing, serviceOnline, sessionId, userInfo?.role]);
+  }, [isAnalyzing, sessionId, userInfo?.role]);
 
   useEffect(() => {
-    if (localStream && serviceOnline && userInfo?.role === "student") {
+    if (localStream && userInfo?.role === "student") {
       if (intervalRef.current) clearInterval(intervalRef.current);
       intervalRef.current = setInterval(captureAndAnalyze, ANALYZE_INTERVAL_MS);
     }
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-  }, [localStream, serviceOnline, captureAndAnalyze, userInfo?.role]);
+  }, [localStream, captureAndAnalyze, userInfo?.role]);
 
   // --- 6. Control actions
   const toggleMic = () => {
