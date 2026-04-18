@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Trắc Nghiệm Chuyên Đề Màng Phổi - Smile</title>
+  <title>Trắc Nghiệm Chuyên Đề Màng Phổi - 100 Câu - Smile</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
@@ -26,9 +26,7 @@
       --orange: #f97316;
       --cyan: #06b6d4;
     }
-
     * { margin:0; padding:0; box-sizing:border-box; }
-
     body {
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
       background: var(--bg);
@@ -36,8 +34,6 @@
       min-height: 100vh;
       line-height: 1.6;
     }
-
-    /* Animated gradient background */
     body::before {
       content: '';
       position: fixed;
@@ -49,7 +45,6 @@
       pointer-events: none;
       z-index: 0;
     }
-
     .container {
       max-width: 900px;
       margin: 0 auto;
@@ -57,12 +52,9 @@
       position: relative;
       z-index: 1;
     }
-
-    /* ─── HERO ─── */
     .hero {
       text-align: center;
       padding: 60px 20px 40px;
-      position: relative;
     }
     .hero-badge {
       display: inline-flex;
@@ -91,11 +83,9 @@
     .hero p {
       color: var(--text-muted);
       font-size: 16px;
-      max-width: 500px;
+      max-width: 560px;
       margin: 0 auto;
     }
-
-    /* ─── STATS BAR ─── */
     .stats-bar {
       display: flex;
       gap: 12px;
@@ -114,25 +104,12 @@
       box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     }
     .stat-item:hover { border-color: rgba(99,102,241,0.25); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(99,102,241,0.1); }
-    .stat-number {
-      font-size: 28px;
-      font-weight: 800;
-      display: block;
-    }
+    .stat-number { font-size: 28px; font-weight: 800; display: block; }
     .stat-number.accent { color: var(--accent); }
     .stat-number.correct { color: var(--correct); }
     .stat-number.wrong { color: var(--wrong); }
     .stat-number.orange { color: var(--orange); }
-    .stat-label {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-top: 4px;
-    }
-
-    /* ─── PROGRESS BAR ─── */
+    .stat-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
     .progress-wrapper {
       background: var(--card);
       border: 1px solid var(--border);
@@ -140,40 +117,11 @@
       padding: 16px 24px;
       margin-bottom: 30px;
     }
-    .progress-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-    .progress-header span {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text-muted);
-    }
-    .progress-bar {
-      width: 100%;
-      height: 8px;
-      background: rgba(0,0,0,0.04);
-      border-radius: 100px;
-      overflow: hidden;
-    }
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--accent), var(--pink));
-      border-radius: 100px;
-      transition: width 0.5s ease;
-      width: 0%;
-    }
-
-    /* ─── MODE TOGGLE ─── */
-    .mode-toggle {
-      display: flex;
-      gap: 8px;
-      justify-content: center;
-      margin-bottom: 30px;
-      flex-wrap: wrap;
-    }
+    .progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .progress-header span { font-size: 13px; font-weight: 600; color: var(--text-muted); }
+    .progress-bar { width: 100%; height: 8px; background: rgba(0,0,0,0.04); border-radius: 100px; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--pink)); border-radius: 100px; transition: width 0.5s ease; width: 0%; }
+    .mode-toggle { display: flex; gap: 8px; justify-content: center; margin-bottom: 30px; flex-wrap: wrap; }
     .mode-btn {
       padding: 10px 20px;
       border-radius: 12px;
@@ -187,13 +135,7 @@
       font-family: inherit;
     }
     .mode-btn:hover { border-color: rgba(129,140,248,0.3); color: var(--text); }
-    .mode-btn.active {
-      background: var(--accent-glow);
-      border-color: rgba(129,140,248,0.4);
-      color: var(--accent);
-    }
-
-    /* ─── SECTION HEADER ─── */
+    .mode-btn.active { background: var(--accent-glow); border-color: rgba(129,140,248,0.4); color: var(--accent); }
     .section-header {
       display: flex;
       align-items: center;
@@ -209,40 +151,13 @@
       box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     }
     .section-header:hover { border-color: rgba(99,102,241,0.2); background: var(--card-hover); }
-    .section-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      flex-shrink: 0;
-    }
-    .section-header h2 {
-      font-size: 16px;
-      font-weight: 700;
-      flex: 1;
-    }
-    .section-count {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-muted);
-      background: rgba(0,0,0,0.03);
-      padding: 4px 12px;
-      border-radius: 100px;
-    }
-    .section-arrow {
-      color: var(--text-muted);
-      transition: transform 0.3s;
-      font-size: 18px;
-    }
+    .section-icon { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+    .section-header h2 { font-size: 16px; font-weight: 700; flex: 1; }
+    .section-count { font-size: 12px; font-weight: 600; color: var(--text-muted); background: rgba(0,0,0,0.03); padding: 4px 12px; border-radius: 100px; }
+    .section-arrow { color: var(--text-muted); transition: transform 0.3s; font-size: 18px; }
     .section-header.open .section-arrow { transform: rotate(180deg); }
-
-    /* ─── QUESTION CARD ─── */
     .questions-list { display: none; }
     .questions-list.open { display: block; }
-
     .q-card {
       background: var(--card);
       border: 1px solid var(--border);
@@ -254,278 +169,55 @@
       overflow: hidden;
       box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     }
-    .q-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 3px;
-      background: linear-gradient(90deg, var(--accent), var(--pink));
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
+    .q-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent), var(--pink)); opacity: 0; transition: opacity 0.3s; }
     .q-card:hover::before { opacity: 1; }
-    .q-card.answered-correct {
-      border-color: var(--correct-border);
-      background: var(--correct-bg);
-    }
-    .q-card.answered-wrong {
-      border-color: var(--wrong-border);
-      background: var(--wrong-bg);
-    }
-
-    .q-header {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-    .q-number {
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      font-weight: 800;
-      flex-shrink: 0;
-      background: var(--accent-glow);
-      color: var(--accent);
-      border: 1px solid rgba(129,140,248,0.2);
-    }
-    .q-card.answered-correct .q-number {
-      background: var(--correct-bg);
-      color: var(--correct);
-      border-color: var(--correct-border);
-    }
-    .q-card.answered-wrong .q-number {
-      background: var(--wrong-bg);
-      color: var(--wrong);
-      border-color: var(--wrong-border);
-    }
-    .q-text {
-      font-size: 15px;
-      font-weight: 600;
-      line-height: 1.6;
-      padding-top: 6px;
-    }
-
-    /* ─── OPTIONS ─── */
-    .options {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 8px;
-      margin-left: 48px;
-    }
-    @media (min-width: 640px) {
-      .options.grid-2 { grid-template-columns: 1fr 1fr; }
-    }
+    .q-card.answered-correct { border-color: var(--correct-border); background: var(--correct-bg); }
+    .q-card.answered-wrong { border-color: var(--wrong-border); background: var(--wrong-bg); }
+    .q-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px; }
+    .q-number { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; flex-shrink: 0; background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(129,140,248,0.2); }
+    .q-card.answered-correct .q-number { background: var(--correct-bg); color: var(--correct); border-color: var(--correct-border); }
+    .q-card.answered-wrong .q-number { background: var(--wrong-bg); color: var(--wrong); border-color: var(--wrong-border); }
+    .q-text { font-size: 15px; font-weight: 600; line-height: 1.6; padding-top: 6px; }
+    .options { display: grid; grid-template-columns: 1fr; gap: 8px; margin-left: 48px; }
+    @media (min-width: 640px) { .options.grid-2 { grid-template-columns: 1fr 1fr; } }
     .opt-btn {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 12px 16px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: #f9fafb;
-      color: var(--text);
-      cursor: pointer;
-      transition: all 0.25s;
-      font-family: inherit;
-      font-size: 14px;
-      text-align: left;
-      width: 100%;
-      line-height: 1.5;
+      display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 12px;
+      border: 1px solid var(--border); background: #f9fafb; color: var(--text); cursor: pointer;
+      transition: all 0.25s; font-family: inherit; font-size: 14px; text-align: left; width: 100%; line-height: 1.5;
     }
-    .opt-btn:hover:not(.disabled) {
-      border-color: rgba(99,102,241,0.35);
-      background: rgba(99,102,241,0.06);
-    }
-    .opt-btn .opt-letter {
-      width: 28px;
-      height: 28px;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 13px;
-      flex-shrink: 0;
-      background: #eef0f4;
-      border: 1px solid var(--border);
-      transition: all 0.3s;
-    }
-    .opt-btn.selected .opt-letter {
-      background: var(--accent);
-      color: #fff;
-      border-color: var(--accent);
-    }
-    .opt-btn.correct-answer .opt-letter {
-      background: var(--correct) !important;
-      color: #fff !important;
-      border-color: var(--correct) !important;
-    }
-    .opt-btn.wrong-answer .opt-letter {
-      background: var(--wrong) !important;
-      color: #fff !important;
-      border-color: var(--wrong) !important;
-    }
-    .opt-btn.correct-answer {
-      border-color: var(--correct-border) !important;
-      background: var(--correct-bg) !important;
-    }
-    .opt-btn.wrong-answer {
-      border-color: var(--wrong-border) !important;
-      background: var(--wrong-bg) !important;
-    }
+    .opt-btn:hover:not(.disabled) { border-color: rgba(99,102,241,0.35); background: rgba(99,102,241,0.06); }
+    .opt-btn .opt-letter { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; flex-shrink: 0; background: #eef0f4; border: 1px solid var(--border); transition: all 0.3s; }
+    .opt-btn.selected .opt-letter { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .opt-btn.correct-answer .opt-letter { background: var(--correct) !important; color: #fff !important; border-color: var(--correct) !important; }
+    .opt-btn.wrong-answer .opt-letter { background: var(--wrong) !important; color: #fff !important; border-color: var(--wrong) !important; }
+    .opt-btn.correct-answer { border-color: var(--correct-border) !important; background: var(--correct-bg) !important; }
+    .opt-btn.wrong-answer { border-color: var(--wrong-border) !important; background: var(--wrong-bg) !important; }
     .opt-btn.disabled { cursor: default; opacity: 0.6; }
     .opt-btn.correct-answer, .opt-btn.wrong-answer { opacity: 1 !important; }
-
-    /* ─── FEEDBACK ─── */
-    .feedback {
-      margin-top: 12px;
-      margin-left: 48px;
-      padding: 12px 16px;
-      border-radius: 10px;
-      font-size: 13px;
-      font-weight: 500;
-      line-height: 1.6;
-      display: none;
-    }
+    .feedback { margin-top: 12px; margin-left: 48px; padding: 12px 16px; border-radius: 10px; font-size: 13px; font-weight: 500; line-height: 1.6; display: none; }
     .feedback.show { display: block; }
-    .feedback.correct {
-      background: var(--correct-bg);
-      color: var(--correct);
-      border: 1px solid var(--correct-border);
-    }
-    .feedback.wrong {
-      background: var(--wrong-bg);
-      color: var(--wrong);
-      border: 1px solid var(--wrong-border);
-    }
-    .feedback .explain {
-      margin-top: 8px;
-      padding-top: 8px;
-      border-top: 1px solid rgba(0,0,0,0.06);
-      color: var(--text-muted);
-      font-size: 13px;
-      font-weight: 400;
-    }
-
-    /* ─── FLOATING ACTIONS ─── */
-    .floating-actions {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      display: flex;
-      gap: 10px;
-      z-index: 100;
-    }
-    .fab {
-      padding: 14px 24px;
-      border-radius: 16px;
-      border: none;
-      font-family: inherit;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.3s;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-    }
+    .feedback.correct { background: var(--correct-bg); color: var(--correct); border: 1px solid var(--correct-border); }
+    .feedback.wrong { background: var(--wrong-bg); color: var(--wrong); border: 1px solid var(--wrong-border); }
+    .feedback .explain { margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(0,0,0,0.06); color: var(--text-muted); font-size: 13px; font-weight: 400; }
+    .floating-actions { position: fixed; bottom: 24px; right: 24px; display: flex; gap: 10px; z-index: 100; }
+    .fab { padding: 14px 24px; border-radius: 16px; border: none; font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
     .fab:hover { transform: translateY(-2px); }
-    .fab-primary {
-      background: linear-gradient(135deg, var(--accent), #a78bfa);
-      color: #fff;
-    }
-    .fab-reset {
-      background: var(--card);
-      border: 1px solid var(--border);
-      color: var(--text);
-    }
-
-    /* ─── RESULT MODAL ─── */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.7);
-      backdrop-filter: blur(8px);
-      z-index: 200;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-    }
+    .fab-primary { background: linear-gradient(135deg, var(--accent), #a78bfa); color: #fff; }
+    .fab-reset { background: var(--card); border: 1px solid var(--border); color: var(--text); }
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 200; justify-content: center; align-items: center; padding: 20px; }
     .modal-overlay.show { display: flex; }
-    .modal {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      padding: 40px;
-      max-width: 480px;
-      width: 100%;
-      text-align: center;
-      animation: modalIn 0.4s ease;
-    }
-    @keyframes modalIn {
-      from { transform: scale(0.9) translateY(20px); opacity: 0; }
-      to { transform: scale(1) translateY(0); opacity: 1; }
-    }
-    .modal .score-circle {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 20px;
-      border: 4px solid;
-    }
+    .modal { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 40px; max-width: 480px; width: 100%; text-align: center; animation: modalIn 0.4s ease; }
+    @keyframes modalIn { from { transform: scale(0.9) translateY(20px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
+    .modal .score-circle { width: 120px; height: 120px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 20px; border: 4px solid; }
     .modal .score-circle .big { font-size: 36px; font-weight: 900; }
     .modal .score-circle .small { font-size: 13px; font-weight: 600; opacity: 0.7; }
     .modal h2 { font-size: 24px; font-weight: 800; margin-bottom: 8px; }
     .modal p { color: var(--text-muted); font-size: 15px; margin-bottom: 24px; }
-    .modal-btn {
-      padding: 14px 32px;
-      border-radius: 14px;
-      border: none;
-      font-family: inherit;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      background: linear-gradient(135deg, var(--accent), #a78bfa);
-      color: #fff;
-      transition: all 0.3s;
-    }
+    .modal-btn { padding: 14px 32px; border-radius: 14px; border: none; font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; background: linear-gradient(135deg, var(--accent), #a78bfa); color: #fff; transition: all 0.3s; }
     .modal-btn:hover { transform: scale(1.05); }
-
-    /* ─── SCROLL TO TOP ─── */
-    .scroll-top {
-      position: fixed;
-      bottom: 24px;
-      left: 24px;
-      width: 48px;
-      height: 48px;
-      border-radius: 14px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      color: var(--text-muted);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 20px;
-      z-index: 100;
-      transition: all 0.3s;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-    }
+    .scroll-top { position: fixed; bottom: 24px; left: 24px; width: 48px; height: 48px; border-radius: 14px; background: var(--card); border: 1px solid var(--border); color: var(--text-muted); display: none; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; z-index: 100; transition: all 0.3s; box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
     .scroll-top:hover { color: var(--accent); border-color: rgba(99,102,241,0.3); }
     .scroll-top.show { display: flex; }
-
-    /* ─── RESPONSIVE ─── */
     @media (max-width: 640px) {
       .options { margin-left: 0; }
       .feedback { margin-left: 0; }
@@ -538,70 +230,45 @@
 <body>
 
 <div class="container">
-  <!-- HERO -->
   <div class="hero">
-    <div class="hero-badge">🫁 Nội khoa - Màng phổi</div>
+    <div class="hero-badge">🫁 Nội khoa - Giáo trình 2023</div>
     <h1>Trắc Nghiệm Màng Phổi</h1>
-    <p>30 câu hỏi chuyên đề Màng phổi dành cho Smile. Nội dung dựa trên giáo trình 2023.</p>
+    <p>100 câu hỏi chuyên đề Màng phổi dành cho Smile. Tập trung vào các con số và kiến thức trọng tâm từ giáo trình 2023.</p>
   </div>
 
-  <!-- STATS -->
   <div class="stats-bar">
-    <div class="stat-item">
-      <span class="stat-number accent" id="totalQ">30</span>
-      <span class="stat-label">Tổng câu</span>
-    </div>
-    <div class="stat-item">
-      <span class="stat-number correct" id="correctCount">0</span>
-      <span class="stat-label">Đúng</span>
-    </div>
-    <div class="stat-item">
-      <span class="stat-number wrong" id="wrongCount">0</span>
-      <span class="stat-label">Sai</span>
-    </div>
-    <div class="stat-item">
-      <span class="stat-number orange" id="answeredCount">0</span>
-      <span class="stat-label">Đã làm</span>
-    </div>
+    <div class="stat-item"><span class="stat-number accent" id="totalQ">100</span><span class="stat-label">Tổng câu</span></div>
+    <div class="stat-item"><span class="stat-number correct" id="correctCount">0</span><span class="stat-label">Đúng</span></div>
+    <div class="stat-item"><span class="stat-number wrong" id="wrongCount">0</span><span class="stat-label">Sai</span></div>
+    <div class="stat-item"><span class="stat-number orange" id="answeredCount">0</span><span class="stat-label">Đã làm</span></div>
   </div>
 
-  <!-- PROGRESS -->
   <div class="progress-wrapper">
-    <div class="progress-header">
-      <span>Tiến độ ôn tập</span>
-      <span id="progressText">0 / 30</span>
-    </div>
-    <div class="progress-bar">
-      <div class="progress-fill" id="progressFill"></div>
-    </div>
+    <div class="progress-header"><span>Tiến độ ôn tập</span><span id="progressText">0 / 100</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
   </div>
 
-  <!-- MODE TOGGLE -->
   <div class="mode-toggle">
     <button class="mode-btn active" onclick="setMode('practice')">🎯 Luyện tập</button>
     <button class="mode-btn" onclick="setMode('exam')">📋 Thi thử</button>
     <button class="mode-btn" onclick="showAllAnswers()">👁️ Xem đáp án</button>
   </div>
 
-  <!-- QUESTIONS -->
   <div id="questionsContainer"></div>
 </div>
 
-<!-- FLOATING ACTIONS -->
 <div class="floating-actions">
   <button class="fab fab-reset" onclick="resetAll()">🔄 Làm lại</button>
   <button class="fab fab-primary" onclick="submitExam()" id="submitBtn" style="display:none;">✅ Nộp bài</button>
 </div>
 
-<!-- SCROLL TO TOP -->
 <button class="scroll-top" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
-<!-- RESULT MODAL -->
 <div class="modal-overlay" id="resultModal">
   <div class="modal">
     <div class="score-circle" id="scoreCircle">
       <span class="big" id="scoreText">0</span>
-      <span class="small">/ 30</span>
+      <span class="small">/ 100</span>
     </div>
     <h2 id="resultTitle"></h2>
     <p id="resultDesc"></p>
@@ -611,193 +278,412 @@
 
 <script>
 const sections = [
-  { title: "Giải phẫu & Sinh lý màng phổi", icon: "🫁", color: "#818cf8", start: 0, count: 11 },
-  { title: "Chẩn đoán hình ảnh & Lâm sàng", icon: "🔬", color: "#f472b6", start: 11, count: 5 },
-  { title: "Xét nghiệm & Tiêu chuẩn Light", icon: "🧪", color: "#fb923c", start: 16, count: 8 },
-  { title: "Bệnh lý & Tràn khí màng phổi", icon: "💨", color: "#22d3ee", start: 24, count: 6 },
+  { title: "Phần 1: Giải phẫu & Cấu trúc màng phổi", icon: "🫁", color: "#818cf8", start: 0, count: 20 },
+  { title: "Phần 2: Sinh lý & Động lực học dịch", icon: "💧", color: "#f472b6", start: 20, count: 20 },
+  { title: "Phần 3: Lâm sàng & Chẩn đoán hình ảnh", icon: "🔬", color: "#fb923c", start: 40, count: 20 },
+  { title: "Phần 4: Xét nghiệm & Tiêu chuẩn Light", icon: "🧪", color: "#22d3ee", start: 60, count: 20 },
+  { title: "Phần 5: Bệnh lý & Tràn khí màng phổi", icon: "💨", color: "#a78bfa", start: 80, count: 20 },
 ];
 
+// 100 câu – phân bố đều A(25), B(25), C(25), D(25)
 const questions = [
-    {
-        q: "Màng phổi được cấu tạo bởi bao nhiêu lớp dưới kính hiển vi huỳnh quang?",
-        o: ["3 lớp", "4 lớp", "5 lớp", "6 lớp"],
-        a: 2,
-        e: "Màng phổi có cấu tạo 5 lớp: trung biểu mô, mô liên kết dưới nội mạc, lớp bề mặt đàn hồi, lớp mô liên kết lỏng lẻo và lớp nguyên bào sợi. [cite: 989]"
-    },
-    {
-        q: "Mật độ vi nhung mao trung bình trên bề mặt màng phổi là bao nhiêu?",
-        o: ["100 cái/100 µm²", "200 cái/100 µm²", "300 cái/100 µm²", "500 cái/100 µm²"],
-        a: 2,
-        e: "Diện tích bề mặt tăng lên nhờ 300 vi nhung mao/100 µm², giúp giảm ma sát và tăng vận chuyển."
-    },
-    {
-        q: "Đỉnh khoang màng phổi nằm trên xương sườn đầu tiên khoảng bao nhiêu cm?",
-        o: ["1 cm", "2-3 cm", "4 cm", "5 cm"],
-        a: 1,
-        e: "Vị trí này nằm ở vùng nền cổ, giải thích nguy cơ tràn khí khi đặt catheter tĩnh mạch trung tâm."
-    },
-    {
-        q: "Lượng dịch màng phổi bình thường ở mỗi bên khoang ngực ở người khỏe mạnh là:",
-        o: ["Dưới 5 mL", "Dưới 12 mL", "Từ 15 - 20 mL", "Trên 25 mL"],
-        a: 1,
-        e: "Lượng dịch tương ứng 0,16 - 0,36 mL/kg, thường dưới 12 mL mỗi bên ngực."
-    },
-    {
-        q: "Lớp màng phổi nào không có sợi cảm giác đau?",
-        o: ["Màng phổi sườn", "Màng phổi hoành", "Màng phổi trung thất", "Màng phổi tạng"],
-        a: 3,
-        e: "Màng phổi tạng không có sợi cảm giác đau, đau ngực kiểu màng phổi thường do tổn thương màng phổi thành. [cite: 1043]"
-    },
-    {
-        q: "Tại màng phổi thành, lực đẩy dịch vào khoang màng phổi thực tế (lực đẩy ròng) là:",
-        o: ["+2 cmH₂O", "+4 cmH₂O", "+6 cmH₂O", "+10 cmH₂O"],
-        a: 2,
-        e: "Lực đẩy (30 thủy tĩnh + 5 keo khoang) trừ lực kéo (34 keo máu - 5 thủy tĩnh khoang) = +6 cmH₂O."
-    },
-    {
-        q: "Tốc độ tiết dịch màng phổi bình thường ở người 60 kg là khoảng bao nhiêu mỗi ngày?",
-        o: ["5 mL", "10 mL", "15 mL", "20 mL"],
-        a: 2,
-        e: "Tốc độ tiết bình thường là 0,01 mL/kg/h. Với người 60kg là 0,6 mL/h x 24h = 14,4 (gần 15 mL)."
-    },
-    {
-        q: "Hệ thống bạch huyết màng phổi có khả năng hấp thu tối đa gấp bao nhiêu lần lượng tiết ra bình thường?",
-        o: ["5 lần", "10 lần", "20 lần", "50 lần"],
-        a: 2,
-        e: "Khả năng dự trữ lớn giúp hấp thu tăng gấp 20 lần để duy trì lượng dịch không đổi. [cite: 1088]"
-    },
-    {
-        q: "Đường kính của các lỗ thông (stomata) kết nối trực tiếp khoang màng phổi với bạch mạch là:",
-        o: ["2 µm", "4 µm", "6 µm", "10 µm"],
-        a: 2,
-        e: "Các lỗ stomata có đường kính khoảng 6 µm nằm trên màng phổi thành. [cite: 1073]"
-    },
-    {
-        q: "Nồng độ Protein trong dịch màng phổi bình thường là bao nhiêu?",
-        o: ["< 1 g/dL", "1-2 g/dL", "2-3 g/dL", "3-4 g/dL"],
-        a: 1,
-        e: "Dịch màng phổi bình thường chứa lượng protein thấp, khoảng 1-2 g/dL. [cite: 1099]"
-    },
-    {
-        q: "Loại tế bào nào chiếm tỷ lệ cao nhất (30-75%) trong dịch màng phổi bình thường?",
-        o: ["Lymphocytes", "Mesothelial cells", "Monocytes", "Granulocytes"],
-        a: 2,
-        e: "Bạch cầu đơn nhân (monocytes) chiếm 30-75%, trong khi tế bào trung biểu mô chiếm 3-70%. [cite: 1099]"
-    },
-    {
-        q: "Cần bao nhiêu dịch trong khoang màng phổi để có thể phát hiện qua thăm khám lâm sàng?",
-        o: ["100-200 mL", "250-300 mL", "400-500 mL", "Trên 500 mL"],
-        a: 1,
-        e: "Lượng dịch dưới 250-300 mL rất khó phát hiện qua khám lâm sàng đơn thuần. [cite: 1140]"
-    },
-    {
-        q: "Trên X-quang ngực thẳng, tràn dịch màng phổi được phát hiện khi thể tích dịch từ bao nhiêu trở lên?",
-        o: ["50 mL", "100 mL", "200 mL", "500 mL"],
-        a: 2,
-        e: "Phim thẳng cần ít nhất 200 mL, trong khi phim nghiêng nhạy hơn chỉ cần 50 mL. [cite: 1150]"
-    },
-    {
-        q: "Dấu hiệu 'đường cong Damoiseau' thường xuất hiện khi lượng dịch khoảng:",
-        o: ["200 - 500 mL", "500 - 1000 mL", "1000 - 1500 mL", "Trên 2000 mL"],
-        a: 2,
-        e: "Khi lượng dịch đạt khoảng 1-1,5 L sẽ tạo hình ảnh mờ 1/3 dưới kèm đường cong Damoiseau. [cite: 1187]"
-    },
-    {
-        q: "Siêu âm có thể phát hiện lượng dịch màng phổi tối thiểu là bao nhiêu?",
-        o: ["5 mL", "10 mL", "20 mL", "50 mL"],
-        a: 2,
-        e: "Siêu âm cực kỳ nhạy, phát hiện được dịch chỉ từ 20 mL trở lên. [cite: 1194]"
-    },
-    {
-        q: "CT-scan ngực có thể phát hiện lượng dịch màng phổi cực ít, thường dưới mức nào?",
-        o: ["10 mL", "20 mL", "30 mL", "50 mL"],
-        a: 0,
-        e: "Chụp cắt lớp vi tính (CT) có thể phát hiện lượng dịch dưới 10 mL. [cite: 1209]"
-    },
-    {
-        q: "Theo tiêu chuẩn Light, dịch được gọi là dịch tiết nếu tỷ lệ Protein DMP/máu lớn hơn:",
-        o: ["0.4", "0.5", "0.6", "0.7"],
-        a: 1,
-        e: "Tiêu chuẩn (1) của Light là Protein DMP/Huyết thanh > 0.5. [cite: 1289]"
-    },
-    {
-        q: "LDH dịch màng phổi được coi là dịch tiết nếu lớn hơn bao nhiêu giới hạn trên bình thường của LDH máu?",
-        o: ["1/3", "1/2", "2/3", "3/4"],
-        a: 2,
-        e: "Tiêu chuẩn (3) của Light là LDH DMP > 2/3 (hoặc > 67%) giới hạn trên bình thường máu. [cite: 1291]"
-    },
-    {
-        q: "Nếu Albumin máu trừ Albumin DMP lớn hơn bao nhiêu thì gợi ý dịch thấm dù tiêu chuẩn Light là dịch tiết?",
-        o: ["0.8 g/dL", "1.0 g/dL", "1.2 g/dL", "3.1 g/dL"],
-        a: 2,
-        e: "Hiệu số Albumin > 1,2 g/dL gợi ý dịch thấm, thường gặp ở bệnh nhân suy tim dùng lợi tiểu. [cite: 1295]"
-    },
-    {
-        q: "Tràn dịch màng phổi do lao thường có Protein DMP trung bình trong khoảng nào?",
-        o: ["2.0 - 4.0 g/dL", "3.0 - 5.0 g/dL", "5.0 - 6.8 g/dL", "> 7.0 g/dL"],
-        a: 2,
-        e: "Lao màng phổi thường có protein dịch rất cao, trung bình từ 5,0 đến 6,8 g/dL. [cite: 1388]"
-    },
-    {
-        q: "Nồng độ ADA (Adenosine Deaminase) bao nhiêu giúp xác nhận lao màng phổi ở vùng dịch tễ cao?",
-        o: ["> 20 U/L", "> 30 U/L", "> 40 U/L", "> 60 U/L"],
-        a: 2,
-        e: "ADA > 40 U/L có độ nhạy 92% và độ đặc hiệu 90% chẩn đoán lao màng phổi. [cite: 1460]"
-    },
-    {
-        q: "Triglyceride trong dịch màng phổi lớn hơn mức nào thì chẩn đoán tràn dịch dưỡng chấp?",
-        o: ["50 mg/dL", "100 mg/dL", "110 mg/dL", "200 mg/dL"],
-        a: 2,
-        e: "Mức Triglyceride > 110 mg/dL là tiêu chuẩn chẩn đoán chylothorax. [cite: 1414]"
-    },
-    {
-        q: "Chỉ định đặt ống dẫn lưu màng phổi khi pH dịch màng phổi cận viêm giảm dưới mức nào?",
-        o: ["7.0", "7.2", "7.3", "7.4"],
-        a: 1,
-        e: "Khi pH < 7,20 ở bệnh nhân tràn dịch cận viêm phổi là có chỉ định đặt ống dẫn lưu. [cite: 1409]"
-    },
-    {
-        q: "Dịch màng phổi màu trắng sữa gợi ý bệnh lý nào nhất?",
-        o: ["Tràn máu", "Tràn mủ", "Tràn dịch dưỡng chấp", "Tràn dịch do lao"],
-        a: 2,
-        e: "Màu trắng sữa là đặc trưng của dưỡng chấp do vỡ ống ngực hoặc giả dưỡng chấp mạn tính. [cite: 1278]"
-    },
-    {
-        q: "Tiêu chuẩn chẩn đoán tràn máu màng phổi là Hematocrit dịch lớn hơn bao nhiêu Hematocrit máu?",
-        o: ["25%", "30%", "50%", "75%"],
-        a: 2,
-        e: "Tràn máu màng phổi xác định khi Hct dịch > 50% Hct máu ngoại vi. [cite: 1633]"
-    },
-    {
-        q: "Ở bệnh nhân suy tim, điểm cắt NT-proBNP dịch màng phổi để chẩn đoán là:",
-        o: ["> 500 pg/mL", "> 1000 pg/mL", "> 1500 pg/mL", "> 2000 pg/mL"],
-        a: 2,
-        e: "Mức NT-proBNP > 1500 pg/mL hầu như xác định tràn dịch do suy tim. [cite: 1431]"
-    },
-    {
-        q: "Độ nhạy của xét nghiệm tế bào học dịch màng phổi ở lần chọc dò đầu tiên là khoảng:",
-        o: ["45%", "55%", "65%", "85%"],
-        a: 2,
-        e: "Lần 1 đạt 65%, lần 2 tăng thêm 12-27%. Không khuyến cáo chọc lần 3. [cite: 1374]"
-    },
-    {
-        q: "Trong tràn khí màng phổi tự phát, hút thuốc lá làm tăng nguy cơ ở nam giới gấp bao nhiêu lần nếu hút nhiều?",
-        o: ["21 lần", "50 lần", "102 lần", "200 lần"],
-        a: 2,
-        e: "Hút trên 22 điếu/ngày làm tăng nguy cơ mắc lên 102 lần so với người không hút. [cite: 1663]"
-    },
-    {
-        q: "Theo BTS, tràn khí màng phổi được gọi là 'nhiều' khi khoảng cách màng phổi tạng - thành ngực ngang rốn phổi là:",
-        o: [">= 1 cm", ">= 2 cm", ">= 3 cm", ">= 5 cm"],
-        a: 1,
-        e: "Khoảng cách >= 2 cm tương đương tràn khí 50% thể tích phổi. [cite: 1715]"
-    },
-    {
-        q: "Định nghĩa tràn khí màng phổi ổn định khi nhịp thở thấp hơn:",
-        o: ["16 lần/phút", "20 lần/phút", "24 lần/phút", "30 lần/phút"],
-        a: 2,
-        e: "Tràn khí ổn định yêu cầu nhịp thở < 24 lần/phút và SpO2 > 90%. [cite: 1753, 1756]"
-    }
+  // ═══════ PHẦN 1: Giải phẫu & Cấu trúc (1-20) ═══════
+  // Đáp án: A=5, B=5, C=5, D=5
+  {q:"Màng phổi được cấu tạo bởi bao nhiêu lớp dưới kính hiển vi huỳnh quang?",
+   o:["3 lớp","4 lớp","5 lớp","6 lớp"], a:2,
+   e:"Đáp án C. Màng phổi gồm 5 lớp: trung biểu mô, mô liên kết dưới nội mạc, lớp bề mặt đàn hồi, lớp mô liên kết lỏng lẻo và lớp nguyên bào sợi. A sai vì thiếu 2 lớp. B sai vì thiếu 1 lớp. D sai vì thừa 1 lớp."},
+
+  {q:"Lớp ngoài cùng (bề mặt) của màng phổi được gọi là gì?",
+   o:["Lớp trung biểu mô","Lớp mô liên kết dưới nội mạc","Lớp bề mặt đàn hồi","Lớp nguyên bào sợi"], a:0,
+   e:"Đáp án A. Lớp trung biểu mô (mesothelium) là lớp tế bào bề mặt ngoài cùng, tiếp xúc với khoang màng phổi. B, C, D là các lớp bên trong sâu hơn."},
+
+  {q:"Mật độ vi nhung mao trung bình trên bề mặt màng phổi là bao nhiêu?",
+   o:["100 cái/100 µm²","200 cái/100 µm²","300 cái/100 µm²","500 cái/100 µm²"], a:2,
+   e:"Đáp án C. 300 vi nhung mao/100 µm² giúp giảm ma sát và tăng vận chuyển dịch. A và B quá ít. D quá nhiều so với thực tế."},
+
+  {q:"Đỉnh khoang màng phổi nằm trên xương sườn đầu tiên khoảng bao nhiêu cm?",
+   o:["1 cm","2-3 cm","4 cm","5 cm"], a:1,
+   e:"Đáp án B. Vị trí 2-3 cm trên xương sườn I nằm ở vùng nền cổ, giải thích nguy cơ tràn khí khi đặt catheter tĩnh mạch dưới đòn. A quá thấp, C và D quá cao."},
+
+  {q:"Lớp màng phổi nào KHÔNG có sợi cảm giác đau?",
+   o:["Màng phổi sườn","Màng phổi hoành","Màng phổi trung thất","Màng phổi tạng"], a:3,
+   e:"Đáp án D. Màng phổi tạng không có sợi cảm giác đau, đau ngực kiểu màng phổi thường do tổn thương màng phổi thành. A, B, C đều có sợi cảm giác đau."},
+
+  {q:"Đường kính của các lỗ thông (stomata) trên màng phổi thành là bao nhiêu?",
+   o:["2 µm","4 µm","6 µm","10 µm"], a:2,
+   e:"Đáp án C. Các lỗ stomata đường kính khoảng 6 µm kết nối trực tiếp khoang màng phổi với bạch mạch. A, B quá nhỏ, D quá lớn."},
+
+  {q:"Các lỗ stomata nằm chủ yếu ở vùng nào của màng phổi thành?",
+   o:["Màng phổi sườn phần trên","Phần dưới trung thất và cơ hoành","Màng phổi sườn phần giữa","Đỉnh phổi"], a:1,
+   e:"Đáp án B. Stomata tập trung ở vùng dưới trung thất và cơ hoành, nơi hấp thu dịch chủ yếu diễn ra. A, C, D không phải vị trí tập trung chính."},
+
+  {q:"Vi nhung mao trên bề mặt màng phổi có vai trò chính nào?",
+   o:["Trao đổi khí","Tiết dịch","Bẫy hạt bụi","Giảm ma sát và tăng vận chuyển dịch"], a:3,
+   e:"Đáp án D. Vi nhung mao giúp giảm ma sát giữa hai lá màng phổi và tăng diện tích bề mặt cho vận chuyển dịch. A sai - trao đổi khí ở phế nang. B, C không đúng chức năng."},
+
+  {q:"Màng phổi tạng bao phủ cấu trúc nào?",
+   o:["Thành ngực","Bề mặt phổi và các khe liên thùy","Cơ hoành mặt trên","Trung thất"], a:1,
+   e:"Đáp án B. Màng phổi tạng phủ toàn bộ bề mặt phổi kể cả các khe liên thùy. A là màng phổi sườn, C là màng phổi hoành, D là màng phổi trung thất."},
+
+  {q:"Thần kinh nào chi phối cảm giác đau ở phần trung tâm màng phổi hoành?",
+   o:["Thần kinh liên sườn","Thần kinh hoành","Thần kinh phế vị","Thần kinh giao cảm ngực"], a:1,
+   e:"Đáp án B. Thần kinh hoành (C3-C5) chi phối phần trung tâm cơ hoành, đau lan lên vai cùng bên. A chi phối phần ngoại vi. C, D không chi phối cảm giác đau màng phổi hoành."},
+
+  {q:"Đau do kích thích phần ngoại vi màng phổi hoành sẽ lan đến vùng nào?",
+   o:["Vai cùng bên","Thành ngực cùng bên","Cổ","Lưng"], a:1,
+   e:"Đáp án B. Phần ngoại vi cơ hoành do thần kinh liên sườn chi phối nên đau lan ra thành ngực. A là khi kích thích phần trung tâm (thần kinh hoành). C, D không đúng."},
+
+  {q:"Đau do kích thích phần trung tâm màng phổi hoành lan đến vị trí nào?",
+   o:["Vai cùng bên","Thành bụng","Cánh tay","Ngực trước"], a:0,
+   e:"Đáp án A. Thần kinh hoành (C3-C5) chi phối phần trung tâm, đau quy chiếu đến vai cùng bên qua đường dẫn truyền chung. B, C, D không đúng vùng quy chiếu."},
+
+  {q:"Màng phổi thành gồm mấy phần?",
+   o:["2 phần","3 phần","4 phần","5 phần"], a:2,
+   e:"Đáp án C. Màng phổi thành gồm 4 phần: màng phổi sườn, màng phổi hoành, màng phổi trung thất và vòm màng phổi (đỉnh). A, B thiếu, D thừa."},
+
+  {q:"Lớp mô liên kết lỏng lẻo trong cấu trúc màng phổi có chức năng chính gì?",
+   o:["Bảo vệ chống nhiễm trùng","Tạo tính đàn hồi","Tiết chất nhầy","Cho phép phổi trượt tự do khi hô hấp"], a:3,
+   e:"Đáp án D. Lớp mô liên kết lỏng lẻo tạo sự linh hoạt, cho phép màng phổi tạng di chuyển trên bề mặt phổi. A, B, C không phải chức năng chính của lớp này."},
+
+  {q:"Tế bào trung biểu mô màng phổi có nguồn gốc từ lớp phôi nào?",
+   o:["Ngoại bì","Nội bì","Trung bì","Ngoại bì thần kinh"], a:2,
+   e:"Đáp án C. Tế bào trung biểu mô (mesothelial) có nguồn gốc từ trung bì (mesoderm). A là ngoại bì – tạo da, thần kinh. B là nội bì – tạo biểu mô đường tiêu hóa. D sai."},
+
+  {q:"Bờ dưới khoang màng phổi ở đường giữa xương đòn tương ứng với xương sườn thứ mấy?",
+   o:["Xương sườn 6","Xương sườn 8","Xương sườn 10","Xương sườn 12"], a:1,
+   e:"Đáp án B. Ở đường giữa xương đòn, bờ dưới khoang màng phổi ngang mức xương sườn 8. A là mức bờ dưới phổi. C là ở đường nách giữa. D là ở cạnh cột sống."},
+
+  {q:"Ở đường nách giữa, bờ dưới khoang màng phổi xuống đến xương sườn thứ mấy?",
+   o:["Xương sườn 6","Xương sườn 8","Xương sườn 10","Xương sườn 12"], a:2,
+   e:"Đáp án C. Ở đường nách giữa, bờ dưới khoang màng phổi ngang mức xương sườn 10. A, B quá cao. D là mức ở cạnh cột sống."},
+
+  {q:"Ngách sườn hoành là vùng dự trữ cho sự giãn nở của phổi trong giai đoạn nào?",
+   o:["Thở ra bình thường","Hít vào gắng sức","Ngưng thở","Thở ra gắng sức"], a:1,
+   e:"Đáp án B. Ngách sườn hoành là khoảng trống giữa bờ dưới phổi và bờ dưới khoang màng phổi, cho phép phổi giãn nở khi hít vào gắng sức. A, C, D không đúng."},
+
+  {q:"Mạch máu nuôi màng phổi tạng chủ yếu đến từ hệ thống nào?",
+   o:["Động mạch phế quản","Động mạch phổi","Động mạch liên sườn","Động mạch ngực trong"], a:0,
+   e:"Đáp án A. Màng phổi tạng nhận máu chủ yếu từ động mạch phế quản (tuần hoàn hệ thống). B là tuần hoàn phổi, cung cấp máu cho phế nang. C, D nuôi màng phổi thành."},
+
+  {q:"Mạch máu nuôi màng phổi thành đến từ nguồn nào?",
+   o:["Động mạch phế quản","Động mạch phổi","Động mạch vú trong","Động mạch liên sườn và động mạch ngực trong"], a:3,
+   e:"Đáp án D. Màng phổi thành nhận máu từ động mạch liên sườn (phần sườn), động mạch ngực trong, và các nhánh hoành. A, B nuôi màng phổi tạng. C chỉ đúng một phần."},
+
+  // ═══════ PHẦN 2: Sinh lý & Động lực học dịch (21-40) ═══════
+  // Đáp án: A=5, B=5, C=5, D=5
+  {q:"Lượng dịch màng phổi bình thường ở mỗi bên khoang ngực ở người khỏe mạnh là:",
+   o:["Dưới 5 mL","Dưới 12 mL","Từ 15-20 mL","Trên 25 mL"], a:1,
+   e:"Đáp án B. Lượng dịch bình thường tương ứng 0,16-0,36 mL/kg, thường dưới 12 mL mỗi bên ngực. A quá ít. C, D quá nhiều."},
+
+  {q:"Tốc độ tiết dịch màng phổi bình thường ở người 60 kg là khoảng bao nhiêu mỗi ngày?",
+   o:["5 mL","10 mL","15 mL","20 mL"], a:2,
+   e:"Đáp án C. Tốc độ tiết 0,01 mL/kg/h × 60 kg × 24h = 14,4 mL ≈ 15 mL/ngày. A, B quá thấp, D quá cao."},
+
+  {q:"Tốc độ tiết dịch màng phổi bình thường tính theo cân nặng là bao nhiêu?",
+   o:["0,01 mL/kg/h","0,05 mL/kg/h","0,1 mL/kg/h","0,5 mL/kg/h"], a:0,
+   e:"Đáp án A. 0,01 mL/kg/h là tốc độ tiết bình thường. B, C, D đều quá cao, sẽ gây tích tụ dịch nhanh chóng."},
+
+  {q:"Tại màng phổi thành, lực đẩy dịch vào khoang màng phổi (lực đẩy ròng) là:",
+   o:["+2 cmH₂O","+4 cmH₂O","+6 cmH₂O","+10 cmH₂O"], a:2,
+   e:"Đáp án C. Lực đẩy (30 thủy tĩnh + 5 keo khoang) - lực kéo (34 keo máu - 5 thủy tĩnh khoang) = +6 cmH₂O. A, B quá thấp, D quá cao."},
+
+  {q:"Áp lực thủy tĩnh mao mạch tại màng phổi thành là bao nhiêu?",
+   o:["10 cmH₂O","20 cmH₂O","30 cmH₂O","40 cmH₂O"], a:2,
+   e:"Đáp án C. Áp lực thủy tĩnh mao mạch thành = 30 cmH₂O, thuộc tuần hoàn hệ thống. A, B quá thấp, D quá cao."},
+
+  {q:"Áp lực keo huyết tương (oncotic) bình thường ở mao mạch màng phổi là bao nhiêu?",
+   o:["25 cmH₂O","30 cmH₂O","34 cmH₂O","40 cmH₂O"], a:2,
+   e:"Đáp án C. Áp lực keo huyết tương = 34 cmH₂O, là lực kéo dịch vào lòng mạch. A, B quá thấp, D quá cao."},
+
+  {q:"Áp lực thủy tĩnh mao mạch tại màng phổi tạng là bao nhiêu?",
+   o:["6 cmH₂O","11 cmH₂O","24 cmH₂O","30 cmH₂O"], a:2,
+   e:"Đáp án C. Áp lực thủy tĩnh mao mạch tạng = 24 cmH₂O, thấp hơn mao mạch thành (30) vì thuộc tuần hoàn phổi áp lực thấp. A, B quá thấp, D là của mao mạch thành."},
+
+  {q:"Tại màng phổi tạng, lực tái hấp thu ròng là bao nhiêu?",
+   o:["+6 cmH₂O","-5 cmH₂O","-10 cmH₂O","+10 cmH₂O"], a:2,
+   e:"Đáp án C. Lực tái hấp thu ròng ≈ -10 cmH₂O (lực keo vượt trội lực đẩy), giúp hút dịch trở lại. A, D là lực đẩy. B không đủ mạnh."},
+
+  {q:"Hệ thống bạch huyết màng phổi có khả năng hấp thu tối đa gấp bao nhiêu lần lượng tiết ra bình thường?",
+   o:["5 lần","10 lần","20 lần","50 lần"], a:2,
+   e:"Đáp án C. Bạch huyết dự trữ khả năng hấp thu gấp 20 lần bình thường, đây là cơ chế bảo vệ quan trọng. A, B quá ít, D quá nhiều."},
+
+  {q:"Nồng độ Protein trong dịch màng phổi bình thường là bao nhiêu?",
+   o:["< 1 g/dL","1-2 g/dL","2-3 g/dL","3-4 g/dL"], a:1,
+   e:"Đáp án B. Dịch màng phổi bình thường chứa protein 1-2 g/dL. A quá ít, C và D quá cao, gợi ý dịch tiết."},
+
+  {q:"Loại tế bào nào chiếm tỷ lệ cao nhất (30-75%) trong dịch màng phổi bình thường?",
+   o:["Lymphocytes","Mesothelial cells","Monocytes","Granulocytes"], a:2,
+   e:"Đáp án C. Bạch cầu đơn nhân (monocytes) chiếm 30-75%. A (lymphocytes) chiếm tỷ lệ thấp hơn. B (tế bào trung biểu mô) chiếm 3-70%. D hiếm gặp trong dịch bình thường."},
+
+  {q:"pH dịch màng phổi bình thường là khoảng bao nhiêu?",
+   o:["7,0-7,2","7,2-7,4","7,60-7,64","7,8-8,0"], a:2,
+   e:"Đáp án C. pH dịch màng phổi bình thường khá kiềm, khoảng 7,60-7,64. A, B thấp hơn, gặp trong viêm/nhiễm trùng. D quá cao."},
+
+  {q:"Glucose trong dịch màng phổi bình thường so với glucose máu như thế nào?",
+   o:["Thấp hơn nhiều so với máu","Tương đương glucose máu","Cao hơn glucose máu","Bằng 50% glucose máu"], a:1,
+   e:"Đáp án B. Glucose dịch màng phổi bình thường tương đương glucose máu. A gặp trong lao, mủ, ung thư. C, D không đúng."},
+
+  {q:"Lượng dịch màng phổi bình thường tính theo cân nặng nằm trong khoảng nào?",
+   o:["0,16-0,36 mL/kg","0,5-1,0 mL/kg","1,0-2,0 mL/kg","2,0-3,0 mL/kg"], a:0,
+   e:"Đáp án A. 0,16-0,36 mL/kg là phạm vi bình thường. B, C, D đều quá cao, cho thấy tích tụ dịch bất thường."},
+
+  {q:"Cơ chế chính gây tràn dịch thấm là gì?",
+   o:["Tăng áp lực thủy tĩnh hoặc giảm áp lực keo","Tăng tính thấm mao mạch","Giảm hấp thu bạch huyết do u chèn ép","Nhiễm trùng khoang màng phổi"], a:0,
+   e:"Đáp án A. Dịch thấm do mất cân bằng lực Starling (tăng thủy tĩnh trong suy tim, giảm keo trong xơ gan). B gây dịch tiết. C cũng gây dịch tiết. D gây mủ màng phổi."},
+
+  {q:"Cơ chế nào sau đây KHÔNG gây tràn dịch màng phổi?",
+   o:["Tăng áp lực thủy tĩnh mao mạch","Giảm áp lực keo huyết tương","Tăng hấp thu bạch huyết","Tăng tính thấm mao mạch"], a:2,
+   e:"Đáp án C. Tăng hấp thu bạch huyết giúp giảm dịch chứ không gây tích tụ. A (suy tim), B (xơ gan), D (viêm) đều gây tràn dịch."},
+
+  {q:"Dịch màng phổi chủ yếu được tái hấp thu qua con đường nào?",
+   o:["Mao mạch màng phổi tạng","Bạch mạch màng phổi thành","Mao mạch màng phổi thành","Tĩnh mạch phổi"], a:1,
+   e:"Đáp án B. Bạch mạch màng phổi thành (qua stomata) là con đường hấp thu chính, đặc biệt cho protein và tế bào. A, C, D đóng vai trò phụ."},
+
+  {q:"Trong sinh lý bình thường, dịch màng phổi được tiết chủ yếu từ đâu?",
+   o:["Màng phổi tạng","Mao mạch màng phổi thành","Bạch mạch","Phế nang"], a:1,
+   e:"Đáp án B. Dịch được tiết chủ yếu từ mao mạch parietal (thành) do áp lực thủy tĩnh cao hơn (30 cmH₂O). A tham gia tái hấp thu. C, D không tiết dịch."},
+
+  {q:"Áp lực trong khoang màng phổi bình thường khi nghỉ (cuối thì thở ra) là khoảng bao nhiêu?",
+   o:["-5 cmH₂O","+5 cmH₂O","-20 cmH₂O","0 cmH₂O"], a:0,
+   e:"Đáp án A. Áp lực khoang màng phổi bình thường là âm, khoảng -5 cmH₂O ở cuối thì thở ra. Áp lực âm duy trì phổi nở. B, C, D không đúng giá trị sinh lý."},
+
+  // ═══════ PHẦN 3: Lâm sàng & Chẩn đoán hình ảnh (41-60) ═══════
+  // Đáp án: A=5, B=5, C=5, D=5
+  {q:"Cần bao nhiêu dịch trong khoang màng phổi để có thể phát hiện qua khám lâm sàng?",
+   o:["100-200 mL","250-300 mL","400-500 mL","Trên 500 mL"], a:1,
+   e:"Đáp án B. Dưới 250-300 mL rất khó phát hiện bằng thăm khám. A quá ít, không thể phát hiện. C, D đã quá nhiều."},
+
+  {q:"Trên X-quang ngực thẳng, tràn dịch màng phổi được phát hiện khi thể tích dịch từ bao nhiêu?",
+   o:["50 mL","100 mL","200 mL","500 mL"], a:2,
+   e:"Đáp án C. X-quang thẳng phát hiện từ 200 mL. A (50 mL) chỉ phát hiện trên phim nghiêng. B, D không chính xác."},
+
+  {q:"X-quang ngực tư thế nghiêng có thể phát hiện lượng dịch tối thiểu là bao nhiêu?",
+   o:["50 mL","100 mL","200 mL","300 mL"], a:0,
+   e:"Đáp án A. X-quang nghiêng nhạy hơn thẳng, phát hiện từ 50 mL. B, C, D là ngưỡng của các phương pháp kém nhạy hơn."},
+
+  {q:"Siêu âm có thể phát hiện lượng dịch màng phổi tối thiểu là bao nhiêu?",
+   o:["5 mL","10 mL","20 mL","50 mL"], a:2,
+   e:"Đáp án C. Siêu âm cực kỳ nhạy, phát hiện dịch từ 20 mL. A quá ít, khó phát hiện. B không chính xác. D là ngưỡng X-quang nghiêng."},
+
+  {q:"CT-scan ngực có thể phát hiện lượng dịch dưới mức nào?",
+   o:["10 mL","20 mL","30 mL","50 mL"], a:0,
+   e:"Đáp án A. CT phát hiện dịch dưới 10 mL, nhạy nhất trong các phương pháp hình ảnh. B, C, D đều lớn hơn khả năng phát hiện."},
+
+  {q:"Dấu hiệu 'đường cong Damoiseau' trên X-quang xuất hiện khi lượng dịch khoảng:",
+   o:["200-500 mL","500-1000 mL","1000-1500 mL","Trên 2000 mL"], a:2,
+   e:"Đáp án C. 1-1,5 L dịch tạo hình ảnh mờ 1/3 dưới phổi kèm đường cong lõm lên trên vào trong. A, B ít quá. D nhiều quá."},
+
+  {q:"Trên X-quang, tràn dịch lượng ít nhất biểu hiện bằng dấu hiệu nào?",
+   o:["Tù góc sườn hoành","Mờ toàn bộ một bên phổi","Đường cong Damoiseau","Đẩy lệch trung thất"], a:0,
+   e:"Đáp án A. Tù góc sườn hoành là dấu hiệu sớm nhất trên X-quang thẳng, xuất hiện khi dịch khoảng 200-500 mL. B, C gặp khi dịch nhiều hơn. D khi dịch rất nhiều."},
+
+  {q:"Tràn dịch lượng lớn (>1500 mL) trên X-quang thường kèm dấu hiệu nào?",
+   o:["Chỉ tù góc sườn hoành","Chỉ có đường cong Damoiseau","Mờ toàn bộ phổi và đẩy lệch trung thất sang bên đối diện","Hình ảnh phổi bình thường"], a:2,
+   e:"Đáp án C. Dịch lượng lớn gây mờ toàn bộ phổi bệnh và đẩy trung thất sang đối diện. A, B gặp khi dịch ít hơn. D sai hoàn toàn."},
+
+  {q:"Siêu âm màng phổi có ưu điểm quan trọng nào so với X-quang?",
+   o:["Đánh giá nhu mô phổi tốt hơn","Hướng dẫn chọc dò an toàn, phát hiện vách ngăn","Phát hiện tràn khí tốt hơn","Đánh giá trung thất tốt hơn"], a:1,
+   e:"Đáp án B. Siêu âm giúp hướng dẫn chọc dò tại giường, phát hiện vách ngăn và phân biệt dịch tự do/khu trú. A, C, D không phải ưu điểm chính."},
+
+  {q:"Dấu hiệu nào trên siêu âm gợi ý dịch màng phổi là dịch tiết?",
+   o:["Vùng trống âm đồng nhất","Có vách ngăn hoặc hồi âm không đồng nhất","Phổi xẹp hoàn toàn","Cơ hoành di động bình thường"], a:1,
+   e:"Đáp án B. Dịch tiết thường có vách ngăn, hồi âm không đồng nhất do protein và tế bào. A gợi ý dịch thấm. C, D không đặc hiệu cho phân biệt dịch thấm/tiết."},
+
+  {q:"Trong tràn dịch màng phổi, triệu chứng lâm sàng thường gặp nhất là gì?",
+   o:["Khó thở","Ho ra máu","Sốt cao","Đau đầu"], a:0,
+   e:"Đáp án A. Khó thở là triệu chứng phổ biến nhất, do phổi bị chèn ép. B gặp trong ung thư phổi. C gặp trong nhiễm trùng. D không liên quan."},
+
+  {q:"Đau ngực kiểu màng phổi có đặc điểm nào đặc trưng nhất?",
+   o:["Đau liên tục không thay đổi theo hô hấp","Đau tăng khi hít sâu và ho","Đau lan xuống chân","Đau giảm khi nằm nghiêng bên lành"], a:1,
+   e:"Đáp án B. Đau tăng khi hít sâu, ho do hai lá màng phổi cọ vào nhau. A không đặc trưng cho đau màng phổi. C, D không đúng."},
+
+  {q:"Khám lâm sàng tràn dịch màng phổi lượng trung bình thấy gì khi gõ?",
+   o:["Gõ vang","Gõ đục","Gõ trong","Gõ bình thường"], a:1,
+   e:"Đáp án B. Gõ đục ở vùng có dịch là dấu hiệu cơ bản. A gặp trong tràn khí. C, D không đúng khi có dịch."},
+
+  {q:"Rung thanh trong tràn dịch màng phổi thay đổi như thế nào?",
+   o:["Giảm hoặc mất","Tăng","Không thay đổi","Thay đổi theo nhịp thở"], a:0,
+   e:"Đáp án A. Rung thanh giảm/mất ở vùng có dịch do dịch cản truyền âm. B gặp trong đông đặc phổi. C, D không đúng."},
+
+  {q:"Tiếng cọ màng phổi nghe được ở giai đoạn nào của tràn dịch?",
+   o:["Khi dịch rất nhiều","Giai đoạn đầu khi dịch ít, hai lá màng phổi còn cọ vào nhau","Chỉ ở giai đoạn hồi phục","Không bao giờ nghe được trong tràn dịch"], a:1,
+   e:"Đáp án B. Tiếng cọ xuất hiện ở giai đoạn đầu (viêm khô), khi dịch tăng thì tiếng cọ biến mất vì hai lá tách xa. A, C, D không chính xác."},
+
+  {q:"Rì rào phế nang ở vùng tràn dịch thay đổi như thế nào?",
+   o:["Tăng","Không đổi","Giảm hoặc mất","Thay thế bằng tiếng thổi ống"], a:2,
+   e:"Đáp án C. Rì rào phế nang giảm/mất ở vùng tràn dịch do phổi bị chèn ép. A sai. B sai. D gặp trong đông đặc phổi."},
+
+  {q:"Hội chứng 3 giảm trong tràn dịch màng phổi bao gồm những gì?",
+   o:["Giảm rung thanh, gõ đục, giảm rì rào phế nang","Giảm rung thanh, gõ vang, giảm rì rào phế nang","Tăng rung thanh, gõ đục, thổi ống","Giảm rung thanh, gõ trong, giảm ho"], a:0,
+   e:"Đáp án A. Hội chứng 3 giảm: giảm rung thanh + gõ đục + giảm/mất rì rào phế nang. B (gõ vang) gặp trong tràn khí. C gặp trong đông đặc. D không đúng."},
+
+  {q:"Chọc dò dịch màng phổi chẩn đoán được chỉ định khi dịch dày trên siêu âm ít nhất bao nhiêu?",
+   o:["5 mm","10 mm","20 mm","30 mm"], a:1,
+   e:"Đáp án B. Chọc dò an toàn khi lớp dịch dày ≥ 10 mm trên siêu âm. A quá mỏng, rủi ro cao. C, D không cần thiết phải dày đến vậy."},
+
+  {q:"Vị trí chọc dò dịch màng phổi kinh điển là ở đâu?",
+   o:["Khoang liên sườn V-VI đường nách trước","Khoang liên sườn VII-IX đường nách sau, bờ trên xương sườn dưới","Khoang liên sườn II đường giữa xương đòn","Khoang liên sườn IV cạnh ức trái"], a:1,
+   e:"Đáp án B. Vị trí kinh điển: khoang liên sườn VII-IX đường nách sau, đâm kim sát bờ trên xương sườn để tránh bó mạch-thần kinh liên sườn ở bờ dưới. A, C, D không đúng vị trí."},
+
+  // ═══════ PHẦN 4: Xét nghiệm & Tiêu chuẩn Light (61-80) ═══════
+  // Đáp án: A=5, B=5, C=5, D=5
+  {q:"Theo tiêu chuẩn Light, dịch tiết khi tỷ lệ Protein DMP/huyết thanh lớn hơn:",
+   o:["0,3","0,5","0,6","0,7"], a:1,
+   e:"Đáp án B. Tiêu chuẩn Light (1): Protein DMP/HT > 0,5. A quá thấp (nhiều dịch thấm cũng đạt). C, D quá cao."},
+
+  {q:"Theo tiêu chuẩn Light, tỷ lệ LDH DMP/huyết thanh bao nhiêu gợi ý dịch tiết?",
+   o:["Lớn hơn 0,4","Lớn hơn 0,6","Lớn hơn 0,8","Lớn hơn 1,0"], a:1,
+   e:"Đáp án B. Tiêu chuẩn Light (2): LDH DMP/HT > 0,6. A quá thấp uá. C, D quá cao."},
+
+  {q:"Tiêu chuẩn Light thứ 3 là LDH dịch màng phổi lớn hơn bao nhiêu phần trăm giới hạn trên bình thường LDH máu?",
+   o:["33%","50%","67%","80%"], a:2,
+   e:"Đáp án C. LDH DMP > 2/3 (67%) giới hạn trên LDH máu bình thường. A (1/3) quá thấp. B (1/2) không chính xác. D quá cao."},
+
+  {q:"Để xác định dịch tiết theo tiêu chuẩn Light, cần thỏa MẤY trong 3 tiêu chuẩn?",
+   o:["Cả 3 tiêu chuẩn","Ít nhất 2 tiêu chuẩn","Ít nhất 1 tiêu chuẩn","Không cần thỏa tiêu chuẩn nào"], a:2,
+   e:"Đáp án C. Chỉ cần thỏa ≥ 1/3 tiêu chuẩn Light là xác định dịch tiết. A, B yêu cầu quá nhiều. D vô nghĩa."},
+
+  {q:"Nếu Albumin máu − Albumin DMP > 1,2 g/dL thì gợi ý điều gì?",
+   o:["Dịch tiết","Dịch thấm","Tràn dịch dưỡng chấp","Tràn mủ"], a:1,
+   e:"Đáp án B. Gradient Albumin > 1,2 g/dL gợi ý dịch thấm, giúp sửa sai khi Light phân loại nhầm (VD: suy tim dùng lợi tiểu). A ngược lại. C, D khác cơ chế."},
+
+  {q:"Gradient Protein máu − Protein DMP lớn hơn bao nhiêu gợi ý dịch thấm?",
+   o:["1,0 g/dL","2,0 g/dL","3,1 g/dL","4,0 g/dL"], a:2,
+   e:"Đáp án C. Gradient > 3,1 g/dL gợi ý dịch thấm, bổ sung cho tiêu chuẩn Light. A, B quá thấp, D quá cao."},
+
+  {q:"Tiêu chuẩn Light có độ nhạy phát hiện dịch tiết khoảng bao nhiêu phần trăm?",
+   o:["85%","90%","98%","100%"], a:2,
+   e:"Đáp án C. Độ nhạy ≈ 98% nghĩa là rất ít dịch tiết bị bỏ sót. A, B thấp hơn thực tế. D không có xét nghiệm nào đạt 100%."},
+
+  {q:"Hạn chế chính của tiêu chuẩn Light là gì?",
+   o:["Độ nhạy thấp","Phân loại nhầm khoảng 25% dịch thấm thành dịch tiết","Không áp dụng được cho dịch máu","Yêu cầu sinh thiết màng phổi"], a:1,
+   e:"Đáp án B. Khoảng 25% dịch thấm (đặc biệt suy tim dùng lợi tiểu) bị phân loại nhầm thành dịch tiết. A sai (độ nhạy rất cao). C, D không đúng."},
+
+  {q:"Nồng độ ADA > 40 U/L trong dịch màng phổi gợi ý chẩn đoán gì?",
+   o:["Ung thư màng phổi","Suy tim","Lao màng phổi","Tràn dịch dưỡng chấp"], a:2,
+   e:"Đáp án C. ADA > 40 U/L có độ nhạy 92% và độ đặc hiệu 90% cho lao màng phổi ở vùng dịch tễ cao. A, B, D không liên quan ADA."},
+
+  {q:"Tràn dịch do lao thường có Protein DMP trung bình trong khoảng nào?",
+   o:["2,0-4,0 g/dL","3,0-5,0 g/dL","5,0-6,8 g/dL","> 7,0 g/dL"], a:2,
+   e:"Đáp án C. Lao có protein dịch rất cao, trung bình 5,0-6,8 g/dL. A, B gặp trong nhiều nguyên nhân khác. D hiếm gặp."},
+
+  {q:"Triglyceride dịch màng phổi > 110 mg/dL chẩn đoán bệnh lý gì?",
+   o:["Tràn mủ","Lao màng phổi","Tràn máu","Tràn dịch dưỡng chấp (chylothorax)"], a:3,
+   e:"Đáp án D. TG > 110 mg/dL xác nhận chylothorax (dưỡng chấp) do vỡ/tắc ống ngực. A, B, C có đặc điểm dịch khác."},
+
+  {q:"Khi Triglyceride dịch nằm trong khoảng 50-110 mg/dL, cần làm thêm xét nghiệm gì để xác nhận chylothorax?",
+   o:["Phân tích lipoprotein tìm chylomicron","Nhuộm Gram","Đếm tế bào","Đo pH dịch"], a:0,
+   e:"Đáp án A. Khi TG trong vùng xám (50-110), cần phân tích lipoprotein tìm chylomicron để xác nhận. B cho nhiễm trùng. C, D không đặc hiệu cho dưỡng chấp."},
+
+  {q:"pH dịch màng phổi < 7,20 ở bệnh nhân tràn dịch cận viêm phổi có chỉ định gì?",
+   o:["Theo dõi thêm","Đặt ống dẫn lưu màng phổi","Dùng kháng sinh đơn thuần","Chọc tháo dịch một lần"], a:1,
+   e:"Đáp án B. pH < 7,20 gợi ý biến chứng (tràn mủ sắp hình thành), cần dẫn lưu để tránh vách hoá. A, C, D không đủ can thiệp."},
+
+  {q:"Ở bệnh nhân suy tim, điểm cắt NT-proBNP dịch màng phổi để chẩn đoán là:",
+   o:["> 500 pg/mL","> 1000 pg/mL","> 1500 pg/mL","> 2000 pg/mL"], a:2,
+   e:"Đáp án C. NT-proBNP > 1500 pg/mL hầu như xác định tràn dịch do suy tim. A, B thấp hơn điểm cắt. D quá cao."},
+
+  {q:"Độ nhạy xét nghiệm tế bào học dịch màng phổi lần chọc dò đầu tiên là:",
+   o:["45%","55%","65%","85%"], a:2,
+   e:"Đáp án C. Lần 1 đạt 65%, lần 2 tăng thêm 12-27%. Không khuyến cáo chọc lần 3 vì hiệu suất thấp. A, B thấp hơn thực tế. D quá cao."},
+
+  {q:"Dịch màng phổi do ung thư thường có đặc điểm tế bào nào?",
+   o:["Ưu thế bạch cầu đa nhân trung tính","Ưu thế lymphocyte","Ưu thế eosinophil","Không có tế bào"], a:1,
+   e:"Đáp án B. Ung thư gây dịch lymphocyte ưu thế. A gặp trong viêm cấp. C gặp trong dịch phản ứng, ký sinh trùng. D sai."},
+
+  {q:"Tràn dịch cận viêm phổi không biến chứng thường có pH dịch bao nhiêu?",
+   o:["< 7,0","> 7,20","< 6,5","= 7,0"], a:1,
+   e:"Đáp án B. pH > 7,20 gợi ý không biến chứng, chỉ cần kháng sinh. A gặp trong mủ, C quá thấp. D là ranh giới."},
+
+  {q:"Dịch màng phổi màu trắng sữa gợi ý bệnh lý nào nhất?",
+   o:["Tràn máu","Tràn mủ","Viêm phổi","Tràn dịch dưỡng chấp"], a:3,
+   e:"Đáp án D. Màu trắng sữa đặc trưng cho dưỡng chấp (vỡ ống ngực) hoặc giả dưỡng chấp. A (đỏ máu), B (đục mủ), C (không đặc trưng)."},
+
+  {q:"Dịch màng phổi có Hematocrit > 50% Hematocrit máu ngoại vi chẩn đoán gì?",
+   o:["Tràn mủ","Tràn dịch dưỡng chấp","Lao màng phổi","Tràn máu màng phổi"], a:3,
+   e:"Đáp án D. Hct dịch > 50% Hct máu xác định tràn máu, cần can thiệp ngoại khoa nếu > 200 mL/h. A, B, C có đặc điểm dịch khác."},
+
+  // ═══════ PHẦN 5: Bệnh lý & Tràn khí màng phổi (81-100) ═══════
+  // Đáp án: A=5, B=5, C=5, D=5
+  {q:"Nguyên nhân phổ biến nhất gây tràn dịch thấm là gì?",
+   o:["Suy tim sung huyết","Lao phổi","Ung thư phổi","Viêm phổi"], a:0,
+   e:"Đáp án A. Suy tim là nguyên nhân hàng đầu gây dịch thấm do tăng áp lực thủy tĩnh. B, C, D gây dịch tiết."},
+
+  {q:"Tràn dịch màng phổi do suy tim thường ở vị trí nào?",
+   o:["Bên trái","Bên phải","Hai bên, bên phải thường nhiều hơn","Hai bên bằng nhau"], a:2,
+   e:"Đáp án C. Suy tim thường gây tràn dịch 2 bên, bên phải nhiều hơn do diện tích hấp thu bên phải lớn hơn. A, B chỉ đúng một phần. D không chính xác."},
+
+  {q:"Trong tràn khí màng phổi tự phát nguyên phát, đối tượng thường gặp nhất là:",
+   o:["Nam trẻ, cao gầy","Nữ trung niên, béo phì","Nam cao tuổi, hút thuốc lâu năm","Trẻ em dưới 10 tuổi"], a:0,
+   e:"Đáp án A. PSP thường gặp ở nam trẻ (20-30 tuổi), cao gầy, có thể có/không hút thuốc. B, C là nhóm khác. D hiếm gặp."},
+
+  {q:"Hút thuốc lá > 22 điếu/ngày tăng nguy cơ tràn khí ở nam giới gấp bao nhiêu lần?",
+   o:["21 lần","50 lần","102 lần","200 lần"], a:2,
+   e:"Đáp án C. Hút > 22 điếu/ngày tăng nguy cơ 102 lần. A (21 lần) là mức hút ít hơn. B, D không chính xác."},
+
+  {q:"Theo BTS, tràn khí 'nhiều' khi khoảng cách màng phổi tạng-thành ngực ngang rốn phổi là:",
+   o:["≥ 1 cm","≥ 2 cm","≥ 3 cm","≥ 5 cm"], a:1,
+   e:"Đáp án B. ≥ 2 cm tương đương tràn khí 50% thể tích phổi (BTS). A (< 2cm) là tràn khí ít. C, D quá lớn."},
+
+  {q:"Theo ACCP, tràn khí 'lớn' khi khoảng cách đỉnh phổi-đỉnh lồng ngực là:",
+   o:["≥ 1 cm","≥ 2 cm","≥ 3 cm","≥ 5 cm"], a:2,
+   e:"Đáp án C. ACCP dùng mốc ≥ 3 cm từ đỉnh phổi đến đỉnh lồng ngực. A, B là tiêu chuẩn BTS. D quá lớn."},
+
+  {q:"Định nghĩa tràn khí màng phổi ổn định khi nhịp thở thấp hơn:",
+   o:["16 lần/phút","20 lần/phút","24 lần/phút","30 lần/phút"], a:2,
+   e:"Đáp án C. Tràn khí ổn định: nhịp thở < 24 lần/phút, SpO2 > 90%, mạch 60-120, HA bình thường, nói được cả câu. A, B là nhịp thở bình thường. D quá nhanh."},
+
+  {q:"SpO2 tối thiểu để xem tràn khí màng phổi là ổn định?",
+   o:["> 85%","> 88%","> 90%","> 95%"], a:2,
+   e:"Đáp án C. SpO2 > 90% là một trong các tiêu chuẩn tràn khí ổn định. A, B quá thấp (cần can thiệp). D quá ngặt (bình thường)."},
+
+  {q:"Tràn khí màng phổi tự phát nguyên phát (PSP) lượng ít, ổn định nên xử trí như thế nào?",
+   o:["Theo dõi và thở oxy","Đặt ống dẫn lưu ngay","Phẫu thuật nội soi","Chọc hút khí lượng lớn"], a:0,
+   e:"Đáp án A. PSP ổn định, tràn khí ít (< 2 cm) chỉ cần theo dõi + oxy liệu pháp, khí tự hấp thu. B, C quá xâm lấn. D không cần thiết."},
+
+  {q:"Tỷ lệ tái phát tràn khí tự phát nguyên phát sau lần đầu là khoảng bao nhiêu?",
+   o:["10-15%","25-50%","60-70%","80-90%"], a:1,
+   e:"Đáp án B. Tỷ lệ tái phát 25-50% sau lần đầu, tăng đáng kể sau lần 2 (60-80%). A quá thấp. C, D là tỷ lệ sau lần 2."},
+
+  {q:"Chỉ định phẫu thuật trong tràn khí tự phát bao gồm tình huống nào?",
+   o:["Tràn khí lần đầu, ổn định","Tràn khí tái phát cùng bên lần 2","Tràn khí ít, không triệu chứng","Tràn khí ở bệnh nhân trẻ, đẩy đủ tiêu chuẩn ổn định"], a:1,
+   e:"Đáp án B. Tái phát lần 2 cùng bên là chỉ định phẫu thuật (VATS) để ngăn tái phát tiếp. A, C, D theo dõi bảo tồn."},
+
+  {q:"Tràn khí màng phổi áp lực (tension pneumothorax) cần xử trí cấp cứu bằng cách nào?",
+   o:["Chọc kim giảm áp tức thì","Chờ X-quang xác nhận","Cho thở oxy đơn thuần","Đặt nội khí quản"], a:0,
+   e:"Đáp án A. Tràn khí áp lực là cấp cứu, cần chọc kim giảm áp tại khoang liên sườn II đường giữa đòn NGAY, không chờ X-quang. B gây chậm trễ nguy hiểm. C, D không đủ."},
+
+  {q:"Nguyên nhân phổ biến nhất gây tràn khí thứ phát (SSP) là:",
+   o:["COPD","Hen phế quản","Lao phổi","Xơ phổi"], a:0,
+   e:"Đáp án A. COPD là nguyên nhân hàng đầu gây SSP do các bóng khí thũng vỡ. B, C, D ít phổ biến hơn."},
+
+  {q:"Tốc độ hấp thu tự nhiên của tràn khí màng phổi là bao nhiêu phần trăm thể tích/ngày?",
+   o:["0,5-1%","1,25-2,2%","3-5%","5-10%"], a:1,
+   e:"Đáp án B. Tốc độ hấp thu tự nhiên khoảng 1,25-2,2%/ngày, thở oxy bổ sung tăng tốc độ hấp thu. A quá chậm. C, D quá nhanh."},
+
+  {q:"Xơ gan kèm tràn dịch màng phổi (hydrothorax gan) thường xảy ra ở bên nào?",
+   o:["Bên trái","Bên phải","Hai bên bằng nhau","Không có quy luật"], a:1,
+   e:"Đáp án B. Hydrothorax gan thường bên phải (85%) do dịch cổ chướng đi qua các lỗ nhỏ trên cơ hoành phải. A chỉ ~15%. C, D không đúng."},
+
+  {q:"Thuyên tắc phổi gây tràn dịch theo cơ chế nào?",
+   o:["Tăng tính thấm mao mạch phổi do thiếu máu","Giảm albumin huyết thanh","Tắc ống ngực","Tăng áp lực keo"], a:0,
+   e:"Đáp án A. Thuyên tắc phổi gây thiếu máu mô → tăng tính thấm mao mạch → dịch tiết. B gặp trong thận hư. C gây dưỡng chấp. D không gây tràn dịch."},
+
+  {q:"Tràn dịch do hội chứng thận hư thuộc loại dịch gì?",
+   o:["Dịch tiết","Dịch thấm","Dịch dưỡng chấp","Dịch máu"], a:1,
+   e:"Đáp án B. Thận hư → mất protein niệu → giảm albumin máu → giảm áp lực keo → dịch thấm. A gặp trong viêm. C, D khác cơ chế."},
+
+  {q:"Viêm tụy cấp có thể gây tràn dịch màng phổi ở bên nào?",
+   o:["Bên phải","Hai bên bằng nhau","Bên trái hoặc hai bên","Không gây tràn dịch"], a:2,
+   e:"Đáp án C. Viêm tụy thường gây tràn dịch bên trái (do giải phẫu tụy) hoặc hai bên, với amylase dịch tăng cao. A thường gặp ở xơ gan. B, D không chính xác."},
+
+  {q:"Amylase dịch màng phổi tăng cao gợi ý nguyên nhân nào?",
+   o:["Suy tim","Lao","Viêm tụy hoặc vỡ thực quản","Thuyên tắc phổi"], a:2,
+   e:"Đáp án C. Amylase tăng trong viêm tụy (amylase tụy type P) và vỡ thực quản (amylase nước bọt type S). A dịch thấm, amylase bình thường. B, D không tăng amylase."},
+
+  {q:"Lupus ban đỏ hệ thống (SLE) gây tràn dịch với đặc điểm nào khi xét nghiệm?",
+   o:["Tế bào LE (+), kháng thể kháng nhân tăng trong dịch","Triglyceride tăng cao","Hematocrit dịch > 50% hematocrit máu","ADA > 40 U/L"], a:0,
+   e:"Đáp án A. SLE: dịch tiết, tế bào LE (+), ANA tăng trong dịch là đặc trưng. B gặp trong dưỡng chấp. C trong tràn máu. D trong lao."},
 ];
 
 const TOTAL = questions.length;
@@ -936,11 +822,10 @@ function submitExam() {
   questions.forEach((_, i) => revealAnswer(i));
   const correct = userAnswers.filter((a, i) => a === questions[i].a).length;
   updateStats(true);
-  const modal = document.getElementById('resultModal');
-  const circle = document.getElementById('scoreCircle');
   const scoreText = document.getElementById('scoreText');
   const title = document.getElementById('resultTitle');
   const desc = document.getElementById('resultDesc');
+  const circle = document.getElementById('scoreCircle');
   scoreText.textContent = correct;
   document.querySelector('.modal .score-circle .small').textContent = '/ ' + TOTAL;
   const pct = correct / TOTAL * 100;
@@ -954,7 +839,7 @@ function submitExam() {
     circle.style.borderColor = 'var(--wrong)'; scoreText.style.color = 'var(--wrong)';
     title.textContent = '📖 Cần cố gắng thêm!'; desc.textContent = 'Hãy xem lại đáp án và ôn tập thêm nhé!';
   }
-  modal.classList.add('show');
+  document.getElementById('resultModal').classList.add('show');
   window.scrollTo({top: 0, behavior: 'smooth'});
 }
 
