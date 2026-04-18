@@ -31,7 +31,7 @@ const EMOTION_COLORS: Record<string, string> = {
   Distraction: "bg-red-500/20 border-red-500/40 text-red-300",
 };
 
-const ANALYZE_INTERVAL_MS = 3000;
+const ANALYZE_INTERVAL_MS = 1500;
 
 // PeerJS config: Force production settings for iPad App
 const PEER_HOST   = "minda.io.vn";
@@ -519,13 +519,17 @@ export default function LiveRoomPage() {
     finally { setIsAnalyzing(false); }
   }, [isAnalyzing, sessionId, userInfo?.role]);
 
+  // Dùng Ref để tránh stale closure làm reset Interval mỗi khi component re-render
+  const captureRef = useRef(captureAndAnalyze);
+  useEffect(() => { captureRef.current = captureAndAnalyze; }, [captureAndAnalyze]);
+
   useEffect(() => {
     if (localStream && userInfo?.role === "student") {
       if (intervalRef.current) clearInterval(intervalRef.current);
-      intervalRef.current = setInterval(captureAndAnalyze, ANALYZE_INTERVAL_MS);
+      intervalRef.current = setInterval(() => { captureRef.current(); }, ANALYZE_INTERVAL_MS);
     }
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-  }, [localStream, captureAndAnalyze, userInfo?.role]);
+  }, [localStream, userInfo?.role]);
 
 
   // --- 6. Control actions
