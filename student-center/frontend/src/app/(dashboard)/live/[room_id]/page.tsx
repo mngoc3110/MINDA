@@ -31,14 +31,21 @@ const EMOTION_COLORS: Record<string, string> = {
   Distraction: "bg-red-500/20 border-red-500/40 text-red-300",
 };
 
-const ANALYZE_INTERVAL_MS = 1500;
+// TẬN DỤNG RAPT-CLIP CHÍNH GỐC ĐỈNH CAO NHẤT:
+// Gửi 1 frame mỗi 60ms (~16 FPS). Nghĩa là 16 frames sẽ được thu thập trong ĐÚNG 1 GIÂY (Real-time 1s)!
+// Máy Macbook M4 Pro xử lý dư sức lượng frames lớn này qua localhost.
+const ANALYZE_INTERVAL_MS = 60;
 
-// PeerJS config: Force production settings for iPad App
-const PEER_HOST   = "minda.io.vn";
-const PEER_PORT   = 443;
-const PEER_PATH   = "/peerjs/";
-const PEER_SECURE = true;
+// PeerJS config: Auto-detect local vs production
+const IS_LOCALHOST = typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
+const PEER_HOST   = IS_LOCALHOST ? "localhost" : "minda.io.vn";
+const PEER_PORT   = IS_LOCALHOST ? 9000 : 443;
+const PEER_PATH   = IS_LOCALHOST ? "/" : "/peerjs/";
+const PEER_SECURE = IS_LOCALHOST ? false : true;
 const PEER_DEBUG  = 1;
+
+// API URL: auto-detect local backend
+const API_BASE_URL = IS_LOCALHOST ? "http://localhost:8000" : (process.env.NEXT_PUBLIC_API_URL || "https://minda.io.vn");
 
 // Detect if running on native device
 const IS_NATIVE_APP = typeof window !== "undefined" && (!!(window as any).Capacitor || window.location.protocol === "capacitor:");
@@ -150,16 +157,22 @@ function VideoRefPlayer({ stream, mirrored = false, className = "" }: {
 export default function LiveRoomPage() {
   const { room_id } = useParams();
   const router = useRouter();
+  const isStudyGroup = typeof room_id === 'string' && room_id.startsWith("study-");
 
-  const [userInfo, setUserInfo] = useState<{ full_name: string; role: string; isRoomOwner: boolean } | null>(null);
+  const [userInfo, setUserInfo] = useState<{ full_name: string; role: string; isRoomOwner: boolean; isAutoHost?: boolean } | null>(null);
   const [sessionId, setSessionId] = useState<number | null>(null);
   const [hasJoined, setHasJoined] = useState(false);
+
+  // Component-level isTeacher (không nằm trong useEffect closure nữa)
+  const isTeacher = userInfo?.role === "teacher" || userInfo?.role === "admin" || false;
+  const isHost = isTeacher || userInfo?.isAutoHost || false;
 
   // WebRTC states
   const [peerStatus, setPeerStatus] = useState<"connecting" | "connected" | "error">("connecting");
   const [micEnabled, setMicEnabled]   = useState(true);
   const [camEnabled, setCamEnabled]   = useState(true);
   const [isScreenSharing, setIsScreenSharing] = useState(false);
+  const [isSelfCamEnlarged, setIsSelfCamEnlarged] = useState(false);
   
   // Recording states
   const [isRecording, setIsRecording] = useState(false);
@@ -218,24 +231,26 @@ export default function LiveRoomPage() {
       } catch {}
 
       let isRoomOwner = false;
-      try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://minda.io.vn"}/api/live-sessions/`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (res.ok) {
-          const sessions = await res.json();
-          const s = sessions.find((x: any) => x.room_id === room_id);
-          if (s) {
-            setSessionId(s.id);
-            isRoomOwner = myUserId !== null && s.teacher_id === myUserId;
-          }
-        }
-      } catch { /* ignore */ }
+      if (!isStudyGroup) {
+          try {
+            const res = await fetch(`${API_BASE_URL}/api/live-sessions/`, {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            if (res.ok) {
+              const sessions = await res.json();
+              const s = sessions.find((x: any) => x.room_id === room_id);
+              if (s) {
+                setSessionId(s.id);
+                isRoomOwner = myUserId !== null && s.teacher_id === myUserId;
+              }
+            }
+          } catch { /* ignore */ }
+      }
 
       setUserInfo({ full_name: name, role, isRoomOwner });
 
       try {
-        const hRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://minda.io.vn"}/api/emotion/health`);
+        const hRes = await fetch(`${API_BASE_URL}/api/emotion/health`);
         if (hRes.ok) {
           const h = await hRes.json();
           setServiceOnline(h.inference_service === "online");
@@ -302,7 +317,11 @@ export default function LiveRoomPage() {
       // Student: peer ID = s-{userId}-{roomId}
       const stableStudentId = `s-${userId}-${(room_id as string).replace(/[^a-z0-9]/gi, "").toLowerCase()}`;
       const guestTeacherId  = `t-${userId}-${(room_id as string).replace(/[^a-z0-9]/gi, "").toLowerCase()}`;
-      const peerId = isRoomOwner ? (room_id as string) : (isTeacher ? guestTeacherId : stableStudentId);
+      let peerId = isRoomOwner ? (room_id as string) : (isTeacher ? guestTeacherId : stableStudentId);
+
+      if (isStudyGroup) {
+         peerId = room_id as string; // Auto-Host: thử lấy ngay tên phòng làm Host
+      }
 
       const peerConfig: any = {
         host:   PEER_HOST,
@@ -327,12 +346,18 @@ export default function LiveRoomPage() {
       peerInstance.current = peer;
 
       // ── Peer is open ──────────────────────────────────────────────
-            peer.on("open", (myId) => {
+      peer.on("open", (myId) => {
         if (!isMounted) return;
         console.log("[PeerJS] Open, myId =", myId, "role =", userInfo.role);
         setPeerStatus("connected");
 
-        if (!isTeacher) {
+        let actAsHost = isTeacher;
+        if (isStudyGroup && myId === room_id) {
+           actAsHost = true;
+           setUserInfo(prev => prev ? {...prev, isAutoHost: true} : prev);
+        }
+
+        if (!actAsHost) {
           // Student: attempt to call teacher with retry
           const attemptCall = () => {
 
@@ -406,7 +431,12 @@ export default function LiveRoomPage() {
         // Always answer with current active stream
         call.answer(activeStreamRef.current || stream);
 
-        if (isTeacher) {
+        let actAsHost = isTeacher;
+        if (isStudyGroup && peerInstance.current?.id === room_id) {
+           actAsHost = true;
+        }
+
+        if (actAsHost) {
           call.on("stream", (remoteStream) => {
             if (!isMounted) return;
             const studentName = call.metadata?.name ?? `Học sinh (${call.peer.substring(0, 6)})`;
@@ -433,7 +463,43 @@ export default function LiveRoomPage() {
       peer.on("error", (err) => {
         console.error("[PeerJS] Error:", err.type, err);
         if (err.type === "unavailable-id") {
-          if (isTeacher) {
+          if (isStudyGroup) {
+             // Có người làm Host rồi! Ta trở về làm Client (Tạo ID học sinh)
+             console.warn("[PeerJS] Study Group: Room is already hosted by another student. Switching to Client Mode...");
+             peer.destroy();
+             const fallbackPeer = new PeerJs(stableStudentId, peerConfig);
+             peerInstance.current = fallbackPeer;
+             
+             fallbackPeer.on("open", (myId) => {
+                if (!isMounted) return;
+                setPeerStatus("connected");
+                
+                // --- Logic của Client kết nối lại vào Host ---
+                const attemptCallFallback = () => {
+                   if (!isMounted || !peerInstance.current) return;
+                   const call = peerInstance.current.call(room_id as string, stream, { metadata: { name: userInfo.full_name } });
+                   if (!call) { callRetryRef.current = setTimeout(attemptCallFallback, 3000); return; }
+                   call.on("stream", (remoteStream) => { if (isMounted) setTeacherStream(remoteStream); });
+                   call.on("error", () => { callRetryRef.current = setTimeout(attemptCallFallback, 3000); });
+                   call.on("close", () => { setTeacherStream(null); });
+                };
+                attemptCallFallback();
+                
+                const connectDataFallback = () => {
+                   if (!isMounted || !peerInstance.current) return;
+                   if (dataConnRef.current && dataConnRef.current.open) return;
+                   const conn = peerInstance.current.connect(room_id as string, { metadata: { peerId: peerInstance.current.id }});
+                   conn.on("open", () => { dataConnRef.current = conn; });
+                   conn.on("error", () => { setTimeout(connectDataFallback, 3000); });
+                   conn.on("close", () => { dataConnRef.current = null; setTimeout(connectDataFallback, 3000); });
+                };
+                connectDataFallback();
+                const retryDataInterval = setInterval(() => {
+                   if (isMounted && (!dataConnRef.current || !dataConnRef.current.open)) connectDataFallback();
+                }, 5000);
+             });
+          }
+          else if (isTeacher) {
             alert("Phòng học đã có giáo viên khác. Vui lòng đổi tên phòng.");
           } else {
             // Học sinh: stable ID bị chiếm (session cũ chưa expire) → dùng fallback ID
@@ -489,11 +555,15 @@ export default function LiveRoomPage() {
       if (peerInstance.current) peerInstance.current.destroy();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userInfo, room_id, hasJoined]);
+  }, [userInfo?.role, userInfo?.isRoomOwner, room_id, hasJoined]);
 
   // --- 5. Emotion analysis (students only)
-    const captureAndAnalyze = useCallback(async () => {
-    if (isAnalyzing) return;
+  // Dùng Ref cho isAnalyzing để TRÁNH re-render mỗi lần gửi frame
+  const isAnalyzingRef = useRef(false);
+  const lastEmotionLabel = useRef<string>("");
+
+  const captureAndAnalyze = useCallback(async () => {
+    if (isAnalyzingRef.current) return;
     const videoNode = localVideoRef.current || pipVideoRef.current;
     if (!canvasRef.current || !videoNode) return;
     if (userInfo?.role === "teacher" || userInfo?.role === "admin") return;
@@ -501,32 +571,32 @@ export default function LiveRoomPage() {
     if (video.readyState < 2) return;
 
     const canvas = canvasRef.current;
-    canvas.width  = 160;
-    canvas.height = 160;
+    canvas.width  = 320;
+    canvas.height = 320;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    ctx.drawImage(video, 0, 0, 160, 160);
-    const frame_b64 = canvas.toDataURL("image/jpeg", 0.4);
+    ctx.drawImage(video, 0, 0, 320, 320);
+    const frame_b64 = canvas.toDataURL("image/jpeg", 0.5);
 
-    setIsAnalyzing(true);
+    isAnalyzingRef.current = true;
     try {
       const token = localStorage.getItem("minda_token");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://minda.io.vn"}/api/emotion/analyze`, {
+      const res = await fetch(`${API_BASE_URL}/api/emotion/analyze`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ frame_b64, session_id: sessionId }),
       });
       if (res.ok) {
         const emData = await res.json();
+        // Luôn cập nhật UI với kết quả mới nhất (gồm cả confidence)
         setEmotion(emData);
-        // Gửi thẳng qua Data Channel tới GV (bỏ qua conn.open vì PeerJS đôi khi không update state open kịp)
         if (dataConnRef.current) {
           dataConnRef.current.send({ type: "emotion", peerId: peerInstance.current?.id, emotion: emData });
         }
       }
     } catch { /* ignore */ }
-    finally { setIsAnalyzing(false); }
-  }, [isAnalyzing, sessionId, userInfo?.role]);
+    finally { isAnalyzingRef.current = false; }
+  }, [sessionId, userInfo?.role]);
 
   // Dùng Ref để tránh stale closure làm reset Interval mỗi khi component re-render
   const captureRef = useRef(captureAndAnalyze);
@@ -535,7 +605,8 @@ export default function LiveRoomPage() {
   useEffect(() => {
     if (localStream && userInfo?.role === "student") {
       if (intervalRef.current) clearInterval(intervalRef.current);
-      intervalRef.current = setInterval(() => { captureRef.current(); }, ANALYZE_INTERVAL_MS);
+      // 200ms = 5 FPS → RAPT-CLIP buffer 16 frames trong ~3.2 giây → kết quả nhanh hơn!
+      intervalRef.current = setInterval(() => { captureRef.current(); }, 200);
     }
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
   }, [localStream, userInfo?.role]);
@@ -576,11 +647,13 @@ export default function LiveRoomPage() {
       return;
     }
 
-    // Try native iOS screen share first (Capacitor + ReplayKit)
-    const nativeOk = await startNativeScreenShare();
-    if (nativeOk) return; // Success via native — screen frames go through server WebSocket
+    if (IS_NATIVE_APP) {
+      // Try native iOS screen share first (Capacitor + ReplayKit)
+      const nativeOk = await startNativeScreenShare();
+      if (nativeOk) return; // Success via native — screen frames go through server WebSocket
+    }
 
-    // Fallback to browser getDisplayMedia
+    // Fallback to browser getDisplayMedia (Phải gọi ngay lập tức không qua await để Safari iOS không chặn)
     try {
       const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
       const screenTrack  = screenStream.getVideoTracks()[0];
@@ -660,7 +733,7 @@ export default function LiveRoomPage() {
       const mixedStream = new MediaStream([videoTrack]);
       if (mixedAudioTrack) mixedStream.addTrack(mixedAudioTrack);
 
-      const wsUrl = `${process.env.NEXT_PUBLIC_API_URL?.replace("http", "ws") || "ws://localhost:8000"}/api/live-sessions/${room_id}/record?token=${localStorage.getItem("minda_token")}`;
+      const wsUrl = `${API_BASE_URL.replace("http", "ws")}/api/live-sessions/${room_id}/record?token=${localStorage.getItem("minda_token")}`;
       const ws = new WebSocket(wsUrl);
       recordWsRef.current = ws;
 
@@ -711,14 +784,14 @@ export default function LiveRoomPage() {
       const token = localStorage.getItem("minda_token");
       const isTeacher = userInfo?.role === "teacher" || userInfo?.role === "admin";
       if (isTeacher) {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://minda.io.vn"}/api/live-sessions/`, {
+        const res = await fetch(`${API_BASE_URL}/api/live-sessions/`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) {
           const sessions = await res.json();
           const cur = sessions.find((s: any) => s.room_id === room_id);
           if (cur) {
-            await fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://minda.io.vn"}/api/live-sessions/${cur.id}/status?status=ended`, {
+            await fetch(`${API_BASE_URL}/api/live-sessions/${cur.id}/status?status=ended`, {
               method: "PUT",
               headers: { Authorization: `Bearer ${token}` },
             });
@@ -729,7 +802,7 @@ export default function LiveRoomPage() {
     finally { router.push("/live"); }
   };
 
-  const isTeacher = userInfo?.role === "teacher" || userInfo?.role === "admin";
+
 
   // ── Screen Share Viewer (students receive JPEG frames via WebSocket) ─────────
   useEffect(() => {
@@ -737,7 +810,7 @@ export default function LiveRoomPage() {
     const token = localStorage.getItem("minda_token");
     if (!token) return;
 
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://minda.io.vn";
+    const apiUrl = API_BASE_URL;
     const wsBase = apiUrl.replace("http", "ws");
     const wsUrl = `${wsBase}/api/live-sessions/${room_id}/screen-share?token=${token}&role=viewer`;
     
@@ -872,7 +945,7 @@ export default function LiveRoomPage() {
           )}
 
           {/* ── TEACHER VIEW: camera của teacher + screen share ── */}
-          {peerStatus === "connected" && isTeacher && (
+          {peerStatus === "connected" && isHost && (
             <div className="w-full h-full relative rounded-3xl overflow-hidden border border-white/10 bg-black shadow-2xl">
               <video
                 ref={node => { localVideoRef.current = node; if (node && activeStreamRef.current && node.srcObject !== activeStreamRef.current) { node.srcObject = activeStreamRef.current; } }}
@@ -884,8 +957,13 @@ export default function LiveRoomPage() {
               <div className="absolute inset-0 bg-linear-to-t from-black/70 via-transparent to-transparent pointer-events-none" />
               <div className="absolute bottom-6 left-6 px-4 py-2 rounded-xl backdrop-blur-md bg-white/10 border border-white/20 font-bold flex items-center gap-3 text-sm">
                 <span className="w-3 h-3 rounded-full bg-rose-500 animate-pulse shadow-[0_0_10px_rgba(244,63,94,0.8)]" />
-                {isScreenSharing ? "🖥️ Đang chia sẻ màn hình" : `📹 ${userInfo?.full_name} (Bạn)`}
+                {isScreenSharing ? "🖥️ Đang chia sẻ màn hình" : `📹 ${userInfo?.full_name} (Bạn) - Trưởng Nhóm`}
               </div>
+              
+              {/* AI Emotion cho AutoHost khi full-screen */}
+              {userInfo?.isAutoHost && !isScreenSharing && (
+                 <EmotionOverlay emotion={emotion} isAnalyzing={isAnalyzing} serviceOnline={serviceOnline} compact={false} />
+              )}
               {isScreenSharing && (
                 <div className="absolute top-6 right-6 w-36 aspect-video bg-black rounded-xl overflow-hidden border border-white/20 shadow-lg z-30">
                   <video
@@ -896,13 +974,17 @@ export default function LiveRoomPage() {
                     autoPlay
                   />
                   <div className="absolute bottom-1 left-1.5 text-[9px] font-bold text-white bg-black/50 px-1.5 py-0.5 rounded">Cam bạn</div>
+                  {/* AI Emotion cho AutoHost khi Share Màn Hình (PiP) */}
+                  {userInfo?.isAutoHost && (
+                     <EmotionOverlay emotion={emotion} isAnalyzing={isAnalyzing} serviceOnline={serviceOnline} compact={true} />
+                  )}
                 </div>
               )}
             </div>
           )}
 
           {/* ── STUDENT VIEW: teacher camera (main) + self (PiP) ── */}
-          {peerStatus === "connected" && !isTeacher && (
+          {peerStatus === "connected" && !isHost && (
             <div className="w-full h-full relative rounded-3xl overflow-hidden border border-white/10 bg-[#111] shadow-2xl">
               {teacherStream ? (
                 <>
@@ -926,8 +1008,15 @@ export default function LiveRoomPage() {
                 </div>
               )}
 
-              {/* PiP: self cam (bottom-right) */}
-              <div className="absolute bottom-20 right-6 md:bottom-8 w-28 md:w-44 aspect-video bg-black rounded-2xl overflow-hidden border border-white/25 shadow-2xl z-40 hover:scale-105 transition-transform">
+              {/* PiP hoặc Fullscreen: self cam (Học sinh) */}
+              <div 
+                 onClick={() => setIsSelfCamEnlarged(!isSelfCamEnlarged)}
+                 className={`absolute bg-black rounded-2xl overflow-hidden border border-white/25 shadow-2xl z-40 transition-all cursor-pointer group ${
+                    isSelfCamEnlarged 
+                       ? "inset-4 md:inset-8 z-50 rounded-3xl border-indigo-500/50" // Phóng to
+                       : "bottom-20 right-6 md:bottom-8 w-28 md:w-44 aspect-video hover:scale-105" // Thu nhỏ
+                 }`}
+              >
                 <video
                   ref={node => { pipVideoRef.current = node; if (node && localStream && node.srcObject !== localStream) { node.srcObject = localStream; } }}
                   className="w-full h-full object-cover scale-x-[-1]"
@@ -937,14 +1026,21 @@ export default function LiveRoomPage() {
                 />
                 <div className="absolute bottom-1 left-1.5 text-[9px] font-bold text-white/80 bg-black/60 px-1.5 py-0.5 rounded">Bạn</div>
                 {/* AI emotion badge */}
-                <EmotionOverlay emotion={emotion} isAnalyzing={isAnalyzing} serviceOnline={serviceOnline} />
+                <EmotionOverlay emotion={emotion} isAnalyzing={isAnalyzing} serviceOnline={serviceOnline} compact={!isSelfCamEnlarged} />
+                
+                {/* Nút Phóng to / Thu nhỏ ảo (hiện khi hover) */}
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                    <span className="text-white font-bold bg-black/60 px-3 py-1.5 rounded-lg backdrop-blur-sm text-sm">
+                       {isSelfCamEnlarged ? "Thu nhỏ" : "Phóng to"}
+                    </span>
+                </div>
               </div>
             </div>
           )}
         </div>
 
         {/* ── Right: Student Grid (Teacher only) ─────────────────────── */}
-        {isTeacher && peerStatus === "connected" && (
+        {isHost && peerStatus === "connected" && (
           <div className="w-full md:w-80 lg:w-[380px] bg-[#111] border-l border-white/10 flex flex-col shrink-0">
             {/* Header */}
             <div className="h-16 border-b border-white/10 flex items-center justify-between px-5 bg-black/50 shrink-0">
@@ -1071,12 +1167,12 @@ export default function LiveRoomPage() {
           )}
 
           {/* Annotation button - for teacher */}
-          {isTeacher && (
+          {isHost && (
             <button
               onClick={async () => {
                 // Fetch my files
                 const token = localStorage.getItem("minda_token");
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://minda.io.vn"}/api/files/my-drive`, {
+                const res = await fetch(`${API_BASE_URL}/api/files/my-drive`, {
                   headers: { Authorization: `Bearer ${token}` }
                 });
                 if (res.ok) setMyFiles(await res.json());
@@ -1103,8 +1199,12 @@ export default function LiveRoomPage() {
           <div className="text-white/20 font-mono text-[9px] uppercase tracking-tighter hidden sm:block">
             ROOM: {room_id}
           </div>
-          <div className={`px-2 py-0.5 rounded text-[10px] font-black uppercase shadow-sm ${isTeacher ? "bg-amber-500/20 text-amber-500 border border-amber-500/30" : "bg-blue-500/20 text-blue-400 border border-blue-500/30"}`}>
-            {isTeacher ? "Giáo viên" : "Học sinh"}
+          <div className={`px-2 py-0.5 rounded text-[10px] font-black uppercase shadow-sm ${
+             isTeacher ? "bg-amber-500/20 text-amber-500 border border-amber-500/30" : 
+             userInfo?.isAutoHost ? "bg-fuchsia-500/20 text-fuchsia-400 border border-fuchsia-500/30" : 
+             "bg-blue-500/20 text-blue-400 border border-blue-500/30"
+          }`}>
+            {isTeacher ? "Giáo viên" : userInfo?.isAutoHost ? "Trưởng Nhóm" : "Học sinh"}
           </div>
         </div>
       </div>
@@ -1140,7 +1240,7 @@ export default function LiveRoomPage() {
                   const token = localStorage.getItem("minda_token");
                   const form = new FormData();
                   form.append("file", file);
-                  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://minda.io.vn"}/api/files/upload`, {
+                  const res = await fetch(`${API_BASE_URL}/api/files/upload`, {
                     method: "POST",
                     headers: { Authorization: `Bearer ${token}` },
                     body: form
