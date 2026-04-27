@@ -647,10 +647,13 @@ export default function LiveRoomPage() {
       return;
     }
 
-    if (IS_NATIVE_APP) {
-      // Try native iOS screen share first (Capacitor + ReplayKit)
+    const isNativeCapacitor = typeof window !== "undefined" && (!!(window as any).Capacitor || window.location.protocol === "capacitor:");
+    if (isNativeCapacitor) {
+      alert("📲 Nhận diện App: Bắt đầu gọi Native Plugin...");
       const nativeOk = await startNativeScreenShare();
-      if (nativeOk) return; // Success via native — screen frames go through server WebSocket
+      if (nativeOk) return;
+    } else {
+      alert("⚠️ Thiết bị không được nhận diện là Native App (Capacitor = undefined). Sẽ dùng WebRTC thay thế.");
     }
 
     // Fallback to browser getDisplayMedia (Phải gọi ngay lập tức không qua await để Safari iOS không chặn)
@@ -870,7 +873,9 @@ export default function LiveRoomPage() {
       setIsScreenSharing(true);
       return true;
     } catch (err: any) {
-      console.error("Native screen share error detail:", err?.message || JSON.stringify(err) || String(err));
+      const msg = err?.message || JSON.stringify(err) || String(err);
+      alert("❌ Lỗi Native Plugin: " + msg);
+      console.error("Native screen share error detail:", msg);
       return false;
     }
   };
