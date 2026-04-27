@@ -154,7 +154,7 @@ export default function AnnotationBoard({ fileUrl, fileType, isTeacher, onStroke
       (async () => {
         try {
           const pdfjsLib = await import("pdfjs-dist");
-          pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
+          pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
           const pdf = await pdfjsLib.getDocument({ url: actualUrl, cMapUrl: "https://unpkg.com/pdfjs-dist/cmaps/", cMapPacked: true }).promise;
           pdfDocRef.current = pdf;
           setTotalPages(pdf.numPages);
