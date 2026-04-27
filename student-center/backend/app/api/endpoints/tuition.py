@@ -18,6 +18,24 @@ def create_tuition_record(
     current_user: User = Depends(require_role("teacher", "admin")),
 ):
     """Tạo phiếu học phí cho học sinh (Teacher/Admin)."""
+    # Tránh tạo trùng lặp phiếu học phí cho cùng tháng
+    query = db.query(TuitionRecord).filter(
+        TuitionRecord.student_id == data.student_id,
+        TuitionRecord.billing_cycle == data.billing_cycle
+    )
+    if data.course_id is not None:
+        query = query.filter(TuitionRecord.course_id == data.course_id)
+    else:
+        query = query.filter(TuitionRecord.course_id.is_(None))
+        
+    existing = query.first()
+    
+    if existing:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Học sinh này đã được tạo phiếu đóng tiền cho tháng {data.billing_cycle} rồi."
+        )
+
     record = TuitionRecord(**data.model_dump())
     db.add(record)
     db.commit()
@@ -147,10 +165,17 @@ def teacher_dashboard_tuition(db: Session = Depends(get_db), current_user: User 
     records = course_records + offline_records
     records.sort(key=lambda r: r.created_at, reverse=True)
     
+    # Build class_name lookup from TeacherStudentLink
+    class_map = {}
+    for link in db.query(TeacherStudentLink).filter(TeacherStudentLink.teacher_id == current_user.id).all():
+        class_map[link.student_id] = link.class_name or ""
+    
     return [
         {
             "id": r.id,
+            "student_id": r.student_id,
             "student_name": r.student.full_name or f"Học sinh #{r.student_id}",
+            "class_name": class_map.get(r.student_id, ""),
             "course_title": r.course.title if r.course else "Lớp Offline (Tổng hợp)",
             "amount": r.amount,
             "paid_amount": r.paid_amount,

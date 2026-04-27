@@ -50,7 +50,11 @@ export default function Home() {
     fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/profile/teachers`)
       .then(res => res.json())
       .then(data => {
-        const filtered = data.filter((t: TeacherInfo) => t.full_name === "Nguyễn Lê Minh Ngọc");
+        // Hiển thị tất cả giáo viên từ API, ngoại trừ trưởng dự án (đã có thẻ hardcode riêng phía dưới)
+        const filtered = data.filter((t: TeacherInfo) => 
+          t.full_name !== "Nguyễn Lê Minh Ngọc" &&
+          t.full_name !== "Admin"
+        );
         setTeachers(filtered);
       })
       .catch(err => console.error(err));

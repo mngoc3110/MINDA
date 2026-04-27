@@ -79,6 +79,7 @@ class TeacherStudentLink(Base):
     id = Column(Integer, primary_key=True, index=True)
     student_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     teacher_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    class_name = Column(String, nullable=True)  # VD: "Lớp 11-2026", "Lớp 12-2026"
     status = Column(String, default="active")
     created_at = Column(DateTime, default=datetime.utcnow)
 

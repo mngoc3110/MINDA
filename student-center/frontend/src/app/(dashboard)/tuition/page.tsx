@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Wallet, CheckCircle2, XCircle, Ban, Plus, Filter, Search, BarChart3, Pencil, Trash2 } from "lucide-react";
+import { Wallet, CheckCircle2, XCircle, Ban, Plus, Filter, Search, BarChart3, Pencil, Trash2, ChevronDown, ChevronRight, Users } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from "recharts";
 
 type TuitionRecord = {
   id: number;
+  student_id?: number;
   student_name: string;
+  class_name?: string;
   amount: number;
   paid_amount?: number;
   status: string;
@@ -22,6 +24,7 @@ type Student = {
   full_name: string;
   avatar_url?: string;
   email?: string;
+  class_name?: string;
 };
 
 // ════════════════════════════════
@@ -140,6 +143,7 @@ function TeacherTuitionView() {
   const [editForm, setEditForm] = useState({ amount: "", note: "", billing_cycle: "" });
   const [selectedMonth, setSelectedMonth] = useState("");
   const [revenueView, setRevenueView] = useState("all");
+  const [expandedClasses, setExpandedClasses] = useState<Set<string>>(new Set());
 
   const fetchRecords = async () => {
     const token = localStorage.getItem("minda_token");
@@ -303,95 +307,192 @@ function TeacherTuitionView() {
         </ResponsiveContainer>
       </div>
 
-      {/* Offline students */}
-      {offlineStudents.length > 0 && (
-        <div className="mb-8 bg-bg-card rounded-3xl border border-border-card p-6 shadow-sm">
-          <h2 className="text-base font-bold text-text-primary mb-4">Học sinh của bạn (Offline)</h2>
-          <div className="flex flex-wrap gap-3">
-            {offlineStudents.map(student => (
-              <div key={student.id} className="flex items-center gap-3 bg-bg-hover px-4 py-3 rounded-2xl border border-border-card">
-                <div className="w-9 h-9 rounded-full bg-purple-100 overflow-hidden">
-                  <img src={student.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(student.full_name)}&background=a855f7&color=fff`} className="w-full h-full object-cover" alt="" />
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-text-primary">{student.full_name}</p>
-                  <p className="text-xs text-text-secondary">{student.email}</p>
-                </div>
-                <button onClick={() => { setFormData({...formData, student_id: student.id.toString()}); setShowCreateModal(true); }} className="ml-3 px-3 py-1.5 bg-bg-card hover:bg-purple-600 hover:text-white text-text-secondary text-xs font-semibold rounded-lg border border-border-card hover:border-transparent transition-all">
-                  Tạo phiếu
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Transactions table */}
-      <div className="bg-bg-card rounded-3xl border border-border-card overflow-hidden shadow-sm">
-        <div className="flex items-center justify-between p-5 border-b border-border-card">
-          <h2 className="text-base font-bold text-text-primary">Lịch sử giao dịch</h2>
-          <div className="relative w-56">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary" />
-            <input type="text" placeholder="Tìm tên, tháng..." className="w-full pl-9 pr-4 py-2 bg-bg-hover border border-border-card rounded-lg text-sm outline-none focus:border-purple-400 text-text-primary" />
-          </div>
-        </div>
-        <table className="w-full text-left text-sm">
-          <thead>
-            <tr className="border-b border-border-card text-text-secondary text-xs uppercase tracking-wider">
-              <th className="p-4 pl-6 font-semibold">Học sinh / Ghi chú</th>
-              <th className="p-4 font-semibold">Số tiền</th>
-              <th className="p-4 font-semibold">Phương thức</th>
-              <th className="p-4 font-semibold">Ngày thanh toán</th>
-              <th className="p-4 pr-6 font-semibold text-right">Trạng thái</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr><td colSpan={5} className="text-center p-8 text-text-secondary">Đang tải dữ liệu...</td></tr>
-            ) : filteredRecords.length === 0 ? (
-              <tr><td colSpan={5} className="text-center p-8 text-text-secondary">Không có phiếu thu cho tháng này.</td></tr>
-            ) : filteredRecords.map(item => (
-              <tr key={item.id} className="border-b border-border-card hover:bg-bg-hover transition-colors">
-                <td className="p-4 pl-6">
-                  <div className="font-semibold text-text-primary mb-0.5">{item.student_name}</div>
-                  <div className="text-xs text-text-secondary">{item.note}</div>
-                </td>
-                <td className="p-4 font-bold text-text-primary">{item.amount.toLocaleString()}₫</td>
-                <td className="p-4 text-text-secondary">{item.method || "CK/Momo"}</td>
-                <td className="p-4 text-text-secondary">{item.paid_at ? new Date(item.paid_at).toLocaleDateString('vi-VN') : "Chưa nộp"}</td>
-                <td className="p-4 pr-6 text-right">
-                  <div className="flex items-center justify-end gap-2">
-                    {item.status === 'paid' ? (
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 text-emerald-700 border border-emerald-500/20 rounded-full text-xs font-bold">
-                        <CheckCircle2 className="w-3 h-3" /> Đã đóng
-                      </span>
-                    ) : item.status === 'quit' ? (
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-bg-hover text-text-muted border border-border-card rounded-full text-xs font-bold">
-                        <Ban className="w-3 h-3" /> Đã nghỉ
-                      </span>
-                    ) : (
-                      <>
-                        <span onClick={() => handleConfirmPayment(item)} className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-500/10 text-amber-700 border border-amber-500/20 rounded-full text-xs font-bold cursor-pointer hover:bg-amber-100 transition-colors">
-                          <XCircle className="w-3 h-3" /> Chưa đóng — Xác nhận
-                        </span>
-                        <button onClick={() => handleOpenEdit(item)} title="Chỉnh sửa phiếu" className="p-1.5 text-text-secondary hover:bg-blue-500/10 hover:text-blue-500 rounded-full transition-colors border border-transparent hover:border-blue-500/20">
-                          <Pencil className="w-4 h-4" />
-                        </button>
-                        <button onClick={() => handleConfirmPayment(item, "quit")} title="Đánh dấu nghỉ học" className="p-1.5 text-text-secondary hover:bg-red-500/10 hover:text-red-500 rounded-full transition-colors border border-transparent hover:border-red-500/20">
-                          <Ban className="w-4 h-4" />
-                        </button>
-                        <button onClick={() => handleDelete(item)} title="Xóa phiếu" className="p-1.5 text-text-secondary hover:bg-red-500/10 hover:text-red-600 rounded-full transition-colors border border-transparent hover:border-red-500/20">
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </>
-                    )}
+      {/* Offline students - Grouped by Class */}
+      {offlineStudents.length > 0 && (() => {
+        // Group students by class_name
+        const classGroups: Record<string, Student[]> = {};
+        offlineStudents.forEach(s => {
+          const cls = s.class_name || "Chưa phân lớp";
+          if (!classGroups[cls]) classGroups[cls] = [];
+          classGroups[cls].push(s);
+        });
+        const classNames = Object.keys(classGroups).sort((a, b) => a === "Chưa phân lớp" ? 1 : b === "Chưa phân lớp" ? -1 : a.localeCompare(b));
+        const toggleClass = (cls: string) => {
+          setExpandedClasses(prev => {
+            const next = new Set(prev);
+            next.has(cls) ? next.delete(cls) : next.add(cls);
+            return next;
+          });
+        };
+        return (
+          <div className="mb-8 bg-bg-card rounded-3xl border border-border-card overflow-hidden shadow-sm">
+            <div className="p-5 border-b border-border-card flex items-center gap-2">
+              <Users className="w-5 h-5 text-purple-400" />
+              <h2 className="text-base font-bold text-text-primary">Học sinh của bạn ({offlineStudents.length} HS)</h2>
+            </div>
+            {classNames.map(cls => {
+              const students = classGroups[cls];
+              const isExpanded = expandedClasses.has(cls);
+              return (
+                <div key={cls} className="border-b border-border-card last:border-b-0">
+                  <div
+                    className="flex items-center gap-3 px-5 py-3.5 cursor-pointer hover:bg-bg-hover transition-colors"
+                    onClick={() => toggleClass(cls)}
+                  >
+                    {isExpanded
+                      ? <ChevronDown className="w-4 h-4 text-purple-400 shrink-0" />
+                      : <ChevronRight className="w-4 h-4 text-purple-400 shrink-0" />
+                    }
+                    <span className="text-sm font-bold text-text-primary flex-1">
+                      🎓 {cls}
+                    </span>
+                    <span className="text-[11px] px-2.5 py-0.5 bg-purple-500/10 text-purple-400 rounded-full border border-purple-500/20 font-bold">
+                      {students.length} HS
+                    </span>
                   </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                  {isExpanded && (
+                    <div className="px-5 pb-4 flex flex-wrap gap-3">
+                      {students.map(student => (
+                        <div key={student.id} className="flex items-center gap-3 bg-bg-hover px-4 py-3 rounded-2xl border border-border-card">
+                          <div className="w-9 h-9 rounded-full bg-purple-100 overflow-hidden">
+                            <img src={student.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(student.full_name)}&background=a855f7&color=fff`} className="w-full h-full object-cover" alt="" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-bold text-text-primary">{student.full_name}</p>
+                            <p className="text-xs text-text-secondary">{student.email}</p>
+                          </div>
+                          <button onClick={(e) => { e.stopPropagation(); setFormData({...formData, student_id: student.id.toString()}); setShowCreateModal(true); }} className="ml-3 px-3 py-1.5 bg-bg-card hover:bg-purple-600 hover:text-white text-text-secondary text-xs font-semibold rounded-lg border border-border-card hover:border-transparent transition-all">
+                            Tạo phiếu
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        );
+      })()}
+
+      {/* Transactions grouped by class */}
+      {(() => {
+        // Group filteredRecords by class_name
+        const classRecords: Record<string, TuitionRecord[]> = {};
+        filteredRecords.forEach(r => {
+          const cls = r.class_name || "Chưa phân lớp";
+          if (!classRecords[cls]) classRecords[cls] = [];
+          classRecords[cls].push(r);
+        });
+        const classKeys = Object.keys(classRecords).sort((a, b) => a === "Chưa phân lớp" ? 1 : b === "Chưa phân lớp" ? -1 : a.localeCompare(b));
+
+        if (loading) return (
+          <div className="bg-bg-card rounded-3xl border border-border-card p-8 text-center text-text-secondary shadow-sm">Đang tải dữ liệu...</div>
+        );
+        if (filteredRecords.length === 0) return (
+          <div className="bg-bg-card rounded-3xl border border-border-card p-8 text-center text-text-secondary shadow-sm">Không có phiếu thu cho tháng này.</div>
+        );
+
+        return classKeys.map(cls => {
+          const items = classRecords[cls];
+          const paidCount = items.filter(r => r.status === 'paid').length;
+          const pendingItems = items.filter(r => r.status !== 'paid' && r.status !== 'quit').length;
+          const totalAmount = items.reduce((a, r) => a + r.amount, 0);
+          const paidTotal = items.filter(r => r.status === 'paid').reduce((a, r) => a + (r.paid_amount || r.amount), 0);
+          const isOpen = expandedClasses.has(`tx-${cls}`);
+
+          return (
+            <div key={`tx-${cls}`} className="bg-bg-card rounded-3xl border border-border-card overflow-hidden shadow-sm mb-4">
+              {/* Class header */}
+              <div
+                className="flex items-center gap-3 p-5 cursor-pointer hover:bg-bg-hover transition-colors"
+                onClick={() => {
+                  setExpandedClasses(prev => {
+                    const next = new Set(prev);
+                    next.has(`tx-${cls}`) ? next.delete(`tx-${cls}`) : next.add(`tx-${cls}`);
+                    return next;
+                  });
+                }}
+              >
+                {isOpen
+                  ? <ChevronDown className="w-5 h-5 text-purple-400 shrink-0" />
+                  : <ChevronRight className="w-5 h-5 text-purple-400 shrink-0" />
+                }
+                <span className="text-sm font-bold text-text-primary flex-1">🎓 {cls}</span>
+                <div className="flex items-center gap-3">
+                  <span className="text-[11px] px-2.5 py-0.5 bg-emerald-500/10 text-emerald-600 rounded-full border border-emerald-500/20 font-bold">
+                    ✅ {paidCount} đã đóng
+                  </span>
+                  {pendingItems > 0 && (
+                    <span className="text-[11px] px-2.5 py-0.5 bg-amber-500/10 text-amber-600 rounded-full border border-amber-500/20 font-bold">
+                      ⏳ {pendingItems} chưa đóng
+                    </span>
+                  )}
+                  <span className="text-xs text-text-secondary font-semibold">
+                    {paidTotal.toLocaleString()}₫ / {totalAmount.toLocaleString()}₫
+                  </span>
+                </div>
+              </div>
+
+              {/* Expanded table */}
+              {isOpen && (
+                <table className="w-full text-left text-sm">
+                  <thead>
+                    <tr className="border-t border-b border-border-card text-text-secondary text-xs uppercase tracking-wider bg-bg-hover/50">
+                      <th className="p-3 pl-6 font-semibold">Học sinh</th>
+                      <th className="p-3 font-semibold">Số tiền</th>
+                      <th className="p-3 font-semibold">Tháng</th>
+                      <th className="p-3 font-semibold">Ngày nộp</th>
+                      <th className="p-3 pr-6 font-semibold text-right">Trạng thái</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {items.map(item => (
+                      <tr key={item.id} className="border-b border-border-card hover:bg-bg-hover transition-colors">
+                        <td className="p-3 pl-6">
+                          <div className="font-semibold text-text-primary mb-0.5">{item.student_name}</div>
+                          <div className="text-xs text-text-secondary">{item.note}</div>
+                        </td>
+                        <td className="p-3 font-bold text-text-primary">{item.amount.toLocaleString()}₫</td>
+                        <td className="p-3 text-text-secondary text-xs">{item.billing_cycle || "-"}</td>
+                        <td className="p-3 text-text-secondary text-xs">{item.paid_at ? new Date(item.paid_at).toLocaleDateString('vi-VN') : "Chưa nộp"}</td>
+                        <td className="p-3 pr-6 text-right">
+                          <div className="flex items-center justify-end gap-1.5">
+                            {item.status === 'paid' ? (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-emerald-500/10 text-emerald-700 border border-emerald-500/20 rounded-full text-xs font-bold">
+                                <CheckCircle2 className="w-3 h-3" /> Đã đóng
+                              </span>
+                            ) : item.status === 'quit' ? (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-bg-hover text-text-muted border border-border-card rounded-full text-xs font-bold">
+                                <Ban className="w-3 h-3" /> Đã nghỉ
+                              </span>
+                            ) : (
+                              <>
+                                <span onClick={() => handleConfirmPayment(item)} className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-amber-500/10 text-amber-700 border border-amber-500/20 rounded-full text-xs font-bold cursor-pointer hover:bg-amber-100 transition-colors">
+                                  <XCircle className="w-3 h-3" /> Xác nhận thu
+                                </span>
+                                <button onClick={() => handleOpenEdit(item)} title="Sửa" className="p-1 text-text-secondary hover:bg-blue-500/10 hover:text-blue-500 rounded-full transition-colors">
+                                  <Pencil className="w-3.5 h-3.5" />
+                                </button>
+                                <button onClick={() => handleConfirmPayment(item, "quit")} title="Nghỉ học" className="p-1 text-text-secondary hover:bg-red-500/10 hover:text-red-500 rounded-full transition-colors">
+                                  <Ban className="w-3.5 h-3.5" />
+                                </button>
+                                <button onClick={() => handleDelete(item)} title="Xóa" className="p-1 text-text-secondary hover:bg-red-500/10 hover:text-red-600 rounded-full transition-colors">
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          );
+        });
+      })()}
 
       {/* Modal */}
       {showCreateModal && (

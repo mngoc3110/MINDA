@@ -6,8 +6,7 @@ from app.models.user import User
 from app.models.course import Course, Enrollment, Lesson, LessonProgress, CourseChapter
 from app.models.assignment import Assignment
 from app.models.exam import Exam
-from app.schemas.course import CourseCreate, CourseResponse, LessonCreate, LessonResponse, CourseChapterCreate, CourseChapterResponse, CourseCurriculumResponse
-from app.schemas.course import CourseCreate, CourseResponse, LessonCreate, LessonResponse, CourseChapterCreate, CourseChapterResponse, CourseCurriculumResponse, EnrollRequest, ApproveStudentRequest
+from app.schemas.course import CourseCreate, CourseUpdate, CourseResponse, LessonCreate, LessonResponse, CourseChapterCreate, CourseChapterResponse, CourseCurriculumResponse, EnrollRequest, ApproveStudentRequest
 from app.models.course import Course, Enrollment, Lesson, LessonProgress, CourseChapter, EnrollmentStatus
 
 from app.core.security import get_current_user, require_role
@@ -52,6 +51,40 @@ def create_course(
     db.commit()
     db.refresh(db_course)
     return db_course
+
+
+@router.put("/{course_id}", response_model=CourseResponse)
+def update_course(
+    course_id: int,
+    course_in: CourseUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role("teacher", "admin")),
+):
+    """Cập nhật thông tin khoá học (Teacher/Admin only)."""
+    course = db.query(Course).filter(Course.id == course_id).first()
+    if not course:
+        raise HTTPException(status_code=404, detail="Khoá học không tồn tại")
+    if course.teacher_id != current_user.id and current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Không có quyền chỉnh sửa")
+    
+    update_data = course_in.model_dump(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(course, key, value)
+    db.commit()
+    db.refresh(course)
+    return {
+        "id": course.id,
+        "title": course.title,
+        "description": course.description,
+        "teacher_id": course.teacher_id,
+        "teacher_name": course.teacher.full_name if course.teacher else f"Giáo viên {course.teacher_id}",
+        "thumbnail_url": course.thumbnail_url,
+        "price": course.price,
+        "is_active": course.is_active,
+        "is_offline": course.is_offline,
+        "enrollment_code": course.enrollment_code,
+        "created_at": course.created_at
+    }
 
 
 @router.get("/my-enrollments")
@@ -177,6 +210,77 @@ def create_lesson(
     db.commit()
     db.refresh(lesson)
     return lesson
+
+
+# ═══════════════ SỬA/XOÁ CHƯƠNG & BÀI ═══════════════
+
+@router.put("/chapters/{chapter_id}")
+def update_chapter(
+    chapter_id: int,
+    data: dict,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role("teacher", "admin")),
+):
+    """Cập nhật tên chương."""
+    chapter = db.query(CourseChapter).filter(CourseChapter.id == chapter_id).first()
+    if not chapter:
+        raise HTTPException(status_code=404, detail="Chương không tồn tại")
+    if data.get("title"):
+        chapter.title = data["title"]
+    if "order_index" in data:
+        chapter.order_index = data["order_index"]
+    db.commit()
+    db.refresh(chapter)
+    return {"id": chapter.id, "title": chapter.title, "order_index": chapter.order_index}
+
+
+@router.delete("/chapters/{chapter_id}")
+def delete_chapter(
+    chapter_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role("teacher", "admin")),
+):
+    """Xoá chương và tất cả bài học bên trong."""
+    chapter = db.query(CourseChapter).filter(CourseChapter.id == chapter_id).first()
+    if not chapter:
+        raise HTTPException(status_code=404, detail="Chương không tồn tại")
+    db.delete(chapter)
+    db.commit()
+    return {"detail": "Đã xoá chương thành công"}
+
+
+@router.put("/lessons/{lesson_id}")
+def update_lesson(
+    lesson_id: int,
+    data: dict,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role("teacher", "admin")),
+):
+    """Cập nhật thông tin bài học."""
+    lesson = db.query(Lesson).filter(Lesson.id == lesson_id).first()
+    if not lesson:
+        raise HTTPException(status_code=404, detail="Bài học không tồn tại")
+    for field in ["title", "description", "video_url", "document_url", "order_index"]:
+        if field in data and data[field] is not None:
+            setattr(lesson, field, data[field])
+    db.commit()
+    db.refresh(lesson)
+    return {"id": lesson.id, "title": lesson.title}
+
+
+@router.delete("/lessons/{lesson_id}")
+def delete_lesson(
+    lesson_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role("teacher", "admin")),
+):
+    """Xoá bài học."""
+    lesson = db.query(Lesson).filter(Lesson.id == lesson_id).first()
+    if not lesson:
+        raise HTTPException(status_code=404, detail="Bài học không tồn tại")
+    db.delete(lesson)
+    db.commit()
+    return {"detail": "Đã xoá bài học thành công"}
 
 @router.get("/{course_id}/curriculum", response_model=CourseCurriculumResponse)
 def get_curriculum(course_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):

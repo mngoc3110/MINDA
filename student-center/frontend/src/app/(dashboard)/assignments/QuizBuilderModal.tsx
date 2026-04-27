@@ -5,11 +5,13 @@ import LatexToolbar from "@/components/LatexToolbar";
 
 export default function QuizBuilderModal({ 
    courses, 
+   folders = [],
    onClose, 
    onSuccess,
    editAssignment = null 
 }: { 
    courses: any[], 
+   folders?: any[],
    onClose: () => void,
    onSuccess: () => void,
    editAssignment?: any 
@@ -19,6 +21,7 @@ export default function QuizBuilderModal({
    const isEditing = !!editAssignment;
    
    const [courseId, setCourseId] = useState("");
+   const [folderId, setFolderId] = useState("");
    const [lessonId, setLessonId] = useState("");
    const [lessons, setLessons] = useState<any[]>([]);
    const [title, setTitle] = useState("");
@@ -65,6 +68,7 @@ export default function QuizBuilderModal({
          setTitle(editAssignment.title || "");
          setDescription(editAssignment.description || "");
          if (editAssignment.course_id) setCourseId(editAssignment.course_id.toString());
+         if (editAssignment.folder_id) setFolderId(editAssignment.folder_id.toString());
          if (editAssignment.lesson_id) setLessonId(editAssignment.lesson_id.toString());
          if (editAssignment.exam_format) setExamFormat(editAssignment.exam_format);
          if (editAssignment.is_assigned_to_all !== undefined) setIsAssignedToAll(editAssignment.is_assigned_to_all);
@@ -327,7 +331,8 @@ export default function QuizBuilderModal({
             exam_format: examFormat,
             max_score: examFormat === "standard" ? 10 : 100,
             is_assigned_to_all: isAssignedToAll,
-            assignee_ids: assigneeIds
+            assignee_ids: assigneeIds,
+            folder_id: folderId ? parseInt(folderId) : null
          };
          
          let res;
@@ -496,6 +501,20 @@ export default function QuizBuilderModal({
                               ))}
                            </select>
                         )}
+                     </div>
+
+                     {/* FOLDER */}
+                     <div>
+                        <label className="block text-sm font-semibold text-gray-400 mb-2">📁 Folder (Tuỳ chọn)</label>
+                        <select 
+                           value={folderId} onChange={e => setFolderId(e.target.value)}
+                           className="w-full bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-indigo-500 text-white"
+                        >
+                           <option value="">-- Không thuộc folder --</option>
+                           {folders.map((f: any) => (
+                              <option key={f.id} value={f.id}>📁 {f.name}</option>
+                           ))}
+                        </select>
                      </div>
                      
                      {/* BỘ LỌC ĐỐI TƯỢNG GIAO BÀI */}

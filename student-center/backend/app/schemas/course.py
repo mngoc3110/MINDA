@@ -18,6 +18,14 @@ class CourseCreate(BaseModel):
     is_offline: Optional[bool] = False
     enrollment_code: Optional[str] = None
 
+class CourseUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    thumbnail_url: Optional[str] = None
+    price: Optional[int] = None
+    is_offline: Optional[bool] = None
+    enrollment_code: Optional[str] = None
+
 class CourseResponse(BaseModel):
     id: int
     title: str
@@ -79,6 +87,7 @@ class AssignmentCreate(BaseModel):
     quiz_data: Optional[Any] = None
     attachment_url: Optional[str] = None
     course_id: Optional[int] = None
+    folder_id: Optional[int] = None
     lesson_id: Optional[int] = None
     due_date: Optional[datetime] = None
     max_score: Optional[int] = 100
@@ -89,6 +98,7 @@ class AssignmentCreate(BaseModel):
 class AssignmentResponse(BaseModel):
     id: int
     course_id: Optional[int] = None
+    folder_id: Optional[int] = None
     lesson_id: Optional[int] = None
     teacher_id: int
     title: str
@@ -253,3 +263,26 @@ class CourseCurriculumResponse(BaseModel):
     chapters: List[CurriculumChapterResponse] = []
     class Config:
         from_attributes = True
+
+
+# ═══════════════════ ASSIGNMENT FOLDER ═══════════════════
+class FolderCreate(BaseModel):
+    name: str
+    is_assigned_to_all: Optional[bool] = True
+    assignee_ids: Optional[List[int]] = None
+    assigned_classes: Optional[List[str]] = None  # ["Lớp 12-2k8", "Lớp 11-2k9"]
+
+class FolderResponse(BaseModel):
+    id: int
+    name: str
+    teacher_id: int
+    is_assigned_to_all: bool
+    assignee_ids: Optional[List[int]] = None
+    assigned_classes: Optional[List[str]] = None
+    assignment_count: Optional[int] = 0
+    created_at: Optional[datetime]
+    class Config:
+        from_attributes = True
+
+class FolderMoveRequest(BaseModel):
+    folder_id: Optional[int] = None  # None = gỡ khỏi folder

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BrainCircuit, Grid, BookOpen, GraduationCap, ClipboardCheck, Wallet, LogOut, Sun, Moon, FileUser, Trophy, UserCircle, Users } from "lucide-react";
+import { BrainCircuit, Grid, BookOpen, GraduationCap, ClipboardCheck, Wallet, LogOut, Sun, Moon, FileUser, Trophy, UserCircle, Users, RefreshCw } from "lucide-react";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useEffect, useState } from "react";
 
@@ -95,6 +95,20 @@ export default function TeacherSidebar() {
           <Link href="/" className="flex items-center justify-center w-full py-2.5 rounded-xl text-text-secondary hover:text-text-primary hover:bg-bg-hover transition-colors font-medium border border-transparent hover:border-border-card text-sm">
             Về Trang chủ MINDA
           </Link>
+          <button onClick={async () => {
+            if ('caches' in window) {
+              const keys = await caches.keys();
+              await Promise.all(keys.map(k => caches.delete(k)));
+            }
+            if ('serviceWorker' in navigator) {
+              const regs = await navigator.serviceWorker.getRegistrations();
+              await Promise.all(regs.map(r => r.unregister()));
+            }
+            window.location.reload();
+          }} className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-text-secondary hover:text-blue-500 hover:bg-blue-500/10 transition-colors font-medium border border-transparent hover:border-blue-500/20 text-sm">
+            <RefreshCw className="w-4 h-4" />
+            Cập nhật phiên bản mới
+          </button>
           <button onClick={() => { localStorage.clear(); window.location.href='/login'; }} className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-text-secondary hover:text-red-500 hover:bg-red-500/10 transition-colors font-medium border border-transparent hover:border-red-500/20 text-sm">
             <LogOut className="w-4 h-4" />
             Đăng xuất an toàn

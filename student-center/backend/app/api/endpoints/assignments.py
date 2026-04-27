@@ -89,10 +89,132 @@ def update_assignment(
     elif getattr(assignment, "is_assigned_to_all", True):
         assignment.assignees = []
 
+    # Check if quiz_data changed → auto recalculate scores
+    quiz_data_changed = "quiz_data" in update_data
     
     db.commit()
     db.refresh(assignment)
+
+    # ── Auto-recalculate all submission scores when answers change ──
+    if quiz_data_changed and assignment.quiz_data:
+        _recalc_all_scores(assignment, db)
+    
     return assignment
+
+
+def _recalc_all_scores(assignment, db):
+    """Recalculate scores for all submissions of this assignment and update EXP."""
+    from datetime import datetime
+    from sqlalchemy import func
+    
+    subs = db.query(AssignmentSubmission).filter(
+        AssignmentSubmission.assignment_id == assignment.id
+    ).all()
+    
+    if not subs:
+        return
+        
+    # Get the earliest submission date for each student for this assignment
+    # (EXP is only calculated based on the first submission)
+    earliest_subs = db.query(
+        AssignmentSubmission.student_id, 
+        func.min(AssignmentSubmission.submitted_at).label('min_date')
+    ).filter(AssignmentSubmission.assignment_id == assignment.id).group_by(AssignmentSubmission.student_id).all()
+    
+    first_sub_dates = {(row.student_id, row.min_date) for row in earliest_subs}
+    
+    is_standard = assignment.exam_format == "standard"
+    sections = assignment.quiz_data.get("sections", [])
+    
+    def norm_tf(val):
+        if isinstance(val, bool): return val
+        if isinstance(val, int): return val != 0
+        s = str(val).strip().lower()
+        return s in ("true", "1", "yes")
+
+    def count_tf_correct(ans_dict, items):
+        count = 0
+        for item in items:
+            lbl = item.get("label")
+            student_raw = ans_dict.get(lbl)
+            if student_raw is None: continue
+            if norm_tf(student_raw) == norm_tf(item.get("isTrue")):
+                count += 1
+        return count
+
+    def get_exp_change(score_val, max_score_val, current_exp_val):
+        if score_val is None: return 0
+        ms = float(max_score_val) if max_score_val else 10.0
+        if ms > 0:
+            s10 = (float(score_val) / ms) * 10
+        else:
+            s10 = 0
+        if s10 >= 8: return 20
+        elif s10 >= 5: return 10
+        if (current_exp_val or 0) < 800:
+            return 5
+        return -int(5 - s10)
+    
+    for sub in subs:
+        if not sub.quiz_answers:
+            continue
+            
+        old_score = sub.score
+        answers = sub.quiz_answers
+        earned = 0.0
+        total_possible = 0.0
+        
+        for s_idx, section in enumerate(sections):
+            stype = section.get("type")
+            for q in section.get("questions", []):
+                raw_id = q.get("id") or ""
+                qid = f"s{s_idx}_{raw_id}" if raw_id else None
+                ans = answers.get(qid) if qid else None
+                
+                if stype == "mcq":
+                    ok = ans is not None and str(ans).strip() == str(q.get("correctAnswer")).strip()
+                    if is_standard:
+                        if ok: earned += 0.25
+                    else:
+                        total_possible += 1.0
+                        if ok: earned += 1.0
+                
+                elif stype == "true_false":
+                    if not is_standard: total_possible += 1.0
+                    if ans and isinstance(ans, dict):
+                        n = count_tf_correct(ans, q.get("items", []))
+                        if n == 4: earned += 1.0
+                        elif n == 3: earned += 0.5
+                        elif n == 2: earned += 0.25
+                        elif not is_standard and n == 1: earned += 0.1
+                
+                elif stype == "short_answer":
+                    student_sa = str(ans).strip().lower().replace(",", ".") if ans is not None else ""
+                    correct_sa = str(q.get("correctAnswer")).strip().lower().replace(",", ".")
+                    if is_standard:
+                        if student_sa and student_sa == correct_sa: earned += 0.5
+                    else:
+                        total_possible += 1.0
+                        if student_sa and student_sa == correct_sa: earned += 1.0
+        
+        if is_standard:
+            sub.score = round(earned, 2)
+        else:
+            # Đề ôn tập: cố định 0.25 điểm mỗi câu thay vì chia theo tỉ lệ max_score
+            sub.score = round(earned * 0.25, 2)
+        
+        sub.graded_at = datetime.utcnow()
+        
+        # Recalculate EXP for the student if this is their first submission
+        if (sub.student_id, sub.submitted_at) in first_sub_dates:
+            old_exp = get_exp_change(old_score, assignment.max_score, sub.student.exp_points if sub.student else 0)
+            new_exp = get_exp_change(sub.score, assignment.max_score, sub.student.exp_points if sub.student else 0)
+            diff = new_exp - old_exp
+            
+            if diff != 0 and sub.student:
+                sub.student.exp_points = max(0, (sub.student.exp_points or 0) + diff)
+    
+    db.commit()
 
 
 @router.delete("/assignments/{assignment_id}")
@@ -196,7 +318,10 @@ def submit_assignment(
                                 # n == 1 hoặc 0 → 0đ
 
                         elif stype == "short_answer":
-                            if ans is not None and str(ans).strip().lower() == str(q.get("correctAnswer")).strip().lower():
+                            # Normalize: comma→period, strip spaces (VN: "3,68" == "3.68")
+                            student_sa = str(ans).strip().lower().replace(",", ".") if ans is not None else ""
+                            correct_sa = str(q.get("correctAnswer")).strip().lower().replace(",", ".")
+                            if student_sa and student_sa == correct_sa:
                                 earned += 0.5
 
                 submission.score = round(earned, 2)  # Giữ dạng thập phân (8.75)
@@ -227,11 +352,13 @@ def submit_assignment(
 
                         elif stype == "short_answer":
                             total_possible += 1.0
-                            if ans is not None and str(ans).strip().lower() == str(q.get("correctAnswer")).strip().lower():
+                            student_sa = str(ans).strip().lower().replace(",", ".") if ans is not None else ""
+                            correct_sa = str(q.get("correctAnswer")).strip().lower().replace(",", ".")
+                            if student_sa and student_sa == correct_sa:
                                 earned += 1.0
 
-                if total_possible > 0:
-                    submission.score = int(round((earned / total_possible) * assignment.max_score))
+                # Tính điểm cố định 0.25 cho mỗi câu đối với Đề Ôn Tập
+                submission.score = round(earned * 0.25, 2)
 
             submission.graded_at = datetime.utcnow()
         except Exception as e:
@@ -239,9 +366,9 @@ def submit_assignment(
 
     # ── EXP Logic: Quy đổi điểm thang 10 → EXP, chỉ 1 lần duy nhất ──
     if not already_earned_exp and submission.score is not None:
-        # Quy về thang 10
-        if assignment.max_score and assignment.max_score > 0:
-            score_10 = round((submission.score / assignment.max_score) * 10)
+        # Quy về thang 10 (giữ thập phân)
+        if assignment.max_score and float(assignment.max_score) > 0:
+            score_10 = (float(submission.score) / float(assignment.max_score)) * 10
         else:
             score_10 = 0
         
@@ -250,11 +377,20 @@ def submit_assignment(
         elif score_10 >= 5:
             exp_change = 10
         else:
-            # Dưới trung bình: 4→-1, 3→-2, 2→-3, 1→-4, 0→-5
-            exp_change = -(5 - score_10)
+            # Dưới trung bình: nếu hạng Học bá trở xuống (< 800 EXP) thì cộng 5, ngược lại trừ EXP
+            if (current_user.exp_points or 0) < 800:
+                exp_change = 5
+            else:
+                exp_change = -int(5 - score_10)
         
         new_exp = (current_user.exp_points or 0) + exp_change
         current_user.exp_points = max(new_exp, 0)  # Không cho EXP âm
+
+    # ── Cộng EXP cho giáo viên khi có HS nộp bài (lần đầu) ──
+    if not already_earned_exp:
+        teacher = db.query(User).filter(User.id == assignment.teacher_id).first()
+        if teacher:
+            teacher.exp_points = (teacher.exp_points or 0) + 5
 
     db.add(submission)
     db.commit()
@@ -294,6 +430,9 @@ def grade_submission(
 @router.get("/assignments/practice")
 def get_practice_assignments(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Lấy danh sách các Bài tập luyện thi tự do (không thuộc khóa học nào)."""
+    from app.models.assignment_folder import AssignmentFolder
+    from app.models.user import TeacherStudentLink
+    
     assignments = db.query(Assignment).filter(Assignment.course_id == None).order_by(Assignment.created_at.desc()).all()
     
     # Lấy tất cả submissions của user hiện tại
@@ -302,22 +441,58 @@ def get_practice_assignments(db: Session = Depends(get_db), current_user: User =
     ).all()
     sub_map = {s.assignment_id: s for s in my_subs}
     
+    # Lấy danh sách GV đã thêm mình + lớp tương ứng
+    my_teacher_ids = set()
+    my_classes_by_teacher = {}  # teacher_id -> set of class_names
+    if current_user.role.value == "student":
+        links = db.query(TeacherStudentLink).filter(
+            TeacherStudentLink.student_id == current_user.id
+        ).all()
+        for link in links:
+            my_teacher_ids.add(link.teacher_id)
+            if link.class_name:
+                if link.teacher_id not in my_classes_by_teacher:
+                    my_classes_by_teacher[link.teacher_id] = set()
+                my_classes_by_teacher[link.teacher_id].add(link.class_name)
+    
     result = []
     for a in assignments:
         is_allowed = True
-        if current_user.role.value == "student" and not getattr(a, "is_assigned_to_all", True):
-            if not any(u.id == current_user.id for u in getattr(a, "assignees", [])):
+        if current_user.role.value == "student":
+            # Bước 1: Phải là HS của GV tạo bài tập này
+            if a.teacher_id not in my_teacher_ids:
                 is_allowed = False
+                # Nếu không phải HS => skip luôn
+            else:
+                # Bước 2: Kiểm tra phân quyền folder/lớp
+                if a.folder_id and a.folder:
+                    folder = a.folder
+                    if folder.is_assigned_to_all:
+                        is_allowed = True  # Folder giao tất cả HS của GV => OK
+                    else:
+                        # Kiểm tra theo HS cụ thể
+                        by_user = any(u.id == current_user.id for u in folder.assignees)
+                        # Kiểm tra theo lớp
+                        folder_classes = set(c.strip() for c in (folder.assigned_classes or "").split(",") if c.strip())
+                        my_classes = my_classes_by_teacher.get(a.teacher_id, set())
+                        by_class = bool(my_classes & folder_classes)
+                        is_allowed = by_user or by_class
+                else:
+                    # Bài tập lẻ (không trong folder): kiểm tra assignee
+                    if not getattr(a, "is_assigned_to_all", True):
+                        if not any(u.id == current_user.id for u in getattr(a, "assignees", [])):
+                            is_allowed = False
         
         if is_allowed:
             resp = AssignmentResponse.model_validate(a)
             resp.assignee_ids = [u.id for u in getattr(a, "assignees", [])]
             
-            # Thêm info submission của student
             sub = sub_map.get(a.id)
             item = resp.model_dump()
             item["my_score"] = sub.score if sub else None
             item["my_submitted_at"] = str(sub.submitted_at) if sub else None
+            item["folder_id"] = a.folder_id
+            item["folder_name"] = a.folder.name if a.folder else None
             result.append(item)
             
     return result

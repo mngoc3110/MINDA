@@ -19,13 +19,14 @@ from app.db.database import Base, engine
 from app.models.user import User, TeacherProfile
 from app.models.course import Course, Enrollment, Lesson, LessonProgress
 from app.models.assignment import Assignment, AssignmentSubmission
+from app.models.assignment_folder import AssignmentFolder
 from app.models.exam import Exam, ExamQuestion, ExamSubmission
 from app.models.live_session import LiveSession
 from app.models.tuition import TuitionRecord
 from app.models.emotion import EmotionLog
 
 # Import routers
-from app.api.endpoints import courses, assignments, exams, tuition, admin, auth, files, profile, google_auth, live_sessions, dashboard, emotion, ai_solver
+from app.api.endpoints import courses, assignments, exams, tuition, admin, auth, files, profile, google_auth, live_sessions, dashboard, emotion, ai_solver, assignment_folders
 # Tự động tạo bảng DB nếu chưa có
 Base.metadata.create_all(bind=engine)
 
@@ -35,22 +36,27 @@ app = FastAPI(title=settings.PROJECT_NAME)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-# Parse CORS_ORIGINS từ chuỗi ngăn cách bởi dấu phẩy
-cors_origins = [origin.strip() for origin in settings.CORS_ORIGINS.split(',')] if settings.CORS_ORIGINS else []
+# CORS: Nếu không có biến CORS_ORIGINS → cho phép tất cả (dev mode) 
+cors_origins_str = settings.CORS_ORIGINS if hasattr(settings, 'CORS_ORIGINS') and settings.CORS_ORIGINS else ""
+if cors_origins_str:
+    cors_origins = [origin.strip() for origin in cors_origins_str.split(',')]
+else:
+    cors_origins = ["*"]
 
-# Bổ sung các origin cần thiết cho Capacitor iOS và Local Development
-cors_origins.extend([
-    "capacitor://localhost",
-    "http://localhost",
-    "http://localhost:3000",
-    "https://minda.io.vn",
-    "https://www.minda.io.vn"
-])
+# Bổ sung các origin cần thiết
+if "*" not in cors_origins:
+    cors_origins.extend([
+        "capacitor://localhost",
+        "http://localhost",
+        "http://localhost:3000",
+        "https://minda.io.vn",
+        "https://www.minda.io.vn"
+    ])
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=cors_origins,
-    allow_credentials=True,
+    allow_credentials=True if "*" not in cors_origins else False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -77,6 +83,7 @@ app.include_router(live_sessions.router, prefix="/api/live-sessions", tags=["�
 app.include_router(dashboard.router, prefix="/api/dashboard", tags=["📊 Dashboard"])
 app.include_router(emotion.router, tags=["🧠 Emotion AI"])
 app.include_router(ai_solver.router, prefix="/api/ai", tags=["🤖 AI Solver"])
+app.include_router(assignment_folders.router, prefix="/api/folders", tags=["📁 Folders"])
 
 from app.api.endpoints import contact
 app.include_router(contact.router, prefix="/api/contact", tags=["📞 Contact"])

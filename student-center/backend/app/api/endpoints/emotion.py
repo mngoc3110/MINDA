@@ -52,6 +52,7 @@ async def analyze_emotion(
             resp = await client.post(INFERENCE_URL, json={"frame_b64": req.frame_b64})
             resp.raise_for_status()
             result = resp.json()
+            print(f"[EMOTION] {result['label']} ({result['confidence']:.0%}) | {result['probabilities']}")
     except httpx.ConnectError:
         raise HTTPException(
             status_code=503,

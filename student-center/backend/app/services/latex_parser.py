@@ -16,13 +16,17 @@ def parse_latex_directly(latex_text: str) -> dict:
     print("[LaTeX Parser] Bắt đầu parse trực tiếp file LaTeX (không dùng AI)...")
 
     sections = []
+    
+    # Strip TikZ blocks before section splitting to avoid regex confusion
+    cleaned_for_split = re.sub(r'\\begin\{tikzpicture\}.*?\\end\{tikzpicture\}', '[TIKZ_PLACEHOLDER]', latex_text, flags=re.DOTALL)
 
     # Detect section boundaries
     section_splits = re.split(
         r'\\section\*?\{(.*?)\}',
-        latex_text,
+        cleaned_for_split,
         flags=re.DOTALL
     )
+    print(f"[LaTeX Parser] Found {len(section_splits)//2} sections")
     # section_splits = [before_first_section, title1, content1, title2, content2, ...]
 
     # If no \section found, treat entire document as one block
@@ -41,18 +45,29 @@ def parse_latex_directly(latex_text: str) -> dict:
             content = section_splits[i + 1] if i + 1 < len(section_splits) else ""
 
             title_lower = title.lower()
+            print(f"[LaTeX Parser] Section: '{title_lower}'")
 
-            if any(kw in title_lower for kw in ['trắc nghiệm nhiều', 'phương án', 'trắc nghiệm']):
-                if 'đúng sai' not in title_lower and 'trả lời ngắn' not in title_lower:
-                    mcq = _parse_mcq_section(content)
-                    if mcq:
-                        sections.append({
-                            "type": "mcq",
-                            "instruction": title,
-                            "questions": mcq
-                        })
+            # Detect MCQ: chọn một phương án / trắc nghiệm nhiều / phương án
+            is_mcq = any(kw in title_lower for kw in [
+                'chọn một phương án', 'trắc nghiệm nhiều', 'phương án lựa chọn',
+                'trắc nghiệm', 'câu trắc nghiệm'
+            ])
+            is_tf = any(kw in title_lower for kw in [
+                'đúng sai', 'đúng/sai', 'đúng hoặc sai', 'chọn đúng hoặc sai'
+            ])
+            is_sa = any(kw in title_lower for kw in [
+                'trả lời ngắn', 'phần iii', 'phần 3'
+            ])
 
-            if 'đúng sai' in title_lower or 'đúng/sai' in title_lower:
+            if is_mcq and not is_tf and not is_sa:
+                mcq = _parse_mcq_section(content)
+                if mcq:
+                    sections.append({
+                        "type": "mcq",
+                        "instruction": title,
+                        "questions": mcq
+                    })
+            elif is_tf:
                 tf = _parse_tf_section(content)
                 if tf:
                     sections.append({
@@ -60,8 +75,7 @@ def parse_latex_directly(latex_text: str) -> dict:
                         "instruction": title,
                         "questions": tf
                     })
-
-            if 'trả lời ngắn' in title_lower:
+            elif is_sa:
                 sa = _parse_sa_section(content)
                 if sa:
                     sections.append({
@@ -69,6 +83,15 @@ def parse_latex_directly(latex_text: str) -> dict:
                         "instruction": title,
                         "questions": sa
                     })
+            else:
+                # Auto-detect from content
+                mcq, tf, sa = _parse_block(content)
+                if mcq:
+                    sections.append({"type": "mcq", "instruction": title, "questions": mcq})
+                if tf:
+                    sections.append({"type": "true_false", "instruction": title, "questions": tf})
+                if sa:
+                    sections.append({"type": "short_answer", "instruction": title, "questions": sa})
 
     total = sum(len(s.get("questions", [])) for s in sections)
     print(f"[LaTeX Parser] ✅ Parsed {total} questions trực tiếp từ LaTeX")
@@ -82,36 +105,66 @@ def parse_latex_directly(latex_text: str) -> dict:
 def _clean_latex(text: str) -> str:
     """Clean LaTeX formatting for display. Keep $math$ intact."""
     text = text.strip()
+    
+    # Protect tabular blocks
+    tables = []
+    def save_table(match):
+        tables.append(match.group(0))
+        return f"__TABLE_BLOCK_{len(tables)-1}__"
+    
+    text = re.sub(r'\\begin\{tabular\}.*?\\end\{tabular\}', save_table, text, flags=re.DOTALL)
+
     # Remove \textbf, \textit etc. but keep content
     text = re.sub(r'\\textbf\{([^}]*)\}', r'\1', text)
     text = re.sub(r'\\textit\{([^}]*)\}', r'\1', text)
     text = re.sub(r'\\underline\{([^}]*)\}', r'\1', text)
     text = re.sub(r'\\emph\{([^}]*)\}', r'\1', text)
+    
+    # Handle TikZ - placeholder only (compiling during parse is too slow)
+    text = re.sub(r'\\begin\{tikzpicture\}.*?\\end\{tikzpicture\}', '\n[Đồ thị TikZ]\n', text, flags=re.DOTALL)
+    
+    # Handle Includegraphics (replace with placeholder)
+    text = re.sub(r'\\includegraphics(?:\[.*?\])?\{(.*?)\}', r'\n[Hình ảnh: \1]\n', text)
+    
+    # Handle Center tags (remove them, keep content)
+    text = re.sub(r'\\begin\{center\}', '', text)
+    text = re.sub(r'\\end\{center\}', '', text)
+    
     # Remove layout commands
     text = re.sub(r'\\[vh]space\*?\{[^}]*\}', '', text)
     text = re.sub(r'\\noindent\b', '', text)
     text = re.sub(r'\\newline\b', ' ', text)
-    # Remove \begin{center}...\end{center} with images inside
-    text = re.sub(r'\\begin\{center\}.*?\\end\{center\}', '', text, flags=re.DOTALL)
-    # Remove standalone \includegraphics
-    text = re.sub(r'\\includegraphics\[.*?\]\{.*?\}', '', text)
+    
     # Remove \\IfFileExists blocks
     text = re.sub(r'\\IfFileExists\{[^}]*\}\{.*?\}\{.*?\}', '', text, flags=re.DOTALL)
+    
     # Remove trailing \\
     text = re.sub(r'\\\\\s*$', '', text)
     text = re.sub(r'\\\\(?!\S)', ' ', text)
+    
     # Remove \item
     text = re.sub(r'\\item\b', '', text)
+    
     # Collapse whitespace
     text = re.sub(r'\s+', ' ', text)
+    
+    # Restore tables, convert tabular to array so KaTeX can render them
+    for i, table_text in enumerate(tables):
+        # Remove '$' signs inside the table to prevent nested math mode errors in KaTeX
+        table_text = table_text.replace('$', '')
+        table_text = re.sub(r'\\begin\{tabular\}', r'$$\n\\begin{array}', table_text)
+        table_text = re.sub(r'\\end\{tabular\}', r'\n\\end{array}\n$$', table_text)
+        text = text.replace(f"__TABLE_BLOCK_{i}__", table_text)
+        
     return text.strip()
 
 
 def _split_questions(content: str) -> list:
     """Split content by \\textbf{Câu X} markers. Returns list of (number, block)."""
-    # Pattern: \textbf{Câu X}  or  \textbf{Câu X.}
-    pattern = r'\\textbf\{Câu\s+(\d+)\s*\.?\}'
+    # Pattern: \textbf{Câu X}  or  \textbf{Câu X.}  or  \textbf{Câu X:}  or  \textbf{Câu X}
+    pattern = r'\\textbf\{Câu\s+(\d+)\s*[.:)]?\s*\}'
     parts = re.split(pattern, content)
+    print(f"[LaTeX Parser] _split_questions found {len(parts)//2} questions")
     # parts = [before, num1, block1, num2, block2, ...]
     questions = []
     for i in range(1, len(parts), 2):
@@ -131,6 +184,7 @@ def _parse_mcq_section(content: str) -> list:
         if len(options) >= 2:
             # Question text = everything before first "A." option line
             q_text = _get_question_text(block)
+            q_text = f"Câu {num}. {q_text}"
             questions.append({
                 "id": f"q{num}",
                 "text": q_text,
@@ -144,46 +198,66 @@ def _parse_mcq_section(content: str) -> list:
 
 def _get_question_text(block: str) -> str:
     """Extract question text from block (everything before A. option)."""
-    # Find where the options start: look for a line starting with A. or A)
-    # Options can be on same line or separate lines
-    lines = block.split('\n')
+    # Protect math content to avoid matching A/B inside formulas
+    math_blocks = []
+    def save_math(m):
+        math_blocks.append(m.group(0))
+        return f"__MATH_{len(math_blocks)-1}__"
+    protected = re.sub(r'\$[^$]+\$', save_math, block)
+    
+    lines = protected.split('\n')
     q_lines = []
     found_option = False
     for line in lines:
         stripped = line.strip()
-        # Check if this line starts with "A." or "A)" (the first option)
-        if re.match(r'^A\s*[.)]\s', stripped):
+        if re.match(r'^A\s*[.:)]\s', stripped):
             found_option = True
             break
         q_lines.append(line)
 
-    if not found_option:
-        # Maybe options are inline, try splitting by "A."
-        parts = re.split(r'(?:^|\n)\s*A\s*[.)]\s', block, maxsplit=1)
-        if len(parts) > 1:
-            return _clean_latex(parts[0])
-        return _clean_latex(block)
-
-    return _clean_latex('\n'.join(q_lines))
+    if found_option:
+        result = '\n'.join(q_lines)
+    else:
+        parts = re.split(r'(?:^|\n)\s*A\s*[.:)]\s', protected, maxsplit=1)
+        result = parts[0] if len(parts) > 1 else protected
+    
+    # Restore math blocks
+    for i, mb in enumerate(math_blocks):
+        result = result.replace(f"__MATH_{i}__", mb)
+    
+    return _clean_latex(result)
 
 
 def _extract_abcd_options(block: str) -> list:
-    """Extract A/B/C/D options from a text block. Handles \\\\ separators."""
+    """Extract A/B/C/D options from a text block. Handles \\\\ or inline separators."""
     options = []
 
-    # Strategy 1: Options on separate lines or separated by \\
-    # Normalize: replace \\ with newlines for easier parsing
-    normalized = block.replace('\\\\', '\n')
-
-    # Match: A. text, B. text, C. text, D. text
+    # Replace \hfill and \\ with newlines for uniform processing
+    normalized = block.replace('\\\\', '\n').replace('\\hfill', '\n')
+    
+    # Protect math content: temporarily replace $...$ with placeholders
+    math_blocks = []
+    def save_math(m):
+        math_blocks.append(m.group(0))
+        return f"__MATH_{len(math_blocks)-1}__"
+    protected = re.sub(r'\$[^$]+\$', save_math, normalized)
+    
+    # Now split by A. B. C. D. at start of line only
+    # Force each option letter to start on a new line
+    protected = re.sub(r'\n\s*([A-D])\s*[.)]\s', r'\n\1. ', protected)
+    
+    # Match A. B. C. D. at start of line
     pattern = r'(?:^|\n)\s*([A-D])\s*[.)]\s*(.*?)(?=(?:^|\n)\s*[A-D]\s*[.)]|\Z)'
-    matches = re.findall(pattern, normalized, re.DOTALL | re.MULTILINE)
+    matches = re.findall(pattern, protected, re.DOTALL)
 
     if len(matches) >= 2:
         for letter, text in matches:
             cleaned = text.strip()
             # Remove trailing \\ or newlines
             cleaned = re.sub(r'\\\\\s*$', '', cleaned).strip()
+            # Restore math blocks
+            for i, mb in enumerate(math_blocks):
+                cleaned = cleaned.replace(f"__MATH_{i}__", mb)
             if cleaned:
                 options.append(cleaned)
 
@@ -196,11 +270,18 @@ def _parse_tf_section(content: str) -> list:
     q_blocks = _split_questions(content)
 
     for num, block in q_blocks:
-        # Extract question context (before a))
-        context_match = re.split(r'\n\s*a\s*\)', block, maxsplit=1)
-        q_text = _clean_latex(context_match[0]) if context_match else ""
+        # Extract question context (before a) or \item)
+        parts = re.split(r'(?:\n\s*a\s*\)|\\item\b)', block, maxsplit=1)
+        if len(parts) > 1:
+            ctx = parts[0]
+            ctx = re.sub(r'\\begin\{enumerate\}.*', '', ctx, flags=re.DOTALL)
+            q_text = _clean_latex(ctx)
+        else:
+            q_text = _clean_latex(block)
+            
+        q_text = f"Câu {num}. {q_text}"
 
-        # Extract a), b), c), d) items
+        # Extract a), b), c), d) items or \item
         items = _extract_abcd_items(block)
         if items:
             questions.append({
@@ -213,15 +294,24 @@ def _parse_tf_section(content: str) -> list:
 
 
 def _extract_abcd_items(block: str) -> list:
-    """Extract a)/b)/c)/d) items for True/False questions."""
+    """Extract a)/b)/c)/d) or \item items for True/False questions."""
     items = []
 
-    # Normalize \\ to newlines
+    # Strategy 1: Look for literal a) b) c) d)
     normalized = block.replace('\\\\', '\n')
-
-    # Match a) text, b) text, c) text, d) text
     pattern = r'(?:^|\n)\s*([a-d])\s*\)\s*(.*?)(?=(?:^|\n)\s*[a-d]\s*\)|\Z)'
     matches = re.findall(pattern, normalized, re.DOTALL | re.MULTILINE)
+
+    if len(matches) < 2:
+        # Strategy 2: Look for \item ...
+        parts = re.split(r'\\item\b', block)
+        if len(parts) > 1:
+            matches = []
+            labels = ['a', 'b', 'c', 'd']
+            for i, p in enumerate(parts[1:]):
+                label = labels[i] if i < len(labels) else f"item_{i}"
+                p = re.sub(r'\\end\{enumerate\}.*', '', p, flags=re.DOTALL)
+                matches.append((label, p.strip()))
 
     for label, text in matches:
         cleaned = _clean_latex(text)
@@ -243,6 +333,7 @@ def _parse_sa_section(content: str) -> list:
     for num, block in q_blocks:
         q_text = _clean_latex(block)
         if q_text:
+            q_text = f"Câu {num}. {q_text}"
             questions.append({
                 "id": f"sa{num}",
                 "text": q_text,
@@ -277,6 +368,7 @@ def _parse_generic_numbered(latex_text: str) -> list:
         options = _extract_abcd_options(block)
         if options:
             q_text = _get_question_text(block)
+            q_text = f"Câu {num}. {q_text}"
             questions.append({
                 "id": f"q{num}",
                 "text": q_text,

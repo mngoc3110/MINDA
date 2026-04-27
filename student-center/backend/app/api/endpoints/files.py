@@ -121,13 +121,34 @@ async def upload_scorm_package(
         
     os.remove(zip_path)
     
-    # Tìm file khởi chạy
+    # Tìm file khởi chạy - ưu tiên imsmanifest.xml
     entry_point = ""
-    for possible in ["index.html", "story.html", "main.html", "index_lms.html"]:
-        if os.path.exists(os.path.join(scorm_dir, possible)):
-            entry_point = possible
-            break
+    
+    # 1. Parse imsmanifest.xml (SCORM chuẩn)
+    manifest_path = os.path.join(scorm_dir, "imsmanifest.xml")
+    if os.path.exists(manifest_path):
+        try:
+            import re
+            with open(manifest_path, "r", encoding="utf-8") as mf:
+                manifest_content = mf.read()
+            match = re.search(r'<resource[^>]+href="([^"]+)"', manifest_content)
+            if match:
+                entry_point = match.group(1)
+                if os.path.exists(os.path.join(scorm_dir, entry_point)):
+                    pass  # Found valid entry from manifest
+                else:
+                    entry_point = ""  # File not found, reset
+        except Exception:
+            pass
+    
+    # 2. Fallback: tìm file HTML phổ biến
+    if not entry_point:
+        for possible in ["index.html", "story.html", "main.html", "index_lms.html"]:
+            if os.path.exists(os.path.join(scorm_dir, possible)):
+                entry_point = possible
+                break
             
+    # 3. Last resort: tìm bất kỳ file HTML nào
     if not entry_point:
         for root, dirs, files_in_dir in os.walk(scorm_dir):
             for f in files_in_dir:
@@ -140,14 +161,23 @@ async def upload_scorm_package(
                 
     if not entry_point:
         raise HTTPException(status_code=400, detail="Không tìm thấy trang HTML nào trong SCORM")
-        
-    file_url = f"http://localhost:8000/static/scorm/{unique_id}/{entry_point}"
+    
+    # Use relative URL so it works behind any proxy/domain
+    file_url = f"/static/scorm/{unique_id}/{entry_point}"
+    
+    # Calculate actual file size
+    total_size = sum(
+        os.path.getsize(os.path.join(dirpath, filename))
+        for dirpath, _, filenames in os.walk(scorm_dir)
+        for filename in filenames
+    )
+    size_str = f"{total_size / (1024*1024):.1f} MB" if total_size > 1024*1024 else f"{total_size / 1024:.0f} KB"
     
     db_file = FileItem(
         filename=file.filename,
         file_url=file_url,
         file_type="application/x-scorm",
-        file_size="Unknown",
+        file_size=size_str,
         owner_id=current_user.id
     )
     db.add(db_file)

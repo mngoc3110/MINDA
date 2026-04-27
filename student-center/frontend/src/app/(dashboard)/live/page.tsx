@@ -31,6 +31,9 @@ export default function LiveSchedulePage() {
   const [quickTitle, setQuickTitle] = useState("");
   const [quickLoading, setQuickLoading] = useState(false);
 
+  // Group Study State
+  const [groupStudyName, setGroupStudyName] = useState("");
+
   // Create Form State
   const [formLoading, setFormLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -176,6 +179,15 @@ export default function LiveSchedulePage() {
      }
   };
 
+  const handleGroupStudy = () => {
+    if (!groupStudyName.trim()) {
+      return alert("Vui lòng nhập tên môn hoặc chủ đề để hệ thống rủ các bạn khác vào!");
+    }
+    // Chuyển ký tự đặc biệt thành dấu gạch ngang
+    const roomSlug = groupStudyName.trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+    router.push(`/live/study-${roomSlug}`);
+  };
+
   const fetchAnalytics = async (sessionId: number) => {
     setAnalyticsLoading(true);
     setShowAnalyticsModal(sessionId);
@@ -248,6 +260,32 @@ export default function LiveSchedulePage() {
               >
                  {quickLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Radio className="w-5 h-5"/>}
                  BẤM NÚT LIVE NGAY
+              </button>
+          </div>
+      )}
+
+      {/* QUICK START GROUP STUDY (Dành cho Học Sinh) */}
+      {(userRole === "student" || userRole === "admin") && (
+          <div className="bg-bg-card border border-purple-500/30 p-5 md:p-6 rounded-2xl mb-12 flex flex-col md:flex-row items-end gap-4 shadow-[0_0_20px_rgba(168,85,247,0.05)]">
+              <div className="flex-1 w-full">
+                 <label className="text-sm font-black text-purple-400 mb-2 flex items-center gap-2 tracking-wide uppercase">
+                    <Users className="w-4 h-4" /> Khu Vực Tự Học Nhóm (Self-Study)
+                 </label>
+                 <input 
+                    type="text" 
+                    value={groupStudyName}
+                    onChange={(e) => setGroupStudyName(e.target.value)}
+                    placeholder="Nhập môn học hoặc chủ đề bàn luận (VD: Luyen De Vat Ly 12)" 
+                    onKeyDown={(e) => e.key === 'Enter' && handleGroupStudy()}
+                    className="w-full bg-bg-main border border-border-card px-4 py-3 rounded-xl focus:border-purple-500 outline-none transition-colors" 
+                 />
+              </div>
+              <button 
+                 onClick={handleGroupStudy}
+                 className="bg-purple-600 hover:bg-purple-500 text-white font-black px-8 py-3 rounded-xl shadow-lg whitespace-nowrap w-full md:w-auto h-[50px] flex items-center justify-center gap-2 transition-all"
+              >
+                 <Video className="w-5 h-5"/>
+                 VÀO PHÒNG HỌC chung
               </button>
           </div>
       )}

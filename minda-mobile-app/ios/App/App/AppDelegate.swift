@@ -7,7 +7,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+        // Tự động tìm cầu nối Capacitor và nhét Plugin vào (Chống lỗi Not Implemented của Apple Linker)
+        if let rootVC = window?.rootViewController as? CAPBridgeViewController {
+            rootVC.bridge?.registerPluginType(ScreenSharePlugin.self)
+        }
         return true
     }
 

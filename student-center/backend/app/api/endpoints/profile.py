@@ -130,13 +130,22 @@ def get_leaderboard(db: Session = Depends(get_db)):
     limit = 20
     admin_emails = ("darber3110@gmail.com", "darbar3110@gmail.com")
 
+    from sqlalchemy import func
     # Fetch top students
-    students = db.query(User).filter(User.role == 'student').order_by(User.exp_points.desc()).limit(limit).all()
-    # Fetch top teachers (including admin and secondary_role=teacher)
+    students = db.query(User).filter(User.role == 'student').order_by(
+        func.coalesce(User.exp_points, 0).desc(),
+        User.id.desc()
+    ).limit(limit).all()
+    
+    # Fetch top teachers (excluding admin accounts)
     from sqlalchemy import or_
     teachers = db.query(User).filter(
-        or_(User.role == 'teacher', User.secondary_role == 'teacher', User.role == 'admin')
-    ).order_by(User.exp_points.desc()).limit(limit).all()
+        or_(User.role == 'teacher', User.secondary_role == 'teacher'),
+        User.role != 'admin'
+    ).order_by(
+        func.coalesce(User.exp_points, 0).desc(),
+        User.id.desc()
+    ).limit(limit).all()
 
     admin_user = db.query(User).filter(User.email.in_(admin_emails)).first()
     
@@ -145,7 +154,7 @@ def get_leaderboard(db: Session = Depends(get_db)):
             return u
         is_mystic = u.email in admin_emails
         exp = 99999999 if is_mystic else (u.exp_points or 0)
-        is_teacher = getattr(u, "role", "student") in ["teacher", "admin"] or getattr(u, "secondary_role", None) == "teacher"
+        is_teacher = getattr(u, "role", "student") in ["teacher"] or getattr(u, "secondary_role", None) == "teacher"
         if is_teacher:
             rank_name = get_teacher_rank(u, exp)["rank_name"]
         else:
@@ -160,7 +169,7 @@ def get_leaderboard(db: Session = Depends(get_db)):
         }
 
     student_dicts = [to_dict(u) for u in students if u.email not in admin_emails]
-    teacher_dicts = [to_dict(u) for u in teachers]
+    teacher_dicts = [to_dict(u) for u in teachers if u.role != 'admin']
 
     def sort_key(d):
         return d["exp_points"]
@@ -258,18 +267,61 @@ def my_offline_teachers(db: Session = Depends(get_db), current_user: User = Depe
 def my_offline_students(db: Session = Depends(get_db), current_user: User = Depends(require_role("teacher", "admin"))):
     from app.models.user import TeacherStudentLink
     links = db.query(TeacherStudentLink).filter(TeacherStudentLink.teacher_id == current_user.id).all()
-    students = [link.student for link in links if link.student]
     
     return [
         {
-            "id": s.id,
-            "full_name": s.full_name,
-            "avatar_url": s.avatar_url,
-            "email": s.email,
-            "phone": s.phone
+            "id": link.student.id,
+            "full_name": link.student.full_name,
+            "avatar_url": link.student.avatar_url,
+            "email": link.student.email,
+            "phone": link.student.phone,
+            "class_name": link.class_name or ""
         }
-        for s in students
+        for link in links if link.student
     ]
+
+@router.get("/my-classes")
+def my_classes(db: Session = Depends(get_db), current_user: User = Depends(require_role("teacher", "admin"))):
+    """Lấy danh sách tên lớp đã tạo (distinct)."""
+    from app.models.user import TeacherStudentLink
+    links = db.query(TeacherStudentLink.class_name).filter(
+        TeacherStudentLink.teacher_id == current_user.id,
+        TeacherStudentLink.class_name != None,
+        TeacherStudentLink.class_name != ""
+    ).distinct().all()
+    return [l[0] for l in links if l[0]]
+
+@router.put("/update-student-class/{student_id}")
+def update_student_class(student_id: int, data: dict, db: Session = Depends(get_db), current_user: User = Depends(require_role("teacher", "admin"))):
+    """Đổi lớp cho học sinh."""
+    from app.models.user import TeacherStudentLink
+    link = db.query(TeacherStudentLink).filter(
+        TeacherStudentLink.student_id == student_id,
+        TeacherStudentLink.teacher_id == current_user.id
+    ).first()
+    if not link:
+        raise HTTPException(status_code=404, detail="Không tìm thấy học sinh này trong lớp của bạn")
+    link.class_name = data.get("class_name", "")
+    db.commit()
+    return {"message": f"Đã cập nhật lớp cho học sinh"}
+
+@router.put("/batch-update-class")
+def batch_update_class(data: dict, db: Session = Depends(get_db), current_user: User = Depends(require_role("teacher", "admin"))):
+    """Đổi lớp cho nhiều học sinh cùng lúc."""
+    from app.models.user import TeacherStudentLink
+    student_ids = data.get("student_ids", [])
+    class_name = data.get("class_name", "")
+    count = 0
+    for sid in student_ids:
+        link = db.query(TeacherStudentLink).filter(
+            TeacherStudentLink.student_id == sid,
+            TeacherStudentLink.teacher_id == current_user.id
+        ).first()
+        if link:
+            link.class_name = class_name
+            count += 1
+    db.commit()
+    return {"message": f"Đã cập nhật lớp cho {count} học sinh"}
 
 @router.get("/search-students")
 def search_students(q: str = "", db: Session = Depends(get_db), current_user: User = Depends(require_role("teacher", "admin"))):
@@ -305,6 +357,7 @@ def add_student_to_class(data: dict, db: Session = Depends(get_db), current_user
     from app.models.user import TeacherStudentLink
     
     student_ids = data.get("student_ids", [])
+    class_name = data.get("class_name", "")
     added = 0
     for sid in student_ids:
         existing = db.query(TeacherStudentLink).filter(
@@ -312,7 +365,7 @@ def add_student_to_class(data: dict, db: Session = Depends(get_db), current_user
             TeacherStudentLink.teacher_id == current_user.id
         ).first()
         if not existing:
-            link = TeacherStudentLink(student_id=sid, teacher_id=current_user.id)
+            link = TeacherStudentLink(student_id=sid, teacher_id=current_user.id, class_name=class_name or None)
             db.add(link)
             added += 1
     db.commit()

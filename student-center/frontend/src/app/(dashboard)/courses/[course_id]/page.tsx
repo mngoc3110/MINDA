@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { 
    BookOpen, PlayCircle, Loader2, CheckCircle2, ChevronLeft, 
-   FileText, ClipboardList, PenTool, LayoutTemplate, Send, Clock, HelpCircle, Timer, AlertCircle
+   FileText, ClipboardList, PenTool, LayoutTemplate, Send, Clock, HelpCircle, Timer, AlertCircle,
+   Pencil, Check, X
 } from "lucide-react";
 
 interface Lesson {
@@ -73,6 +74,21 @@ export default function CoursePlayerPage() {
   const [isTakingExam, setIsTakingExam] = useState(false);
   const [submittingExam, setSubmittingExam] = useState(false);
 
+  // Edit course title
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [newTitle, setNewTitle] = useState("");
+  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem("minda_token");
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        setCurrentUserId(Number(payload.sub));
+      } catch {}
+    }
+  }, []);
+
   useEffect(() => {
     let timer: any;
     if (isTakingExam && examTimeLeft > 0) {
@@ -123,6 +139,13 @@ export default function CoursePlayerPage() {
                      }
                  });
              }
+         });
+
+         // Sort lessons by number in title (e.g. "Bài 5: ..." → 5)
+         flatLessons.sort((a: any, b: any) => {
+           const numA = parseInt((a.title.match(/\d+/) || ["9999"])[0]);
+           const numB = parseInt((b.title.match(/\d+/) || ["9999"])[0]);
+           return numA - numB;
          });
 
          setLessons(flatLessons);
@@ -294,7 +317,66 @@ export default function CoursePlayerPage() {
               <button onClick={() => router.push('/courses')} className="text-t-secondary hover:text-indigo-500 transition-colors flex items-center gap-2 mb-3 text-sm font-bold w-max">
                  <ChevronLeft className="w-4 h-4" /> Bảng điều khiển
               </button>
-              <h1 className="text-lg md:text-xl font-black leading-tight bg-clip-text text-transparent bg-linear-to-br from-indigo-400 to-purple-600">{course.title}</h1>
+              {editingTitle ? (
+                <div className="flex items-center gap-2">
+                  <input
+                    autoFocus
+                    value={newTitle}
+                    onChange={(e) => setNewTitle(e.target.value)}
+                    onKeyDown={async (e) => {
+                      if (e.key === "Enter" && newTitle.trim()) {
+                        const token = localStorage.getItem("minda_token");
+                        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/courses/${course_id}`, {
+                          method: "PUT",
+                          headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+                          body: JSON.stringify({ title: newTitle.trim() })
+                        });
+                        if (res.ok) {
+                          setCourse(prev => prev ? { ...prev, title: newTitle.trim() } : prev);
+                          setEditingTitle(false);
+                        }
+                      } else if (e.key === "Escape") {
+                        setEditingTitle(false);
+                      }
+                    }}
+                    className="text-lg font-black bg-bg-hover border border-indigo-500 rounded-lg px-3 py-1 outline-none w-full"
+                  />
+                  <button
+                    onClick={async () => {
+                      if (!newTitle.trim()) return;
+                      const token = localStorage.getItem("minda_token");
+                      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/courses/${course_id}`, {
+                        method: "PUT",
+                        headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+                        body: JSON.stringify({ title: newTitle.trim() })
+                      });
+                      if (res.ok) {
+                        setCourse(prev => prev ? { ...prev, title: newTitle.trim() } : prev);
+                        setEditingTitle(false);
+                      }
+                    }}
+                    className="p-1.5 bg-emerald-500/20 text-emerald-500 rounded-lg hover:bg-emerald-500/30 transition-colors shrink-0"
+                  >
+                    <Check className="w-4 h-4" />
+                  </button>
+                  <button onClick={() => setEditingTitle(false)} className="p-1.5 bg-red-500/20 text-red-500 rounded-lg hover:bg-red-500/30 transition-colors shrink-0">
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 group/title">
+                  <h1 className="text-lg md:text-xl font-black leading-tight bg-clip-text text-transparent bg-linear-to-br from-indigo-400 to-purple-600">{course.title}</h1>
+                  {currentUserId === course.teacher_id && (
+                    <button
+                      onClick={() => { setNewTitle(course.title); setEditingTitle(true); }}
+                      className="p-1 text-t-secondary opacity-0 group-hover/title:opacity-100 hover:text-indigo-400 transition-all shrink-0"
+                      title="Sửa tên khoá học"
+                    >
+                      <Pencil className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+              )}
               <div className="w-full bg-border-card h-2 rounded-full mt-4 overflow-hidden shadow-inner">
                   <div className="bg-emerald-500 h-full rounded-full transition-all duration-1000" style={{ width: `${lessons.length > 0 ? (Object.keys(completedLessons).length / lessons.length) * 100 : 0}%` }}></div>
               </div>

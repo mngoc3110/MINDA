@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text, JSON, Boolean, Table
+from sqlalchemy import Column, Integer, Float, String, DateTime, ForeignKey, Text, JSON, Boolean, Table
 from sqlalchemy.orm import relationship
 from app.db.database import Base
 from datetime import datetime
@@ -15,6 +15,7 @@ class Assignment(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     course_id = Column(Integer, ForeignKey("courses.id"), nullable=True)
+    folder_id = Column(Integer, ForeignKey("assignment_folders.id"), nullable=True)
     lesson_id = Column(Integer, ForeignKey("lessons.id"), nullable=True)
     teacher_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     title = Column(String, nullable=False)
@@ -23,12 +24,13 @@ class Assignment(Base):
     attachment_url = Column(String, nullable=True)
     quiz_data = Column(JSON, nullable=True)
     due_date = Column(DateTime, nullable=True)
-    max_score = Column(Integer, default=100)
+    max_score = Column(Float, default=100)
     exam_format = Column(String, default="practice")  # "standard" (thang 10) or "practice" (thang 100)
     is_assigned_to_all = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     course = relationship("Course", back_populates="assignments")
+    folder = relationship("AssignmentFolder", back_populates="assignments", foreign_keys=[folder_id])
     submissions = relationship("AssignmentSubmission", back_populates="assignment", cascade="all, delete-orphan")
     assignees = relationship("User", secondary=assignment_assignees, backref="assigned_tasks")
 
@@ -42,7 +44,7 @@ class AssignmentSubmission(Base):
     content = Column(Text, nullable=True)
     file_url = Column(String, nullable=True)
     quiz_answers = Column(JSON, nullable=True)
-    score = Column(Integer, nullable=True)
+    score = Column(Float, nullable=True)
     feedback = Column(Text, nullable=True)
     submitted_at = Column(DateTime, default=datetime.utcnow)
     graded_at = Column(DateTime, nullable=True)
