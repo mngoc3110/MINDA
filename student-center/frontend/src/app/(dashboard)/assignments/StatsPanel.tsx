@@ -1,5 +1,6 @@
 "use client";
-import { User, BarChart2, TrendingUp } from "lucide-react";
+import { User, BarChart2, TrendingUp, Sparkles, Loader2 } from "lucide-react";
+import { useState } from "react";
 
 interface StudentTarget {
   id: number;
@@ -10,12 +11,15 @@ interface StudentTarget {
 interface Props {
   submissions: any[];
   statsStudent: StudentTarget | null;
-  onSelectStudent: (st: StudentTarget) => void;
+  onSelectStudent?: (st: StudentTarget) => void;
+  hideStudentSelector?: boolean;
 }
 
-const COLORS = ["#6366f1","#f59e0b","#10b981","#ef4444","#8b5cf6","#06b6d4","#f97316","#84cc16"];
+export default function StatsPanel({ submissions, statsStudent, onSelectStudent, hideStudentSelector }: Props) {
+  const [aiAnalysis, setAiAnalysis] = useState<string | null>(null);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [hoveredPoint, setHoveredPoint] = useState<number | null>(null);
 
-export default function StatsPanel({ submissions, statsStudent, onSelectStudent }: Props) {
   const allStudents: StudentTarget[] = Array.from(
     new Map(
       submissions.map((s: any) => [
@@ -35,173 +39,251 @@ export default function StatsPanel({ submissions, statsStudent, onSelectStudent 
     );
   }
 
-  // Group by assignment, sorted by time
-  const byAssignment = new Map<number, { title: string; max: number; attempts: { score: number; date: string }[] }>();
-  submissions
+  // 1. Dữ liệu mốc thời gian liên tục (Timeline)
+  const attempts = submissions
     .filter((s: any) => s.student_id === target.id)
-    .forEach((s: any) => {
-      if (!byAssignment.has(s.assignment_id)) {
-        byAssignment.set(s.assignment_id, {
-          title: s.assignment_title,
-          max: s.max_score ?? 10,
-          attempts: [],
-        });
-      }
-      byAssignment.get(s.assignment_id)!.attempts.push({ score: s.score ?? 0, date: s.submitted_at });
-    });
-  for (const v of byAssignment.values()) {
-    v.attempts.sort((a, b) => a.date.localeCompare(b.date));
-  }
-  const chartData = Array.from(byAssignment.values());
+    .map((s: any) => ({
+      title: s.assignment_title,
+      score: s.score ?? 0,
+      max: s.max_score ?? 10,
+      normalized_score: ((s.score ?? 0) / (s.max_score ?? 10)) * 10,
+      date: s.submitted_at,
+    }))
+    .sort((a, b) => a.date.localeCompare(b.date));
 
-  const W = 480, H = 200;
-  const PAD = { t: 20, r: 16, b: 36, l: 40 };
-  const maxAttempts = Math.max(...chartData.map((d) => d.attempts.length), 2);
-  const xStep = (W - PAD.l - PAD.r) / Math.max(maxAttempts - 1, 1);
-  const globalMax = Math.max(...chartData.map((d) => d.max), 10);
+  const W = 600, H = 220;
+  const PAD = { t: 30, r: 30, b: 40, l: 40 };
+  const maxAttempts = Math.max(attempts.length, 2);
+  const xStep = (W - PAD.l - PAD.r) / Math.max(attempts.length - 1, 1);
+  const globalMax = 10; // Điểm đã chuẩn hóa về hệ 10
+
+  const handleAnalyzeAI = async () => {
+    if (attempts.length === 0) return;
+    setAnalyzing(true);
+    setAiAnalysis(null);
+    try {
+      const token = localStorage.getItem("minda_token");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://minda.io.vn"}/api/ai/analyze-stats`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ history: attempts })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setAiAnalysis(data.reply);
+      } else {
+        setAiAnalysis("❌ Lỗi: Không thể kết nối AI lúc này.");
+      }
+    } catch (e) {
+      setAiAnalysis("❌ Lỗi: Hệ thống đang bận.");
+    } finally {
+      setAnalyzing(false);
+    }
+  };
 
   return (
-    <div className="p-5 flex flex-col gap-4 overflow-y-auto">
+    <div className="p-5 flex flex-col gap-5 overflow-y-auto w-full">
       {/* Student picker */}
-      <div className="flex gap-2 flex-wrap">
-        {allStudents.slice(0, 15).map((st) => (
+      {!hideStudentSelector && allStudents.length > 0 && (
+        <div className="flex gap-2 flex-wrap">
+          {allStudents.slice(0, 15).map((st) => (
+            <button
+              key={st.id}
+              onClick={() => {
+                onSelectStudent?.(st);
+                setAiAnalysis(null);
+              }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${
+                target.id === st.id
+                  ? "bg-indigo-500/20 border-indigo-500/40 text-indigo-300"
+                  : "bg-white/5 border-white/10 text-text-muted hover:border-indigo-500/30"
+              }`}
+            >
+              <User className="w-3 h-3" />
+              {st.name}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Main Chart Section */}
+      <div className="bg-bg-hover rounded-2xl border border-border-card p-5 relative">
+        <div className="flex items-center justify-between mb-4">
+          <p className="text-sm font-bold text-text-primary flex items-center gap-2">
+            <TrendingUp className="w-4 h-4 text-indigo-400" />
+            Tiến độ học tập xuyên suốt —{" "}
+            <span className="text-indigo-400">{target.name}</span>
+          </p>
           <button
-            key={st.id}
-            onClick={() => onSelectStudent(st)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${
-              target.id === st.id
-                ? "bg-indigo-500/20 border-indigo-500/40 text-indigo-300"
-                : "bg-white/5 border-white/10 text-text-muted hover:border-indigo-500/30"
-            }`}
+            onClick={handleAnalyzeAI}
+            disabled={analyzing || attempts.length === 0}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition-colors disabled:opacity-50"
           >
-            <User className="w-3 h-3" />
-            {st.name}
+            {analyzing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+            Phân tích bằng AI
           </button>
-        ))}
-      </div>
+        </div>
 
-      {/* Chart */}
-      <div className="bg-bg-hover rounded-2xl border border-border-card p-4">
-        <p className="text-sm font-bold text-text-primary mb-3 flex items-center gap-2">
-          <TrendingUp className="w-4 h-4 text-indigo-400" />
-          Tiến độ điểm —{" "}
-          <span className="text-indigo-400">{target.name}</span>
-        </p>
-
-        {chartData.length === 0 ? (
-          <p className="text-xs text-text-muted py-6 text-center">
+        {attempts.length === 0 ? (
+          <p className="text-xs text-text-muted py-8 text-center">
             Học sinh chưa làm bài nào.
           </p>
         ) : (
-          <>
-            <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ maxHeight: 220 }}>
+          <div className="relative overflow-x-auto w-full pb-4">
+            <svg viewBox={`0 0 ${W} ${H}`} className="w-full min-w-[500px]" style={{ maxHeight: 250, overflow: 'visible' }}>
+              {/* Defs for gradients */}
+              <defs>
+                <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#818cf8" stopOpacity="0.4" />
+                  <stop offset="100%" stopColor="#818cf8" stopOpacity="0.0" />
+                </linearGradient>
+              </defs>
+
               {/* Y gridlines */}
               {[0, 0.25, 0.5, 0.75, 1].map((frac) => {
                 const y = PAD.t + (H - PAD.t - PAD.b) * (1 - frac);
-                const label = Math.round(frac * globalMax * 10) / 10;
+                const label = Math.round(frac * globalMax);
                 return (
                   <g key={frac}>
                     <line
                       x1={PAD.l} x2={W - PAD.r} y1={y} y2={y}
-                      stroke="rgba(255,255,255,0.06)" strokeWidth="1"
+                      stroke="rgba(255,255,255,0.06)" strokeWidth="1" strokeDasharray={frac === 0 ? "0" : "4 4"}
                     />
-                    <text x={PAD.l - 6} y={y + 4} textAnchor="end" fontSize="9" fill="rgba(255,255,255,0.3)">
+                    <text x={PAD.l - 8} y={y + 4} textAnchor="end" fontSize="10" fill="rgba(255,255,255,0.4)" fontWeight="500">
                       {label}
                     </text>
                   </g>
                 );
               })}
-              {/* X labels */}
-              {Array.from({ length: maxAttempts }).map((_, i) => (
-                <text key={i} x={PAD.l + i * xStep} y={H - PAD.b + 14} textAnchor="middle" fontSize="9" fill="rgba(255,255,255,0.3)">
-                  Lần {i + 1}
-                </text>
-              ))}
-              {/* Lines */}
-              {chartData.map((d, ci) => {
-                const color = COLORS[ci % COLORS.length];
-                const pts = d.attempts.map((a, i) => ({
+
+              {/* Path Data */}
+              {(() => {
+                const pts = attempts.map((a, i) => ({
                   x: PAD.l + i * xStep,
-                  y: PAD.t + (H - PAD.t - PAD.b) * (1 - Math.min(a.score / d.max, 1)),
+                  y: PAD.t + (H - PAD.t - PAD.b) * (1 - Math.min(a.normalized_score / globalMax, 1)),
                 }));
-                if (pts.length === 0) return null;
-                if (pts.length === 1) {
-                  return (
-                    <g key={ci}>
-                      <circle cx={pts[0].x} cy={pts[0].y} r="5" fill={color} />
-                      <text x={pts[0].x} y={pts[0].y - 9} textAnchor="middle" fontSize="9" fontWeight="bold" fill={color}>
-                        {d.attempts[0].score}
-                      </text>
-                    </g>
-                  );
-                }
+
                 const dPath = pts.map((p, i) => `${i === 0 ? "M" : "L"}${p.x},${p.y}`).join(" ");
+                const dArea = `${dPath} L${pts[pts.length - 1].x},${H - PAD.b} L${pts[0].x},${H - PAD.b} Z`;
+
                 return (
-                  <g key={ci}>
-                    <path d={dPath} fill="none" stroke={color} strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
-                    {pts.map((p, i) => (
-                      <g key={i}>
-                        <circle cx={p.x} cy={p.y} r="5" fill={color} stroke="rgba(0,0,0,0.4)" strokeWidth="1.5" />
-                        <text x={p.x} y={p.y - 9} textAnchor="middle" fontSize="9" fontWeight="bold" fill={color}>
-                          {d.attempts[i].score}
-                        </text>
-                      </g>
-                    ))}
-                  </g>
+                  <>
+                    <path d={dArea} fill="url(#areaGradient)" />
+                    <path d={dPath} fill="none" stroke="#818cf8" strokeWidth="3" strokeLinejoin="round" strokeLinecap="round" />
+                    
+                    {pts.map((p, i) => {
+                      const a = attempts[i];
+                      const dObj = new Date(a.date);
+                      const dateStr = `${dObj.getDate()}/${dObj.getMonth()+1}`;
+                      const isHovered = hoveredPoint === i;
+
+                      return (
+                        <g key={i} 
+                           onMouseEnter={() => setHoveredPoint(i)} 
+                           onMouseLeave={() => setHoveredPoint(null)}
+                           className="cursor-pointer transition-all duration-200"
+                        >
+                          {/* Invisible larger circle for easier hover */}
+                          <circle cx={p.x} cy={p.y} r="15" fill="transparent" />
+                          <circle 
+                            cx={p.x} cy={p.y} 
+                            r={isHovered ? "6" : "4"} 
+                            fill={isHovered ? "#fff" : "#818cf8"} 
+                            stroke="#312e81" strokeWidth="2" 
+                          />
+                          
+                          {/* Point Score Label */}
+                          <text 
+                            x={p.x} y={p.y - 12} 
+                            textAnchor="middle" fontSize="11" fontWeight="bold" 
+                            fill={isHovered ? "#fff" : "#a5b4fc"}
+                          >
+                            {Math.round(a.score * 10) / 10}
+                          </text>
+
+                          {/* X-axis Date */}
+                          <text 
+                            x={p.x} y={H - PAD.b + 18} 
+                            textAnchor="middle" fontSize="10" 
+                            fill={isHovered ? "#fff" : "rgba(255,255,255,0.4)"}
+                          >
+                            {dateStr}
+                          </text>
+
+                          {/* Tooltip for Assignment Title */}
+                          {isHovered && (
+                            <g>
+                              <rect 
+                                x={Math.max(PAD.l, Math.min(p.x - 60, W - PAD.r - 120))} 
+                                y={H - PAD.b + 28} 
+                                width="120" height="24" rx="4" 
+                                fill="#1e1b4b" stroke="#4f46e5" strokeWidth="1"
+                              />
+                              <text 
+                                x={Math.max(PAD.l + 60, Math.min(p.x, W - PAD.r - 60))} 
+                                y={H - PAD.b + 44} 
+                                textAnchor="middle" fontSize="10" fill="#c7d2fe"
+                              >
+                                {a.title.length > 18 ? a.title.substring(0, 18) + '...' : a.title}
+                              </text>
+                            </g>
+                          )}
+                        </g>
+                      );
+                    })}
+                  </>
                 );
-              })}
+              })()}
             </svg>
-            {/* Legend */}
-            <div className="flex flex-wrap gap-2 mt-3">
-              {chartData.map((d, ci) => (
-                <div key={ci} className="flex items-center gap-1.5 text-[10px] text-text-secondary">
-                  <span className="w-3 h-3 rounded-full shrink-0" style={{ background: COLORS[ci % COLORS.length] }} />
-                  <span className="truncate max-w-[140px]">{d.title}</span>
-                  <span className="text-text-muted">({d.attempts.length} lần)</span>
-                </div>
-              ))}
-            </div>
-          </>
+          </div>
         )}
       </div>
 
-      {/* Summary table */}
-      {chartData.length > 0 && (
-        <div className="bg-bg-hover rounded-2xl border border-border-card overflow-hidden">
+      {/* AI Analysis Result */}
+      {aiAnalysis && (
+        <div className="bg-indigo-900/20 border border-indigo-500/30 p-4 rounded-2xl relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500"></div>
+          <h4 className="text-sm font-bold text-indigo-300 flex items-center gap-2 mb-2">
+            <Sparkles className="w-4 h-4 text-yellow-400" /> Nhận xét từ giáo viên AI
+          </h4>
+          <p className="text-sm text-text-primary leading-relaxed whitespace-pre-wrap">
+            {aiAnalysis}
+          </p>
+        </div>
+      )}
+
+      {/* Summary Table */}
+      {attempts.length > 0 && (
+        <div className="bg-bg-hover rounded-2xl border border-border-card overflow-hidden mt-2">
           <table className="w-full text-xs">
             <thead>
-              <tr className="border-b border-border-card">
-                <th className="text-left px-4 py-2.5 text-text-muted font-bold">Đề bài</th>
-                <th className="text-center px-3 py-2.5 text-text-muted font-bold">Lần</th>
-                <th className="text-center px-3 py-2.5 text-text-muted font-bold">Tốt nhất</th>
-                <th className="text-center px-3 py-2.5 text-text-muted font-bold">Lần cuối</th>
-                <th className="text-center px-3 py-2.5 text-text-muted font-bold">Xu hướng</th>
+              <tr className="border-b border-border-card bg-black/20">
+                <th className="text-left px-4 py-3 text-text-muted font-bold">Thời gian nộp</th>
+                <th className="text-left px-4 py-3 text-text-muted font-bold">Tên bài tập</th>
+                <th className="text-center px-4 py-3 text-text-muted font-bold">Điểm số</th>
               </tr>
             </thead>
             <tbody>
-              {chartData.map((d, ci) => {
-                const best = Math.max(...d.attempts.map((a) => a.score));
-                const last = d.attempts[d.attempts.length - 1]?.score ?? 0;
-                const first = d.attempts[0]?.score ?? 0;
-                const trend = last > first ? "↑" : last < first ? "↓" : "→";
-                const trendCls = last > first ? "text-green-400" : last < first ? "text-red-400" : "text-text-muted";
-                return (
-                  <tr key={ci} className="border-b border-border-card last:border-0 hover:bg-white/5">
-                    <td className="px-4 py-2.5 font-medium text-text-primary">
-                      <div className="flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full shrink-0" style={{ background: COLORS[ci % COLORS.length] }} />
-                        <span className="truncate max-w-[150px]">{d.title}</span>
-                      </div>
-                    </td>
-                    <td className="px-3 py-2.5 text-center text-text-secondary">{d.attempts.length}</td>
-                    <td className="px-3 py-2.5 text-center font-bold text-green-400">{best}/{d.max}</td>
-                    <td className="px-3 py-2.5 text-center text-text-secondary">{last}/{d.max}</td>
-                    <td className={`px-3 py-2.5 text-center font-black text-lg ${trendCls}`}>{trend}</td>
-                  </tr>
-                );
-              })}
+              {[...attempts].reverse().slice(0, 10).map((a, idx) => (
+                <tr key={idx} className="border-b border-border-card last:border-0 hover:bg-white/5">
+                  <td className="px-4 py-2.5 text-text-secondary">
+                    {new Date(a.date).toLocaleString('vi-VN')}
+                  </td>
+                  <td className="px-4 py-2.5 font-medium text-text-primary">
+                    {a.title}
+                  </td>
+                  <td className="px-4 py-2.5 text-center font-bold text-indigo-400">
+                    {a.score}/{a.max}
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
+          {attempts.length > 10 && (
+            <div className="px-4 py-2 text-center text-text-muted text-xs bg-black/10">
+              Chỉ hiển thị 10 lần nộp gần nhất.
+            </div>
+          )}
         </div>
       )}
     </div>

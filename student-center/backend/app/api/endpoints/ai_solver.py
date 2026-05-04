@@ -52,6 +52,9 @@ Cuối bài, nhớ gửi lời chúc / cổ vũ học viên học tốt nhé!"""
 class ChatRequest(BaseModel):
     prompt: str
 
+class StatsAnalyzeRequest(BaseModel):
+    history: list[dict]
+
 
 from app.services.gemini_key_manager import get_next_gemini_key
 
@@ -141,6 +144,26 @@ async def solve_math(req: ChatRequest, current_user=Depends(get_current_user)):
         except Exception as openrouter_err:
             print(f"[OpenRouter Exception]: {openrouter_err}")
             raise HTTPException(status_code=500, detail=f"Lỗi AI: Tất cả các API đều thất bại.")
+
+@router.post("/analyze-stats")
+async def analyze_stats(req: StatsAnalyzeRequest, current_user=Depends(get_current_user)):
+    """
+    Nhận lịch sử điểm số của học sinh và gọi AI để nhận xét tiến độ
+    """
+    sys_prompt = "Bạn là một giáo viên tận tâm tại hệ thống MINDA. Dưới đây là lịch sử nộp bài tập của một học sinh (bao gồm tên bài, điểm, và thời gian nộp, điểm tối đa thường là 10). Dựa vào đây, hãy viết một nhận xét ngắn gọn (khoảng 3-4 câu) về sự tiến bộ, phân tích xu hướng học tập (đi lên/xuống) và đưa ra lời khuyên động viên mang tính cá nhân hóa. Tuyệt đối không chào hỏi dài dòng, hãy đi thẳng vào nhận xét."
+    prompt = f"Lịch sử làm bài:\n{json.dumps(req.history, ensure_ascii=False, indent=2)}\n\nHãy phân tích."
+    try:
+        client = _get_client()
+        reply = _call_gemini(client, [prompt], system_instruction=sys_prompt)
+        return {"reply": reply}
+    except Exception as e:
+        print(f"[Gemini Exception]: {e}. Falling back to OpenRouter...")
+        try:
+            reply = _call_openrouter(prompt, sys_prompt)
+            return {"reply": reply}
+        except Exception as openrouter_err:
+            print(f"[OpenRouter Exception]: {openrouter_err}")
+            raise HTTPException(status_code=500, detail="Lỗi AI khi phân tích thống kê.")
 
 
 @router.post("/solve-image")

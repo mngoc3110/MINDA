@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { BrainCircuit, HardDrive, Star, Trophy, Users, BookOpen, Clock, Activity, FileText, UploadCloud, Loader2, ExternalLink } from "lucide-react";
 import AILearningWorkspace from "@/features/3d-math/AILearningWorkspace";
+import StatsPanel from "@/app/(dashboard)/assignments/StatsPanel";
 import Link from "next/link";
 
 export default function Dashboard() {
@@ -12,6 +13,7 @@ export default function Dashboard() {
   const [isGoogleConnected, setIsGoogleConnected] = useState<boolean>(false);
   const [uploading, setUploading] = useState(false);
   const [stats, setStats] = useState<Record<string, string | number>>({});
+  const [submissions, setSubmissions] = useState<any[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchFiles = async (savedRole: string) => {
@@ -35,6 +37,13 @@ export default function Dashboard() {
          headers: { "Authorization": `Bearer ${token}` }
       });
       if (statsRes.ok) setStats(await statsRes.json());
+
+      if (savedRole === "student") {
+        const subRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/assignments/student/my-submissions`, {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        if (subRes.ok) setSubmissions(await subRes.json());
+      }
     } catch (e) {
       console.error(e);
     }
@@ -297,6 +306,15 @@ export default function Dashboard() {
               <div className={`h-2 rounded-full transition-all duration-1000 ease-out ${isMystic ? 'bg-gradient-to-r from-yellow-400 via-red-500 to-fuchsia-500 animate-pulse w-full' : `bg-gradient-to-r ${stats.rank_color || 'from-slate-400 to-slate-600'}`}`} style={{ width: isMystic ? '100%' : `${stats.progress_percent || 0}%` }}></div>
             </div>
             <p className="text-xs text-center text-text-secondary">Đạt ≥80% điểm bài tập để nhận ⭐ và +20 EXP (ghi nhận 1 lần mỗi bài)!</p>
+          </section>
+
+          {/* Student Stats Panel */}
+          <section className="p-0 rounded-3xl bg-bg-card border border-border-card shadow-sm overflow-hidden flex flex-col min-h-[300px]">
+             <StatsPanel 
+                submissions={submissions} 
+                statsStudent={{ id: Number(stats.student_id?.toString().replace(/\D/g, '') || 0), name: userName, avatar: stats.avatar_url as string || null }}
+                hideStudentSelector={true}
+             />
           </section>
 
           {/* Drive Section */}
