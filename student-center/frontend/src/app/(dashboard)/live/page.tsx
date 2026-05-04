@@ -46,6 +46,8 @@ export default function LiveSchedulePage() {
 
   useEffect(() => {
     fetchSessions();
+    const intervalId = setInterval(fetchSessions, 10000); // Tự động lấy danh sách lớp mỗi 10 giây
+    return () => clearInterval(intervalId);
   }, []);
 
   const fetchSessions = async () => {
@@ -62,8 +64,9 @@ export default function LiveSchedulePage() {
          } catch (e) {}
       }
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/live-sessions/`, {
-        headers: { "Authorization": `Bearer ${token}` }
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/live-sessions/?t=${Date.now()}`, {
+        headers: { "Authorization": `Bearer ${token}` },
+        cache: 'no-store'
       });
       if (res.ok) {
         setSessions(await res.json());

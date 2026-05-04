@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { X, Pen, Eraser, Highlighter, ChevronLeft, ChevronRight, Trash2, Download, Minus, Plus } from "lucide-react";
+import { X, Pen, Eraser, Highlighter, ChevronLeft, ChevronRight, Trash2, Download, Minus, Plus, ZoomIn, ZoomOut, Maximize } from "lucide-react";
 
 interface Stroke {
   type: "stroke_start" | "stroke_move" | "stroke_end" | "stroke_clear" | "stroke_page";
@@ -43,6 +43,9 @@ export default function AnnotationBoard({ fileUrl, fileType, isTeacher, onStroke
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [isImage, setIsImage] = useState(false);
+  const [isWhiteboard, setIsWhiteboard] = useState(false);
+  const [zoom, setZoom] = useState<number>(0); // 0 = FIT, 1 = 100%
+  const [boardDim, setBoardDim] = useState({ w: 1920, h: 1080 });
   const [loading, setLoading] = useState(true);
 
   const pdfDocRef = useRef<any>(null);
@@ -106,6 +109,7 @@ export default function AnnotationBoard({ fileUrl, fileType, isTeacher, onStroke
     bgCanvas.height = viewport.height;
     drawCanvas.width = viewport.width;
     drawCanvas.height = viewport.height;
+    setBoardDim({ w: viewport.width, h: viewport.height });
 
     const ctx = bgCanvas.getContext("2d")!;
     await page.render({ canvasContext: ctx, viewport }).promise;
@@ -114,6 +118,24 @@ export default function AnnotationBoard({ fileUrl, fileType, isTeacher, onStroke
   // ── Load file ──────────────────────────────────────────────────────────────
   useEffect(() => {
     setLoading(true);
+
+    if (fileType === "whiteboard" || fileUrl === "blank") {
+      setIsWhiteboard(true);
+      setTotalPages(1);
+      setCurrentPage(0);
+      const bg = bgCanvasRef.current;
+      const draw = drawCanvasRef.current;
+      if (bg && draw) {
+        bg.width = 1920; bg.height = 1080;
+        draw.width = 1920; draw.height = 1080;
+        setBoardDim({ w: 1920, h: 1080 });
+        const ctx = bg.getContext("2d")!;
+        ctx.fillStyle = "#fdfbf7"; // Màu giấy nháp
+        ctx.fillRect(0, 0, 1920, 1080);
+      }
+      setLoading(false);
+      return;
+    }
 
     let actualUrl = fileUrl;
     if (fileUrl.includes("drive.google.com")) {
@@ -144,6 +166,7 @@ export default function AnnotationBoard({ fileUrl, fileType, isTeacher, onStroke
         bg.height = img.naturalHeight;
         draw.width = img.naturalWidth;
         draw.height = img.naturalHeight;
+        setBoardDim({ w: img.naturalWidth, h: img.naturalHeight });
         bg.getContext("2d")!.drawImage(img, 0, 0);
         setLoading(false);
       };
@@ -306,6 +329,14 @@ export default function AnnotationBoard({ fileUrl, fileType, isTeacher, onStroke
       <div className="flex items-center gap-2 px-4 py-2 bg-gray-900 border-b border-white/10 flex-wrap shrink-0">
         <span className="font-black text-white text-sm mr-2 hidden md:block">📝 Chữa bài</span>
 
+        {/* Zoom controls (For everyone) */}
+        <button onClick={() => setZoom(z => z === 0 ? 1.5 : Math.max(0.5, z - 0.5))} title="Thu nhỏ" className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white"><ZoomOut className="w-4 h-4" /></button>
+        <button onClick={() => setZoom(0)} title="Vừa màn hình" className={`p-1.5 rounded-lg ${zoom === 0 ? "bg-indigo-600" : "bg-white/10 hover:bg-white/20"} text-white`}><Maximize className="w-4 h-4" /></button>
+        <button onClick={() => setZoom(z => z === 0 ? 1.5 : Math.min(5, z + 0.5))} title="Phóng to" className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white"><ZoomIn className="w-4 h-4" /></button>
+        <span className="text-white/60 text-[10px] font-bold w-6 text-center">{zoom === 0 ? "FIT" : `${Math.round(zoom * 100)}%`}</span>
+
+        <div className="w-px h-6 bg-white/20 mx-1 hidden md:block" />
+
         {isTeacher && (
           <>
             {/* Tool buttons */}
@@ -353,16 +384,42 @@ export default function AnnotationBoard({ fileUrl, fileType, isTeacher, onStroke
       {/* ── Canvas Area ── */}
       <div ref={containerRef} className="flex-1 overflow-auto flex items-start justify-center bg-gray-800 p-4">
         {loading ? (
-          <div className="flex items-center justify-center h-full text-white/60 text-xl">Đang tải tài liệu...</div>
+          <div className="flex items-center justify-center h-full text-white/60 text-xl">Đang thiết lập mặt bảng...</div>
         ) : (
-          <div className="relative shadow-2xl">
-            {/* Background (PDF/Image) canvas */}
-            <canvas ref={bgCanvasRef} className="block max-w-full" style={{ maxHeight: "calc(100vh - 120px)", objectFit: "contain" }} />
+          <div 
+             className="relative shadow-2xl transition-all duration-200"
+             style={{ 
+               width: zoom === 0 ? "auto" : `${boardDim.w * zoom}px`, 
+               height: zoom === 0 ? "auto" : `${boardDim.h * zoom}px`,
+               maxWidth: zoom === 0 ? "100%" : "none", 
+               maxHeight: zoom === 0 ? "calc(100vh - 120px)" : "none",
+               // Vừa màn hình (FIT) thì ép theo maxHeight, có Zoom thì thả rông Scroll
+             }}
+          >
+            {/* Background (PDF/Image/Whiteboard) canvas */}
+            <canvas 
+              ref={bgCanvasRef} 
+              className="block" 
+              style={{ 
+                 width: zoom === 0 ? "auto" : "100%",
+                 height: zoom === 0 ? "auto" : "100%",
+                 maxWidth: zoom === 0 ? "100%" : "none",
+                 maxHeight: zoom === 0 ? "calc(100vh - 120px)" : "none",
+                 objectFit: "contain", 
+                 backgroundColor: isWhiteboard ? "#fdfbf7" : "transparent",
+                 borderRadius: isWhiteboard ? "8px" : "0"
+              }} 
+            />
             {/* Drawing overlay canvas */}
             <canvas
               ref={drawCanvasRef}
-              className="absolute inset-0 w-full h-full"
-              style={{ cursor: isTeacher ? (tool === "eraser" ? "cell" : "crosshair") : "default", touchAction: "none" }}
+              className="absolute inset-0"
+              style={{ 
+                 width: "100%",
+                 height: "100%",
+                 cursor: isTeacher ? (tool === "eraser" ? "cell" : "crosshair") : "default", 
+                 touchAction: "none"
+              }}
               onPointerDown={handlePointerDown}
               onPointerMove={handlePointerMove}
               onPointerUp={handlePointerUp}

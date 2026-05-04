@@ -1,0 +1,2743 @@
+TRƯỜNG ĐẠI HỌC SƯ PHẠM TPHCM
+
+KHOA CÔNG NGHỆ THÔNG TIN
+
+NGUYỄN LÊ MINH NGỌC
+
+NHẬN DIỆN MỨC ĐỘ THAM GIA HỌC TẬP BẰNG BIỂU DIỄN ĐA PHƯƠNG THỨC TỪ ẢNH
+VÀ MÔ TẢ NGỮ NGHĨA.
+
+KHÓA LUẬN TỐT NGHIỆP
+
+TP.HỒ CHÍ MINH - NĂM 2026
+
+ 
+
+LỜI CAM ĐOAN
+
+Tôi xin cam đoan rằng luận văn “Nhận diện mức độ tham gia học tập bằng
+biểu diễn đa phương thức từ ảnh và mô tả ngữ nghĩa” là công trình nghiên
+cứu của tôi dưới sự hướng dẫn của ThS. Nguyễn Phương Nam. Kết quả được
+đề cập trong nghiên cứu này hoàn toàn trung thực và không có sự sao chép
+từ bất kỳ nguồn tài liệu nào mà không được ghi rõ trong phần tài liệu
+tham khảo bên dưới.
+
+Tôi xin chịu trách nhiệm hoàn toàn về lời cam đoan này.
+
+Thành phố Hồ Chí Minh, ngày 19 tháng 03 năm 2026.
+
+ LỜI CẢM ƠN
+
+Lời nói đầu tiên, em xin gửi lời cảm ơn chân thành và sâu sắc nhất đến
+với ThS. Nguyễn Phương Nam – giáo viên hướng dẫn đối với khoá luận tốt
+nghiệp của em. Người giáo viên đã tận tình định hướng, góp ý và đồng
+hành cùng em trong suốt quá trình thực hiện khoá luận. Sự hỗ trợ và kiên
+trì của thầy là nguồn động lực to lớn của em để giúp em hoàn thành công
+trình này.
+
+Em xin trân trọng gửi lời cảm ơn đến quý thầy cô trong khoa Công nghệ
+thông tin - trường Đại học Sư phạm thành phố Hồ Chí Minh đặc biệt là
+thầy ThS. Trần Thanh Nhã và thầy TS. Nguyễn Viết Hưng, vì đã truyền tải
+kiến thức và tạo điều kiện thuận lợi cho em trong suốt quá trình học tập
+và nghiên cứu.
+
+Một lời cảm ơn sâu sắc được con gửi tới gia đình, đặc biệt là ba mẹ đã
+luôn đồng hành và ủng hộ, động viên luôn tạo điều kiện thuận lợi nhất
+trong suốt quá trình nghiên cứu và thực hiện khoá luận.
+
+Cảm ơn các anh chị hướng dẫn đặc biệt là anh Nguyễn Đạt Minh, anh Huy Tô
+và anh Vinh đã đồng hành, đưa ra những gợi ý kịp thời, góp ý cố vấn hỗ
+trợ em trong suốt quá trình nghiên cứu.
+
+Em xin chân thành cảm ơn.
+
+Thành phố Hồ Chí Minh, tháng 4 năm 2026
+
+ MỤC LỤC
+
+LỜI CAM ĐOAN 3
+
+LỜI CẢM ƠN 4
+
+MỤC LỤC 5
+
+BẢNG CÁC KÝ HIỆU, CHỮ VIẾT TẮT 8
+
+BẢNG DANH MỤC CÁC BẢNG BIỂU 10
+
+BẢNG DANH MỤC CÁC HÌNH VẼ 11
+
+MỞ ĐẦU 15
+
+Lý do chọn đề tài 15
+
+Mục tiêu nghiên cứu 16
+
+Đối tượng nghiên cứu 17
+
+Phạm vi nghiên cứu 17
+
+Phương pháp nghiên cứu 17
+
+Ý nghĩa khoa học thực tiến 18
+
+CHƯƠNG 1: CƠ SỞ LÝ LUẬN VÀ TỔNG QUAN NGHIÊN CỨU 20
+
+1.1 Tổng quan tình hình nghiên cứu 20
+
+1.1.1 Lý thuyết về cảm xúc và cảm xúc học thuật 22
+
+1.1.2 Mức độ tham gia học tập của học sinh 24
+
+1.1.3 Các vấn đề còn tồn tại 25
+
+1.2 Các phương pháp liên quan 27
+
+1.2.1 Nhận diện cảm xúc bằng phương pháp học sâu 27
+
+1.2.2 Mô hình ngôn ngữ - thị giác trong nhận diện cảm xúc 31
+
+1.2.3 Nhận diện mức độ tham gia học tập 33
+
+1.3 Các bộ dữ liệu nghiên cứu liên quan 37
+
+1.3.1 Các bộ dữ liệu nhận diện cảm xúc có ngữ cảnh 37
+
+1.3.2 Các bộ dữ liệu nhận diện cảm xúc trong môi trường lớp học 38
+
+1.3.3 Bộ dữ liệu cảm xúc học thuật thực tế RAER 39
+
+1.3.4 So sánh các bộ dữ liệu 45
+
+CHƯƠNG 2: CƠ SỞ LÝ THUYẾT 46
+
+2.1 Transformer và cơ chế chú ý 46
+
+2.1.1 Cơ chế chú ý 46
+
+2.1.2 Multi-Head Attention 47
+
+2.1.3 Kiến trúc Transformer 48
+
+2.2 Vision Transformer (ViT) 49
+
+2.2.1 Từ Transformer đến thị giác máy tính 49
+
+2.2.2 Kiến trúc ViT 49
+
+2.2.3 Các biến thể của ViT 50
+
+2.2.4 Đặc điểm và ý nghĩa 51
+
+2.3 Mô hình CLIP 51
+
+2.3.1 Tổng quan 51
+
+2.3.2 Kiến trúc 51
+
+2.3.3 Ý nghĩa đối với mô hình đề xuất 52
+
+CHƯƠNG 3: XÂY DỰNG MÔ HÌNH NGÔN NGỮ THỊ GIÁC 53
+
+3.1 Kiến trúc tổng quan của mô hình 53
+
+3.2 Xử lý đầu vào 54
+
+3.3 Nhánh hình ảnh 55
+
+3.3.1 xử lý song song khuôn mặt và cơ thể 55
+
+3.3.2 Face Adapter 56
+
+3.3.3 Attention Pooling 57
+
+3.4 Nhánh văn bản 59
+
+3.4.1 Mô tả có thể học và chuỗi mô tả 59
+
+3.4.2 Mô tả thủ công 60
+
+3.5 Hàm mất mát 60
+
+3.6 Cân bằng dữ liệu 62
+
+CHƯƠNG 4: THỰC NGHIỆM ĐÁNH GIÁ 64
+
+4.1 Triển khai mô hình 64
+
+4.2 Các chỉ số đánh giá 66
+
+4.3 Đánh giá kết quả thực nghiệm 68
+
+4.3.1 Kết quả trên bộ dữ liệu RAER 68
+
+4.3.2 Kết quả trên bộ dữ liệu DAiSEE 71
+
+4.3.3 Kết quả trên bộ dữ liệu CAER-S và EMOTIC 72
+
+4.4 Phân tích đóng góp từng phần (Ablation Study) 74
+
+4.5 Phân tích định tính 77
+
+4.6 Phân tích tính bền vững (Robustness Analysis) 82
+
+4.7 Thảo luận 85
+
+CHƯƠNG 5: KẾT LUẬN VÀ HƯỚNG PHÁT TRIỂN 86
+
+5.1 Kết luận 86
+
+5.2 Hướng phát triển 86
+
+TÀI LIỆU THAM KHẢO 88
+
+ BẢNG CÁC KÝ HIỆU, CHỮ VIẾT TẮT
+
+  ------- ---------------------------- -----------------------------------
+  STT     Chữ viết tắt                 Chữ viết đầy đủ
+
+  1       AI                           artificial intelligence
+
+  2       CLIP                         Contrastive Language-Image
+                                       Pre-training
+
+  3       RAER                         Real-world Academic Emotion
+                                       Recognition
+
+  4       RAPT-CLIP                    Region-Adaptive Prompt Tuning CLIP
+                                       (Tên mô hình đề xuất)
+
+  5       UAR                          Unweighted Average Recall
+
+  6       DC                           Diversity Constraint
+
+  7       EMOTIC                       Emotion recognition in context (tên
+                                       bộ dữ liệu)
+
+  8       CNN                          Convolutional Neutral Network
+
+  9       CLIP-CAER                    Context-Aware Emotion Recognition
+                                       CLIP (tên bộ dữ liệu)
+
+  10      WAR                          Weighted Average Recall
+
+  11      EAA                          Expression-Aware Adapter
+
+  12      LDAM                         Label-Distribution-Aware Margin
+
+  13      CAER-S                       Context-Aware Emotion Recognition –
+                                       Scene (tên bộ dữ liệu)
+
+  14      CMOSE                        Comprehensive Multi-modality Online
+                                       Student Engagement (tên bộ dữ liệu)
+
+  15      TTA                          Testing-Time augmentation
+
+  16      FFN                          Feed-Forward Network
+
+  17      DFER-CLIP                    Dynamic Facial Expression
+                                       Recognition with CLIP
+
+  18      MI                           Mutual Information
+
+  19      CLS                          Classification Token
+
+  20      FER                          Facial Expression Recognition
+
+  21      SOTA                         State of the art
+
+  22      MSA                          Multi-Head Self-Attention
+
+  23      BERT                         Bidirectional Encoder
+                                       Representations form Transformers
+
+  24      RNN                          Recurrent Neutral Network
+
+  25      RGB                          Red Green Blue
+
+  26      GPU                          Graphics Processing Unit
+
+  27      GPT                          Generative Pre-trained Transformer
+
+  28      GELU                         Gaussian Error Linear Unit
+
+  29      MLP                          Multi-Layer Perceptron
+
+  30      LSTM                         Long Short-Term Memory
+
+  31      CLASS                        Classroom Assessment Scoring System
+  ------- ---------------------------- -----------------------------------
+
+ BẢNG DANH MỤC CÁC BẢNG BIỂU
+
+Bảng 1.1- Phân loại cảm xúc học tập theo Pekrun (2006). Cảm xúc được
+phân loại dựa trên hai chiều: tích cực/tiêu cực và kích hoạt/không kích
+hoạt. 21
+
+Bảng 1.2- Bảng mô tả ngữ nghĩa các nhãn cảm xúc học tập trong bộ dữ liệu
+RAER. 40
+
+Bảng 1.3- Ví dụ mẫu gán nhãn trong bộ dữ liệu RAER bao gồm đường dẫn, số
+khung hình, nhãn cảm xúc và toạ độ bounding box cho khuôn mặt và cơ thể.
+44
+
+Bảng 1.4- Bảng so sánh các bộ dữ liệu có liên quan và các bộ dữ liệu
+được sử dụng trong nghiên cứu. 45
+
+Bảng 4.1- Tổng hợp các siêu tham số trong quá trình huấn luyện mô hình
+RAPT-CLIP 64
+
+Bảng 4.2- Bảng so sánh với SOTA trên bộ dữ liệu RAER . 68
+
+Bảng 4.3- Kết quả huấn luyện trên bộ dữ liệu DAiSEE. 72
+
+Bảng 4.4- Kết quả huấn luyện trên bộ dữ liệu CAER-S và EMOTIC. 73
+
+Bảng 4.5- Ablation trên bộ dữ liệu RAER. 74
+
+Bảng 4.6- Phân tích tính bền vững của mô hình RAPT-CLIP trên bộ dữ liệu
+RAER. 83
+
+ BẢNG DANH MỤC CÁC HÌNH VẼ
+
+Hình 1.1- Biểu cảm khuôn mặt nguyên mẫu của sáu cảm xúc cơ bản theo
+Ekman (1972): Happiness(vui vẻ), Sadness(Buồn bã), anger(Tức giận),
+fear(Sợ hãi), disgust(Ghê tởm), và suprise(Ngạc nghiên). Từ trái sang
+phải và từ trên xuống dưới theo thứ tự . 20
+
+Hình 1.2- Cấu trúc khái niệm về sự tham gia của học sinh bằng phương
+pháp ML/DL trong lớp học . 22
+
+Hình 1.3- Ảnh mẫu từ bộ dữ liệu CK+ (Extended Cohn-Kanade) minh họa các
+biểu cảm khuôn mặt cơ bản: tức giận, vui vẻ, ngạc nhiên, sợ hãi (hàng
+trên); khinh thường, buồn bã, ghê tởm, trung tính (hàng dưới). 23
+
+Hình 1.4- Minh hoạ môi trường lớp học thực tế - sinh viên thể hiện mức
+độ tham gia học tập và cảm xúc khác nhau trong quá trình học tập. 24
+
+Hình 1.5: Một vài hình ảnh mẫu của các học sinh trong bộ dữ liệu DAiSEE.
+26
+
+Hình 1.6: Kiến trúc mô hình nhận dạng biểu cảm khuôn mặt của chúng tôi
+được chuyển thể từ khung VGG-B. Mỗi hình chữ nhật là một khối
+Convolutional. bao gồm hai lớp Convolutional.. Các lớp gộp tối đa 27
+
+Hình 1.7- Kiến trúc tổng quan của hệ thống SFER: (a) CNN, (b) GCN, (c)
+Transformer. 28
+
+Hình 1.8- Biểu đồ thống kê ấn phẩm và trích dẫn về SFER và DFER giai
+đoạn 2016-2024. 29
+
+Hình 1.9- Kiến trúc tổng quát DFER: (a) CNN-RNN với BiLSTM + Attentive
+Pooling, (b) Transformer Encoder-Decoder. 29
+
+Hình 1.10- Ví dụ về các kích thích thể hiện bốn mức độ tương đồng về
+nhận thức giữa khuôn mặt mục tiêu và biểu cảm khuôn mặt thường liên quan
+đến ngữ cảnh. Trong Thí nghiệm 1, các khuôn mặt biểu lộ sự ghê tởm giống
+hệt nhau xuất hiện trong các ngữ cảnh (a) ghê tởm (tương đồng hoàn
+toàn), (b) giận dữ (tương đồng cao), (c) buồn bã (tương đồng trung bình)
+và (d) sợ hãi (tương đồng thấp). Tất cả các biểu cảm khuôn mặt được sao
+chép với sự cho phép của Tập đoàn Paul Ekman. 30
+
+Hình 1.11- Cấu hình mạng của CAER-NET, bao gồm mạng mã hóa hai luồng và
+mạng hợp nhất thích ứng. 31
+
+Hình 1.12- Mô hình CLIP. 32
+
+Hình 1.13- Kiến trúc DFER-CLIP: Video Frames – CLIP Image Encoder
+-Temporal Model – Cosine similarity với Expression Descriptors. 33
+
+Hình 1.14- Khung khái niệm CLASS cho các tương tác trong lớp học. 34
+
+Hình 1.15: Kiến trúc dịch vụ giám sát sự tham gia. 35
+
+Hình 1.16: Giao diện hệ thống nhận diện mức độ tham gia trong lớp học:
+bên trái là khung hình camera, bên phải là bản đồ nhiệt (heatmap) đặc
+trưng, kèm đánh giá tự động "Very Engaged". 35
+
+Hình 1.17- Ví dụ minh hoạ về bộ dữ liệu RAER 36
+
+Hình 1.18- Ví dụ minh hoạ về các lớp của bộ dữ liệu CAER-S. 37
+
+Hình 1.19- Ví dụ minh hoạ về một vài lớp của bộ dữ liệu EMOTIC 38
+
+Hình 1.20- Ví dụ minh hoạ một vài hình của bộ dữ liệu CMOSE. 38
+
+Hình 1.21- Phân phối bộ dữ liệu DAiSEE: (Trái) trước khi gộp, (Phải) sau
+khi gộp. 39
+
+Hình 1.22- Quy trình xây dựng bộ dữ liệu RAER. 40
+
+Hình 1.23- ví dụ về 5 cảm xúc học thuật của bộ dữ liệu RAER. 41
+
+Hình 1.24- Sơ đồ phân loại 5 cảm xúc học thuật trong bộ dữ liệu RAER:
+Nhóm tập trung (Engaged) và nhóm mất tập trung (Distracted).. 42
+
+Hình 1.25: So sánh đặc trưng thị giác giữa trạng thái neutrality và
+confusion: các cử chỉ cơ thể và biểu cảm khuôn mặt thể hiện sự khác biệt
+tinh tế giữa hai trạng thái. 42
+
+Hình 1.26: Minh hoạ cách trích xuất vùng khuôn mặt (Face bounding box)
+và vùng cơ thể (Body bounding box) từ khung hình trong bộ dữ liệu RAER..
+43
+
+Hình 1.27- Phân bố nhãn của bộ dữ liệu RAER: (Trái) Tổng hợp số clip
+theo từng cảm xúc, (Phải) Phân chia tệp huấn luyện và tệp kiểm tra. 44
+
+Hình 2.1: Kiến trúc Transformer với cơ chế Encoder-Decoder, bao gồm các
+khối Multi-Head Attention, tầng Feed Forward và kết nối dư (residual
+connection). 47
+
+Hình 2.2: Kiến trúc Vision Transformer (ViT): ảnh đầu vào được chia
+thành các patch, chuyển thành chuỗi embedding, đưa qua bộ mã hoá
+Transformer để tạo biểu diễn hình ảnh . 50
+
+Hình 2.3- Kiến trúc CLIP: Bộ mã hoá hình ảnh và bộ mã hoá văn bản chiếu
+dữ liệu vào chung không gian.. 52
+
+Hình 3.1- Kiến trúc tổng quan của mô hình đề xuẩ RAPT-CLIP, gồm hai
+nhánh: Nhánh thị giác (Visual branch) sử dụng CLIP-Image ecoder kết hợp
+Face Adapter và Attention Pooling; nhánh văn bản (text branch) sử dụng
+Text-Image encoder với learnable prompt và prompt ensemble 54
+
+Hình 3.2: Quy trình tiền xử lý dữ liệu đầu vào: (1) lấy gốc video, (2)
+Lẫy mẫu thời gian, (3) Cắt khuôn mặt và cơ thể, (4) Thay đổi kích thước,
+(5) Tăng cường dữ liệu huấn luyện. Đầu ra là hai tensor có kích thước
+như ảnh. 55
+
+Hình 3.3: Kiến trúc hai nhánh xử lý song song: Luồng khuôn mặt (Face) đi
+qua CLIP ViT-B/16 và Face Adapter (EAA), luồng cơ thể chỉ đi qua CLIP
+ViT-B/16. Hai luồng chia sẻ trọng số (Share Weighted). 56
+
+Hình 3.4: Cấu trúc Expression-Aware Adapter(EAA): Kiến trúc bottleneck
+nén từ 512 chiều xuống 128 chiều rồi mở rộng lại, rới ReLU activation và
+Dropout(p=0.5) sau mỗi lớp. Chỉ trọng số EAA được cập nhập, CLIP được
+giữ đông (frozen). 57
+
+Hình 3.5: So sánh hai phương pháp tổng hợp thời gian. Trái (CLS Token)
+Token chuẩn gán trọng số đều (1/T) cho mọi khung hình. Phải (Attention
+Pooling) học trọng số khác nhau, tập trung vào khung hình có
+peak-emotion. Phát triển dựa trên CLS Token của CLIP-CAER. 58
+
+Hình 3.6: So sánh phân bố số khung hình. (Trái) CLS Token gán trọng số
+cân bằng cho các khung hình. (Phải) Attention Pooling học trọng số, tập
+trung vào các khung hình có cảm xúc mạnh. Phát triển dựa trên CLS Token
+của CLIP-CAER. 58
+
+Hình 3.7: Luồng xử lý tổng thể tạo ra vector ở visual branch của
+RAPT-CLIP. 59
+
+Hình 3.8: Tổng quan ba hàm mất mát. LDAM loss tạo margin lớn hơn cho lớp
+thiểu số, MI loss căn chỉnh Learnable prompt với handcraft prompt, DC
+loss ngăn chặn các text embedding bị collapse. Trong số Mi và DC được
+điều chỉnh theo thời gian. 61
+
+Hình 3.9: Minh hoạ thực tế của LDam Loss và Weighted Random Sampler. 63
+
+Hình 4.1- Đường cong huấn luyện của RAPT-CLIP trên bộ dữ liệu RAER:
+Train, Valid Loss (Nét liền), Train, Valid UAR và WAR (Nét đứt). Mô hình
+có sự tăng mạnh loss ở epoch 5 do có sự tham gia của MI và DC Loss và
+sớm hội tự tại epoch 8-11. 69
+
+Hình 4.2- Ma trận nhầm lẫn của RAPT-CLIP trên bộ dữ liệu RAER. 70
+
+Hình 4.3- So sánh recall theo từng lớp giữa RAPT-CLIP và các phương pháp
+tiên tiến trên bộ dữ liệu RAER. RAPT-CLIP (Cột nâu đậm) cải thiện vượt
+trội ở các lớp thiểu số. Tổng hợp dựa trên CLIP-CAER. 71
+
+Hình 4.4- Kết quả huấn luyện trên bộ dữ liệu DAiSEE. 72
+
+Hình 4.5- Ma trận nhầm lẫn trên bộ dữ liệu CAER-S (91.48 UAR) 73
+
+Hình 4.6- Average Precision theo từng lớp cảm xúc trên EMOTIC (31.2%
+mAP). 73
+
+Hình 4.7- Kết quả trên bộ dữ liệu RAER khi bỏ đi nhánh văn bản. 76
+
+Hình 4.8- Kết quả sau khi thực hiện tăng cường tại thời điểm kiểm tra
+đối với RAPT-CLIP. 77
+
+Hình 4.9- Trực quan hoá t-SNE trên tệp test của RAER đối với CLIP
+Pretrained. 5 lớp cảm xúc bị trộn lẫn. 78
+
+Hình 4.10- Trực quan hoá t-SNE trên tệp test đối với RAPT-CLIP. 5 cảm
+xúc được tách biệt rõ ràng ra từng cụm. 78
+
+Hình 4.11 - Heatmap DragCAM cho 5 lớp cảm xúc của bộ dữ liệu RAER. 79
+
+Hình 4.12 - Heatmap DragCAM cho các lớp cảm xúc của bộ dữ liệu DAiSEE.
+80
+
+Hình 4.13 - Heatmap DragCAM cho 7 lớp cảm xúc của bộ dữ liệu CAER-S. 81
+
+Hình 4.14 - Heatmap DragCAM cho hình ảnh đa nhãn của bộ dữ liệu emotic.
+82
+
+Hình 4.15- Ảnh hưởng của các nhiễu động cấu trúc (Temporal Shuffling,
+Random Erasing, drop face và body) lên hiệu suất UAR của mô hình trên bộ
+dữ liệu RAER. 84
+
+MỞ ĐẦU
+
+Lý do chọn đề tài
+
+Trong những năm gần đây với sự phát triển mạnh mẽ của lĩnh vực công nghệ
+thông tin, trí tuệ nhân tạo (AI) đã trở thành một xu hướng thiết yếu,
+tác động sâu sắc đến nhiều lĩnh vực đặc biệt là giáo dục, có thể kể đến
+như: cá nhân hóa nội dung học tập, hệ thống đánh giá thông minh, trợ lý
+ảo cá nhân, …[1].Các nghiên cứu đã chỉ ra rằng trí tuệ nhân tạo đã và
+đang tác động mạnh mẽ, làm thay đổi đến hoạt động dạy và học [2]. Bên
+cạnh đó, Các nghiên cứu cũng chỉ ra rằng mức độ tham gia của học sinh
+trong lớp học là một yếu tố then chốt, có ảnh hưởng trực tiếp đến kết
+quả học tập của học sinh [3].
+
+Tuy nhiên, các phương pháp truyền thống để nhận diện mức độ tham gia chủ
+yếu dựa vào quan sát trực tiếp của giáo viên hoặc do học sinh tự báo
+cáo, do đó vẫn còn tồn động một số hạn chế và mang thiên hướng chủ quan
+[4]. Giáo viên không thể quan sát bao quát hết toàn bộ lớp học với số
+lượng học sinh lớn và khó có thể mở rộng được quy mô [3]. Hơn nữa, với
+sự bùng nổ của Covid19, việc học tập được chuyển sang hình thức trực
+tuyến và vấn đề lại càng trở nên khó khăn hơn [5]. Trong môi trường học
+tập trực tuyến, việc quan sát học sinh bị giới hạn qua khung hình của
+camera cá nhân, thường chỉ ghi lại được biểu cảm khuôn mặt, thiếu đi bối
+cảnh xung quanh và không thể quan sát được học sinh đang làm gì phía sau
+màn hình máy tính [5]. 
+
+Để giải quyết những hạn chế trên, nhiều phương pháp ứng dụng trí tuệ
+nhân tạo đã được áp dụng [3]. Tuy nhiên, các nghiên cứu có sẵn chỉ tập
+trung chủ yếu vào Nhận diện Biểu cảm Khuôn mặt (FER) [6]. Cách tiếp cận
+này tỏ ra không đủ hiệu quả vì một biểu cảm có thể đại diện cho nhiều
+hành động khác nhau [7]. Ví dụ: Một học sinh đang cười có thể vì hiểu
+bài và thấy bài giảng thú vị, nhưng cũng có thể vì một số yếu tố ngoại
+cảnh khiến học sinh bị phân tâm. Do đó, các mô hình này thường bỏ qua
+yếu tố ngoại cảnh (context), một yếu tố lớn ảnh hưởng đến độ chính xác
+[8]. Hơn nữa, các bộ dữ liệu hiện tại vẫn chưa được tối ưu, thường thiếu
+các kịch bản học tập đa dạng trong môi trường thực tế và bỏ qua thông
+tin ngữ cảnh quan trọng [7]. 
+
+Với sự thiếu sót nói trên, thì ngữ cảnh đóng vai trò cực kì quan trọng
+và ảnh hưởng trực tiếp đến độ chính xác khi huấn luyện mô hình [7].
+Thông thường mô hình chỉ đọc từ ảnh và các ảnh thông thường chỉ cung cấp
+thông tin về mặt thị giác bề mặt. Mô tả ngữ nghĩa được xem như là một
+hướng dẫn đóng vai trò như một chuyên gia cung cấp thông tin về bối cảnh
+và hành vi cụ thể thường bị bỏ qua [9]. Việc kết hợp ảnh và mô tả ngữ
+nghĩa không chỉ giúp nhận diện các biểu cảm khuôn mặt mà còn hiểu được
+bản chất của hành động từ đó phân biệt mức độ tham gia học tập [9].
+
+Nhận thấy những sự thiếu sót trên, đề tài này hướng đến việc xây dựng
+một phương pháp nhận diện mức độ tham gia học tập tiên tiến hơn. Đóng
+góp chính của nghiên cứu là phát triển một mô hình học sâu đa phương
+thức, kết hợp đặc trưng thị giác từ ảnh và mô tả ngữ nghĩa (text
+prompts) để nhận thức được ngữ cảnh [10]. Việc giải quyết thành công bài
+toán này sẽ mang lại một ý nghĩa thực tiễn to lớn, tạo điều kiện hỗ trợ
+giáo viên theo dõi chính xác tình hình học tập của lớp và kịp thời điều
+chỉnh phương pháp giảng dạy, góp phần nâng cao chất lượng dạy học, đồng
+thời thúc đẩy một môi trường học tập tích cực và phù hợp với từng cá
+nhân học sinh [3].
+
+Mục tiêu nghiên cứu
+
+Mức độ tham gia học tập là yếu tố then chốt quyết định đến kết quả học
+tập của học sinh. Do đó, việc nghiên cứu, phân tích và giám sát sự tham
+gia của học sinh trong lớp học có tác động tích cực đến việc cải thiện
+chất lượng học tập của học sinh và phương pháp giảng dạy của giáo viên.
+Bên cạnh đó đem lại sự an tâm cho phụ huynh học sinh và nâng cao mối
+quan hệ gắn kết giữa nhà trường và gia đình học sinh. Với những lợi ích
+như thế thì mục đích nghiên cứu bao gồm:
+
+- Phân tích và lựa chọn phương pháp trích xuất đặc trưng tinh tế trên
+khuôn mặt kết hợp hành vi cơ thể và môi trường học tập của học sinh.
+
+- Đề xuất mô hình học sâu kết hợp mô tả ngữ nghĩa.
+
+- Thực nghiệm và chứng minh việc kết hợp mô tả ngữ nghĩa với thông tin
+tư thế cơ thể và môi trường học tập giúp cải thiện đáng kể hiệu quả nhận
+diện mức độ tham gia của học sinh trong lớp học.
+
+Đối tượng nghiên cứu
+
+- Đối tượng người, học sinh trong các hình ảnh và video được gán nhãn.
+
+- Các mô hình đa phương thức kết hợp ảnh và mô tả ngữ nghĩa để nhận diện
+mức độ tham gia lớp học.
+
+- Dữ liệu ngữ cảnh về nhận diện cảm xúc.
+
+- Cơ chế lựa chọn khung hình trong một chuỗi khung hình.
+
+Phạm vi nghiên cứu
+
+- Tìm hiểu lý thuyết về cảm xúc trong lớp học, cảm xúc học thuật.
+
+- Nghiên cứu huấn luyện mô hình và thực nghiệm trên bộ dữ liệu RAER và
+các bộ dữ liệu cảm xúc có ngữ cảnh khác.
+
+- Cải tiến mô hình đa phương thức nhận diện cảm xúc học thuật và cảm xúc
+thường dựa trên nghĩa cảnh và mô tả ngữ nghĩa.
+
+Phương pháp nghiên cứu
+
+- Phương pháp nghiên cứu lý thuyết:
+
++ Tìm hiểu tổng quan về các công trình nghiên cứu về nhận diện mức độ
+tham gia của học sinh trong lớp học bằng biểu diễn đa phương thức từ ảnh
+và mô tả ngữ nghĩa.
+
++ Nghiên cứu cơ sở lý thuyết liên quan đến đề tài.
+
++ Nghiên cứu kỹ thuật trích xuất đặc trưng từ video thành các khung hình
+ảnh sử dụng mô hình học sâu.
+
++ Nghiên cứu các kỹ thuật kết hợp đa phương thức đầu vào bằng mô hình
+học sâu.
+
++ Nghiên cứu xây dựng mô hình nhận diện mức độ tham gia của học sinh.
+
++ Đều xuất hướng phát triển trong tương lai.
+
+- Phương pháp nghiên cứu thực nghiệm:
+
++ Thu thập dữ liệu đáp ứng yêu cầu bài toán, các bộ dữ liệu đa phương
+thức đầu vào.
+
++ Tiến hành xây dựng mô hình đa phương thức.
+
+ + Đánh giá và so sánh kết quả đạt được.
+
+Ý nghĩa khoa học thực tiến
+
+Đề tài “Nhận diện mức độ tham gia học tập bằng biểu diễn đa phương thức
+từ ảnh và mô tả ngữ nghĩa” đóng vai trò quan trọng đối với nhiều ứng
+dụng thực tế khác nhau, từ việc cải thiện phương pháp dạy học đến nâng
+cao hiệu suất của học sinh trong quá trình học tập ở lớp học trực tiếp
+và trực tuyến.
+
+Về mặt thực tiễn, đề tài này đóng góp phương hướng phát triển lớn đối
+với lĩnh vực giáo dục, hỗ trợ giáo viên trong quá trình dạy học và hơn
+hết là mở rộng tiềm năng sang các lĩnh vực khác ngoài quản lý học sinh,
+có thể ứng dụng vào các công ty tập đoàn quản lý nhân viên.
+
+Cấu trúc luận văn
+
+Chương mở đầu
+
+Chương này giới thiệu tổng quan về đề tài bao gồm các nội dung: Lý do
+chọn đề tài, mục tiêu nghiên cứu, đối tượng nghiên cứu, phạm vi nghiên
+cứu, ý nghĩa khoa học thực tiễn và cấu trúc của đề tài.
+
+Chương 1: Cơ sở lý luận và tổng quan nghiên cứu
+
+Chương này trình bày tổng quan các công trình nghiên cứu trong lĩnh vực
+nhận diện cảm xúc thông thường ở con người. Trình bày các nghiên cứu đã
+được áp dụng để phân loại cảm xúc từ đó liên kết sang cảm xúc học thuật.
+Giới thiệu sự đa dạng của cảm xúc học thuật đồng thời giới thiệu về các
+bộ dữ liệu có cảm xúc học thuật hiện tại đang được sử dụng.
+
+Chương 2: Cơ sở lý thuyết
+
+Chương này trình bày lần lượt các phương pháp được ứng dụng trong đề
+tài. Ngoài ra nêu lên các hạn chế còn thiếu sót của các bộ dữ liệu và
+công nghệ hiện tại.
+
+Chương 3: Phương pháp
+
+Chương này trình bày chi tiết các phương pháp được sử dụng trong đề tài
+để áp dụng vào mô hình đa phương thức để nhận diện mức độ tham gia của
+học sinh trong lớp học. Phương pháp với sự kết hợp của đặc trưng khuôn
+mặt và ngôn ngữ hình thể cùng với mô tả cảm xúc.
+
+Chương 4: Thực nghiệm đánh giá
+
+Chương này nêu lên được kết quả thực nghiêm khi huấn luyện trên bộ dữ
+liệu đã chọn và trên các bộ dữ liệu khác nhằm đánh giá sức mạnh và tính
+khái quát của mô hình. Ngoài ra sử dụng một vài phương pháp mô hình hoá
+giúp khẳng định mô hình học tốt.
+
+Chương 5: Kết luận và hướng phát triển
+
+Tổng kết lại những kết quả đã đạt được và những hạn chế, thiếu sót trong
+quá trình nghiên cứu, thực hiện đề tài. Từ đó đưa ra được những hướng
+nghiên cứu cải tiến để khắc phục những yếu điểm ở thời điểm hiện tại.
+
+ 
+
+CHƯƠNG 1: CƠ SỞ LÝ LUẬN VÀ TỔNG QUAN NGHIÊN CỨU
+
+1.1 Tổng quan tình hình nghiên cứu
+
+Trong bối cảnh trí tuệ nhân tạo ngày cũng được ứng dụng rộng rãi và là
+xu hướng hiện nay. Các mô hình AI được nghiên cứu và ứng dụng khắp nơi
+với mục đích hỗ trợ đời sống con người nhằm tăng cường hiệu suất làm
+việc và tự động hoá các công việc thường nhật. Mục tiêu tối thượng khi
+áp dụng trí tuệ nhân tạo vào trong đời sống suy cho cùng là giảm đi chi
+phí vấn hành và mang lại lợi ích cao nhất có thể và hơn hết trí tuệ nhân
+tạo giúp nâng cao chất lượng đời sống của con người [2].
+
+Một nghiên cứu được các nhà khoa học để ý tới và đi sâu vào đó chính là
+giáo dục và sức khoẻ - hai lĩnh vực quan trọng bậc nhất. Các nhà khoa
+học nhận ra rằng cảm xúc đóng vài trò then chốt ảnh hưởng trực tiếp đến
+hai lĩnh vực này và đặc biệt nấht là lĩnh vực giáo dục. Các biểu hiện
+cảm xúc trên khuôn mặt sẽ cho thấy sự thích thú và khả năng tập trung
+trong học tập [6], [11]. Việc nhận biết và theo dõi cảm xúc của học sinh
+trong suốt quá trình học tập sẽ giúp cho giáo viên kịp thời thay đổi
+phong cách dạy học và phương pháp giảng dạy, bên cạnh đó sẽ quan tâm tới
+học sinh nhiều hơn [4], [11]. Một số nghiên cứu đã chỉ ra rằng các trạng
+thái cảm xúc như bối rối, thích thú và mệt mỏi là các tác nhân chính ảnh
+hưởng đến chất lượng học tập, khả năng giải quyết vấn đề của học sinh
+[4], [12].
+
+[A group of women with different facial expressions AI-generated content
+may be incorrect.]
+
++-----------------+---------------------------+-------------------------+
+|                 | Tích cực (Positive)       | Tiêu cực (Negative)     |
++-----------------+---------------------------+-------------------------+
+| Kích hoạt       | Thích thú (Enjoyment)     | Lo lắng (Anxiety)       |
+| (Activating)    |                           |                         |
+|                 | Hy vọng (Hope)            | Tức giận (Anger)        |
+|                 |                           |                         |
+|                 | Tự Hào (Pride)            | Xấu hổ (Shame)          |
+|                 |                           |                         |
+|                 |                           | Bối rối (Confusion)     |
++-----------------+---------------------------+-------------------------+
+| Không kích hoạt | Nhẹ nhõm (Relieft)        | Chán nản (Boredom)      |
+| (Deactiveating) |                           |                         |
+|                 | Thư giãn (Relaxation)     | Tuyệt vọng              |
+|                 |                           | (Hopelessness)          |
+|                 |                           |                         |
+|                 |                           | Mệt mỏi (Fatigue)       |
++=================+===========================+=========================+
+
+: Bảng 1.1- Phân loại cảm xúc học tập theo Pekrun (2006). Cảm xúc được
+phân loại dựa trên hai chiều: tích cực/tiêu cực và kích hoạt/không kích
+hoạt [14].
+
+Trong nghiên cứu ứng dụng AI vào trong lĩnh vực giáo dục, nhiều nghiên
+cứu đã tập trung vào bài toán nhận diện mức độ tham gia học tập (Student
+engagement detection). Mức độ tham gia được chia thành ba khía cạnh:
+Hành vi, cảm xúc và nhận thức [4], [15]. Đây được xem là yếu tố then
+chốt ảnh hưởng trực tiếp đến kết quả học tập và mức độ gắn bó trong quá
+trình học của học sinh [3], [16]. Vấn đề này đã được nghiên cứu và đặt
+nền móng bởi các công trình nghiên cứu quan trọng, tiền phong như nghiên
+cứu của WhiteHill và cộng sự, một trong những nghiên cứu nền tảng cho
+việc phân loại biểu cảm khuôn mặt [4], [17], [18]. Theo đó, nhiều công
+trình nghiên cứu đã ra đời với việc xây dựng hàng loạt bộ dữ liệu chất
+lượng cao nhằm thúc đẩy quá trình giải quyết bài toán nhận diện cảm xúc
+từ đó làm tiền đề bước sang bài toàn nhận diện mức độ tham gia lớp học
+vì cảm xúc học thuật mang tính khái quát, rộng và khó dự đoán hơn so với
+cảm xúc thông thường [3], [15]. Việc tự động hoá nhận diện mức độ tham
+gia tham học tập bằng trí tuệ nhân tạo nói chung có ý nghĩa quan trọng
+đối với học sinh, giúp cá nhân hoá trải nghiệm học tập và giúp hệ thống
+quản lý học tập, giáo viên có thể điều chỉnh phương pháp dạy học phù hợp
+[4], [11]. Do đó các công trình nghiên cứu trong lĩnh vực này được chia
+thành nhiều hướng tiếp cận khác nhau, tuỳ theo phương pháp, loại dữ liệu
+hoặc ứng dụng cụ thể để đạt được mục tiêu chung [3], [4].
+
+[A diagram of a data processing process AI-generated content may be
+incorrect.]
+
+1.1.1 Lý thuyết về cảm xúc và cảm xúc học thuật
+
+Theo nhà tâm lý học William James (1884), cảm xúc được định nghĩa là một
+phản ứng tổng hợp của não bộ con người, bao gồm các cảm giác sinh lý,
+nhận thức và hành vi – được kích hoạt bởi các sự kiện có ý nghĩa đối với
+cá nhân. Tác giả đã đề xuất rằng cảm xúc không phải nguyên nhân, mà là
+kết quả của phản ứng cơ thể: Một người bình thường không khóc vì buồn mà
+buồn vì khó. Theo lý thuyết này, trạng thái cơ thể (bao gồm tư thế, biểu
+cảm, nhịp tim) và các cảm xúc có mối liên hệ chặt chẽ với nhau. Quan
+điểm này rất phù hợp với việc xác định cảm xúc từ hình ảnh [20] [21].
+
+Charles Darwin (1872) đã viết trong tác phẩm “Sự biểu hiện của cảm xúc ở
+người và động vật” rằng những cảm xúc cơ bản như hạnh phúc, buồn bã,
+giận dữ và sợ hãi, ngạc nhiên và ghê tởm bẩm sinh, phổ quát và hiện diện
+trong mọi nền văn hoá, ngay cả ở động vật [11], [20]. Darwin cũng đặt ra
+một câu hỏi quan trọng: Nếu cảm xúc phổ quát, tại sao cùng một khuôn mặt
+lại thể hiện những cảm xúc khác nhau trong những tình huống khác nhau?
+Câu hỏi này là nền tảng cho lĩnh vực nghiên cứu được gọi là nhận diện
+cảm xúc theo ngữ cảnh [7].
+
+Paul Ekman đã phát triển dựa trên công trình của Darwin từ năm 1971 và
+đưa ra sáu cảm xúc cơ bản: vui vẻ, buồn bã, tức giận, sợ hãi, ngạc nhiên
+và ghê tởm [11], [20], [22]. Hệ thống phân loại này đã trở thành nền
+tảng cho hầu hết các bộ dữ liệu nhận diện cảm xúc khuôn mặt như CK+,
+FER2013 [17], [23], [24], [25].
+
+[A collage of people with their mouths open AI-generated content may be
+incorrect.]
+
+Tuy nhiên, nếu đặt một cảm xúc thông thường vào trong khung cảnh lớp
+học, cảm xúc của học sinh còn vượt xa hơn sáu cảm xúc cơ bản của Ekman
+[26]. Pekrun(2006) đã giới thiệu một khái niệm về cảm xúc học tập –
+những cảm xúc liên quan đến quá trình học tập, chẳng hạn như hứng thú,
+bối rối, mệt mỏi, lo lắng và buồn chán [12], [16], [20], [27]. Những cảm
+xúc này được đặc trưng bởi: (i) những biểu cảm tinh tế trên khuôn mặt
+khó nhận biết bằng mắt thường [9], [26], (ii) sự phụ thuộc cao vào ngữ
+cảnh và tư thế cơ thể - ví dụ một cái nhíu mày có thể là biểu hiện của
+sự tập trung thay cho tức giận [4], [7], (iii) tác động trực tiếp đến
+kết quả học tập [20], [27]. Đó là lý do tại sao chỉ nhìn vào khuôn mặt
+của một học sinh là chưa đủ để nhận biết họ cảm thấy thế nào trong quá
+trình học, mà nên nhìn vào cơ thể cũng như môi trường học tập xung quanh
+của học sinh [7], [26]. Do đó, cảm xúc học thuật không chỉ phức tạp hơn
+cảm xúc thông thường mà còn gắn liền với một khái niệm rộng hơn đó chính
+là mức độ tham gia học tập. Thực tế, cảm xúc được xem như là một trong
+ba khía cạnh cốt lõi cấu thành nên mức độ tham gia của học sinh trong
+lớp học [28].
+
+[A group of people sitting at desks in a classroom AI-generated content
+may be incorrect.]
+
+1.1.2 Mức độ tham gia học tập của học sinh 
+
+Trong lĩnh vực tâm lý giáo dục, mức độ tham gia học tập được hiểu là mức
+độ mà học sinh chủ động gắn kết, đầu tư và duy trì sự kết nối với các
+hoạt động học tập diễn ra trong và ngoài lớp học. Đây không đơn thuần là
+sự có mặt về mặt vật lý mà bao hàm cả chiều sâu về hành vi, cảm xúc và
+nhận thức của người học đối với quá trình tiếp nhận tri thức [28]. Cụ
+thể Fredricks và cộng sự đã đề xuất ba khía cạnh cấu thành nên mức độ
+tham gia bao gồm sự tham gia về hành vi, cảm xúc và cả nhận thức:
+
+Tham gia về hành vi (Behavior Engagement): Phản ảnh qua những biểu hiện
+có thể quan sát từ bên ngoài. Ở mức cơ bản, đó là việc học sinh có đi
+học đúng giờ, tuân thủ nội quy hay không. Ở mức độ cao hơn, đó là sự chủ
+động trong việc ghi chép, đặt câu hỏi, tham gia thảo luận nhóm và kiên
+trì hoàn thành các nhiệm vụ học tập ngay cả khi gặp khó khăn [28].
+
+Tham gia về cảm xúc (Emotion Engagement): Liên quan đến các phản ứng
+tình cảm mà học sinh trải nghiệm trong quá trình học. Một học sinh cảm
+thấy hào hứng khi giải được bài toán khó, hay ngược lại cảm thấy lo âu
+trước kỳ thi, tất cả đều là biểu hiện của sự tham gia về mặt cảm xúc.
+Khía cạnh này có mối liên hệ mật thiết với các cảm xúc học thuật cho
+thấy tầm quan trọng của cảm xúc không chỉ với tâm lý cá nhân mà còn với
+cả chất lượng học tập [28], [29].
+
+Tham gia về nhận thức (Cognitive Engagement): Thể hiện mức độ đầu tư trí
+tuệ của học sinh. Thay vì chỉ học thuộc lòng một cách thụ động, những
+học sinh có mức tham gia nhận thức cao thường chủ động tìm kiếm mối liên
+hệ giữa các kiến thức, tự đặt câu hỏi phản biện và xây dựng chiến lược
+học tập phù hợp với bản thân [30].
+
+Ba khía cạnh trên không tồn tại độc lập mà tương tác chặt chẽ và phụ
+thuộc lẫn nhau. Một học sinh hứng thú với môn học (cảm xúc) sẽ có xu
+hướng chăm chú nghe giảng (Hành vi) và nỗ lực tìm hiểu sâu hơn (nhận
+thức) [31]. Ngược lại, khi cảm thấy chán nản hoặc mệt mỏi trong quá
+trình học tập, học sinh có thể mất tập trung, lơ đễnh đi việc học và dần
+rời xa bài giảng. Chính vì sự đan xen phức tạp này mà việc đánh giá mức
+độ tham gia đòi hỏi không chỉ quan sát biểu cảm khuôn mặt mà còn cần xem
+xét toàn bộ ngữ cảnh xung quanh người học bao gồm tư thế cơ thể, cử chỉ
+tay và môi trường xung quanh [32]. Nhiều nghiên cứu khẳng định mối tương
+quan mạnh mẽ giữa mức độ tham gia và kết quả học tập. Học sinh có mức độ
+tham gia cao không chỉ đạt điểm số tốt hơn mà còn ít có nguy cơ bỏ học
+giữa chừng. Tuy nhiên, các phương pháp truyền thống dùng để đo lường mức
+độ tham gia như bảng khảo sát cho học sinh tự đánh giá hoặc giáo viên
+trực tiếp giám sát đều mang tính chủ quan, tốn nhiều thời gian và khó
+triển khai trên quy mô lớn. Trong bối cảnh đó, việc ứng dụng trí tuệ
+nhân tạo, đặc biệt là mô hình học sâu có khả năng phân tích hình ảnh kết
+hợp ngữ cảnh, đang mở ra một hướng tiếp cận mới đầy triển vòng để có thể
+tự động hoá nhận diện mức độ tham gia của học sinh một cách khách quan
+và có khả năng mở rộng.
+
+1.1.3 Các vấn đề còn tồn tại
+
+Qua các công trình nghiên cứu đã trình bày, có thể thấy lĩnh vực nhận
+diện cảm xúc nói chung và đặc biệt là cảm xúc học thuật đã có những bước
+tiến đáng kể [22]. Tuy nhiên, vẫn còn một số vấn đề chưa được giải quyết
+triệt để:
+
+a) Các bộ dữ liệu dùng để huấn luyện trong lớp học trực tiếp khá hạn chế
+đa phần dựa trên các lớp học trực tuyến nơi chỉ thu thập được khuôn mặt
+và không hề có ngữ cảnh xung quanh lẫn cử động của cơ thể học sinh [26],
+[33]. Có thể kể đến tiêu biểu nhất là bộ dữ liệu DAiSEE, chủ yếu ghi lại
+phần thân trên và không thể thấy được cử chỉ tay, bỏ qua yếu tố xung
+quanh điều này gây mơ hồ và khó nhận diện, khó phân biệt cảm xúc học
+thuật phức tạp [17], [26].
+
+[A collage of a group of people AI-generated content may be incorrect.]
+
+b) Ngoài ra một vấn đề cố hữu và gây nhức nhói chính là việc mất cân
+bằng dữ liệu rất lớn [5]. Vì các mô tả cảm xúc trong lớp học khá chung
+chung giống nhau bên cạnh đó việc học tập diễn ra xuyên suốt vì vậy việc
+thu thập đầy đủ các nhãn cảm xúc là một vấn đề cực kì khó khăn [18]. Đa
+phần học sinh trong lớp sẽ thể hiện trạng thái “bình thường” nghĩa là
+không có cảm xúc gì đặc biệt vì thế mất cân bằng rất nhiều [26].
+
+c) Cảm xúc trong lớp học rất đa dạng và mang tính liên tục, tuy nhiên
+nhãn của các bộ dữ liệu hiện tại vẫn còn mang tính rời rạc [18]. Mô hình
+không thể nắm bắt được bản chất liên tục của sự tham gia, cũng như sự đa
+dạng hành vi trong cùng một lớp nhãn (intra-class variance) [5]. Ví dụ
+một cái quay đầu của học sinh không thể nhận diện là mất tập trung ngay
+được mà phải xem cả quá trình [18].
+
+1.2 Các phương pháp liên quan
+
+1.2.1 Nhận diện cảm xúc bằng phương pháp học sâu 
+
+Trong giai đoạn đầu tiên, các kiến trúc như VGG và ResNet được sử dụng
+rộng rãi làm bộ trích xuất đặc trưng cho bài toán nhận diện biểu cảm
+khuôn mặt (Facial Expression Recognition – FER). ResNet với cơ chế kết
+nối tắt (Skip connection) đã giải quyết được vấn đề suy giảm gradient
+khi mạng có nhiều tầng, cho phép huấn luyện các mô hình sâu hơn và đạt
+độ chính xác cao hơn trên các bộ dữ liệu về cảm xúc cơ bản như CK+ và
+FER2013 [25], [34]. Sau đó các kiến trúc nhẹ hơn như MobileNet và
+EfficientNet cũng được áp dụng nhằm cân bằng giữa hiệu suất và chi phí
+tính toán, đặc biệt phù hợp với các ứng dụng thời gian thực [35].
+
+[A diagram of a flowchart AI-generated content may be incorrect.]
+
+Bên cạnh CNN, kiến trúc Transformer (ViT) cũng được áp dụng thành công
+cho bài toán nhận diện cảm xúc, biểu cảm. Khác với các phương pháp học
+sâu truyền thống, ViT hoạt động với cơ chế mạnh mẽ và chuyên nghiệp hơn
+với việc chia ảnh đầu vào thành các mảnh nhỏ (Patch), sau đó cơ chế chú
+ý (Self-attention) sẽ học các mối quan hệ giữa các vùng trên khuôn mặt
+[36]. Vì thế nên ViT có khả năng nắm bắt thông tin ở mức toàn cục vượt
+trội hơn CNN thông thường, khả năng này giúp ViT nhận diện được các biểu
+cảm tinh tế trên khuôn mặt mà các phương pháp truyền thống bỏ sót. Hình
+bên dưới là ba kiến trúc tiêu biểu cho bài toán nhận diện biểu cảm tĩnh
+(SFER):
+
+[]
+
+Hình 1.7- Kiến trúc tổng quan của hệ thống SFER: (a) CNN, (b) GCN, (c) Transformer [37].
+
+Tuy nhiên, Các phương pháp trên chủ yếu dựa vào xử lý ảnh tĩnh một các
+độc lập (Static FER – SFER). Trong thực tế, cảm xúc là một quá trình
+động, thay đổi liên tục theo thời gian. Nhận thấy hạn chế này, nhiều
+nghiên cứu đã mở rộng sang nhận diện biểu cảm động (Dynamic FER – DFER)
+bằng cách kết hợp CNN với các mô hình chuỗi thời gian thực như LSTM hoặc
+mạng tích chập thời gian (TCN). Cách tiếp cận này cho phép mô hình không
+chỉ phân tích từng khung hình riêng lẻ mà còn nắm bắt được sự biến đổi
+của biểu cảm qua các khung hình liên tiếp. Đối với bài toán nhận diện
+theo chuỗi thời gian (DFER), các kiến trúc hiện đại thường kết hợp với
+mạng trích xuất đặc trưng không gian như CNN hoặc ViT với mô-dun xử lý
+thời gian (BiLSTM, Transformer) để nắm bắt thông tin không gian lẫn thời
+gian từ chuỗi khung hình.
+
+[A comparison of graphs with numbers and numbers AI-generated content
+may be incorrect.]
+
+Hình 1.8- Biểu đồ thống kê ấn phẩm và trích dẫn về SFER và DFER giai đoạn 2016-2024 [37].
+
+[A diagram of a model AI-generated content may be incorrect.]
+
+Hình 1.9- Kiến trúc tổng quát DFER: (a) CNN-RNN với BiLSTM + Attentive Pooling, (b) Transformer Encoder-Decoder [37].
+
+Mặc dù đạt được nhiều kết quả khả quan, các phương pháp học sâu thuần
+thị giác vẫn tồn tại một số hạn chế đáng kể. Thứ nhất, mô hình chỉ dựa
+vào thông tin hình ảnh nên dễ nhầm lẫn giữa các cảm xúc có biểu cảm
+khuôn mặt tương đồng. Ví dụ sự khác biệt giữa hai biểu cảm “bối rối” và
+“tập trung” trên khuôn mặt là rất mong manh. Thứ hai, các mô hình này
+hoàn toàn bỏ qua thông tin ngữ cảnh xung quanh như tư thế cơ thể, đồ vật
+trên bàn hay không gian lớp học đây là những yếu tố mà con người thường
+dựa vào để đánh giá các cảm xúc [38].
+
+[A collage of a person AI-generated content may be incorrect.]
+
+Hình 1.10- Ví dụ về các kích thích thể hiện bốn mức độ tương đồng về nhận thức giữa khuôn mặt mục tiêu và biểu cảm khuôn mặt thường liên quan đến ngữ cảnh. Trong Thí nghiệm 1, các khuôn mặt biểu lộ sự ghê tởm giống hệt nhau xuất hiện trong các ngữ cảnh (a) ghê tởm (tương đồng hoàn toàn), (b) giận dữ (tương đồng cao), (c) buồn bã (tương đồng trung bình) và (d) sợ hãi (tương đồng thấp). Tất cả các biểu cảm khuôn mặt được sao chép với sự cho phép của Tập đoàn Paul Ekman [39].
+
+Vai trò của ngữ cảnh trong nhận diện cảm xúc rất quan trọng. Trên thực
+tế, con người không chỉ dựa vào biểu cảm khuôn mặt để đánh giá cảm xúc
+của người khác mà còn sử dụng rất nhiều thông tin bổ sung từ môi trường
+xung quanh. Ví dụ, cùng một biểu cảm nhăn mặt nếu xuất hiện khi học sinh
+đang đọc sách có thể là sự tập trung, nhưng nếu xuất hiện khi nhìn ra
+cửa sổ thì có thể là sự chán nản. Kosti và cộng sự đã chứng minh rằng
+việc bổ sung thông tin ngữ cảnh bao gồm tư thế cơ thể, vật thể xugn
+quanh và bối cảnh không gian giúp cải thiện đáng kể độ chính xác nhận
+diện so với chỉ sử dụng khuôn mặt. Bộ dữ liệu EMOTIC do nhóm tác giả này
+xây dựng là một trong những nỗ lực đầu tiên gán nhãn cảm xúc dựa trên cả
+khuôn mặt lẫn ngữ cảnh xung quanh. Tiếp theo, Lee và cộng sự đã giới
+thiệu bộ dữ liệu CAER-S với các cặp video nhân vật và ngữ cảnh, cho thấy
+mô hình đạt hiệu suất tốt hơn rõ rệt khi được cung cấp dòng thời hai
+luồng thông tin [38], [40], [41].
+
+[A diagram of a computer network AI-generated content may be incorrect.]
+
+Trong bối cảnh giáo dục, vai trò của ngữ cảnh ngày càng trở nên quan
+trọng hơn. Cảm xúc học thuật có biểu cảm rất tinh tế và mờ nhạt trên
+khuôn mặt. Một học sinh mệt mỏi có thể vẫn giữ khuôn mặt bình thường
+nhưng lại gục đầu xuống bàn, hoặc một học sinh mất tập trung nhìn ra
+ngoài cửa sổ có trong khi khuôn mặt không thể hiện cảm xúc gì rõ ràng.
+Do đó, việc kết hợp thông tin khuôn mặt với ngữ cảnh (tư thế cơ thể, cử
+chỉ tay và các vật thể trên bàn) là yêu cầu thiết yếu cho bài toán nhận
+diện cảm xúc trong lớp học và xa hơn là nhận diện mức độ tham gia của
+học sinh trong lớp học. Và hơn hết ngữ cảnh vẫn là chưa đủ khi đưa vào
+nhận diện cảm xúc một cách tối ưu vì tồn tại một hạn chế chính là thiếu
+khả năng tận dụng tri thức từ ngôn ngữ tự nhiên. Chính những thiếu sót
+này đã thúc đẩy các nhà nghiên cứu tìm ra phương pháp tiên tiến hơn,
+trong đó có việc ứng dụng mô hình ngôn ngữ thị giác [26].
+
+1.2.2 Mô hình ngôn ngữ - thị giác trong nhận diện cảm xúc
+
+Sự ra đời của mô hình CLIP (Contrastive Language-Image Pre-Training) do
+nhóm nghiên cứu OpenAI phát triển đã đánh dấu một bước ngoặc trong lĩnh
+vực thị giác máy tính. Khác với các mô hình truyền thống chỉ xử lý hình
+ảnh, CLIP được huấn luyện dựa trên hàng trăm triệu cặp ảnh và văn bản
+thu thập từ internet, qua đó xây dựng được một không gian biểu diễn
+chung cho cả hai phương thức. Nhờ vậy, CLIP có khả năng hiểu mối quan
+liên hệ giữa nôi dung hình ảnh và mô tả bằng ngôn ngữ tự nhiên mà không
+cần huấn luyện lại trên từng tệp dữ liệu cụ thể (Zero-shot learning)
+[42].
+
+[A screenshot of a computer AI-generated content may be incorrect.]
+
+Hình 1.12- Mô hình CLIP [42].
+
+Tuy nhiên việc áp dụng trực tiếp CLIP vào các bài toán chuyên biệt trong
+nhận diện biểu cảm không đạt hiệu quả cao do các mẫu văn bản mặc định
+(Ví dụ “a photo of a happy person”) quá chung chung và thiếu thông tin
+chi tiết về đặc trưng cảm xúc. Để khắc phục điều này, Zhou và cộng sự đã
+đề xuất phương pháp CoOp (Context Optimization) thay thế các mẫu văn bản
+cố định bằng các token ngữ cảnh có thể học được (Learnable prompt). Tiếp
+nối, phương pháp CoCoOp mở rộng bằng cách tạo ra các prompt thay đổi
+theo từng ảnh đầu vào, giúp mô hình phản ứng linh hoạt hơn với sự đa
+dạng của dữ liệu thực tế [43], [44]. Trong lĩnh vực nhận diện cảm xúc,
+Zhao và Patras là những người tiên phong áp dụng CLIP kết hợp prompt
+learning cho bài toán nhận diện cảm xúc theo thời gian thực (DFER) thông
+qua mô hình DFER-CLIP. Thay vì sử dụng tên lớp đơn giản, nhóm tác giả sử
+dụng các mô tả chi tiết về hành vi khuôn mặt (được tạo bởi mô hình ngôn
+ngữ lớn ChatGPT) kết hợp với một mô-đun Transformer để mô hình hoá đặc
+trưng thời gian qua các khung hình video. Kết quả cho thấy DFER-CLIP đạt
+hiệu suất vượt trội so với các phương pháp học sâu truyền thống trên
+nhiều bộ dữ liệu chuẩn [45].
+
+[A diagram of a model AI-generated content may be incorrect.]
+
+Hình 1.13- Kiến trúc DFER-CLIP: Video Frames – CLIP Image Encoder -Temporal Model – Cosine similarity với Expression Descriptors [45].
+
+Song song với đó, Li và cộng sự đã đề xuất CLIPER là một khung thống
+nhất cho nhận diện biểu cảm tĩnh và động. Điểm đặc biệt của CLIPER nằm ở
+việc học nhiều mô tả văn bản cho mỗi lớp cảm xúc (Multiple Expression
+Text Descriptor – METD) [46], cho phép mô hình nắm bắt được các mức độ
+khác nhau của cùng một cảm xúc ví dụ phân giữa giữa “hơi vui” và “rất
+vui”. Liên quan trực tiếp đến đề tài này, Zhang và cộng sự đã phát triển
+CLIP-CAER một khung nhận diện cảm xúc học tập có nhận thức ngữ cảnh dựa
+trên CLIP [26]. Mô hình này sử dụng mô tả có thể học đồng thời kết hợp
+đặc trưng khuôn mặt và thông tin ngữ cảnh từ chuỗi hình ảnh, đạt kết quả
+ấn tượng trên bộ dữ liệu cảm xúc thường như CAER-S. CLIP-CAER chính là
+nền tảng trực tiếp mà mô hình RAPT-CLIP đề xuất trong nghiên cứu này
+được phát triển dựa trên.
+
+1.2.3 Nhận diện mức độ tham gia học tập
+
+Để nhận diện cảm xúc nói chung và cảm xúc trong học tập nói riêng, nhiều
+hướng tiếp cận đã được triển khai, hướng tiếp cận được chú ý nhiều nhất
+chính là tiếp cận theo phương pháp, từ các phương pháp truyền thống làm
+nền tảng lý thuyết cho đến các công nghệ tiên tiến hiện nay như học máy
+(machine learning) và cao cấp hơn nữa là học sâu (deep learning) và mở
+rộng hơn nữa là mô hình đa phương thức (multimodal model) [3]. Các
+nghiên cứu theo hướng truyền thống thường dựa vào bảng câu hỏi, quan sát
+hoặc tự báo cáo của học sinh [3], [15]. Đối với Pianta và cộng sự, mục
+tiêu cảu các nhà nghiên cứu muốn hướng tới là đề xuất một phương pháp
+quan sát chuẩn hoá để đánh giá và cải thiện chất lượng tương tác trong
+lớp học. Phương pháp chính được đề cập là hệ thống CLASS (Classroom
+Assessment Scoring System), chia các tương tác trong lớp học thành ba
+lĩnh vực chính: Hỗ trợ cảm xúc, tổ chức lớp học và hỗ trợ giảng dạy
+[47]. Phương pháp truyền thống này đem lại một nền tảng lý thuyết sâu
+sắc về các yếu tố cấu thành một môi trường học tập hiệu quả. Tuy nhiên
+phương pháp này lại tốn thời gian và nguồn lực, mang tính chủ quan của
+người quan sát và khó triển khai theo quy mô lớn [3], [15].
+
+[A diagram of a classroom organization AI-generated content may be
+incorrect.]
+
+Hình 1.14- Khung khái niệm CLASS cho các tương tác trong lớp học [47].
+
+Phương pháp học máy: Để vượt qua các hạn chế trên, nhiều nghiên cứu đã
+áp dụng các kỹ thuật học máy để tự động phân loại mức độ tham gia từ dữ
+liệu hình ảnh. Soloviev và cộng sự đã xây dựng một hệ thống dựa trên nền
+tảng đám mây sử dụng mô hình cây quyết định tăng cường (AdaBoots) để
+phân loại học sinh thành hai nhóm: có tham gia và không tham gia, đạt độ
+chính xác trên 80%. Tuy nhiên, phương pháp học máy thường yêu cầu trích
+xuất đặc trưng thủ công và hoạt động không hiệu quả khi dữ liệu đa dạng
+hoặc trong điều kiện thực tế phức tạp [21], [48].
+
+[A diagram of information on a white background AI-generated content may
+be incorrect.]
+
+Hình 1.15: Kiến trúc dịch vụ giám sát sự tham gia [21].
+
+[A collage of people with black eyes AI-generated content may be
+incorrect.]
+
+Phương pháp học sâu đơn phương thức: WhiteHill và cộng sự là những người
+tiên phong trong việc sử dụng mạng nơ-ron sâu để phân loại mức độ tham
+gia dựa trên biểu cảm khuôn mặt. Bộ dữ liệu DAiSEE ra đời vào năm 2016
+đã cung cấp một tiêu chuẩn đánh giá cho bài toán này, với hơn 9.000
+video từ 112 đối tượng được gán nhãn theo bốn trạng thái: chán nản, bối
+rối, tham gia và thất vọng. Tuy nhiên, đa phần các phương pháp trên
+DAiSEE chỉ khai thác thông tin khuôn mặt mà bỏ qua ngữ cảnh xung quanh
+đây là một hạn chế nghiệm trọng đối với bài toán nhận diện cảm xúc học
+thuật vốn có tính mơ hồ cao [17], [21].
+
+Phương pháp đa phương thức: Nhận thấy những thiếu sót trên, xu hướng
+nghiên cứu gần đây đã chuyển sang các mô hình đa phương thức kết hợp
+nhiều nguồn thông tin khác nhau để đưa ra đánh giá toàn diện hơn. Wu và
+cộng sự đã giới thiệu bộ dữ liệu CMOSE tích hợp cả video và âm thanh
+trong môi trường học trực tuyến, đồng thời đề xuất cơ chế Mocorank để xử
+lý mối quan hệ thứ tự giữa các mức độ tham gia [5]. Gần đây nhất, bộ dữ
+liệu RAER đã được công bố, ghi lại cảm xúc tự nhiên của học sinh trong
+môi trường lớp học thực tế bao gồm lớp học, thư viện và phòng thí
+nghiệm. Khác với DAiSEE chủ yếu dựa vào thu thập trong môi trường lớp
+học trực tuyến với góc nhìn hạn chế, RAER cung cấp thông tin phong phú
+hơn về cả khuôn mặt, tư thế cơ thể và ngữ cảnh xung quanh [26].
+
+[A collage of people in a classroom AI-generated content may be
+incorrect.]
+
+Hình 1.17- Ví dụ minh hoạ về bộ dữ liệu RAER [26].
+
+Mô hình CLIP-CAER được đề xuất cùng bộ dữ liệu này đã chứng minh rằng
+việc kết hợp đặc trưng thị giác với mô tả ngữ nghĩa giúp cải thiện đáng
+kể hiệu suất nhận diện so với các phương pháp chỉ sử dụng ảnh. Tuy
+nhiên, CLIP-CAER vẫn còn một số hạn chế: Phương pháp tổng hợp thời gian
+còn đơn giản và chưa xử lý hiệu quả vấn đề mất cân bằng dữ liệu vốn rất
+phổ biến trong bài toán nhận diện cảm xúc học thuật. Chính vì những
+thiếu sót này là động lực để nghiên cứu mô hình RAPT-CLIP với các cải
+tiến nhằm giải quyết triệt để các vấn đề còn tồn tại.
+
+1.3 Các bộ dữ liệu nghiên cứu liên quan
+
+Chất lượng và đặc điểm của bộ dữ liệu đóng vai trò quyết định đến hiệu
+suất của mô hình. Phần này trình bày về các bộ dữ liệu có liên quan và
+các bộ dữ liệu được sử dụng trong việc nghiên cứu nhận diện mức độ tham
+gia học tập và nhận diện cảm xúc.
+
+1.3.1 Các bộ dữ liệu nhận diện cảm xúc có ngữ cảnh
+
+a) CAER-S là bộ dữ liệu nhận diện cảm xúc có ngữ cảnh gồm 7 lớp cảm xúc,
+được trích xuất từ các chương trình truyền hình. Bộ dữ liệu sử dụng
+pipeline dual-stream với nhánh face và nhánh context. Mặc dù CAER-S có
+ngữ cảnh phong phú, nó không phải là dữ liệu lớp học thực tế mà là các
+tình huống diễn xuất trong phim [7], [8], [41].
+
+[A screenshot of a couple of people AI-generated content may be
+incorrect.]
+
+Hình 1.18- Ví dụ minh hoạ về các lớp của bộ dữ liệu CAER-S [41].
+
+b) EMOTIC là bộ dữ liệu multi-label với 26 nhãn cảm xúc, ghi lại cảnh
+thực tế với nhiều người trong cùng một khung hình. Bộ dữ liệu này có ngữ
+cảnh đa dạng và được đánh giá bằng chỉ số mAP. Tuy nhiên, tương tự như
+CAER-S, mục tiêu của EMOTIC không tập trung vào môi trường giáo dục mà
+chỉ là nhận diện cảm xúc ngoài trời và các hoạt động thường nhật [7],
+[49].
+
+[A collage of people in different poses AI-generated content may be
+incorrect.]
+
+Hình 1.19- Ví dụ minh hoạ về một vài lớp của bộ dữ liệu EMOTIC [40].
+
+1.3.2 Các bộ dữ liệu nhận diện cảm xúc trong môi trường lớp học
+
+a) CMOSE là bộ dữ liệu đa phương thức tích hợp cả video và âm thanh
+trong lớp học [22]. Với hơn 12.000 mẫu và 4 lớp engagement, CMOSE cung
+cấp ngữ cảnh phong phú hơn DAiSEE. Tuy nhiên, bộ dữ liệu này gặp vấn đề
+mất cân bằng nghiêm trọng lớp Engagement chiếm đa số (8.469 mẫu) trong
+khi lớp High Disengagement chỉ có 346 mẫu [5], [17].
+
+[A collage of a person with different facial expressions AI-generated
+content may be incorrect.]
+
+Hình 1.20- Ví dụ minh hoạ một vài hình của bộ dữ liệu CMOSE [5].
+
+a) DAiSEE (Dataset for Affective States in E-Environments): Là bộ dữ
+liệu tiên phong cho việc xác định mức độ tham gia của học sinh trong môi
+trường học tập trực tuyến [17]. Bộ dữ liệu bao gồm 9000 video về khuôn
+mặt của học sinh với bốn cấp độ tham gia: Rất thấp, thấp, cao, rất cao
+[3], [17]. DAiSEE chỉ ghi lại các khuôn mặt hoặc phần thân trên, bỏ qua
+bối cảnh xung quanh và dữ liệu còn nhiều rất nhiều [15], [17]. Để đánh
+giá tính tổng quát và đúng với mục đích nhận diện mức độ tham gia học
+tập, bộ dữ liệu DAiSEE cũng đã được đưa vào thực nghiệm. Tuy nhiên, bộ
+dữ liệu này chủ yếu là các đoạn video webcam cận mặt, thiếu đi yếu tố
+bối cảnh không gian và hơn hết là không có cử chỉ hay hành vi của cơ
+thể. Hơn thế nữa, bộ dữ liệu này gặp phải vấn đề mất cân bằng trầm trọng
+giữa 4 nhãn nguyên thuỷ và sự mô hồ về ranh giới thị giác giữa các nhãn
+liền kề.
+
+Nhiều nghiên cứu trước đây trên bộ dữ liệu DAiSEE cũng chỉ ra rào cản
+này và đề xuất hiệu chỉnh lại không gian nhãn nhằm cải thiện độ hôi tụ
+của mô hình phân loại tự động. Kế thừa các phương pháp tiếp cận đó, thay
+vì huấn luyện trực tiếp trên 4 nhãn phân dải cực đoan, bộ dữ liệu dã
+được quy chuẩn về hệ 3 mức độ tham gia bằng cách gộp nhãn very low và
+low vào làm một trong khi vẫn giữ nguyên hai mức còn lại. Việc chuyển
+đổi không gian này mang lại hai lợi ích lớn: Giảm thiểu nhiễu do sự
+chồng chéo đặc trưng hình ảnh giữa các mức độ quá sát nhau và giúp mô
+hình xử lý tình trạng mất cân bằng hiệu quả hơn. Từ đó, mô hình cung cấp
+độ chính xác và tính ứng dụng thực tiễn cao hơn trong việc phát hiện
+trạng thái mất tập trung của học sinh [17], [50].
+
+[A comparison of a graph AI-generated content may be incorrect.]
+
+Hình 1.21- Phân phối bộ dữ liệu DAiSEE: (Trái) trước khi gộp, (Phải) sau khi gộp [17].
+
+1.3.3 Bộ dữ liệu cảm xúc học thuật thực tế RAER
+
+RAER (Real-world Academic Emotion Recognition) là bộ dữ liệu do Zhao và
+cộng sự xây dựng, ghi lại sinh viên trong lớp học trực tiếp thật sự.
+Khác với các bộ dữ liệu trước, RAER cung cấp đầy đủ ngữ cảnh bao gồm
+khuôn mặt, tư thế cơ thể và môi trường xung quanh. Bộ dữ liệu gồm 5 lớp
+cảm xúc học thuật: Neutral, Enjoyment, Confusion, Fatigue và
+Distraction. Tuy nhiên, RAER gặp vấn đề mất cân bằng nghiêm trọng lớp
+Confusion có rất ít mẫu, đây là thách thức lớn nhất của đề tài [26].
+
+[A collage of a person in a blue shirt AI-generated content may be
+incorrect.]
+
+Trong việc nhận diện mức độ tham gia lớp học của học sinh, các bộ dữ
+liệu được công bố ở thời điểm hiện tại còn khá hạn chế, chúng tôi ưu
+tiên một bộ dữ liệu có ngữ cảnh và tại lớp học trực tiếp nên vì thế
+chúng tôi đã chọn bộ dữ liệu RAER (Real-World Academic Emotion
+Recognition) để huấn luyện trên mô hình chúng tôi đề xuất. Hình ảnh của
+bộ dữ liệu được trích xuất từ các video đã gán nhãn sẵn bằng mười người
+gán nhãn. Bảng cung cấp ngữ nghĩa chi tiết cho từng nhãn cảm xúc trong
+bộ dữ liệu RAER được trình bày dưới đây [26]:
+
+  ------------- --------- --------------------------------------------------
+  Nhãn          Nhóm      Mô tả trạng thái
+
+  Neutral       Tập trung Học sinh/ sinh viên trong trạng thái bình thường,
+                          khong thể hiện cảm xúc rõ ràng, Chú ý vào bài
+                          giảng hoặc tài liệu học tập một cách thụ động,
+                          không có biểu hiện hứng thú hay chán nản đặc biệt.
+
+  Enjoyment     Tập trung Học sinh/ sinh viên thể hiện sự hứng thú, vui vẻ
+                          khi học tập. Có thể nở nụ cười, gật đầu đồng tình,
+                          hoặc tham gia tích cực vào bài học. Đây là trạng
+                          thái tích cực cho thấy sinh viên đang tiếp thu
+                          tốt.
+
+  Confusion     Mất tập   Học sinh/ sinh viên gặp khó khăn trong việc hiểu
+                trung     nội dung bài học. Thường thể hiện qua việc nhíu
+                          mày, nhìn chăm chú vào tài liệu với vẻ bối rối,
+                          hoặc có biểu hiện do dự, lúng túng.
+
+  Fatigue       Mất tập   Học sinh/ sinh viên trong trạng thái mệt mỏi, buồn
+                trung     ngủ. Biểu hiện thường thấy là ngáp, mí mắt sụp,
+                          đầu gục xuống, hoặc các dấu hiệu thiếu năng lượng
+                          rõ rệt.
+
+  Distraction   Mất tập   Học sinh/ sinh viên không tập trung vào bài học,
+                trung     thường nhìn đi nơi khác, xoay người, sử dụng điện
+                          thoại, hoặc thực hiện các hoạt động không liên
+                          quan đến việc học.
+  ------------- --------- --------------------------------------------------
+
+  : Bảng 1.2- Bảng mô tả ngữ nghĩa các nhãn cảm xúc học tập trong bộ dữ
+  liệu RAER.
+
+[A collage of a person with his hands on his head AI-generated content
+may be incorrect.]
+
+Việc gán nhãn cảm xúc học tập khó khăn hơn đáng kể so với gán nhãn cảm
+xúc thông thường, bởi các cảm xúc trong môi trường học tập thường có
+biểu hiện tinh vi và ít rõ ràng hơn [6], [22], [26]. Ví dụ, sự khác biệt
+giữa Neutral và Fatigue có thể rất mờ nhạt khi sinh viên chỉ hơi mệt
+nhưng vẫn cố gắng duy trì sự chú ý. Tương tự, một sinh viên nhíu mày có
+thể đang trong trạng thái Confusion, nhưng cũng có thể chỉ đang tập
+trung cao độ để giải một bài toán khó. Chính sự mơ hồ này khiến bộ dữ
+liệu cảm xúc học tập trải qua quá trình gán nhãn hai bước: đầu tiên
+người gán nhãn phân loại thô vào nhóm tập trung (Neutrality, Enjoyment)
+hoặc mất tập trung (Confusion, Fatigue, Distraction), sau đó mới phân
+loại chi tiết vào nhãn cụ thể trong nhóm đó [26].
+
+[A diagram of a diagram AI-generated content may be incorrect.]
+
+[A collage of a person with his head on his hand AI-generated content
+may be incorrect.]
+
+Cảm xúc trong lớp học rất phức tạp và mang tính liền mạch biểu thị mức
+độ tham gia của học sinh, và việc phân loại các loại cảm xúc một cách
+chính xác không phải lúc nào cũng dễ dàng [15], [26]. Dưới đây là một số
+lý do tại sao cảm xúc học tập khó đoán và khó nhận diện: Thứ nhất cảm
+xúc học thuật thường biểu hiện tinh tế - không giống với cảm xúc cơ bản
+như vui hay buồn mà là một trạng thái cụ thể được củng cố từ biểu cảm
+khuôn mặt và tư thế của cơ thể và đây thường là những phần bị bỏ qua
+[18]. Thứ hai, cảm xúc này chuyển đổi liên tục theo thời gian, ví dụ như
+một học sinh có thể đang tập trung học tập (engaged) nhưng sau một vài
+giây hoặc vô tình lấy tay che đi khuôn mặt thì lại nhận định đó là mất
+tập trung (Distracted) khiến việc xác định ảnh tĩnh trở nên khó khăn và
+dễ nhầm lẫn [4], [11], [17]. Như các nhà nghiên cứu trước đã đề cập rằng
+ngữ cảnh là một yếu tố then chốt giúp mô hình nhận diện và nâng cao độ
+chính xác tốt hơn nên. Vì thế việc ứng dụng bounding box cho khuôn mặt
+và cơ thể để mô hình tập trung nhận diện tốt hơn [7], [8], [26].
+
+[A person sitting at a table with headphones on AI-generated content may
+be incorrect.]
+
+Ngoài ra, bộ dữ liệu RAER có phân phối mất cân bằng nghiêm trọng giữa
+các lớp, khi tải bộ dữ liệu cung cấp 2649 video được gán nhãn vào các
+file “train.txt” và “test.txt” tương ứng với khung khuôn mặt và khung cơ
+thể được lưu vào các file bounding box. Lớp Neutral chiếm tỉ lệ đa số vì
+đây là trạng thái phổ biến nhất khi sinh viên ngồi trong lớp học — hầu
+hết thời gian, sinh viên ở trạng thái trung tính mà không thể hiện cảm
+xúc mạnh. Ngược lại, lớp Confusion có số lượng mẫu rất ít, thậm chí
+trong một số thử nghiệm của bài báo gốc, mô hình hoàn toàn không nhận
+diện được lớp này. Đây là thách thức lớn nhất của bộ dữ liệu, đòi hỏi
+các phương pháp xử lý mất cân bằng lớp chuyên biệt. Hình ảnh phân phối
+giữa các nhãn và đánh dấu giữa các nhãn được thể hiện trong hình sau:
+
+[A comparison of a number of datasets AI-generated content may be
+incorrect.]
+
+  --------------------------------------------------------------------------------
+  Video Path            Frames   Label   Emotion       Face Bbox     Body Bbox
+                                 ID                                  
+  --------------------- -------- ------- ------------- ------------- -------------
+  Class 005/P002/003    32       4       Distraction   [842.3, 73.2, [456.4,0.0,
+                                                       1034.2,       1919.1,
+                                                       294.0]        1065.0]
+
+  Laboratory/P036/023   31       1       Neutrality    [1152.0,      [0.0, 0.4,
+                                                       461.9,        1497.4,
+                                                       1385.3,       1080.0]
+                                                       707.9]        
+
+  Librabry/P007/001     31       5       Enjoyment     [834.3,       [514.4, 0.0,
+                                                       126.4,        1214.2,
+                                                       1043.1,       829.3]
+                                                       373.4]        
+  --------------------------------------------------------------------------------
+
+  : Bảng 2.3- Ví dụ mẫu gán nhãn trong bộ dữ liệu RAER bao gồm đường
+  dẫn, số khung hình, nhãn cảm xúc và toạ độ bounding box cho khuôn mặt
+  và cơ thể.
+
+Với những thống số trong hình ở bước tiền xử lý dữ liệu, hệ thống sẽ đọc
+các toạ độ trong bounding box, thực hiện cắt vùng tương ứng từ mỗi khung
+hình, sau đó resize về 224x224 trước khi đưa vào giai đoạn tiếp theo để
+trích xuất đặc trưng [9], [51].
+
+Để có thể trích xuất đặc trưng cho cả khuôn mặt và cơ thể của học sinh,
+chúng tôi sẽ dụng mô hình CLIP ViT-B/16 làm phần backbone [43], [49] vì
+mô hình đã được pretrain trên 400 triệu cặp ảnh - văn bả, cho phép ánh
+xạ đặc trưng thị giác sang không gian ngữ nghĩa phù hợp với bài toán
+nhận diện cảm xúc trong dự án này[43], [49].
+
+1.3.4 So sánh các bộ dữ liệu
+
+Để làm rõ lý do lựa chọn bộ dữ liệu cho nghiên cứu này, bảng bên dưới là
+tổng hợp và so sánh đặc điểm của các bộ dữ liệu phổ biến trong lĩnh vực
+nhận diện cảm xúc học tập. Mặc dù các bộ dữ liệu như DAiSEE hay CAER-S
+đã đóng góp nền tảng cho bài toán này, chúng vẫn tồn tại một số hạn chế
+nhất định. Một số bộ dữ liệu có ngữ cảnh lại không phải trong lớp học,
+một số bộ trong lớp học thì lại chẳng có ngữ cảnh. Do đó, bộ dữ liệu
+RAER hiện là phù hợp nhất đối với dự án lần này.
+
++----------+-----+----------------+--------+-------------+-----------+
+| Bộ dữ    | Số  | Môi trường     | Ngữ    | Đa phương   | Hạn chế   |
+| liệu     | lớp |                | cảnh   | thức        | chính     |
++----------+-----+----------------+--------+-------------+-----------+
+| RAER[26] | 5   | Lớp học thực   | x      |             | Mất cân   |
+|          |     |                |        |             | bằng      |
++----------+-----+----------------+--------+-------------+-----------+
+| DAiSEE   | 4   | Lớp học trực   |        |             | Chỉ có    |
+|          |     | tuyến          |        |             | mặt       |
+| [17]     |     |                |        |             |           |
++----------+-----+----------------+--------+-------------+-----------+
+| CAER-S   | 7   | Phim           | x      |             | Không     |
+|          |     |                |        |             | thực tế   |
+| [41]     |     |                |        |             | chỉ là    |
+|          |     |                |        |             | cảm xúc   |
+|          |     |                |        |             | diễn      |
++----------+-----+----------------+--------+-------------+-----------+
+| EMOTIC   | 26  | Đời thực       | x      |             | Không     |
+|          |     |                |        |             | phải giáo |
+| [40]     |     |                |        |             | dục       |
++----------+-----+----------------+--------+-------------+-----------+
+| CMOSE[5] | 4   | Lớp học        | x      | x           | Mất cân   |
+|          |     |                |        |             | bằng      |
++==========+=====+================+========+=============+===========+
+
+: Bảng 1.4- Bảng so sánh các bộ dữ liệu có liên quan và các bộ dữ liệu
+được sử dụng trong nghiên cứu.
+
+CHƯƠNG 2: CƠ SỞ LÝ THUYẾT
+
+Trước khi các kiến trúc hiện đại như Transformer ra đời, mạng nơ-ron
+thần kinh nhân tạo (CNN) là một kiến trúc chủ đạo trong học sâu nói
+chung và thị giác máy tính nói riêng nhờ khả năng trích xuất đặc trưng
+cục bộ hiệu quả qua các bộ lọc tích chập [36]. Tuy nhiên, CNN bị giới
+hạn bởi lĩnh vực tiếp nhận cục bộ, khó nắm bắt mối quan hệ toàn cục giữa
+các vùng xa nhau trong ảnh [36], [52]. Kiến trúc Transformer với cơ chế
+self-attention đã khắc phục hạn chế này, cho phép mô hình hoá mối quan
+hệ giữa mọi vị trí trong dữ liệu đầu vào. Sự phát triển từ Transformer
+sang Vision Transformer (ViT), rồi đến các mô hình đa phương thức như
+CLIP, đã tạo nên nền tảng trực tiếp cho mô hình RAPT-CLIP trong nghiên
+cứu này.
+
+2.1 Transformer và cơ chế chú ý
+
+2.1.1 Cơ chế chú ý
+
+Cơ chế chú ý (Attention) được giới thiệu lần đầu bởi Bahdanau et al.
+Trong bài toán dịch máy, cho phép mô hình tập trung vào các phần quan
+trọng nhất của dữ liệu đầu vào thay vì nén toàn bộ thông tin vào một
+vector cố định. Ý tưởng cốt lõi của cơ chế này là cho phép mô hình tập
+trung vào các phần quan trọng nhất của dữ liệu đầu vào bằng cách gán
+trọng số quan trọng khác nhau cho các phần tử, thay vì xử lý tất cả đồng
+đều. Nhờ vậy, khi tạo ra mỗi từ đầu ra, mô hình có thể “chú ý” đến những
+chi tiết liên quan nhất trong câu đầu vào [53].
+
+Vaswani et al. Phát triển ý tưởng này thành Scaled Dot-Product
+Attention, sử dụng phép nhân vô hướng (dot product) để tính độ tương
+đồng giữa Query và Key. Cụ thể với ma trận Query Q ∈ R^(n × d_(k)), ma
+trận Key K ∈ R^(m × d_(k)), và ma trận Value V ∈ R^(m × d_(v)), đầu ra
+attention được tính theo công thức [52]:
+
+  $Attention(Q,K,V) = \ softmax(\frac{{QK}^{T}}{\sqrt{d_{k}}}\ )V$ (1)
+
+Điểm khác biệt quan trọng so với phép nhân vô hướng thông thường là hệ
+số chia $\sqrt{d_{k}}$ []. Khi chiều $\sqrt{d_{k}}$[] lớn, giá trị dot
+product có xu hướng tăng theo, khiến hàm softmax bão hoà - đầu ra gần
+như tập trung hoàn toàn vào một phần tử, gradient trở nên rất nhỏ và mô
+hình khó học. Việc chia cho $\sqrt{d_{k}}$[] giúp ổn định phân phối giá
+trị, đảm bảo quá trình huấn luyện hiệu quả. Cơ chế này cho phép mỗi vị
+trí trong chuỗi đầu vào “nhìn thấy” và tính toán mức độ liên quan với
+mọi vị trí khác, khắc phục hoàn toàn hạn chế về receptive field cục bộ
+của CNN [52].
+
+[A diagram of a process AI-generated content may be incorrect.]
+
+2.1.2 Multi-Head Attention
+
+Một hàm Attention duy nhất chỉ học được một kiểu mối quan hệ giữa các vị
+trí. Để mô hình có thể nắm bắt đồng thời nhiều kiểu mối quan hệ khác
+nhau, Vaswani et al. đề xuất có thế multi-Head Attention. Thay vì thực
+hiện một phép attention trên toàn bộ không gian d_(model) [] chiều, cơ
+chế này chia không gian biểu diễn thành []h không gian con (head), thực
+hiện attention độc lập trên từng không gian con, rồi ghép nối kết quả:
+
+  MultiHead(Q, K, V) = Concat(head₁, ... , head_(n)).W⁰ (2)
+
+Trong đó mỗi head được tính bằng cách chiều đầu vào qua các ma trận
+riêng:
+
+  head_(i)= Attention(QW_(i)^(Q), KW_(i)^(K), VW_(i)^(V)) (3)
+
+Các ma trận chiếu
+W_(i)^(Q), W_(i)^(K), W_(i)^(V) ∈ R^(d_(model) × d_(k)) [] là các tham
+số có thể học, cho phép mỗi head hoạt động trên một không gian con
+riêng. Ma trận W^(O) ∈ R^(hd_(v) × d_(model)) []chiếu kết quả ghép nối
+về chiều ban đầu. Nhờ cơ chế này, các head khác nhau có thể học các kiểu
+mối quan hệ đa dạng - chặng hạn, trong thị giác máy tính, một head có
+thể tập trung vào mối quan hệ không gian gần, trong khi head khác nắm
+bắt mối quan hệ ngữ nghĩa giữa các vùng xa [52].
+
+2.1.3 Kiến trúc Transformer
+
+Kiến trúc Transformer được Vaswani et al [52]. giới thiệu trong bài báo
+“Attention Is All You Need” tại hội nghị NeurIPS 2017 [52]. Đây là kiến
+trúc đầu tiên dựa hoàn toàn vào cơ chế attention mà không sử dụng tích
+chập hay hồi quy, đánh dấu bước ngoặt quan trọng trong lịch sử học sâu.
+Kiến trúc gốc gồm hai phần — Encoder và Decoder — trong đó phần Encoder
+được sử dụng rộng rãi trong thị giác máy tính và cũng là thành phần được
+áp dụng trong mô hình đề xuất của luận văn. Mỗi lớp Encoder gồm hai
+module chính: Multi-Head Self-Attention (MSA) và Feed-Forward Network
+(FFN), mỗi module đi kèm với kết nối dư (residual connection) [51] và
+chuẩn hóa lớp (layer normalization) [36], [52], [54]:
+
+  Z_(l)^(′) = MAS(LN(Z_(l − 1)))+ Z_(l − 1) (4)
+
+  Z_(l)= FFN(LN(Z^(′)))+ Z^(′) (5)
+
+Trong đó MSA áp dụng Multi-Head Attention với Q = K = V = Z_(l − 1),
+nghĩa là mỗi phần tử trong chuỗi tự tham chiếu đến tất cả các phần tử
+khác để học mối quan hệ toàn cục [52]. FFN là mạng kết nối đầy đủ hai
+lớp với hàm kích hoạt GELU, áp dụng độc lập cho từng vị trí [36], [52].
+Kết nối dư giúp gradient lan truyền trực tiếp qua các lớp mà không bị
+suy giảm, ngăn chặn vấn đề gradient tiêu biến (vanishing gradient) [51].
+Vì Transformer không có cơ chế mã hóa vị trí nội tại, mô hình cần bổ
+sung thông tin vị trí thông qua positional encoding — sử dụng hàm sin và
+cosine ở các tần số khác nhau hoặc các embedding vị trí có thể học. So
+với các kiến trúc trước đó, Transformer có những ưu điểm vượt trội. RNN
+và LSTM xử lý dữ liệu tuần tự nên không thể song song hóa và gặp khó
+khăn với phụ thuộc tầm xa. CNN cho phép song song hóa nhưng bị giới hạn
+bởi receptive field cục bộ. Transformer cho phép mỗi vị trí liên kết
+trực tiếp với mọi vị trí khác thông qua attention, đồng thời hỗ trợ song
+song hóa hoàn toàn [52]. Nhờ những ưu điểm này, Transformer nhanh chóng
+trở thành kiến trúc nền tảng không chỉ trong xử lý ngôn ngữ tự nhiên mà
+còn trong thị giác máy tính, dẫn đến sự ra đời của Vision Transformer
+[36].
+
+2.2 Vision Transformer (ViT)
+
+2.2.1 Từ Transformer đến thị giác máy tính
+
+Sự thành công vượt bậc của Transformer trong xử lý ngôn ngữ tự nhiên đã
+thúc đẩy câu hỏi quan trọng: Liệu kiến trúc này có áp dụng trực tiếp cho
+dạng hình ảnh hay không? Dosoviskiy et al. đã trả lời câu hỏi này trong
+bài báo “An Image Is Worth 16x16 Words” công bố tại hội nghị ICLR2021. Ý
+tưởng cốt lõi đơn giản nhưng hiệu quả: chia ảnh thành các mảnh nhỏ
+(patch) và coi mỗi patch như một “từ” (token) trong chuỗi ngôn ngữ, sau
+đó đưa chuỗi patch vào bộ mã hoá Transformer tiêu chuẩn [36].
+
+2.2.2 Kiến trúc ViT
+
+Cho ảnh đầu vào I ∈ R^(H × WC×) []với kích thước H = W = 224 [] pixel và
+[]C = 3 kênh màu RGB, Vision Transformer xử lý qua các bước sau:
+
+Đầu tiên, ảnh được chia thành N patch không chống lấn, mỗi patch có kích
+thước []PxP pixels, tạo ra $N = \ \frac{H \times W}{P^{2}}$ [] patch.
+Với cấu hình ViT-B/16 sử dụng []P = 16, ảnh []224x224 được chia thành
+[]N = 196 patch. Mỗi patch được duỗi phẳng và chiếu vào không gian
+d-chiều thông qua ma trận embedding [36]. Lấy cảm hứng từ Token [CLS]
+trong BERT [55], một token đặc biệt x_(cls) được thêm vào đầu chuỗi để
+đại diện cho biểu diễn toàn cục của ảnh. Potentional embedding có thể
+E_(pos) được cộng vào để mã hoá thông tin vị trí không gian [36]:
+
+Z₀ = [x_(cls); e₁; …; e_(N)]+ E_(pos) (6)
+
+Chuỗi token Z₀ sau đó được đưa qua lớp Transformer, với ViT-B/16, bộ mã
+hoá gồm L = 12 lớp, mỗi lớp sử dụng 12 attention head và chiều ẩn d =
+768. Biểu diễn cuối cùng của ảnh được lấy từ token [CLS] sau lớp
+Transformer cuối cùng [36]:
+
+y = LN(Z_(l)^([cls])) (7)
+
+[A diagram of a transformer AI-generated content may be incorrect.]
+
+Hình 2.2: Kiến trúc Vision Transformer (ViT): ảnh đầu vào được chia
+thành các patch, chuyển thành chuỗi embedding, đưa qua bộ mã hoá
+Transformer để tạo biểu diễn hình ảnh [36].
+
+2.2.3 Các biến thể của ViT
+
+Dosovitskiy et al. giới thiệu ba biến thể chính: ViT-Base(ViT-B) gồm 12
+lớp, chiều ẩn 768, 12 head (~86 triệu tham số); ViT-Large(ViT-L) với 24
+lớp, chiều ẩn 1024, 16 head (~307 triệu tham số); và ViT-Huge (ViT-H)
+với 32 lớp, chiều ẩn 1280, 16 head (~632 triệu tham số). Ký hiệu “/16”
+hay “/14” chỉ kích thước patch P: patch nhỏ hơn tạo ra nhiều token hơn,
+tăng độ phân giải nhưng đồng thời tăng chi phí tính toán.
+
+2.2.4 Đặc điểm và ý nghĩa
+
+Kết quả thực nghiệm cho thấy khi được huấn luyện trước trên lượng dữ
+liệu đủ lớn như JFT-300M [56] hay ImageNet-21k [57]. Transformer thuần
+túy có thể đạt hoặc vượt hiệu năng của các kiến trúc CNN tiên tiến nhất,
+đồng thời thể hiện khả năng mở rộng tốt hơn. Đặc biệt, ViT đã trở thành
+backbone được sử dụng rộng rãi trong các mô hình đa phương thức trong đó
+có CLIP, nền tảng trực tiếp của mô hình RAPT-CLIP đề xuất ở Chương 3.
+
+2.3 Mô hình CLIP
+
+2.3.1 Tổng quan
+
+CLIP (Contrastive Language-Image Pretraining) được giới thiệu bởi
+Radford et al. [4] tại OpenAI và công bố tại hội nghị ICML 2021. Đây là
+mô hình đa phương thức học cách liên kết hình ảnh và ngôn ngữ tự nhiên
+thông qua học đối sánh trên 400 triệu cặp ảnh-văn bản thu thập từ
+Internet. Điểm đột phá của CLIP nằm ở khả năng phân loại zero-shot: mô
+hình có thể phân loại ảnh vào các lớp chưa từng được thấy trong quá
+trình huấn luyện, chỉ bằng cách mô tả lớp đó bằng ngôn ngữ tự nhiên
+[42].
+
+2.3.2 Kiến trúc
+
+CLIP gồm hai bộ mã hoá song song: bộ mã hoá hình (Image Encoder) sử dụng
+ViT hoặc Resnet để tạo vector biểu diễn ν ∈ R^(d)[10], [42], và bộ mã
+hoá văn bản (Text Encoder) sử dụng Transformer tương tự GPT để tạo
+vector biểu diễn văn bản t ∈ R^(d)[]. Trong mô hình RAPT-CLIP đề xuất ở
+chương 3, biến thể ViT-B/16 được lựa chọn làm backbone [42]. Điểm thiết
+kế quan trọng là cả hai bộ mã hoá đều chiếu đầu ra vào cùng một khoảng
+không gian d-chiều (d=512 với CLIP ViT-B/16) [26], [42], cho phép so
+sánh trực tiếp bằng Cosine similarity .
+
+[A diagram of data processing AI-generated content may be incorrect.]
+
+2.3.3 Ý nghĩa đối với mô hình đề xuất
+
+CLIP cung cấp nền tảng quan trọng cho mô hình RAPT-CLIP được nhắc tới ở
+chương 3 theo nhiều khía cạnh. Về backbone, bộ mã hoá ViT-B/16 đã được
+huấn luyện trước trên 400 triệu cặp ảnh-văn bản cung cấp biểu diễn hình
+ảnh phong phú. Về kiến trúc, không gian biểu diễn chung cho phép phân
+loại cảm xúc bằng cách so sánh đặc trưng hình ảnh với mô tả ngữ nghĩa
+thông qua mô tả có thể học (prompt learning). Về chuyển giao tri thức,
+kiến thức đa dạng từ dữ liệu Internet giúp mô hình thích ứng nhanh với
+bài toán nhận diện cảm xúc học tập. lĩnh vực có ít dữ liệu huấn luyện
+[42], [44].
+
+ CHƯƠNG 3: XÂY DỰNG MÔ HÌNH NGÔN NGỮ THỊ GIÁC
+
+3.1 Kiến trúc tổng quan của mô hình 
+
+Với mục tiêu chính là nhận diện cảm xúc trong học tập và cải thiện khả
+năng nhận diện các lớp hiếm vì bộ dữ liệu mất cân bằng, phương pháp đề
+xuất xây dựng mô hình nhận diện cảm xúc học tập từ chuỗi ảnh dựa trên
+kiến trúc hai nhánh của CLIP kết hợp mô tả ngữ nghĩa có thể học [26], xử
+lý đồng thời hai luồng thông tin: (i) luồng xử lý khuôn mặt – trích xuất
+đặc trưng biểu cảm tinh tế, và (ii) luồng xử lý cơ thể/ ngữ cảnh – phân
+tích tư thế, hành vi cùng môi trường xung quanh [26], [41]. Hai luồng
+đặc trưng được kết hợp và so sánh với các biểu diễn ngữ nghĩa từ mô tả
+có thể học được để phân loại cảm xúc [26].
+
+Mô hình xử lý đầu vào sử dụng hai nhánh song song dựa trên kiến trúc
+CLIP ViT-B/16 đã được huấn luyện trước cho nhánh hình ảnh [43], [49].
+Mỗi khung hình trong video được cắt thành hai vùng: khuôn mặt và cơ thể,
+sau đó đưa qua bộ mã hóa CLIP để tạo đặc trưng [26]. Đối với khuôn mặt,
+một adapter được thêm vào để thích ứng đặc trưng cho nhận diện biểu cảm.
+Các chuỗi khung hình sau đó được đưa qua Temporal Transformer với
+Attention Pooling để mô hình hóa thời gian và tự động tập trung vào các
+khung hình chứa cảm xúc rõ ràng nhất [3], [26].
+
+Đối với nhánh văn bản, thay vì sử dụng các mô tả cố định, mô hình sử
+dụng các mô tả có trọng số có thể học (Learnable prompts) [26], [58],
+đồng thời dùng các mô tả cố định để hỗ trợ MI loss một hàm mất mát đối
+sánh giúp căn chỉnh và ngăn chặn overfitting [58].
+
+[A diagram of a computer program AI-generated content may be incorrect.]
+
+3.2 Xử lý đầu vào
+
+Đầu vào của mô hình là một video V với F khung hình ghi lại hình ảnh
+sinh viên đang học tập trong các ngữ cảnh, môi trường học tập khác nhau.
+Quá trình xử lý đầu vào được minh hoạ trong hình và bao gồm các giai
+đoạn như sau:
+
+Giai đoạn 1: Lấy mẫu theo thời (Temporal Sampling): Mỗi video được chia
+thành T = 16 đoạn có độ dài bằng nhau [59]. Từ mỗi đoạn, một khung hình
+được chọn ngẫu nhiên để tạo chuỗi T khung hình đại diện cho toàn bộ [9],
+[59].
+
+Giai đoạn 2: Cắt khuôn mặt và cơ thể (Face and body Cropping): Với mỗi
+khung hình, sử dụng hộp giới hạn (bounding box) từ annotation để cắt:
+Face crop - vùng khuôn mặt bao gồm các biểu cảm vi mô (lông mày, miệng,
+mắt,..), Body crop - vùng cơ thể bao gồm tư thế, hành và một phần ngữ
+(cúi đầu, viết bài, ngáp,..) [26], [33].
+
+Giai đoạn 3: Thay đổi kích thước và chuẩn hoá: Các vùng khuôn mặt và cơ
+thể được chuẩn hoá về []224x224 pixels [9], [59], và chuẩn hoá theo tiêu
+chuẩn CLIP với giá trị trung bình μ = [0.481, 0.458, 0.408] []và độ lệch
+chuẩn σ = [0.269, 0.261, 0.276] [36].
+
+Giai đoạn 4: Tăng cường dữ liệu (Chỉ dùng khi huấn luyện): Các kỹ thuật
+tăng cường bao ColorJitter, RandomGrayScaled(p=0.2),
+RandomRotation([]±4^(^(∘))) và RandomHorizontalFlip (p=0.5) [8], [9],
+[60].
+
+Sau khi tiền xử lý, đầu vào cho mỗi mẫu bao gồm hai tensor 5 chiều là
+[]image_(face) và []image_(body)[], mỗi tensor có kích thước
+NxTx3x224x224, Trong đó N là kích thước batch và T=16 là mỗi số đoạn
+thời gian.
+
+[A diagram of a study process AI-generated content may be incorrect.]
+
+Hình 3.2: Quy trình tiền xử lý dữ liệu đầu vào: (1) lấy gốc video, (2)
+Lẫy mẫu thời gian, (3) Cắt khuôn mặt và cơ thể, (4) Thay đổi kích thước,
+(5) Tăng cường dữ liệu huấn luyện. Đầu ra là hai tensor có kích thước
+như ảnh[26].
+
+3.3 Nhánh hình ảnh
+
+3.3.1 xử lý song song khuôn mặt và cơ thể
+
+Mỗi khung hình trong video được xử lý qua hai luồng song song như trong
+hình bên dưới: Luồng khuôn mặt (Face Stream): Ảnh khuôn mặt đi qua CLIP
+ViT-B/16 rồi qua Face Adapter (EAA), tạo ra vector đặc trưng
+v_(t)^(face) ∈ R⁵¹²[49]. Luồng cơ thể/ ngữ cảnh (Body/Context Stream):
+Ảnh cơ thể đi qua CLIP ViT-B/16 (Không có Adapter) tạo ra các vector đặc
+trưng v_(t)^(body) ∈ R⁵¹²[] [26], [41]. Hai luồng chia sẻ cùng một
+backbone CLIP ViT (Share weighted), giúp giảm số lượng tham số và tận
+dụng tri thức đã được huấn luyện trước [26], [42].
+
+[A diagram of a process AI-generated content may be incorrect.]
+
+Hình 3.3: Kiến trúc hai nhánh xử lý song song: Luồng khuôn mặt (Face) đi
+qua CLIP ViT-B/16 và Face Adapter (EAA), luồng cơ thể chỉ đi qua CLIP
+ViT-B/16. Hai luồng chia sẻ trọng số (Share Weighted).
+
+3.3.2 Face Adapter
+
+CLIP được huấn luyện trước với dữ liệu mục đích chung, không được tối ưu
+riêng cho nhận diện biểu cảm khuôn mặt. Để thích ứng CLIP cho nhận diện
+biểu cảm mà không bị phá huỷ tri thức đã học, mô hình thêm một
+Expression-Aware Adapter (EAA) riêng cho luồng khuôn mặt [49], lấy cảm
+hứng từ các kỹ thuật adapter. EAA sử dụng kiến trúc bottleneck với kết
+nối dư (Residual connection), được minh hoạ trong hình bên dưới. Vector
+đặc trưng v ∈ R⁵¹² từ ViT đi qua hai đường: (1) đường chính giữ nguyên
+(Skip connection), và (2) đường adapter nén xuống 128 chiều rồi mở rộng
+lại 512 chiều. Kết quả được cộng lại:
+
+v_(t)^(face) = v_(t)^(face)+ f_(adapter)(v_(t)^(face)) (9)
+
+Adapter chỉ thêm 512 x 128 + 128 x 512 = 131.072 [] tham số (khoảng
+0.15% tổng tham số của ViT-B/16), cho phép mô hình nắm bắt các biểu cảm
+vi mô và tinh tế của khuôn mặt trong khi vẫn bảo toàn biểu diễn đã được
+huấn luyện từ [49], [61].
+
+[A diagram of a computer program AI-generated content may be incorrect.]
+
+Hình 3.4: Cấu trúc Expression-Aware Adapter(EAA): Kiến trúc bottleneck
+nén từ 512 chiều xuống 128 chiều rồi mở rộng lại, rới ReLU activation và
+Dropout(p=0.5) sau mỗi lớp. Chỉ trọng số EAA được cập nhập, CLIP được
+giữ đông (frozen).
+
+3.3.3 Attention Pooling
+
+Cảm xúc trong video không phân bố đồng đều theo thời gian, như đã đề cập
+một video được gán nhãn là tập trung nhưng trong vòng tích tắc học sinh
+quay đi hoặc không thể nhìn thấy khuôn mặt và vô tình khung hình đó được
+đưa vào huấn luyện với nhãn là neutrality thì mô hình sẽ bị nhầm lẫn và
+dự đoán sai [18],[22],[24]. Vì thế, các khung hình chứa biểu cảm cảm xúc
+mạnh hay còn gọi là peak emotion thường mang lại thông tin nhiều hơn là
+các khung hình trung tính. Mô hình sử dụng Temporal Transformer để mô
+hình hoá mối quan hệ thời gian giữa các khung hình, kết hợp với
+attention pooling [23].
+
+Khác với phương pháp chuẩn sử dụng CLS Token - coi tất cả các khung hình
+được đưa vào đều quan trọng như nhau, còn đối với attention pooling học
+trọng số α_(t) cho từng khung hình, cho phép mô hình tự động tập trung
+vào các khung hình chứa biểu cảm cảm xúc nổi bật nhất. Hình bên dưới so
+sánh giữa hai phương pháp [36], [59]:
+
+[A comparison of a math equation AI-generated content may be incorrect.]
+
+Hình 3.5: So sánh hai phương pháp tổng hợp thời gian. Trái (CLS Token)
+Token chuẩn gán trọng số đều (1/T) cho mọi khung hình. Phải (Attention
+Pooling) học trọng số khác nhau, tập trung vào khung hình có
+peak-emotion. Phát triển dựa trên CLS Token của CLIP-CAER [26], [59].
+
+[A graph of different sizes and colors AI-generated content may be
+incorrect.]
+
+Hình 3.6: So sánh phân bố số khung hình. (Trái) CLS Token gán trọng số
+cân bằng cho các khung hình. (Phải) Attention Pooling học trọng số, tập
+trung vào các khung hình có cảm xúc mạnh. Phát triển dựa trên CLS Token
+của CLIP-CAER [26], [59].
+
+Chuỗi đặc trưng T = 16 khung hình từ mỗi luồng được thêm positional
+embbeding để mã hoá thứ tự thời, sau đó đi qua Temporal Transformer
+(Multi-Head Self-Attention với 8 heads). Attention Pooling tổng hợp
+thành vector đại diện cho mỗi luồng. Kết hợp đặc trưng (Feature fusion):
+hai vector đặc trưng từ hai luồng được ghép nối (concatenation) thành
+vector 1024 chiều, sau đó chiếu tuyến tính xuống 512 chiều và chuẩn hoá
+L2. Quá trình được minh hoạ trong hình:
+
+[A diagram of a pooling process AI-generated content may be incorrect.]
+
+Hình 3.7: Luồng xử lý tổng thể tạo ra vector ở visual branch của
+RAPT-CLIP.
+
+3.4 Nhánh văn bản
+
+3.4.1 Mô tả có thể học và chuỗi mô tả
+
+Thay vì sử dụng mẫu văn bản cố định như “A photo of [ClassName]”, mô
+hình áp dụng cơ chế prompt có thể học lấy cảm hứng từu CoOp và prompt
+learning phân cấp [43], [58]. Với C = 5 lớp cảm xúc. Mỗi lớp c được liên
+kết với một prompt có cấu trúc gồm M = 8 token ngữ cảnh có thể học kẹp
+giữa token [SOS] [26].
+
+Bên cạnh sử dụng mô tả có thể học (Learnable prompt), mô hình còn sử
+dụng có chế chuỗi mô tả (prompt ensemble) để tăng tính bền vững và đa
+dạng của biểu diễn ngữ nghĩa. Thay vì chỉ dùng một câu mô tả duy nhất
+cho mỗi lớp cảm xúc, mô tả chuỗi cung cấp một chuỗi mô tả, đối với bộ dữ
+liệu RAER là ba mô tả cố định khác nhau cho mỗi lớp, mỗi mô tả đặc trưng
+cho một khía cạnh riêng biệt. Ví dụ, đối với lớp Fatigue (mệt mỏi), ba
+mô tả lần lượt mô tả hành vi (ngáp, tay che miệng), mô tả khuôn mặt (mí
+mắt sụp) và mô tả tư thế cơ thể (tư thế gục đầu). Trong giai đoạn suy
+diễn, các mô tả cố định này được đưa qua CLIP Text Encoder để tạo ra ba
+vector văn bản tương ứng cho mỗi lớp. Ba vector này sau đó được lấy
+trung bình cộng để tạo ra một vector đại diện duy nhất, phong phú và ổn
+định hơn so với chỉ sử dụng một mô tả đơn lẻ. Vector đại diện chuỗi mô
+tả kết hợp với vector từ mô tả có thể học để tạo nên hệ quy chiếu nghữ
+nghĩa hoàn chỉnh cho việc phân loại.
+
+Cơ chế chuỗi mô tả mang lại hai lợi ích chính: giamr thiểu rủi ro sai
+lệch khi một câu mô tả đơn lẻ không phản ánh đầy đủ bản chất đa chiều
+của cảm xúc và cung cấp các mô tả cố định làm “mỏ neo” ổn định cho cách
+hàm mất mát bổ trợ trong quá trình huấn luyện. Giúp căn chỉnh không gian
+biểu diễn ảnh và văn bản một cách hiệu quả.
+
+Cần lưu ý rằng các token ngữ cảnh có thể học chỉ được cập nhập trong
+giai đoạn huấn luyện. Khi Suy diễn (inference), toàn bộ mô tả đã được
+đóng băng hoàn toàn nghĩa là mô hình sử dụng một bộ mô tả ngữ nghĩa cố
+định đã được tối ưu hoá sẵn cho bộ dữ liệu RAER. Điều này đảm bảo tính
+ổn định và tốc độ suy diễn nhanh, đồng thời không yêu cầu bất kỳ thông
+tin văn bản bổ sung nào từ người dùng tại thời điểm sử dụng.
+
+3.4.2 Mô tả thủ công
+
+Ngoài mô tả có thể học, mô hình còn sử dụng các mô tả ngữ nghĩa thủ công
+cung cấp mô tả chi tiết bằng ngôn ngữ tự nhiên cho mỗi lớp cảm xúc. Ví
+dụ, mô tả cho lớp Fatigue: “A student with droopy eyelids, head tiling
+down, showing signs of tiredness and sleepiness.” (Một sinh viên với mí
+mắt sịp, đầu nghiên xuống, thể hiện đấu hiệu mệt mỏi và buồn ngủ). Đặc
+trưng văn bản từ mô tả thủ công (d_(c) ∈ R⁵¹²) được sử dụng để hỗ trợ MI
+loss giúp căn chỉnh mô tả có thể học với tri thức nghữ nghĩa [26].
+
+3.5 Hàm mất mát
+
+Mục tiêu huấn luyện tổng thể kết hợp ba hàm mất mát bổ sung cho nhau,
+được minh hoạ trong hình:
+
+ℒ_(total)= ℒ_(LDam)+ λ_(MI)ℒ_(MI)+ λ_(DC)ℒ_(DC). Với
+λ_(MI) = λ_(DC) = 0.1 (10)
+
+[A close-up of a chart AI-generated content may be incorrect.]
+
+Hình 3.8: Tổng quan ba hàm mất mát. LDAM loss tạo margin lớn hơn cho lớp
+thiểu số, MI loss căn chỉnh Learnable prompt với handcraft prompt, DC
+loss ngăn chặn các text embedding bị collapse. Trong số Mi và DC được
+điều chỉnh theo thời gian [58], [62].
+
+LDAM loss: Được áp dụng để thay thế cho CrossEntrophy truyền thống để
+giải quyết vấn đề mất cân bằng giữa các lớp vì đối với bộ dữ liệu RAER
+có phân phối đuôi dài (Long-tail) và lớp Neutrality chiếm đa số (~65%)
+[26]. Để giảm thiểu vấn đề mất cân bằng lớp, mô hình sử dụng hàm mất mát
+Label-Distribution-Aware Margin (LDAM), đưa vào các margin phụ thuộc lớp
+được thể hiện ở công thức như trong hình bên trên. trong đó Z_(j)[] là
+logit cho lớp j, y là nhãn thật, s = 30 là hệ số tỉ lệ. Margin phụ thuộc
+lớp Δ_(j) trong đó n_(j)[] là số mẫu trong lớp j và Δ_(max) = 0.5. Với ý
+nghĩa là lớp có ít dữ liệu sẽ nhận margin lớn hơn, buộc mô hình phải học
+đặc trưng phân biệt tốt hơn cho các lớp thiểu [62].
+
+Hai hàm loss bổ trợ lần lượt là MI loss và DC Loss. Mi Loss (Mutual
+Information Alignment Loss): Để ngăn các mô tả có thể học bị overfitting
+và căn chỉnh chúng với mô tả ngữ nghĩa từ mô tả thủ công, mô hình sử
+dụng hàm mất mát MI lấy cảm hứng từ contrastive learning trong CLIP và
+InfoNCE với công thức nằm ở phần ở giữa trong hình bên trên. Trong đó
+$S_{ij} = \frac{t_{i}.d_{j}}{r_{MI}}$ là ma trận tương đồng giữa đặc
+trưng mô tả có thể học t và đặc trưng mô tả d_(j)[58]. DC Loss
+(Decorrelation Loss): Để khuyến khích các text embedding đa dạng và phân
+biệt giữa các lớp cảm xúc, mô hình sử dụng hàm mất mát tương quan được
+triển khai như trên [58].
+
+Ngoài ra, việc áp dụng Mi loss và DC ngay từ đầu khi huấn luyện sẽ khiến
+mô hình bị sập và chỉ nhận diện được một lớp hay còn gọi là bias nên mô
+hình áp dụng lịch trình tăng dần hoặc giảm dần cho các trọng số các hàm
+mất mát phụ trợ. Ngay khi bắt đầu huấn luyện mô hình sẽ chỉ nhận LDAM
+loss và đến epoch 5 khi quá trình tăng tiến đã có dấu hiệu giảm dần thì
+Mi và DC loss sẽ tham gia để thúc đẩy quá trình huấn luyện, tạo ra một
+đột biến mới. Đối với ramp up mô hình sẽ tiếp nhận các hàm mất mát bổ
+trợ từ từ nên mô hình ổn định và phù hợp để áp dụng các công nghệ đánh
+giá phía sau, còn đối với ramp down mô hình nhận một tham số lớn và sẽ
+có đột phá cao nhất ngay từ khi hàm mất mát bổ trợ vào kết quả có thể
+cao hơn nhưng để đánh giá tăng cường tại thời điểm kiểm tra thì sẽ thấp
+hơn [58], [62].
+
+3.6 Cân bằng dữ liệu
+
+Bộ dữ liệu RAER có phân phối mất cân bằng nghiêm trọng - lớp Neutral
+chiếm đa số trong khi lớp Confusion có rất ít mẫu (chỉ 1.40%) [26].
+Ngoài LDAM loss (đã trình bày ở mục 3.5), mô hình còn sử dụng thêm
+Weighted random sampler trong khi chuẩn hoá dữ liệu để đảm bảo các lớp
+thiểu số xuất hiện nhiều hơn trong mỗi batch huấn luyện. Trọng số lấy
+mẫu cho lớp tỉ lệ nghịch với số mẫu [63]:
+
+$W_{c} = \frac{1}{n_{c}}$ (11)
+
+Kết hợp với LDAM Loss tạo ra một sự cân bằng kép đảm bảo mô hình nhìn
+thấy các lớp thiểu số thường xuyên hơn, trong khi LDam Loss buộc mô hình
+học biên quyết định rộng hơn cho các lớp này [62], [63].
+
+[A comparison of a graph AI-generated content may be incorrect.]
+
+ CHƯƠNG 4: THỰC NGHIỆM ĐÁNH GIÁ
+
+4.1 Triển khai mô hình
+
+Tất cả thí nghiệm sử dụng CLIP với kiến trúc ViT-B/16 làm backbone cho
+cả bộ mã hoá hình ảnh và văn bản (CLIP Image Encoder, CLIP Text
+Encoder). Mô hình được tối ưu bằng bộ tối ưu AdamW với hệ số phân rã
+trọng số (Weight decay) 5x10⁻³. Do các thành phần trong mô hình có vai
+trò khác nhau, chúng tôi áp dụng chiến lược tốc độ học phân tầng
+(Layered learning rate): Tốc độ học tổng thể 2x10⁻⁵, riêng Image Encoder
+sử dụng tốc độ học thấp hơn là 1x10⁻⁶ để bảo toàn tri thức đã huấn luyện
+sẵn của CLIP, Prompt Learner sử dụng tốc độ cao hơn 3x10⁻⁴ do cần học
+nhanh các ngữ cảnh mới, và EAA Adapter sử dụng tốc độ 1x10⁻⁴. Tốc độ học
+được điều chỉnh theo lịch trình MultiStep với hệ số giảm 0.1 tại epoch
+thứ 10 và 15. Quá trình huấn luyện được thực hiện trong 20 epoch trên
+GPU NVIDIA P100 với 16GB bộ nhớ và kích thước batch bằng 4 và sử dụng
+huấn luyện kết hợp nửa chính xác (Mixed Precision – AMP) để tối ưu bộ
+nhớ. Gradient được cắt tại ngưỡng 1.0 (gradient clipping) nhằm ổn định
+quá trình huấn luyện. Hạt giống ngẫu nhiên (random seed) được cố định ở
+giá trị 42 để đảm bảo tính tái lập.
+
+Dữ liệu đầu vào của mô hình đối với hai nhánh ảnh và văn bản được chuyển
+về kích thước (224x24x3 cho hình ảnh). Trong đó, dữ liệu được chia thành
+80% cho việc huấn luyện và 20% cho việc kiểm thử. Mỗi video được lấy mẫu
+đều 16 khung hình (segments), mỗi segment lấy 1 khung hình (duration
+= 1) và nếu như không đủ khung hình thì hệ thống sẽ tự động nhân bản
+khung hình cuối để dảm bảo đủ số lượng. Ảnh khuôn mặt và cơ thể được cắt
+tự động dựa trên toạ độ bounding box đã chuẩn bị sẵn. Cơ chế sử lý khi
+không nhìn thấy khuôn mặt của hệ thống sẽ là trả về toàn bộ ảnh .Bảng
+tóm tắt đầy đủ các tham số huấn luyện
+
+Bảng 4.1- Tổng hợp các siêu tham số trong quá trình huấn luyện mô hình RAPT-CLIP
+
+  -----------------------------------------------------------------------
+  Siêu tham số                                      Giá trị
+  ----------------------------------- -----------------------------------
+  Backbone                                       CLIP ViT-B/16
+
+  Optimizer                                          AdamW
+
+  Learning rate (tổng)                              2x10⁻⁵
+
+  LR – Image Encoder                                1x10⁻⁶
+
+  LR – Prompt Learner                               3x10⁻⁴
+
+  LR – EAA Adapter                                  1x10⁻⁴
+
+  Weight decay                                      5x10⁻³
+
+  LR scheduler                           Milestone 10 15 hệ số là 0.1
+
+  Epochs                                              20
+
+  Batch size                                           4
+
+  Số segments / Video                                 16
+
+  Duration / Segment                               1 frames
+
+  Kích thước ảnh đầu vào                            224x224
+
+  Gradient clipping                                   1.0
+
+  Mixed precision (AMP)                               Có
+
+  Random seed                                         42
+
+  Số context tokens                                    8
+
+  Vị trí class token                                  End
+
+  Class-specific contexts                             Có
+
+  Text type                                     Prompt_ensemble
+
+  Hàm mất mát                                        LDAM
+
+  Lamda DC / MI                                       0.1
+
+  DC / MI warmup                                   5 epochs
+
+  DC / MI ramp                                     10 epochs
+
+  Weighted sampler                                    Có
+
+  Crop body                                           Có
+
+  GPU                                         NVIDIA P100 (16GB)
+
+  Tỷ lệ Train/Test                                 80% / 20%
+  -----------------------------------------------------------------------
+
+4.2 Các chỉ số đánh giá
+
+Để xử lý vấn đề mất cân bằng của bộ dữ liệu và đánh giá chân thật hiệu
+suất thực tế của mô hình, thang đo được sử dụng trong bộ dữ liệu RAER và
+CAER-S là UAR(Unweighted Average Recall) - trung bình recall của tất cả
+các lớp, không có trọng số theo số lượng mẫu. Công thức tính UAR được
+tính như sau:
+
+$UAR = \frac{1}{c}\sum_{c = 1}^{c}{Recall_{c} = \frac{1}{c}\sum_{c = 1}^{c}\frac{TP_{c}}{TP_{c} + \ FN_{c}}}$
+(12)
+
+Trong đó:
+
+- []C là tổng hợp số lớp với RAER thì C = 5
+
+- []TP_(c) (True Positive): là số mẫu thuộc lớp []C được dự đoán đúng là
+  C.
+
+- FN_(c)[] (False Negative): là số mãu thuộc lớp []C nhưng bị dự đoán
+  sai sang lớp khác.
+
+- $Recall_{c} = \frac{TP_{c}}{TP_{c} + \ FN_{c}}$[]: là tỉ lệ nhận diện
+  đúng lớp []C.
+
+[]UAR đặc biệt phủ hợp cho bộ dữ liệu mất cân bằng vì nó đánh giá công
+bằng khả năng nhận diện trên từng lớp - mỗi lớp được coi trọng như nhau
+bất kể số lượng mẫu. Với RAER, dù cho lớp confusion chỉ có rất ít mẫu,
+nó đóng góp vào UAR bằng đúng lớp neutrality có hàng nghìn mẫu [26].
+
+Ngoài ra, công thức để đo độ chính xác thông thường của các mô hình học
+sâu cũng được nhắc tới trong nghiên cứu này đó chính là []WAR(Weighted
+Average Recall) là trung bình có trọng số theo số lượng mẫu:
+
+$WAR = \frac{\sum_{c = 1}^{c}{n_{c}.Recall_{c}}}{\sum_{c = 1}^{c}n_{c}} = \frac{\sum_{c = 1}^{c}{TP_{c}}}{N}$
+(13)
+
+Trong đó:
+
+- []n_(C) là số lượng mẫu thực tế thuộc lớp []C.
+
+- $N = \sum_{c = 1}^{c}n_{c}$[] là tổng số mẫu.
+
+[]WAR thực chất là độ chính xác tổng thể (overral accuracy) - trọng số
+của mỗi lớp tỉ lệ thuận với số lượng mẫu. Hạn chế của []WAR: với dữ liệu
+mất cân bằng, []WAR bị chi phối bởi lớp đa số. Ví dụ, nếu lớp neutrality
+chiếm []60% dữ liệu, mô hình chỉ cần dự đoán đúng hết neutrality thì
+[]WAR đã đặt được khoảng []60%, dù hoàn toàn thất bại trên các lớp thiểu
+số [26].
+
+Ngoài ra còn một thang đo để đánh giá bộ dữ liệu EMOTIC vì đây là một bộ
+dữ liệu đa nhãn (mỗi mẫu có thể thuộc nhiều lớp cảm xúc đồng thời). Đầu
+tiên, với mỗi lớp []C, Average Precision được tính bằng diện tích dưới
+đường cong Precision-Recall.
+
+$AP_{c} = \ \sum_{k = 1}^{n}{\left( R_{k} - R_{k - 1} \right).P_{k}}$
+(14)
+
+Trong đó:
+
+- []P_(k): là Precision (tỷ lệ dự đoán đúng).
+
+- []R_(k): là Recall (tỉ lệ nhận diện đúng).
+
+Tại ngưỡng thứ []k, khi sắp xếp các dự đoán theo điểm tin cậy giảm dần.
+Sau đó, []mAP là trung bình AP trên tất cả []C lớp:
+
+$mAP = \frac{1}{C}\sum_{c = 1}^{c}{AP_{c}}$ (15)
+
+mAP đánh giá đồng thời cả khả năng xếp hạng và tỉ lệ nhận diện đúng, phù
+hợp cho bài toán đa nhãn khi ranh giới giữa các nhãn không rõ ràng [40],
+[49].
+
+4.3 Đánh giá kết quả thực nghiệm
+
+4.3.1 Kết quả trên bộ dữ liệu RAER
+
+Bảng bên dưới trình bày kết quả so sánh RAPT-CLIP với phương pháp tiên
+tiến trên bộ dữ liệu RAER. Các phương pháp so sánh bao gồm dựa trên CNN
+(3DResNet18, I3D, CAER-Net), Transformer(M3DFEL, Former-DFER), và các mô
+hình dựa trên CLIP (CLIPER, DFER-CLIP, CLIP-CAER) [26].
+
+  -----------------------------------------------------------------------
+  Phương pháp                           Kiến trúc nền        UAR (%)
+  ------------------------------------- -------------------- ------------
+  3DResNet18 [64]                       CNN 3D               43,98
+
+  I3D [65]                              CNN 3D               44,63
+
+  CAER-NET [41]                         CNN                  45,92
+
+  M3DFEL [66]                           Transformer          50,82
+
+  Former-DFER [67]                      Transformer          51,26
+
+  CLIPER [46]                           CLIP                 53,18
+
+  DFER-CLIP [45]                        CLIP                 61,19
+
+  CLIP-CAER (Baseline) [26]             CLIP                 68
+
+  RAPT-CLIP (Ours)                      CLIP                 73,81
+  -----------------------------------------------------------------------
+
+  : Bảng 4.2- Bảng so sánh với SOTA trên bộ dữ liệu RAER [26].
+
+Từ kết quả ở bảng, có thể rút ra một số nhận xét quan. Thứ nhất, các
+phương pháp dựa trên CNN truyền thống (3DResNet18, I3D, CAER-NET) đạt
+thấp nhất (43-46%), cho thấy các mô hình thuần CNN gặp khó khăn trong
+việc nhận diện cảm xúc học tập tinh vi. Thứ hai, các phương pháp dựa
+trên Transformer (M3DFEL, Former-DFER) cải thiện đáng kể so với CNN nhờ
+khả năng mô hình hóa quan hệ toàn cục, đạt khoảng 50–51% UAR. Thứ ba,
+tất cả các phương pháp dựa trên CLIP đều vượt trội hơn các phương pháp
+không dùng CLIP, khẳng định sức mạnh của biểu diễn đa phương thức đã
+được huấn luyện trước trên quy mô lớn. Đặc biệt, RAPT-CLIP đạ 73,81%
+UAR, vượt baseline CLIP-CAER 5,81% và vượt phương pháp tốt nhất trước đó
+(DFER-CLIP) 12,62%. Kết quả này chứng minh hiệu quả của các cải tiến đề
+xuất bao gồm dual-stream, Face Adapter, Attention Pooling, và Prompt
+Tuning [26], [58].
+
+[A graph showing different colored lines AI-generated content may be
+incorrect.]
+
+Biểu đồ trên minh hoạ quá trình hội tụ của hàm mất mát (Loss) và độ
+chính xác (UAR,WAR) trên tệp huấn luyện và tệp kiểm tra trong 20 epochs.
+Nhìn chung, mô hình có dấu hiệu trồi sụt mạnh ở các epoch đầu tiên do dư
+chấn tinh chỉnh từ pre-trained CLIP, nhưng bắt đầu đi vào ổn định từ
+epoch thứ 8. Mặc dù hiệu suất ở tệp huấn luyện liên tục tăng trưởng đến
+mức hoàn hảo nhưng hiệu năng tổng quát lại đạt ngưỡng và chững lại ở
+~74%. Sự tách biệt giữa hai đường UAR và WAR cũng minh chứng rõ nét cho
+sự chi phối của khuynh hướng mất cân bằng nhãn trong bộ dữ liệu RAER.
+
+[A graph of a test set AI-generated content may be incorrect.]
+
+Nhìn chung mô hình đạt tỷ lệ recall tốt ở trên 5 lớp ít dữ liệu bao gồm
+Neutrality (80.29%), Fatigue(79.49%), Distraction (77.14%), Enjoyment
+(75%) và đặc biệt lớp Confusion là một sự cải thiện đáng kể so với các
+phương pháp cũ. Tuy nhiên có một sự sụt giảm ở lớp Neutrality, đây là
+một sự đánh đổi cần phải có để mô hình có thể nâng cao hiệu suất tổng
+thể nhiều hơn. Với mục đích là nhận diện mức độ tham gia thì việc nhận
+diện các lớp khác ngoài neutrality rõ hơn sẽ giúp định hướng của mô hình
+dễ dàng hơn vì các lớp còn lại thiên về cảm xúc học thuật rõ ràng hơn là
+lớp neutrality, đây là một cảm xúc khá mơ hồ trong học thuật. Hình bên
+dưới là biểu đồ cột so sánh hiệu suất recall từng lớp so với các phương
+pháp đã thực hiện trước.
+
+[A graph of different colored bars AI-generated content may be
+incorrect.]
+
+4.3.2 Kết quả trên bộ dữ liệu DAiSEE
+
+Với những hạn chế nội tại của bộ dữ liệu DAiSEE bao gồm sự thiếu vắng
+hoàn toàn thông tin bối cảnh và việc các nhãn được quy định theo thang
+đo độ lớn tuyến tính (very low đến very high) thay vì biểu hiện cảm xúc
+hay hành vi rõ ràng đã tạo ra rào cản lớn. Bản chất kiến trúc của
+RAPT-CLIP phụ thuộc rất nhiều vào độ phong phú và tính phân biệt của các
+mô tả ngữ nghĩa. Do không thể xây dựng được các chuỗi mô tả thực sự sâu
+sắc cho từng mức độ trên DAiSEE, lợi thế so với khớp đa phương thức của
+mô hình bị suy giảm. Đây là lý do chính giải thích vì sao RAPT-CLIP chỉ
+đạt mức hiệu suất tương đối ổn định trên DAiSEE, thay vì mang lại sự đột
+phá vượt bậc như khi được đánh giá trên bộ dữ liệu giàu ngữ cảnh trên
+RAER. Để dễ dàng so sánh với các nghiên cứu trước nên thang đo WAR được
+áp dụng cho bộ dữ liệu DAiSEE. Kết quả khi áp dụng RAPT-CLIP trên bộ dữ
+liệu là 57.94%.
+
+Bảng 4.3- Kết quả huấn luyện trên bộ dữ liệu DAiSEE.
+
+  ------------------------------------------------------------------------
+      Bộ dữ liệu      Nhãn phân loại   Độ chính xác (WAR)    F1 Scrore
+  ------------------ ----------------- ------------------ ----------------
+      DAiSEE[17]           3 lớp             57.94%            37.28%
+
+  ------------------------------------------------------------------------
+
+[]
+
+Hình 4.4- Kết quả huấn luyện trên bộ dữ liệu DAiSEE.
+
+Kết quả từ bảng trên cho thấy RAPT-CLIP đạt hiệu suất khoảng 58% trên
+DAiSEE. Sở dĩ kết quả này không có sự đột phá vượt bật như trên bộ dữ
+liệu RAER là do những hạn chế nội tại của bộ dữ liệu, bao gồm sự thiếu
+vắng hoàn toàn thông tin bối cảnh, cử chỉ và hành vi cơ thể rõ ràng và
+việc các nhãn được quy định theo thang đo độ lớn tuyến tính thay vì biểu
+hiện cảm xúc hay hành vi rõ ràng. Bản chất kiến trúc của RAPT-CLIP phụ
+thuộc rất nhiều vào độ phong phú và tính phân biệt của các mô tả ngữ
+nghĩa. Do không thể xây dựng được các chuỗi mô tả thực sự sâu sắc cho
+từng mức độ trên bộ DAiSEE, lợi thế bị suy giảm. Tuy nhiên hiệu suất vẫn
+ổn định.
+
+4.3.3 Kết quả trên bộ dữ liệu CAER-S và EMOTIC
+
+Để đánh giá khả năng tổng quát hóa, RAPT-CLIP cũng được thí nghiệm trên
+hai bộ dữ liệu cảm xúc có ngữ cảnh khác. Trên bộ dữ liệu CAER-S, mô hình
+đạt 91,48% UAR, cho thấy RAPT-CLIP hoạt động hiệu quả không chỉ trên cảm
+xúc học tập mà còn trên cảm xúc thông thường trong ngữ cảnh phim truyền
+hình. Trên bộ dữ liệu đa nhãn EMOTIC, mô hình đạt 31,20% mAP, cao hơn
+baseline 3,82%. Kết quả trên cả hai bộ dữ liệu bổ sung khẳng định rằng
+các cải tiến kiến trúc của RAPT-CLIP mang tính tổng quát, không bị tối
+ưu riêng cho bộ dữ liệu RAER [40], [41].
+
+Bảng 4.4- Kết quả huấn luyện trên bộ dữ liệu CAER-S và EMOTIC.
+
+  -----------------------------------------------------------------------
+  Bộ dữ liệu              Nhãn phân loại          Độ chính xác
+  ----------------------- ----------------------- -----------------------
+  CAER-S [41]             7 lớp                   91,48 UAR
+
+  EMOTIC [40]             26 lớp                  31,20 mAP
+  -----------------------------------------------------------------------
+
+[A blue and white chart with black text AI-generated content may be
+incorrect.]
+
+Hình 4.5- Ma trận nhầm lẫn trên bộ dữ liệu CAER-S (91.48 UAR) [41].
+
+[A graph of different colored bars AI-generated content may be
+incorrect.]
+
+4.4 Phân tích đóng góp từng phần (Ablation Study)
+
+Để đánh giá đóng góp của từng thành phần trong mô hình, chúng tôi thực
+hiện ablation study bằng cách lần lượt loại bỏ hoặc thay thế từng module
+và đo tác động lên UAR trên bộ dữ liệu RAER. Kết quả được trình bày
+trong Bảng 4.2.
+
+  ----------------------------------------------------------------------
+  Cấu hình                                                   UAR(%)
+  ---------------------------------------------------------- -----------
+  Mô hình đầy đủ (Warm down)                                 73,81
+
+  Mô hình đầy đủ (Warm up)                                   73,76
+
+  Freeze image encoder                                       71,56
+
+  No weighted random sampler                                 71,20
+
+  Drop path                                                  70,11
+
+  Cross Entrophy loss                                        69,97
+
+  No Mi + DC loss                                            69,30
+
+  Hand crafted prompt                                        68,62
+
+  Face Adapter                                               68,12
+
+  CLS Token                                                  67,45
+  ----------------------------------------------------------------------
+
+  : Bảng 4.5- Ablation trên bộ dữ liệu RAER.
+
+Từ kết quả ablation study, có thể rút ra các kết luận: Attention Pooling
+là thành phần quan trọng nhất trong dự án hiện tại. Việc đầu vào của dự
+án là một chuỗi khung hình không phải ảnh tĩnh để tận dụng sự biến thiên
+của cảm xúc học tập theo thời gian. Đối với baseline Các khung hình đầu
+vào của một video được xem là như nhau - các khung hình chứa cảm xúc
+đúng với nhãn cũng được xem nhẹ như các khung hình khác. Attention
+Pooling sẽ tìm các khung hình đúng với cảm xúc từ đó gán cho nó trọng số
+cao hơn để dễ dàng nhận diện và phân loại hơn. Ngoài ra Face Adapter
+được xem như một ống kính giúp CLIP gốc lọc bớt đi kiến thức chỉ để lại
+đúng những thông tin liên quan đến với cảm xúc học thuật mà thôi. Các
+công nghệ khác cũng góp phần không nhỏ điều chỉnh lần lượt độ chính xác
+của mô hình như LDam loss và prompt tuning giúp nâng cao độ chính xác và
+giảm overfitting [58], [62], [59], [49].
+
+Ngoài Attention Pooling có ảnh hưởng lớn đến độ chính xác của mô hình
+thì toàn ở giải đoạn trước đó là face adapter cũng đóng vai trò quan
+trọng không kém. EAA đóng vai trò như một “ống kính lọc” chuyên biệt
+giúp cho bộ mã hoá CLIP gốc vốn được huấn luyện trên dữ liệu tổng quát
+và đa dạng tập trung vào các đặc trưng liên quan đến biểu cảm khuôn mặt
+trong bối cảnh học thuật. Khi loại bỏ face adapter, mô hình vẫn hoạt
+động nhưng mất khả năng tinh chỉnh đặc trưng khuôn mặt, dẫn đến giảm độ
+chính xcas đặc biệt ở các lớp phụ thuộc vào biểu cảm tinh tế như
+“confusion” và “enjoyment”. Do đó có thể nói face adapter và attention
+pooling là một cặp bài trùng luôn đi chung với nhau.
+
+Hơn hết vì CLIP là một mô hình ngôn ngữ thị giác nên prompt tuninig cũng
+dược xem là một yếu tố không thể thiếu. Kết quả cho thấy mô hình phụ
+thuộc đáng kể vào chất lượng của các mô tả ngữ nghĩa (text prompts). Khi
+sử dụng mô tả cố định hiệu suất đã giảm đi rõ rệt, điều này đã được
+chứng minh ở các nghiên cứu trước đó và cả trong bài báo gốc. Vì thế
+giải pháp đưa ra là kết hợp mô tả cố định với mô tả có thể học (prompt
+learner). Nhưng nếu sử dụng mô tả cố định chúng ta sẽ không thể nào đa
+dạng hoá được các mô tả cho từng nhãn. Nếu như mô tả quá dài CLIP sẽ
+hoạt động không được tốt vì CLIP chỉ nhận một số lượng đầu vào token cố
+định. Do đó việc kết hợp mô tả chuỗi và mô tả cố định đã được thực thi
+trong nghiên cứu lần này. Mô tả chuỗi sẽ giúp có thể đa dạng hoá được
+các mô tả cho từng nhãn và việc bỏ đi mô tả chuỗi thì hiệu suất mô hình
+cũng giảm đi rất nhiều không kém cạnh gì với EAA face adpater và
+attention pooling. Ngoài ra nếu chỉ có mô tả chuỗi và bỏ đi prompt
+tuning thì mô hình sẽ bị overfitting nặng và không tạo được đà để đẩy
+hiệu suất lên đỉnh cao nhất.
+
+Tiếp đến là tầm quan trọng của nhánh ngữ nghĩa(Text Branch) được bộc lộ
+rõ rệt thông qua việc đánh giá trên đặc trưng thị giác thuần tuý. Khi
+loại bỏ hoàn toàn đầu vào văn bản thì UAR giảm cực mạnh xuống hệ số
+57.8%. Điều này chứng tỏ rằng việc mô tả ngữ nghĩa không chỉ là yếu tố
+phụ trợ mà còn đóng vai trò như một hệ quy chiếu định hướng, thiết lập
+ranh giới rõ rõ giữa các lớp cảm xúc có trạng thái vật lý giống nhau.
+
+[A screenshot of a graph AI-generated content may be incorrect.]
+
+Hình 4.7- Kết quả trên bộ dữ liệu RAER khi bỏ đi nhánh văn bản.
+
+Để khai thác thêm tiềm năng của mô hình, chúng tôi áp dụng kỹ thuật
+Test-Time Augmentation (TTA) — tạo nhiều phiên bản biến đổi của ảnh đầu
+vào tại thời điểm kiểm tra và trung bình hóa các dự đoán. Với TTA, UAR
+của RAPT-CLIP tăng từ 73,76% lên 75,66%, cho thấy mô hình có thể hưởng
+lợi từ nhiều quan sát (multi-view) của cùng một mẫu. Kỹ thuật này đặc
+biệt hữu ích trong bối cảnh lớp học thực tế, nơi điều kiện chụp ảnh có
+thể thay đổi (góc nhìn, ánh sáng).
+
+[A graph of confusion matrix with blue squares AI-generated content may
+be incorrect.]
+
+4.5 Phân tích định tính
+
+Để đánh giá chất lượng biểu diễn đặc trưng, chúng tôi sử dụng t-SNE
+(t-Distribution Stochastic Neighbor Embedding) [68] để trực quan hoá
+không gian đặc trưng 512 chiều trên tệp kiểm tra của RAER trong không
+gian 2D. Trước khi fine-tuning(sử dụng CLIP-Pretrain), Các cụm đặc trưng
+của 5 lớp cảm xúc bị trộn lẫn với nhau hoàn, cho thấy CLIP-Pretrained
+tuy mạnh về biểu diễn hình ảnh tổng quát nhưng không có khả năng phân
+biệt các cảm xúc học tập [26], [42]. Sau khi huấn luyện với RAPT-CLIP, 5
+cụm đặc trưng tách biệt ra rõ ràng hơn đáng kể, chứng tỏ mô hình học
+được biểu diễn phân biệt cho từng lớp cảm xúc - kết quả không phải ngẫu
+nhiên mà phản ánh khả năng học thực sự [69].
+
+[A screen shot of a graph AI-generated content may be incorrect.]
+
+[A diagram of a number of dots AI-generated content may be incorrect.]
+
+Hình 4.10- Trực quan hoá t-SNE trên tệp test đối với RAPT-CLIP. 5 cảm
+xúc được tách biệt rõ ràng ra từng cụm.
+
+Ngoài ra chúng tôi sử dụng heatmap để tạo biểu đồ nhiệt trực quan hoá
+vùng ảnh mà mô hình chú ý nhất khi đưa ra dự đoán. Kết quả cho thấy
+[70]: Đối với nhánh khuôn mặt (Face Stream), mô hình tập trung vào các
+Action Units (Đơn vị hành động khuôn mặt) - Ví dụ, vùng miệng và mắt cho
+lớp Neutrality, vùng khoé miệng cho Enjoyment, vùng lông mày cho lớp
+Confusion. Điều này cho thấy Face Adapter giúp CLIP tập trung vào các
+đặc trưng biểu cảm vi mô quan trọng [9], [26], [49]. Đối với nhánh cơ
+thể/ngữ cảnh (Body/Context stream), mô hình chú ý vào tư thế ngồi thẳng
+cho Neutrality, vai rũ xuống và đầu hạ thấp cho Fatigue, và hướng xoay
+cơ thể cho Distraction. Đặc biệt, khi khuôn mặt không rõ ràng hoặc bị
+che khuất, mô hình tự động chuyển sự chú ý sang tư thế và ngữ cảnh cơ
+thể — chứng tỏ kiến trúc dual-stream hoạt động đúng như thiết kế [18],
+[26].
+
+[A collage of images of people AI-generated content may be incorrect.]
+
+Hơn hết, có thể thấy rằng với lý do thiếu đi thông tin ngữ cảnh chính và
+tư thế cơ thể, và đặc biệt là các nhãn tuyến tính rất khó trong việc mô
+tả cho mô hình có thể hiểu được. Vì thế kết quả khi sử dụng biểu đồ
+nhiệt để trực quan hoá hình ảnh gặp đôi chút khó khăn, mô hình nhận diện
+chưa được chính xác tuyệt đối vào các biểu cảm tinh tế của khuôn mặt và
+hơn hết là khó xác định được thông tin phụ.
+
+[][][]
+
+Hình 4.12- Heatmap DragCAM cho các lớp cảm xúc của bộ dữ liệu DAiSEE.
+
+Bên cạnh đó, chúng tôi cũng tiến hành phân tính biểu đồ nhiệt trên bộ dữ
+liệu CAER-S và EMOTIC để đánh giá khả năng trích xuất đặc trưng của mô
+hình trên một miền dữ liệu cảm xúc khác. Kết quả cho thấy mô hình hoạt
+động tốt đúng như kết quả đã đưa ra. Điều này khẳng định tính hiệu quả
+và ổn định của kiến trúc hai nhánh song song, mô hình không chỉ học từ
+biểu cảm khuôn mặt mà còn học từ hành vi cơ thể và môi trường xung
+quang.
+
+[A collage of images of people AI-generated content may be incorrect.]
+
+[]
+
+[A group of people posing for a picture AI-generated content may be
+incorrect.][A group of people sitting on the ground AI-generated content
+may be incorrect.]
+
+Hình 4.14- Heatmap DragCAM cho hình ảnh đa nhãn của bộ dữ liệu emotic.
+
+4.6 Phân tích tính bền vững (Robustness Analysis)
+
+Để đánh giá khả năng hoạt động trong điều kiện thực tế, chúng tôi thực
+hiện ba nhóm thí nghiệm về tính bền vững trên bộ dữ liệu RAER. Kết quả
+được trình bày trong bảng.
+
+  -----------------------------------------------------------------------
+  Phương pháp nhiễu                                        UAR(%)
+  -------------------------------------------------------- --------------
+  Không nhiễu (Baseline)                                   73,81
+
+  Nhiễu Gaussion ([] σ = 0, 1)                             69,76
+
+  Nhiễu Gaussion (σ = 0, 3)                                39,89
+
+  Nhiễu Gaussion (σ = 0, 5)                                27.91
+
+  Xáo trộn thời gian                                       71.68
+
+  Xoá ngẫu nhiên khuôn mặt                                 64.5
+
+  Xoá ngẫu nhiên cơ thể                                    54.2
+
+  Loại bỏ nhánh khuôn mặt                                  54.15
+
+  Loại bỏ nhánh cơ thể/ ngữ cảnh                           62.29
+  -----------------------------------------------------------------------
+
+  : Bảng 4.6- Phân tích tính bền vững của mô hình RAPT-CLIP trên bộ dữ
+  liệu RAER.
+
+Dữ liệu từ thực nghiệm cho thấy mô hình duy trì tính ổn định tương đối
+trước độ nhiễu nhẹ. UAR chỉ bị giao động trong mức 4% so với điều kiện
+thuận lợi và vẫn vượt mặt được bài báo gốc. Tuy nhiên khi tăng lên mức
+0.3 và 0.5 nghĩa là nhiễu nặng hơn thì mô hình suy giảm rất nhiều. Điều
+này cũng dễ hiểu vì cấu trúc nhiễu phá vỡ các đặc trưng hình thái, nhánh
+thị giác mất dần thông tin, dẫn tới việc chỉ còn định hướng dựa vào
+nhánh văn bản. Điều này củng cố thêm rằng nhánh văn bản cũng quan trọng
+không kém gì so với nhánh hình ảnh và việc kết hợp lại hai nhánh này mới
+thật sự mang lại hiệu quả cao.
+
+Ngoài ra để trả lời cho câu hỏi mô hình sẽ phản ứng ra sao nếu một phần
+cơ thể hoặc bối cảnh xung quanh học sinh bị che khất ngẫu nhiên, một kỹ
+thuật đã được áp dụng. Kỹ thuật này chính là việc xoá đi nhánh cơ thể/
+ngữ cảnh của mô hình thì kết quả đạt được là 62.29% cho thấy mô hình phụ
+thuộc khá nhiều về ngữ cảnh. Ngoài ra, khi xoá đi nhánh khuôn mặt độ
+chính xác giảm đi nhiều, chỉ còn 54.15 cho thấy mô hình nhận diện khuôn
+mặt tốt. Từ hai dữ liệu trên, chứng minh rằng mô hình mạnh ở nhận diện
+cảm xúc qua khuôn mặt và ngữ cảnh hay cử chỉ và hành vi cơ thể là một
+yếu tố then chốt ảnh hưởng trực tiếp đến hiệu xuất của mô hình.
+
+Trong môi trường lớp học thực tế, không phải lúc nào chuỗi hành động của
+học sinh cũng tuân theo một kịch bản hoặc thứ tự mượt mà, việc trễ khung
+hình (drop frames) từ camera là rất phổ biến. Để kiểm chứng tính linh
+hoạt của mô hình trước các sự cố về thứ tự khung hình, phép xáo trộn
+thời gian đã được áp dụng (Temporal Shuffling) và hiệu xuất giảm đi một
+chút với UAR là 71.68%.. Việc xáo trộn khung thời gian có tạo ra sự sụt
+giảm hiệu năng, mức độ rất nhỏ. Điều này chỉ ra hai tính chất đắt giá
+trong việc thiết kế mô-đun thời gian của mô hình: Thứ nhất, tính liên
+kết tuần tự giúp hệ thống dễ phán đoán diễn biến cảm xúc hơn. Tuy nhiên
+hệ thống không bị trói buộc cứng nhắc vào mốc thời gian diễn ra hành
+động. Cơ chế attention pooling cho phép mô hình tự động rà quét toàn bộ
+video và đánh giá trọng số tối đa cho những “khung hình vàng” chứa biểu
+cảm cốt lõi nhất, bất chấp việc những khung hình này đã bị hoán đổi vị
+trí xuất hiện so với thực tế.
+
+[A graph of different colored rectangular bars AI-generated content may
+be incorrect.]
+
+Hình 4.15- Ảnh hưởng của các nhiễu động cấu trúc (Temporal Shuffling, Random Erasing, drop face và body) lên hiệu suất UAR của mô hình trên bộ dữ liệu RAER.
+
+4.7 Thảo luận
+
+Tổng hợp các kết quả thí nghiệm, có thể rút ra các kết luận chính sau:
+Thứ nhất, RAPT-CLIP đạt kết quả state-of-the-art trên bộ dữ liệu RAER
+với 73,81% UAR (75,66% với TTA), vượt trội so với tất cả các phương pháp
+so sánh. Khoảng cách lớn giữa RAPT-CLIP và các phương pháp dựa trên CNN
+(gần 30%) khẳng định ưu thế của kết hợp Vision-Language Model với kiến
+trúc dual-stream. Thứ hai, khả năng tổng quát hóa tốt trên CAER-S
+(91,48%) và EMOTIC (31,20% mAP) chứng tỏ các cải tiến kiến trúc mang
+tính phổ quát, không bị gắn chặt với một bộ dữ liệu cụ thể. Thứ ba,
+ablation study cho thấy mỗi thành phần đều đóng góp có ý nghĩa, trong đó
+Attention Pooling là quan trọng nhất, tiếp theo là Learnable Prompts và
+LDAM Loss. Thứ tư, mô hình thể hiện tính bền vững tốt trước nhiễu
+Gaussian nhẹ và xáo trộn thời gian, đồng thời xác nhận vai trò không thể
+thiếu của thông tin cơ thể/ngữ cảnh. Tuy nhiên, mô hình vẫn nhạy cảm khi
+thông tin ngữ cảnh bị mất hoàn toàn, gợi ý hướng cải tiến trong tương
+lai về tính bền vững của nhánh khuôn mặt.
+
+ 
+
+CHƯƠNG 5: KẾT LUẬN VÀ HƯỚNG PHÁT TRIỂN
+
+5.1 Kết luận
+
+Trong nghiên cứu này, chúng tôi cung cấp RAPT-CLIP, một phương pháp xử
+lý ngôn ngữ hình ảnh hai luồng được thiết kế để xác định cảm xúc học
+thuật từ các đoạn phim trong lớp học. Mô hình của chúng tôi nắm bắt hiệu
+quả bản chất tinh tế và đa diện của cảm xúc học thuật bằng cách mở rộng
+mô hình CLIP-CAER cơ bản [26] với kiến ​​trúc ViT-B/16 mạnh mẽ hơn [9], bộ
+điều hợp nhận biết biểu cảm (EAA) [49] để thích ứng với các biểu cảm nhỏ
+trên khuôn mặt, bộ chuyển đổi thời gian với khả năng học tập Attention
+Pooling [59], và chiến lược nhắc nhở kép được điều chỉnh bằng hàm mất
+mát thông tin tương hỗ (MI) và hàm khử tương quan (DC) [58].Để giải
+quyết sự khác biệt lớn về quy mô lớp học trong các tập dữ liệu lớp học,
+chúng tôi đã sử dụng hàm mất mát cạnh nhận biết phân phối nhãn (LDAM)
+[62] và bộ lấy mẫu ngẫu nhiên có trọng số. Các thử nghiệm mở rộng trên
+bốn bộ dữ liệu tiêu chuẩn đã chứng minh hiệu suất cạnh tranh: 73,81% UAR
+trên bộ dữ liệu lớp RAER (+5,81% so với CLIP-CAER [26]), 91,48% UAR trên
+CAER-S [41], 31,20% mAP trên EMOTIC [40]. Các nghiên cứu phân tích toàn
+diện đã xác nhận tầm quan trọng của từng thành phần, trong khi hình ảnh
+hóa định tính bằng GradCAM [70] và t-SNE [68] đã cung cấp bằng chứng rõ
+ràng về quy trình ra quyết định của mô hình. Điều tra về tính mạnh mẽ đã
+xác nhận thêm độ tin cậy của mô hình khi có nhiễu cấu trúc thực sự và
+các tình huống nhiễu loạn.
+
+5.2 Hướng phát triển
+
+Công việc trong tương lai sẽ tập trung vào: (1) mở rộng bộ dữ liệu RAER,
+đặc biệt là thu thập thêm mẫu cho các lớp chưa được đại diện đầy đủ như
+Nhầm lẫn, cải thiện chất lượng của bộ dữ liệu thành nửa phần thân trên
+của cơ thể, đa dạng hơn về tư thế cơ thể và tư thế đầu. Mở rộng bộ dữ
+liệu thành lớp học trực tuyến để tận dụng “Eye-tracking”. (2) kết hợp
+các phương pháp âm thanh (ngữ điệu, tiếng ồn trong lớp học) để thu được
+các tín hiệu đa phương thức phong phú hơn, tích hợp bộ khung xương con
+người (Skeleton) và đào sâu hơn về chiều sâu của ảnh. (3) phát triển một
+hệ thống người dùng cuối tích hợp để phát hiện khuôn mặt và cơ thể theo
+thời gian thực để triển khai trong lớp học, quan sát tình trạng học sinh
+trực tiếp để phục vụ cho công việc dạy học trực tiếp và trực tuyến nhờ
+đó nâng cao chất lượng dạy học. (4) nâng cấp và cải thiện cụ thể vấn đề
+quá khớp dữ liệu và giảm khoảng cách giữa WAR và UAR.
+
+ 
+
+TÀI LIỆU THAM KHẢO
+
+[1] W. Gan, Z. Qi, J. Wu, and J. C.-W. Lin, “Large Language Models in
+Education: Vision and Opportunities,” Nov. 22, 2023, arXiv:
+arXiv:2311.13160. doi: 10.48550/arXiv.2311.13160.
+
+[2] D. A. Saini, Mrs. D. Sharma, and Mrs. K. Tripathi, “ARTIFICIAL
+INTELLIGENCE (AI) IN EDUCATION: USING AI TOOLS FOR TEACHING AND LEARNING
+PROCESS,” IJIREEICE, vol. 13, no. 2, Feb. 2025, doi:
+10.17148/IJIREEICE.2025.13206.
+
+[3] N. Xie, Z. Li, H. Lu, W. Pang, J. Song, and B. Lu, “MSC-Trans: A
+Multi-Feature-Fusion Network With Encoding Structure for Student
+Engagement Detecting,” IEEE Trans. Learn. Technol., vol. 18, pp.
+243–255, 2025, doi: 10.1109/TLT.2025.3530457.
+
+[4] M. A. A. Dewan, M. Murshed, and F. Lin, “Engagement detection in
+online learning: a review,” Smart Learn. Environ., vol. 6, no. 1, p. 1,
+Dec. 2019, doi: 10.1186/s40561-018-0080-z.
+
+[5] C.-H. Wu et al., “CMOSE: Comprehensive Multi-Modality Online Student
+Engagement Dataset with High-Quality Labels,” in 2024 IEEE/CVF
+Conference on Computer Vision and Pattern Recognition Workshops (CVPRW),
+Seattle, WA, USA: IEEE, Jun. 2024, pp. 4636–4645. doi:
+10.1109/CVPRW63382.2024.00466.
+
+[6] R. Yulius, M. F. A. Nasrullah, and R. Haris, “Facial Expression
+Classification on Student Data Using KAN and MLP: Comparative Study and
+Ensemble Strategy,” in Proceedings of the 8th International Conference
+on Applied Engineering (ICAE 2025), vol. 290, H. Widiastuti, T. G.
+Ningsih, A. Riyadi, A. Dwijotomo, and D. Istardi, Eds., in Advances in
+Engineering Research, vol. 290. , Dordrecht: Atlantis Press
+International BV, 2025, pp. 151–172. doi: 10.2991/978-94-6463-982-7_10.
+
+[7] A. Xenos, N. M. Foteinopoulou, I. Ntinou, I. Patras, and G.
+Tzimiropoulos, “VLLMs Provide Better Context for Emotion Understanding
+Through Common Sense Reasoning,” Jul. 15, 2025, arXiv: arXiv:2404.07078.
+doi: 10.48550/arXiv.2404.07078.
+
+[8] M.-H. Hoang, S.-H. Kim, H.-J. Yang, and G.-S. Lee, “Context-Aware
+Emotion Recognition Based on Visual Relationship Detection,” IEEE
+Access, vol. 9, pp. 90465–90474, 2021, doi: 10.1109/ACCESS.2021.3091169.
+
+[9] S. Liu, X. Mao, S. Zhao, P. Li, T. Xu, and E. Chen, “MER-CLIP:
+AU-Guided Vision-Language Alignment for Micro-Expression Recognition,”
+May 09, 2025, arXiv: arXiv:2505.05937. doi: 10.48550/arXiv.2505.05937.
+
+[10] H. Zheng, S. Yang, Z. He, J. Yang, and Z. Huang, “Hierarchical
+Cross-modal Prompt Learning for Vision-Language Models”.
+
+[11] O. M. Nezami, M. Dras, L. Hamey, D. Richards, S. Wan, and C. Paris,
+“Automatic Recognition of Student Engagement using Deep Learning and
+Facial Expression,” Jul. 08, 2019, arXiv: arXiv:1808.02324. doi:
+10.48550/arXiv.1808.02324.
+
+[12] N. Bosch and S. D’Mello, “The Affective Experience of Novice
+Computer Programmers,” Int. J. Artif. Intell. Educ., vol. 27, no. 1, pp.
+181–206, Mar. 2017, doi: 10.1007/s40593-015-0069-5.
+
+[13] R. Reisenzein, M. Junge, M. Studtmann, and O. Huber, “Observational
+Approaches to the Measurement of Emotions,” in International Handbook of
+Emotions in Education, Routledge, 2013. doi: 10.4324/9780203148211.ch29.
+
+[14] R. Pekrun, T. Goetz, W. Titz, and R. P. Perry, “Academic Emotions
+in Students’ Self-Regulated Learning and Achievement: A Program of
+Qualitative and Quantitative Research,” Educ. Psychol., vol. 37, no. 2,
+pp. 91–105, Jan. 2002, doi: 10.1207/S15326985EP3702_4.
+
+[15] W. Lu, Y. Yang, R. Song, Y. Chen, T. Wang, and C. Bian, “A Video
+Dataset for Classroom Group Engagement Recognition,” Sci. Data, vol. 12,
+no. 1, p. 644, Apr. 2025, doi: 10.1038/s41597-025-04987-w.
+
+[16] L. Subramainan and M. A., “A Systematic Review on Students’
+Engagement in Classroom: Indicators, Challenges and Computational
+Techniques,” Int. J. Adv. Comput. Sci. Appl., vol. 11, no. 1, 2020, doi:
+10.14569/IJACSA.2020.0110113.
+
+[17] A. Gupta, A. D’Cunha, K. Awasthi, and V. Balasubramanian, “DAiSEE:
+Towards User Engagement Recognition in the Wild,” Jul. 07, 2022, arXiv:
+arXiv:1609.01885. doi: 10.48550/arXiv.1609.01885.
+
+[18] I. Qarbal, N. Sael, and S. Ouahabi, “Student’s Engagement Detection
+Based on Computer Vision: A Systematic Literature Review,” IEEE Access,
+vol. 13, pp. 140519–140545, 2025, doi: 10.1109/ACCESS.2025.3596885.
+
+[19] N. Alruwais and M. Zakariah, “Student-Engagement Detection in
+Classroom Using Machine Learning Algorithm,” Electronics, vol. 12, no.
+3, p. 731, Feb. 2023, doi: 10.3390/electronics12030731.
+
+[20] C. Llurba, G. Fretes, and R. Palau, “Classroom Emotion Monitoring
+Based on Image Processing,” Sustainability, vol. 16, no. 2, p. 916, Jan.
+2024, doi: 10.3390/su16020916.
+
+[21] J. Whitehill, Z. Serpell, Y.-C. Lin, A. Foster, and J. R. Movellan,
+“The Faces of Engagement: Automatic Recognition of Student
+Engagementfrom Facial Expressions,” IEEE Trans. Affect. Comput., vol. 5,
+no. 1, pp. 86–98, Jan. 2014, doi: 10.1109/TAFFC.2014.2316163.
+
+[22] N. Le, K. Nguyen, Q. Tran, E. Tjiputra, B. Le, and A. Nguyen,
+“Uncertainty-aware Label Distribution Learning for Facial Expression
+Recognition,” Sep. 21, 2022, arXiv: arXiv:2209.10448. doi:
+10.48550/arXiv.2209.10448.
+
+[23] S. Zhalehpour, O. Onder, Z. Akhtar, and C. E. Erdem, “BAUM-1: A
+Spontaneous Audio-Visual Face Database of Affective and Mental States,”
+IEEE Trans. Affect. Comput., vol. 8, no. 3, pp. 300–313, Jul. 2017, doi:
+10.1109/TAFFC.2016.2553038.
+
+[24] Q. Zhu, H. Zhuang, M. Zhao, S. Xu, and R. Meng, “A study on
+expression recognition based on improved mobilenetV2 network,” Sci.
+Rep., vol. 14, no. 1, p. 8121, Apr. 2024, doi:
+10.1038/s41598-024-58736-x.
+
+[25] P. Lucey, J. F. Cohn, T. Kanade, J. Saragih, Z. Ambadar, and I.
+Matthews, “The Extended Cohn-Kanade Dataset (CK+): A complete dataset
+for action unit and emotion-specified expression,” in 2010 IEEE Computer
+Society Conference on Computer Vision and Pattern Recognition -
+Workshops, San Francisco, CA, USA: IEEE, Jun. 2010, pp. 94–101. doi:
+10.1109/CVPRW.2010.5543262.
+
+[26] L. Zhao, J. Xuan, J. Lou, Y. Yu, and W. Yang, “Context-Aware
+Academic Emotion Dataset and Benchmark,” Jul. 01, 2025, arXiv:
+arXiv:2507.00586. doi: 10.48550/arXiv.2507.00586.
+
+[27] X. Tang, Y. Gong, Y. Xiao, J. Xiong, and L. Bao, “Facial Expression
+Recognition for Probing Students’ Emotional Engagement in Science
+Learning,” J. Sci. Educ. Technol., vol. 34, no. 1, pp. 13–30, Feb. 2025,
+doi: 10.1007/s10956-024-10143-7.
+
+[28] J. A. Fredricks, P. C. Blumenfeld, and A. H. Paris, “School
+Engagement: Potential of the Concept, State of the Evidence,” Rev. Educ.
+Res., vol. 74, no. 1, pp. 59–109, Mar. 2004, doi:
+10.3102/00346543074001059.
+
+[29] R. Pekrun, “The Control-Value Theory of Achievement Emotions:
+Assumptions, Corollaries, and Implications for Educational Research and
+Practice,” Educ. Psychol. Rev., vol. 18, no. 4, pp. 315–341, Nov. 2006,
+doi: 10.1007/s10648-006-9029-9.
+
+[30] J. D. Finn and K. S. Zimmer, “Student Engagement: What Is It? Why
+Does It Matter?,” in Handbook of Research on Student Engagement, S. L.
+Christenson, A. L. Reschly, and C. Wylie, Eds., Boston, MA: Springer US,
+2012, pp. 97–131. doi: 10.1007/978-1-4614-2018-7_5.
+
+[31] E. A. Skinner and J. R. Pitzer, “Developmental Dynamics of Student
+Engagement, Coping, and Everyday Resilience,” in Handbook of Research on
+Student Engagement, S. L. Christenson, A. L. Reschly, and C. Wylie,
+Eds., Boston, MA: Springer US, 2012, pp. 21–44. doi:
+10.1007/978-1-4614-2018-7_2.
+
+[32] S. L. Christenson, A. L. Reschly, and C. Wylie, Eds., Handbook of
+Research on Student Engagement. Boston, MA: Springer US, 2012. doi:
+10.1007/978-1-4614-2018-7.
+
+[33] L. Marquez-Carpintero et al., “DIPSER: A Dataset for In-Person
+Student Engagement Recognition in the Wild,” Mar. 02, 2025, arXiv:
+arXiv:2502.20209. doi: 10.48550/arXiv.2502.20209.
+
+[34] Y. Khaireddin and Z. Chen, “Facial Emotion Recognition: State of
+the Art Performance on FER2013,” May 08, 2021, arXiv: arXiv:2105.03588.
+doi: 10.48550/arXiv.2105.03588.
+
+[35] A. V. Savchenko, “Facial expression and attributes recognition
+based on multi-task learning of lightweight neural networks,” in 2021
+IEEE 19th International Symposium on Intelligent Systems and Informatics
+(SISY), Sep. 2021, pp. 119–124. doi: 10.1109/SISY52375.2021.9582508.
+
+[36] A. Dosovitskiy et al., “An Image is Worth 16x16 Words: Transformers
+for Image Recognition at Scale,” Jun. 03, 2021, arXiv: arXiv:2010.11929.
+doi: 10.48550/arXiv.2010.11929.
+
+[37] Y. Wang et al., “A Survey on Facial Expression Recognition of
+Static and Dynamic Emotions”.
+
+[38] T. Kopalidis, V. Solachidis, N. Vretos, and P. Daras, “Advances in
+Facial Expression Recognition: A Survey of Methods, Benchmarks, Models,
+and Datasets,” Information, vol. 15, no. 3, p. 135, Feb. 2024, doi:
+10.3390/info15030135.
+
+[39] H. Aviezer et al., “Angry, Disgusted, or Afraid?: Studies on the
+Malleability of Emotion Perception,” Psychol. Sci., vol. 19, no. 7, pp.
+724–732, Jul. 2008, doi: 10.1111/j.1467-9280.2008.02148.x.
+
+[40] R. Kosti, J. M. Alvarez, A. Recasens, and A. Lapedriza, “Context
+Based Emotion Recognition using EMOTIC Dataset,” IEEE Trans. Pattern
+Anal. Mach. Intell., pp. 1–1, 2019, doi: 10.1109/TPAMI.2019.2916866.
+
+[41] J. Lee, S. Kim, S. Kim, J. Park, and K. Sohn, “Context-Aware
+Emotion Recognition Networks,” Aug. 16, 2019, arXiv: arXiv:1908.05913.
+doi: 10.48550/arXiv.1908.05913.
+
+[42] A. Radford et al., “Learning Transferable Visual Models From
+Natural Language Supervision”.
+
+[43] K. Zhou, J. Yang, C. C. Loy, and Z. Liu, “Conditional Prompt
+Learning for Vision-Language Models,” Oct. 06, 2022, arXiv:
+arXiv:2203.05557. doi: 10.48550/arXiv.2203.05557.
+
+[44] K. Zhou, J. Yang, C. C. Loy, and Z. Liu, “Learning to Prompt for
+Vision-Language Models,” Int. J. Comput. Vis., vol. 130, no. 9, pp.
+2337–2348, Sep. 2022, doi: 10.1007/s11263-022-01653-1.
+
+[45] Z. Zhao and I. Patras, “Prompting Visual-Language Models for
+Dynamic Facial Expression Recognition,” Nov. 26, 2024, arXiv:
+arXiv:2308.13382. doi: 10.48550/arXiv.2308.13382.
+
+[46] H. Li, H. Niu, Z. Zhu, and F. Zhao, “CLIPER: A Unified
+Vision-Language Framework for In-the-Wild Facial Expression
+Recognition,” in 2024 IEEE International Conference on Multimedia and
+Expo (ICME), Niagara Falls, ON, Canada: IEEE, Jul. 2024, pp. 1–6. doi:
+10.1109/ICME57554.2024.10687508.
+
+[47] R. C. Pianta and B. K. Hamre, “Conceptualization, Measurement, and
+Improvement of Classroom Processes: Standardized Observation Can
+Leverage Capacity,” Educ. Res., vol. 38, no. 2, pp. 109–119, Mar. 2009,
+doi: 10.3102/0013189X09332374.
+
+[48] V. Soloviev, “Machine learning approach for student engagement
+automatic recognition from facial expressions,” Sci. Publ. State Univ.
+Novi Pazar Ser. Appl. Math. Inform. Mech., vol. 10, no. 2, pp. 79–86,
+2018, doi: 10.5937/SPSUNP1802079S.
+
+[49] J. Huan, M. Li, and H. Zhou, “Emotion-aware adaptation of CLIP
+model for facial expression recognition,” Artif. Intell. Rev., vol. 59,
+no. 2, p. 66, Dec. 2025, doi: 10.1007/s10462-025-11468-4.
+
+[50] “2405.04251v1.”
+
+[51] K. He, X. Zhang, S. Ren, and J. Sun, “Deep Residual Learning for
+Image Recognition,” Dec. 10, 2015, arXiv: arXiv:1512.03385. doi:
+10.48550/arXiv.1512.03385.
+
+[52] A. Vaswani et al., “Attention Is All You Need,” Aug. 02, 2023,
+arXiv: arXiv:1706.03762. doi: 10.48550/arXiv.1706.03762.
+
+[53] D. Bahdanau, K. Cho, and Y. Bengio, “Neural Machine Translation by
+Jointly Learning to Align and Translate,” May 19, 2016, arXiv:
+arXiv:1409.0473. doi: 10.48550/arXiv.1409.0473.
+
+[54] J. L. Ba, J. R. Kiros, and G. E. Hinton, “Layer Normalization,”
+Jul. 21, 2016, arXiv: arXiv:1607.06450. doi: 10.48550/arXiv.1607.06450.
+
+[55] J. Devlin, M.-W. Chang, K. Lee, and K. Toutanova, “BERT:
+Pre-training of Deep Bidirectional Transformers for Language
+Understanding,” May 24, 2019, arXiv: arXiv:1810.04805. doi:
+10.48550/arXiv.1810.04805.
+
+[56] C. Sun, A. Shrivastava, S. Singh, and A. Gupta, “Revisiting
+Unreasonable Effectiveness of Data in Deep Learning Era,” Aug. 04, 2017,
+arXiv: arXiv:1707.02968. doi: 10.48550/arXiv.1707.02968.
+
+[57] O. Russakovsky et al., “ImageNet Large Scale Visual Recognition
+Challenge,” Jan. 30, 2015, arXiv: arXiv:1409.0575. doi:
+10.48550/arXiv.1409.0575.
+
+[58] Q. Zhang, “Generalizable Prompt Tuning for Vision-Language Models,”
+Jan. 22, 2025, arXiv: arXiv:2410.03189. doi: 10.48550/arXiv.2410.03189.
+
+[59] J. Zang et al., “Attention-based Temporal Weighted Convolutional
+Neural Network for Action Recognition,” Mar. 19, 2018, arXiv:
+arXiv:1803.07179. doi: 10.48550/arXiv.1803.07179.
+
+[60] K. He, H. Fan, Y. Wu, S. Xie, and R. Girshick, “Momentum Contrast
+for Unsupervised Visual Representation Learning,” Mar. 23, 2020, arXiv:
+arXiv:1911.05722. doi: 10.48550/arXiv.1911.05722.
+
+[61] N. Houlsby et al., “Parameter-Efficient Transfer Learning for NLP,”
+Jun. 13, 2019, arXiv: arXiv:1902.00751. doi: 10.48550/arXiv.1902.00751.
+
+[62] K. Cao, C. Wei, A. Gaidon, N. Arechiga, and T. Ma, “Learning
+Imbalanced Datasets with Label-Distribution-Aware Margin Loss,” Oct. 27,
+2019, arXiv: arXiv:1906.07413. doi: 10.48550/arXiv.1906.07413.
+
+[63] R. Das and S. Dev, “Optimizing student engagement detection using
+facial and behavioral features,” Neural Comput. Appl., vol. 37, no. 23,
+pp. 19063–19085, Aug. 2025, doi: 10.1007/s00521-025-11317-z.
+
+[64] K. Hara, H. Kataoka, and Y. Satoh, “Can Spatiotemporal 3D CNNs
+Retrace the History of 2D CNNs and ImageNet?,” Apr. 02, 2018, arXiv:
+arXiv:1711.09577. doi: 10.48550/arXiv.1711.09577.
+
+[65] J. Carreira and A. Zisserman, “Quo Vadis, Action Recognition? A New
+Model and the Kinetics Dataset,” Feb. 12, 2018, arXiv: arXiv:1705.07750.
+doi: 10.48550/arXiv.1705.07750.
+
+[66] H. Wang et al., “Rethinking the Learning Paradigm for Dynamic
+Facial Expression Recognition,” in 2023 IEEE/CVF Conference on Computer
+Vision and Pattern Recognition (CVPR), Vancouver, BC, Canada: IEEE, Jun.
+2023, pp. 17958–17968. doi: 10.1109/CVPR52729.2023.01722.
+
+[67] Z. Zhao and Q. Liu, “Former-DFER: Dynamic Facial Expression
+Recognition Transformer,” in Proceedings of the 29th ACM International
+Conference on Multimedia, Virtual Event China: ACM, Oct. 2021, pp.
+1553–1561. doi: 10.1145/3474085.3475292.
+
+[68] “[17]_van_der_Maaten_2008_tSNE.”
+
+[69] Y. Qiao, Y. Hu, and L. Zhao, “Multimodal Representation Learning
+Conditioned on Semantic Relations,” Aug. 24, 2025, arXiv:
+arXiv:2508.17497. doi: 10.48550/arXiv.2508.17497.
+
+[70] R. R. Selvaraju, M. Cogswell, A. Das, R. Vedantam, D. Parikh, and
+D. Batra, “Grad-CAM: Visual Explanations from Deep Networks via
+Gradient-based Localization,” Int. J. Comput. Vis., vol. 128, no. 2, pp.
+336–359, Feb. 2020, doi: 10.1007/s11263-019-01228-7.

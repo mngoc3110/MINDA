@@ -9,8 +9,7 @@ import tempfile
 
 from google import genai
 from google.genai import types
-
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+from app.services.gemini_key_manager import get_next_gemini_key
 
 PROMPT = """
 You are an expert Math Teacher in Vietnam. I am giving you an exam paper.
@@ -67,14 +66,15 @@ You are an expert Math Teacher in Vietnam. I am giving you an exam paper.
 - Set "correctAnswer" to "" for short answer.
 - Set "explanation" to "" for all questions.
 - Use LaTeX notation for math: $x^2$, $\\frac{a}{b}$, $\\sqrt{x}$
+- For data tables (frequency tables, statistics tables, measurement tables), convert them to LaTeX array format INSIDE the question text using display math. Format: $$\\begin{array}{|l|c|c|c|} \\hline \\text{Header1} & \\text{Header2} & \\text{Header3} \\\\ \\hline \\text{Data1} & 5 & 10 \\\\ \\hline \\end{array}$$ Use \\text{} for Vietnamese text cells. Use \\hline for horizontal rules. Use | in the column spec for vertical rules.
+- For complex drawings, TikZ diagrams, coordinate graphs, or variation tables (bảng biến thiên), replace with "[Hình vẽ - Vui lòng xem ảnh đính kèm]".
 - DO NOT output ANY markdown. Just the raw JSON object.
 """
 
 MODELS_TO_TRY = [
-    "gemini-flash-latest",
     "gemini-2.5-flash",
-    "gemini-2.0-flash-lite",
     "gemini-2.0-flash",
+    "gemini-2.0-flash-lite",
 ]
 
 
@@ -93,10 +93,11 @@ def parse_exam_with_gemini(file_bytes: bytes, mime_type: str) -> dict:
     """
     Giai de thi tu file PDF/Image bang Gemini API.
     """
-    if not GEMINI_API_KEY:
-        raise ValueError("GEMINI_API_KEY chua duoc cau hinh trong .env")
+    key = get_next_gemini_key()
+    if not key:
+        raise ValueError("Khong tim thay GEMINI_API_KEY nao.")
 
-    client = genai.Client(api_key=GEMINI_API_KEY)
+    client = genai.Client(api_key=key)
 
     # Save to temp file for upload
     suffix = ".pdf" if "pdf" in mime_type else ".png"
@@ -142,8 +143,11 @@ def parse_exam_with_gemini(file_bytes: bytes, mime_type: str) -> dict:
                 except Exception as e:
                     last_error = e
                     err_str = str(e)
-                    if "429" in err_str or "503" in err_str or "RESOURCE_EXHAUSTED" in err_str:
-                        time.sleep(30 * (attempt + 1))
+                    if "429" in err_str or "503" in err_str or "RESOURCE_EXHAUSTED" in err_str or "403" in err_str or "PERMISSION_DENIED" in err_str:
+                        new_key = get_next_gemini_key()
+                        print(f"[Gemini Parser] Error {err_str[:30]}. Switching API key...")
+                        client = genai.Client(api_key=new_key)
+                        time.sleep(2)
                     else:
                         break
             if response:
@@ -168,10 +172,11 @@ def parse_latex_with_gemini(latex_text: str) -> dict:
     """
     Giai de thi tu noi dung LaTeX (.tex) bang Gemini API.
     """
-    if not GEMINI_API_KEY:
-        raise ValueError("GEMINI_API_KEY chua duoc cau hinh trong .env")
+    key = get_next_gemini_key()
+    if not key:
+        raise ValueError("Khong tim thay GEMINI_API_KEY nao.")
 
-    client = genai.Client(api_key=GEMINI_API_KEY)
+    client = genai.Client(api_key=key)
     
     # Prompt tuy chinh cho LaTeX text
     latex_prompt = PROMPT + "\n\nExam Content (LaTeX Source Code):\n" + latex_text
@@ -191,8 +196,12 @@ def parse_latex_with_gemini(latex_text: str) -> dict:
                 break
             except Exception as e:
                 last_error = e
-                if "429" in str(e) or "503" in str(e):
-                    time.sleep(10 * (attempt + 1))
+                err_str = str(e)
+                if "429" in err_str or "503" in err_str or "RESOURCE_EXHAUSTED" in err_str or "403" in err_str or "PERMISSION_DENIED" in err_str:
+                    new_key = get_next_gemini_key()
+                    print(f"[Gemini Parser] Error {err_str[:30]}. Switching API key...")
+                    client = genai.Client(api_key=new_key)
+                    time.sleep(2)
                 else:
                     break
         if response:

@@ -4,19 +4,36 @@
 
 ▲ Next.js 16.2.2 (Turbopack)
 - Local:         http://localhost:3000
-- Network:       http://192.168.89.110:3000
+- Network:       http://192.168.1.157:3000
 - Environments: .env.local
-✓ Ready in 440ms
+✓ Ready in 437ms
 
-⚠ Unsupported metadata themeColor is configured in metadata export in /live. Please move it to viewport export instead.
+  Reload env: .env.local
+⚠ Unsupported metadata themeColor is configured in metadata export in /pdf-tools. Please move it to viewport export instead.
 Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
-⚠ Unsupported metadata viewport is configured in metadata export in /live. Please move it to viewport export instead.
+⚠ Unsupported metadata viewport is configured in metadata export in /pdf-tools. Please move it to viewport export instead.
 Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
- GET /live 200 in 310ms (next.js: 145ms, application-code: 165ms)
-⚠ Unsupported metadata themeColor is configured in metadata export in /live/[room_id]. Please move it to viewport export instead.
+ GET /pdf-tools 200 in 2.2s (next.js: 1990ms, application-code: 173ms)
+⚠ Unsupported metadata themeColor is configured in metadata export in /pdf-tools. Please move it to viewport export instead.
 Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
-⚠ Unsupported metadata viewport is configured in metadata export in /live/[room_id]. Please move it to viewport export instead.
+⚠ Unsupported metadata viewport is configured in metadata export in /pdf-tools. Please move it to viewport export instead.
 Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
- GET /live/study-a 200 in 1226ms (next.js: 1208ms, application-code: 18ms)
+ GET /pdf-tools 200 in 142ms (next.js: 61ms, application-code: 81ms)
+⚠ Unsupported metadata themeColor is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata viewport is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata themeColor is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata viewport is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ GET /login 200 in 43ms (next.js: 22ms, application-code: 21ms)
+⚠ Unsupported metadata themeColor is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata viewport is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ GET /login 200 in 21ms (next.js: 1465µs, application-code: 20ms)
+ GET /login 200 in 12ms (next.js: 1178µs, application-code: 10ms)
 [browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+✓ Compiled in 489ms
 [?25h

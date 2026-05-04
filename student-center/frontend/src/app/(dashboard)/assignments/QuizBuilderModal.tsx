@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { X, Upload, Wand2, Loader2, Plus, Trash2, CheckSquare, List, ImagePlus, ChevronDown } from "lucide-react";
+import { X, Upload, Wand2, Loader2, Plus, Trash2, CheckSquare, List, ImagePlus, ChevronDown, AlertTriangle, Clock, FileUp, Check } from "lucide-react";
 import MathText from "@/components/MathText";
 import LatexToolbar from "@/components/LatexToolbar";
 
@@ -42,6 +42,16 @@ export default function QuizBuilderModal({
    const [isUploadingDoc, setIsUploadingDoc] = useState(false);
    const [originalDocUrl, setOriginalDocUrl] = useState("");
    const [isUploadingOrig, setIsUploadingOrig] = useState(false);
+
+   // Batch upload states
+   const batchInputRef = useRef<HTMLInputElement>(null);
+   interface BatchItem { file: File; status: 'pending' | 'processing' | 'done' | 'error' | 'rate_limited'; error?: string; quizData?: any; }
+   const [batchFiles, setBatchFiles] = useState<BatchItem[]>([]);
+   const [batchProcessing, setBatchProcessing] = useState(false);
+   const [batchDone, setBatchDone] = useState(false);
+   const [rateLimitRetry, setRateLimitRetry] = useState<{ fileIndex: number; countdown: number } | null>(null);
+   const [showRateLimitDialog, setShowRateLimitDialog] = useState<number | null>(null);
+   const retryTimerRef = useRef<any>(null);
    
    const [students, setStudents] = useState<any[]>([]);
    const [assigneeIds, setAssigneeIds] = useState<number[]>([]);
@@ -216,6 +226,104 @@ export default function QuizBuilderModal({
          }
       }
    };
+
+   // ── Batch Upload Logic ──
+   const handleBatchSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const selected = Array.from(e.target.files || []);
+      if (selected.length === 0) return;
+      setBatchFiles(selected.map(f => ({ file: f, status: 'pending' as const })));
+      setBatchDone(false);
+      if (e.target) e.target.value = '';
+   };
+
+   const processBatchFile = async (index: number, items: BatchItem[]): Promise<BatchItem[]> => {
+      const updated = [...items];
+      updated[index] = { ...updated[index], status: 'processing' };
+      setBatchFiles([...updated]);
+      try {
+         const token = localStorage.getItem("minda_token");
+         const formData = new FormData();
+         formData.append("file", updated[index].file);
+         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/assignments/parse-upload`, {
+            method: "POST", headers: { "Authorization": `Bearer ${token}` }, body: formData
+         });
+         if (res.ok) {
+            const data = await res.json();
+            updated[index] = { ...updated[index], status: 'done', quizData: data };
+            // Auto-create assignment
+            const fileName = updated[index].file.name.replace(/\.(pdf|tex|png|jpg|jpeg)$/i, '');
+            await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/assignments`, {
+               method: 'POST',
+               headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+               body: JSON.stringify({
+                  title: fileName, description: '', assignment_type: 'quiz', quiz_data: data,
+                  exam_format: examFormat, max_score: examFormat === 'standard' ? 10 : 100,
+                  is_assigned_to_all: isAssignedToAll, assignee_ids: assigneeIds,
+                  folder_id: folderId ? parseInt(folderId) : null,
+                  course_id: courseId ? parseInt(courseId) : null,
+               })
+            });
+         } else if (res.status === 429 || res.status >= 500) {
+            const errText = await res.text();
+            const isRL = res.status === 429 || errText.toLowerCase().includes('rate') || errText.toLowerCase().includes('quota');
+            updated[index] = { ...updated[index], status: isRL ? 'rate_limited' : 'error', error: isRL ? 'API hết quota tạm thời' : errText.slice(0, 150) };
+         } else {
+            const errData = await res.json().catch(() => ({ detail: 'Lỗi' }));
+            updated[index] = { ...updated[index], status: 'error', error: errData.detail || 'Lỗi' };
+         }
+      } catch (err: any) {
+         updated[index] = { ...updated[index], status: 'error', error: err.message || 'Lỗi mạng' };
+      }
+      setBatchFiles([...updated]);
+      return updated;
+   };
+
+   const resumeBatchFrom = async (startIdx: number) => {
+      setBatchProcessing(true);
+      let items = [...batchFiles];
+      for (let i = startIdx; i < items.length; i++) {
+         if (items[i].status !== 'pending') continue;
+         items = await processBatchFile(i, items);
+         if (items[i].status === 'rate_limited') {
+            setShowRateLimitDialog(i);
+            setBatchProcessing(false);
+            return;
+         }
+      }
+      setBatchProcessing(false);
+      setBatchDone(true);
+      onSuccess();
+   };
+
+   const startBatchProcessing = () => resumeBatchFrom(0);
+
+   const handleRateLimitRetry = (fileIndex: number) => {
+      setShowRateLimitDialog(null);
+      let countdown = 60;
+      setRateLimitRetry({ fileIndex, countdown });
+      retryTimerRef.current = setInterval(() => {
+         countdown--;
+         if (countdown <= 0) {
+            clearInterval(retryTimerRef.current);
+            setRateLimitRetry(null);
+            setBatchFiles(prev => {
+               const u = [...prev]; u[fileIndex] = { ...u[fileIndex], status: 'pending', error: undefined }; return u;
+            });
+            setTimeout(() => resumeBatchFrom(fileIndex), 100);
+         } else {
+            setRateLimitRetry({ fileIndex, countdown });
+         }
+      }, 1000);
+   };
+
+   const handleRateLimitSkip = (fileIndex: number) => {
+      setShowRateLimitDialog(null);
+      setBatchFiles(prev => {
+         const u = [...prev]; u[fileIndex] = { ...u[fileIndex], status: 'error', error: 'Bỏ qua — cần upload LaTeX' }; return u;
+      });
+      setTimeout(() => resumeBatchFrom(fileIndex + 1), 100);
+   };
+
 
    const handleUploadOriginalDoc = async (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
@@ -428,26 +536,26 @@ export default function QuizBuilderModal({
 
    return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in overflow-y-auto w-full h-full">
-         <div className="bg-[#111] border border-white/10 rounded-2xl w-full max-w-4xl shadow-2xl relative my-8 flex flex-col max-h-[90vh]">
-            <div className="sticky top-0 z-10 bg-[#111] border-b border-white/10 px-6 py-4 flex justify-between items-center rounded-t-2xl shrink-0">
+         <div className="bg-bg-card border border-border-card rounded-2xl w-full max-w-4xl shadow-2xl relative my-8 flex flex-col max-h-[90vh]">
+            <div className="sticky top-0 z-10 bg-bg-card border-b border-border-card px-6 py-4 flex justify-between items-center rounded-t-2xl shrink-0">
                <h2 className="text-xl font-bold flex items-center gap-2">
                   <CheckSquare className="w-5 h-5 text-orange-500"/> {isEditing ? "Cập Nhật Bài Tập Trắc Nghiệm" : "Giao Bài Tập Trắc Nghiệm Mới"}
                </h2>
-               <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-full"><X className="w-5 h-5" /></button>
+               <button onClick={onClose} className="p-2 hover:bg-bg-hover rounded-full"><X className="w-5 h-5" /></button>
             </div>
             
             <div className="p-6 overflow-y-auto flex-1">
                <form id="quiz-form" onSubmit={handleSubmit} className="flex flex-col gap-6">
 
                   {/* Exam format toggle */}
-                  <div className="flex items-center gap-3 p-1 bg-white/5 rounded-2xl border border-white/10 w-fit">
+                  <div className="flex items-center gap-3 p-1 bg-bg-hover rounded-2xl border border-border-card w-fit">
                      <button
                         type="button"
                         onClick={() => setExamFormat("practice")}
                         className={`px-5 py-2 rounded-xl font-bold text-sm transition-all ${
                            examFormat === "practice"
-                              ? "bg-indigo-500 text-white shadow-lg shadow-indigo-500/30"
-                              : "text-gray-400 hover:text-white"
+                              ? "bg-indigo-500 text-text-primary shadow-lg shadow-indigo-500/30"
+                              : "text-text-secondary hover:text-text-primary"
                         }`}
                      >
                         Đề Ôn Tập
@@ -457,8 +565,8 @@ export default function QuizBuilderModal({
                         onClick={() => setExamFormat("standard")}
                         className={`px-5 py-2 rounded-xl font-bold text-sm transition-all ${
                            examFormat === "standard"
-                              ? "bg-amber-500 text-white shadow-lg shadow-amber-500/30"
-                              : "text-gray-400 hover:text-white"
+                              ? "bg-amber-500 text-text-primary shadow-lg shadow-amber-500/30"
+                              : "text-text-secondary hover:text-text-primary"
                         }`}
                      >
                         Đề Chuẩn (TN-THPT)
@@ -472,10 +580,10 @@ export default function QuizBuilderModal({
 
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                      <div>
-                        <label className="block text-sm font-semibold text-gray-400 mb-2 flex justify-between">
+                        <label className="block text-sm font-semibold text-text-secondary mb-2 flex justify-between">
                            Khoá học (Tuỳ chọn)
                            {!isCreatingCourse && (
-                              <button type="button" onClick={() => setIsCreatingCourse(true)} className="text-orange-400 hover:text-white flex items-center gap-1 text-xs">
+                              <button type="button" onClick={() => setIsCreatingCourse(true)} className="text-orange-400 hover:text-text-primary flex items-center gap-1 text-xs">
                                  <Plus className="w-3 h-3" /> Tạo Nhanh
                               </button>
                            )}
@@ -485,15 +593,15 @@ export default function QuizBuilderModal({
                               <input 
                                  type="text" value={newCourseTitle} onChange={e=>setNewCourseTitle(e.target.value)}
                                  placeholder="Tên khoá học mới..."
-                                 className="flex-1 bg-[#1a1a1a] border border-orange-500/50 rounded-xl px-3 py-3 outline-none text-white text-sm"
+                                 className="flex-1 bg-bg-hover border border-orange-500/50 rounded-xl px-3 py-3 outline-none text-text-primary text-sm"
                               />
                               <button type="button" onClick={handleCreateCourse} className="bg-orange-600 px-3 py-2 rounded-xl text-sm font-bold">Lưu</button>
-                              <button type="button" onClick={() => setIsCreatingCourse(false)} className="bg-white/10 px-3 py-2 rounded-xl text-sm"><X className="w-4 h-4"/></button>
+                              <button type="button" onClick={() => setIsCreatingCourse(false)} className="bg-bg-hover px-3 py-2 rounded-xl text-sm"><X className="w-4 h-4"/></button>
                            </div>
                         ) : (
                            <select 
                               value={courseId} onChange={e => setCourseId(e.target.value)}
-                              className="w-full bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-orange-500 text-white"
+                              className="w-full bg-bg-hover border border-border-card rounded-xl px-4 py-3 outline-none focus:border-orange-500 text-text-primary"
                            >
                               <option value="">-- Bài tập làm thêm (Không thuộc khoá)--</option>
                               {localCourses.map(c => (
@@ -505,10 +613,10 @@ export default function QuizBuilderModal({
 
                      {/* FOLDER */}
                      <div>
-                        <label className="block text-sm font-semibold text-gray-400 mb-2">📁 Folder (Tuỳ chọn)</label>
+                        <label className="block text-sm font-semibold text-text-secondary mb-2">📁 Folder (Tuỳ chọn)</label>
                         <select 
                            value={folderId} onChange={e => setFolderId(e.target.value)}
-                           className="w-full bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-indigo-500 text-white"
+                           className="w-full bg-bg-hover border border-border-card rounded-xl px-4 py-3 outline-none focus:border-indigo-500 text-text-primary"
                         >
                            <option value="">-- Không thuộc folder --</option>
                            {folders.map((f: any) => (
@@ -519,16 +627,16 @@ export default function QuizBuilderModal({
                      
                      {/* BỘ LỌC ĐỐI TƯỢNG GIAO BÀI */}
                      <div className="col-span-1 md:col-span-2">
-                        <label className="block text-sm font-semibold text-gray-400 mb-2">ĐỐI TƯỢNG GIAO BÀI</label>
-                        <div className="flex flex-col gap-3 bg-[#1a1a1a] p-3 rounded-xl border border-white/10">
+                        <label className="block text-sm font-semibold text-text-secondary mb-2">ĐỐI TƯỢNG GIAO BÀI</label>
+                        <div className="flex flex-col gap-3 bg-bg-hover p-3 rounded-xl border border-border-card">
                             <div className="flex gap-6">
                                 <label className="flex items-center gap-2 cursor-pointer">
                                     <input type="radio" checked={isAssignedToAll} onChange={() => setIsAssignedToAll(true)} className="accent-orange-500 w-4 h-4" />
-                                    <span className={isAssignedToAll ? "text-white font-bold text-sm" : "text-gray-400 text-sm"}>Giao toàn khoá</span>
+                                    <span className={isAssignedToAll ? "text-text-primary font-bold text-sm" : "text-text-secondary text-sm"}>Giao toàn khoá</span>
                                 </label>
                                 <label className="flex items-center gap-2 cursor-pointer">
                                     <input type="radio" checked={!isAssignedToAll} onChange={() => setIsAssignedToAll(false)} className="accent-orange-500 w-4 h-4" />
-                                    <span className={!isAssignedToAll ? "text-white font-bold text-sm" : "text-gray-400 text-sm"}>Học sinh cụ thể</span>
+                                    <span className={!isAssignedToAll ? "text-text-primary font-bold text-sm" : "text-text-secondary text-sm"}>Học sinh cụ thể</span>
                                 </label>
                             </div>
                             {!isAssignedToAll && (
@@ -537,7 +645,7 @@ export default function QuizBuilderModal({
                                         <button 
                                             key={s.id} type="button"
                                             onClick={() => setAssigneeIds(prev => prev.includes(s.id) ? prev.filter(id => id !== s.id) : [...prev, s.id])}
-                                            className={`px-3 py-1.5 rounded-lg border transition-all flex items-center gap-2 ${assigneeIds.includes(s.id) ? 'bg-orange-500/20 border-orange-500 text-orange-400 font-bold' : 'bg-white/5 border-white/10 text-gray-400 hover:border-white/30 text-sm'}`}
+                                            className={`px-3 py-1.5 rounded-lg border transition-all flex items-center gap-2 ${assigneeIds.includes(s.id) ? 'bg-orange-500/20 border-orange-500 text-orange-400 font-bold' : 'bg-bg-hover border-border-card text-text-secondary hover:border-white/30 text-sm'}`}
                                         >
                                             <img src={s.avatar_url || "https://ui-avatars.com/api/?name=" + encodeURIComponent(s.full_name)} className="w-5 h-5 rounded-full" alt="" />
                                             {s.full_name}
@@ -549,10 +657,10 @@ export default function QuizBuilderModal({
                      </div>
 
                      <div>
-                        <label className="block text-sm font-semibold text-gray-400 mb-2 flex justify-between">
+                        <label className="block text-sm font-semibold text-text-secondary mb-2 flex justify-between">
                            Chương / Section (Tuỳ chọn)
                            {!isCreatingChapter && courseId && (
-                              <button type="button" onClick={() => setIsCreatingChapter(true)} className="text-orange-400 hover:text-white flex items-center gap-1 text-xs">
+                              <button type="button" onClick={() => setIsCreatingChapter(true)} className="text-orange-400 hover:text-text-primary flex items-center gap-1 text-xs">
                                  <Plus className="w-3 h-3" /> Tạo Nhanh
                               </button>
                            )}
@@ -562,15 +670,15 @@ export default function QuizBuilderModal({
                               <input 
                                  type="text" value={newChapterTitle} onChange={e=>setNewChapterTitle(e.target.value)}
                                  placeholder="Tên chương mới..."
-                                 className="flex-1 bg-[#1a1a1a] border border-orange-500/50 rounded-xl px-3 py-3 outline-none text-white text-sm"
+                                 className="flex-1 bg-bg-hover border border-orange-500/50 rounded-xl px-3 py-3 outline-none text-text-primary text-sm"
                               />
                               <button type="button" onClick={handleCreateChapter} className="bg-orange-600 px-3 py-2 rounded-xl text-sm font-bold">Lưu</button>
-                              <button type="button" onClick={() => setIsCreatingChapter(false)} className="bg-white/10 px-3 py-2 rounded-xl text-sm"><X className="w-4 h-4"/></button>
+                              <button type="button" onClick={() => setIsCreatingChapter(false)} className="bg-bg-hover px-3 py-2 rounded-xl text-sm"><X className="w-4 h-4"/></button>
                            </div>
                         ) : (
                            <select 
                               value={lessonId} onChange={e => setLessonId(e.target.value)}
-                              className="w-full bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-orange-500 text-white disabled:opacity-50"
+                              className="w-full bg-bg-hover border border-border-card rounded-xl px-4 py-3 outline-none focus:border-orange-500 text-text-primary disabled:opacity-50"
                               disabled={!courseId}
                            >
                               <option value="">-- Vui lòng chọn --</option>
@@ -581,44 +689,44 @@ export default function QuizBuilderModal({
                         )}
                      </div>
                      <div>
-                        <label className="block text-sm font-semibold text-gray-400 mb-2">Tên Bài Tập</label>
+                        <label className="block text-sm font-semibold text-text-secondary mb-2">Tên Bài Tập</label>
                         <input 
                            type="text" required value={title} onChange={e => setTitle(e.target.value)}
                            placeholder="VD: Kiểm tra Toán Giữa kì I 2025"
-                           className="w-full bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-orange-500 text-white" 
+                           className="w-full bg-bg-hover border border-border-card rounded-xl px-4 py-3 outline-none focus:border-orange-500 text-text-primary" 
                         />
                      </div>
                   </div>
 
                   {/* Tài liệu đính kèm */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-indigo-500/5 p-5 rounded-2xl border border-indigo-500/20">
-                     <div className="flex flex-col gap-2 bg-[#111] p-3 rounded-xl border border-white/5">
-                        <label className="text-sm font-semibold text-gray-300">Đề Gốc (PDF/Ảnh/Drive)</label>
-                        <div className="flex bg-[#1a1a1a] rounded-xl overflow-hidden border border-white/10 mt-1">
-                           <input type="text" value={originalDocUrl} onChange={e => setOriginalDocUrl(e.target.value)} placeholder="Dán link Google Drive..." className="flex-1 px-2 py-2 bg-transparent text-xs text-white outline-none" />
-                           <label className="bg-indigo-600 hover:bg-indigo-500 cursor-pointer px-3 py-2 text-xs font-bold text-white flex items-center transition-colors">
+                     <div className="flex flex-col gap-2 bg-bg-card p-3 rounded-xl border border-white/5">
+                        <label className="text-sm font-semibold text-text-primary">Đề Gốc (PDF/Ảnh/Drive)</label>
+                        <div className="flex bg-bg-hover rounded-xl overflow-hidden border border-border-card mt-1">
+                           <input type="text" value={originalDocUrl} onChange={e => setOriginalDocUrl(e.target.value)} placeholder="Dán link Google Drive..." className="flex-1 px-2 py-2 bg-transparent text-xs text-text-primary outline-none" />
+                           <label className="bg-indigo-600 hover:bg-indigo-500 cursor-pointer px-3 py-2 text-xs font-bold text-text-primary flex items-center transition-colors">
                               {isUploadingOrig ? <Loader2 className="w-3 h-3 animate-spin"/> : <Upload className="w-3 h-3 mr-1" />}
                               {!isUploadingOrig && "Tải file"}
                               <input type="file" onChange={handleUploadOriginalDoc} accept="image/*,application/pdf" className="hidden" />
                            </label>
                         </div>
                      </div>
-                     <div className="flex flex-col gap-2 bg-[#111] p-3 rounded-xl border border-white/5">
+                     <div className="flex flex-col gap-2 bg-bg-card p-3 rounded-xl border border-white/5">
                         <label className="text-sm font-semibold text-indigo-400">Tài Liệu Giải Chi Tiết</label>
-                        <div className="flex bg-[#1a1a1a] rounded-xl overflow-hidden border border-white/10 mt-1">
-                           <input type="text" value={solutionDocUrl} onChange={e => setSolutionDocUrl(e.target.value)} placeholder="Dán link Google Drive..." className="flex-1 px-2 py-2 bg-transparent text-xs text-white outline-none" />
-                           <label className="bg-indigo-600 hover:bg-indigo-500 cursor-pointer px-3 py-2 text-xs font-bold text-white flex items-center transition-colors">
+                        <div className="flex bg-bg-hover rounded-xl overflow-hidden border border-border-card mt-1">
+                           <input type="text" value={solutionDocUrl} onChange={e => setSolutionDocUrl(e.target.value)} placeholder="Dán link Google Drive..." className="flex-1 px-2 py-2 bg-transparent text-xs text-text-primary outline-none" />
+                           <label className="bg-indigo-600 hover:bg-indigo-500 cursor-pointer px-3 py-2 text-xs font-bold text-text-primary flex items-center transition-colors">
                               {isUploadingDoc ? <Loader2 className="w-3 h-3 animate-spin"/> : <Upload className="w-3 h-3 mr-1" />}
                               {!isUploadingDoc && "Tải file"}
                               <input type="file" onChange={handleUploadSolutionDoc} accept="image/*,application/pdf" className="hidden" />
                            </label>
                         </div>
                      </div>
-                     <div className="flex flex-col gap-2 bg-[#111] p-3 rounded-xl border border-white/5">
+                     <div className="flex flex-col gap-2 bg-bg-card p-3 rounded-xl border border-white/5">
                         <label className="text-sm font-semibold text-indigo-400">Video Chữa Bài</label>
-                        <div className="flex bg-[#1a1a1a] rounded-xl overflow-hidden border border-white/10 mt-1">
-                           <input type="text" value={solutionVideoUrl} onChange={e => setSolutionVideoUrl(e.target.value)} placeholder="Link YT/Drive/Upload..." className="flex-1 px-2 py-2 bg-transparent text-xs text-white outline-none" />
-                           <label className="bg-indigo-600 hover:bg-indigo-500 cursor-pointer px-3 py-2 text-xs font-bold text-white flex items-center transition-colors">
+                        <div className="flex bg-bg-hover rounded-xl overflow-hidden border border-border-card mt-1">
+                           <input type="text" value={solutionVideoUrl} onChange={e => setSolutionVideoUrl(e.target.value)} placeholder="Link YT/Drive/Upload..." className="flex-1 px-2 py-2 bg-transparent text-xs text-text-primary outline-none" />
+                           <label className="bg-indigo-600 hover:bg-indigo-500 cursor-pointer px-3 py-2 text-xs font-bold text-text-primary flex items-center transition-colors">
                               {isUploadingVideo ? <Loader2 className="w-3 h-3 animate-spin"/> : <Upload className="w-3 h-3 mr-1" />}
                               {!isUploadingVideo && "Tải lên"}
                               <input type="file" onChange={handleUploadSolutionVideo} accept="video/*" className="hidden" />
@@ -627,33 +735,100 @@ export default function QuizBuilderModal({
                      </div>
                   </div>
                   
-                  <div className="flex gap-4 border-b border-white/10 pb-4">
-                     <button type="button" onClick={() => setTab("ai")} className={`font-semibold px-4 py-1.5 rounded-lg transition-colors ${tab === 'ai' ? 'bg-orange-500/20 text-orange-400' : 'text-gray-400 hover:text-white'}`}>Tạo bằng AI (Upload Đề)</button>
-                     <button type="button" onClick={() => setTab("manual")} className={`font-semibold px-4 py-1.5 rounded-lg transition-colors ${tab === 'manual' ? 'bg-orange-500/20 text-orange-400' : 'text-gray-400 hover:text-white'}`}>Làm Đề Thủ Công</button>
+                  <div className="flex gap-4 border-b border-border-card pb-4">
+                     <button type="button" onClick={() => setTab("ai")} className={`font-semibold px-4 py-1.5 rounded-lg transition-colors ${tab === 'ai' ? 'bg-orange-500/20 text-orange-400' : 'text-text-secondary hover:text-text-primary'}`}>Tạo bằng AI (Upload Đề)</button>
+                     <button type="button" onClick={() => setTab("manual")} className={`font-semibold px-4 py-1.5 rounded-lg transition-colors ${tab === 'manual' ? 'bg-orange-500/20 text-orange-400' : 'text-text-secondary hover:text-text-primary'}`}>Làm Đề Thủ Công</button>
                   </div>
 
-                  {tab === "ai" && (
-                     <>
-                        <div>
-                           <label className="block text-sm font-semibold text-gray-400 mb-2">Bóc tách Đề Cương AI (PDF/Image/LaTeX)</label>
-                           <div className="border-2 border-dashed border-orange-500/30 bg-orange-500/5 rounded-xl p-8 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-orange-500/10 transition-colors" onClick={() => fileInputRef.current?.click()}>
-                              {aiLoading ? (
-                                 <>
-                                    <Loader2 className="w-10 h-10 text-orange-500 animate-spin mb-3" />
-                                    <p className="font-semibold text-orange-400">AI Nội bộ đang phân tích mặt chữ và cấu trúc đề...</p>
-                                 </>
-                              ) : (
-                                 <>
-                                    <Wand2 className="w-10 h-10 text-orange-500 mb-3" />
-                                    <p className="font-semibold text-orange-400">Click để Upload Ảnh Đề, PDF hoặc LaTeX (.tex)</p>
-                                    <p className="text-xs text-gray-500 mt-1">Hệ thống hỗ trợ cấu trúc Trắc nghiệm 4 đáp án, Đúng/Sai đa mệnh đề, và Điền Số Ngắn.</p>
-                                 </>
-                              )}
-                              <input type="file" ref={fileInputRef} className="hidden" accept="image/*,application/pdf,.tex" onChange={handleFileUpload} />
-                           </div>
-                        </div>
-                     </>
-                  )}
+                   {tab === "ai" && (
+                      <>
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                               <label className="block text-sm font-semibold text-text-secondary mb-2">📄 Upload 1 Đề (Soạn & Sửa)</label>
+                               <div className="border-2 border-dashed border-orange-500/30 bg-orange-500/5 rounded-xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-orange-500/10 transition-colors h-full min-h-[140px]" onClick={() => fileInputRef.current?.click()}>
+                                  {aiLoading ? (
+                                     <>
+                                        <Loader2 className="w-8 h-8 text-orange-500 animate-spin mb-2" />
+                                        <p className="font-semibold text-orange-400 text-sm">AI đang phân tích đề...</p>
+                                     </>
+                                  ) : (
+                                     <>
+                                        <Wand2 className="w-8 h-8 text-orange-500 mb-2" />
+                                        <p className="font-semibold text-orange-400 text-sm">Upload 1 file để Soạn & Sửa</p>
+                                        <p className="text-xs text-text-muted mt-1">PDF, Ảnh, hoặc LaTeX (.tex)</p>
+                                     </>
+                                  )}
+                                  <input type="file" ref={fileInputRef} className="hidden" accept="image/*,application/pdf,.tex" onChange={handleFileUpload} />
+                               </div>
+                            </div>
+                            <div>
+                               <label className="block text-sm font-semibold text-text-secondary mb-2">📚 Upload Nhiều Đề (Tự động tạo)</label>
+                               <div className="border-2 border-dashed border-indigo-500/30 bg-indigo-500/5 rounded-xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-indigo-500/10 transition-colors h-full min-h-[140px]" onClick={() => batchInputRef.current?.click()}>
+                                  <FileUp className="w-8 h-8 text-indigo-400 mb-2" />
+                                  <p className="font-semibold text-indigo-400 text-sm">Upload nhiều PDF/LaTeX cùng lúc</p>
+                                  <p className="text-xs text-text-muted mt-1">Hệ thống sẽ tự tạo bài tập cho từng file</p>
+                                  <input type="file" ref={batchInputRef} className="hidden" accept="application/pdf,.tex" multiple onChange={handleBatchSelect} />
+                               </div>
+                            </div>
+                         </div>
+                         {batchFiles.length > 0 && (
+                            <div className="bg-bg-card border border-border-card rounded-xl p-4 space-y-3">
+                               <div className="flex items-center justify-between mb-2">
+                                  <h4 className="font-bold text-sm flex items-center gap-2 text-text-primary">
+                                     <FileUp className="w-4 h-4 text-indigo-400" /> Upload hàng loạt — {batchFiles.filter(f => f.status === 'done').length}/{batchFiles.length} đề
+                                  </h4>
+                                  {!batchProcessing && !batchDone && batchFiles.some(f => f.status === 'pending') && (
+                                     <button type="button" onClick={startBatchProcessing} className="bg-indigo-600 hover:bg-indigo-500 text-text-primary font-bold px-4 py-1.5 rounded-lg text-sm flex items-center gap-1.5 transition-colors">
+                                        <Wand2 className="w-4 h-4" /> Bắt đầu xử lý
+                                     </button>
+                                  )}
+                                  {batchDone && <span className="text-emerald-400 text-sm font-bold flex items-center gap-1"><Check className="w-4 h-4" /> Hoàn tất!</span>}
+                               </div>
+                               <div className="w-full bg-bg-hover rounded-full h-2 overflow-hidden">
+                                  <div className="bg-gradient-to-r from-indigo-500 to-emerald-500 h-full rounded-full transition-all duration-500" style={{ width: `${(batchFiles.filter(f => f.status === 'done').length / batchFiles.length) * 100}%` }} />
+                               </div>
+                               <div className="space-y-1 max-h-[200px] overflow-y-auto">
+                                  {batchFiles.map((item, idx) => (
+                                     <div key={idx} className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm ${item.status === 'done' ? 'bg-emerald-500/10 border border-emerald-500/20' : item.status === 'processing' ? 'bg-indigo-500/10 border border-indigo-500/20' : item.status === 'error' ? 'bg-red-500/10 border border-red-500/20' : item.status === 'rate_limited' ? 'bg-amber-500/10 border border-amber-500/20' : 'bg-bg-hover border border-border-card'}`}>
+                                        {item.status === 'pending' && <Clock className="w-4 h-4 text-text-muted shrink-0" />}
+                                        {item.status === 'processing' && <Loader2 className="w-4 h-4 text-indigo-400 animate-spin shrink-0" />}
+                                        {item.status === 'done' && <Check className="w-4 h-4 text-emerald-400 shrink-0" />}
+                                        {item.status === 'error' && <X className="w-4 h-4 text-red-400 shrink-0" />}
+                                        {item.status === 'rate_limited' && <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />}
+                                        <span className="flex-1 truncate text-text-primary">{item.file.name}</span>
+                                        <span className="text-xs text-text-secondary shrink-0">{item.status === 'done' ? '✅ Đã tạo' : item.status === 'processing' ? '🔄 Đang xử lý...' : item.status === 'error' ? `❌ ${item.error?.slice(0,40)}` : item.status === 'rate_limited' ? '⏳ Hết quota' : '⏳ Chờ'}</span>
+                                     </div>
+                                  ))}
+                               </div>
+                               {batchDone && <button type="button" onClick={() => { setBatchFiles([]); setBatchDone(false); onSuccess(); onClose(); }} className="w-full py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-text-primary font-bold text-sm">Đóng & Làm mới danh sách</button>}
+                            </div>
+                         )}
+                         {showRateLimitDialog !== null && (
+                            <div className="bg-amber-500/10 border-2 border-amber-500/30 rounded-xl p-5">
+                               <div className="flex items-start gap-3 mb-4">
+                                  <AlertTriangle className="w-6 h-6 text-amber-400 shrink-0 mt-0.5" />
+                                  <div>
+                                     <h4 className="font-bold text-amber-400">API Gemini hết quota tạm thời</h4>
+                                     <p className="text-sm text-text-secondary mt-1">File <strong className="text-text-primary">{batchFiles[showRateLimitDialog]?.file.name}</strong> không thể xử lý.</p>
+                                  </div>
+                               </div>
+                               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                  <button type="button" onClick={() => handleRateLimitRetry(showRateLimitDialog)} className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-text-primary font-bold text-sm"><Clock className="w-4 h-4" /> Chờ 60s rồi thử lại</button>
+                                  <button type="button" onClick={() => handleRateLimitSkip(showRateLimitDialog)} className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-bg-hover text-text-primary font-bold text-sm border border-border-card"><Upload className="w-4 h-4" /> Bỏ qua, upload LaTeX sau</button>
+                               </div>
+                            </div>
+                         )}
+                         {rateLimitRetry && (
+                            <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-xl p-4 flex items-center gap-3 animate-pulse">
+                               <Loader2 className="w-5 h-5 text-indigo-400 animate-spin" />
+                               <div className="flex-1">
+                                  <p className="text-sm font-semibold text-indigo-300">Đang chờ API phục hồi...</p>
+                                  <p className="text-xs text-text-muted">Tự động thử lại sau <strong className="text-text-primary">{rateLimitRetry.countdown}s</strong></p>
+                               </div>
+                            </div>
+                         )}
+                      </>
+                   )}
 
                   {/* Manual/AI switch removed, UI is unified */}
                   <LatexToolbar onInsertSnippet={(snippet, offset) => {
@@ -684,7 +859,7 @@ export default function QuizBuilderModal({
                   }} />
 
                   {quizData.sections && quizData.sections.length > 0 ? (
-                     <div className="bg-[#1a1a1a] border border-white/10 rounded-xl p-6 relative overflow-visible">
+                     <div className="bg-bg-hover border border-border-card rounded-xl p-6 relative overflow-visible">
                         <div className="flex justify-between items-center mb-4">
                            <h3 className="font-bold flex items-center gap-2 text-green-400">
                               <CheckSquare className="w-5 h-5"/> Soạn Đề & Đáp Án ({quizData.sections.length} mục)
@@ -699,10 +874,10 @@ export default function QuizBuilderModal({
                               <button type="button" className="bg-orange-500/20 text-orange-500 px-3 py-1.5 rounded-lg text-sm font-bold flex items-center gap-1 hover:bg-orange-500/30">
                                  <Plus className="w-4 h-4"/> Thêm Câu Hỏi <ChevronDown className="w-4 h-4 ml-1"/>
                               </button>
-                              <div className="absolute right-0 top-full mt-2 bg-[#222] border border-white/10 rounded-xl overflow-hidden shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20 w-48">
-                                 <button type="button" onClick={() => addManualQuestion('mcq')} className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white border-b border-white/5">Trắc Nghiệm (Phần I)</button>
-                                 <button type="button" onClick={() => addManualQuestion('true_false')} className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white border-b border-white/5">Đúng/Sai (Phần II)</button>
-                                 <button type="button" onClick={() => addManualQuestion('short_answer')} className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white">Trả lời Ngắn (Phần III)</button>
+                              <div className="absolute right-0 top-full mt-2 bg-bg-card border border-border-card rounded-xl overflow-hidden shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20 w-48">
+                                 <button type="button" onClick={() => addManualQuestion('mcq')} className="w-full text-left px-4 py-2 text-sm text-text-primary hover:bg-bg-hover hover:text-text-primary border-b border-white/5">Trắc Nghiệm (Phần I)</button>
+                                 <button type="button" onClick={() => addManualQuestion('true_false')} className="w-full text-left px-4 py-2 text-sm text-text-primary hover:bg-bg-hover hover:text-text-primary border-b border-white/5">Đúng/Sai (Phần II)</button>
+                                 <button type="button" onClick={() => addManualQuestion('short_answer')} className="w-full text-left px-4 py-2 text-sm text-text-primary hover:bg-bg-hover hover:text-text-primary">Trả lời Ngắn (Phần III)</button>
                               </div>
                            </div>
 
@@ -713,7 +888,7 @@ export default function QuizBuilderModal({
                         </div>
                         <div className="space-y-6 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
                            {quizData.sections.map((sec: any, sIdx: number) => (
-                              <div key={sIdx} className="border border-white/10 rounded-lg p-4 bg-[#111]">
+                              <div key={sIdx} className="border border-border-card rounded-lg p-4 bg-bg-card">
                                  <textarea 
                                     rows={2} value={sec.instruction || ''} placeholder={`Tên Phần ${sIdx + 1}`}
                                     onChange={(e) => {
@@ -721,17 +896,17 @@ export default function QuizBuilderModal({
                                        updated.sections[sIdx].instruction = e.target.value;
                                        setQuizData(updated);
                                     }}
-                                    className="font-semibold text-orange-300 mb-1 bg-transparent outline-none w-full border border-white/10 rounded-lg p-2 focus:border-orange-500 resize-y"
+                                    className="font-semibold text-orange-300 mb-1 bg-transparent outline-none w-full border border-border-card rounded-lg p-2 focus:border-orange-500 resize-y"
                                  />
                                  {sec.instruction?.includes('$') && (
                                     <div className="text-xs text-indigo-300 mb-3 ml-2"><MathText>{sec.instruction}</MathText></div>
                                  )}
                                  <div className="space-y-4">
                                     {sec.questions?.map((q: any, qIdx: number) => (
-                                       <div key={q.id || qIdx} className="text-sm bg-white/5 border border-white/5 p-4 rounded-lg relative group">
+                                       <div key={q.id || qIdx} className="text-sm bg-bg-hover border border-white/5 p-4 rounded-lg relative group">
                                           <div className="pr-8 mb-3">
                                              <textarea 
-                                                className="w-full bg-transparent border border-white/10 rounded-lg outline-none text-white font-medium focus:border-orange-500 p-3 min-h-[80px] resize-y" 
+                                                className="w-full bg-transparent border border-border-card rounded-lg outline-none text-text-primary font-medium focus:border-orange-500 p-3 min-h-[80px] resize-y" 
                                                 value={q.text} placeholder="Nhập câu hỏi (VD: $\int x dx$)..."
                                                 onChange={e => {
                                                    const updated = {...quizData};
@@ -747,19 +922,19 @@ export default function QuizBuilderModal({
                                              {/* Image Preview */}
                                              {q.imageUrl && (
                                                 <div className="mt-3 relative w-fit group/img">
-                                                   <img src={q.imageUrl} alt="minh hoa" className="max-h-48 rounded-lg border border-white/10" />
+                                                   <img src={q.imageUrl} alt="minh hoa" className="max-h-48 rounded-lg border border-border-card" />
                                                    <button type="button" onClick={() => {
                                                       const updated = {...quizData};
                                                       updated.sections[sIdx].questions[qIdx].imageUrl = "";
                                                       setQuizData(updated);
-                                                   }} className="absolute -top-2 -right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover/img:opacity-100 transition-opacity">
+                                                   }} className="absolute -top-2 -right-2 bg-red-500 text-text-primary p-1 rounded-full opacity-0 group-hover/img:opacity-100 transition-opacity">
                                                       <X className="w-3 h-3"/>
                                                    </button>
                                                 </div>
                                              )}
 
                                              {/* Nút Upload Image */}
-                                             <label className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs text-gray-400 hover:text-white transition-colors cursor-pointer w-fit border border-white/5">
+                                             <label className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-bg-hover hover:bg-bg-hover text-xs text-text-secondary hover:text-text-primary transition-colors cursor-pointer w-fit border border-white/5">
                                                 <ImagePlus className="w-3.5 h-3.5" />
                                                 {q.imageUrl ? "Đổi ảnh khác" : "Đính kèm ảnh/hình vẽ"}
                                                 <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(sIdx, qIdx, e)} />
@@ -768,7 +943,7 @@ export default function QuizBuilderModal({
                                           </div>
                                           
                                           {sec.type === 'mcq' && q.options && (
-                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-gray-400 mt-2">
+                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-text-secondary mt-2">
                                                 {q.options.map((opt: string, i: number) => (
                                                    <div key={i} className="flex flex-col gap-1">
                                                       <div className={`flex items-center gap-2 px-3 py-2 rounded-lg border ${q.correctAnswer === i ? 'bg-green-500/10 border-green-500/30' : 'bg-black/20 border-white/5'}`}>
@@ -781,7 +956,7 @@ export default function QuizBuilderModal({
                                                             const updated = {...quizData};
                                                             updated.sections[sIdx].questions[qIdx].options[i] = e.target.value;
                                                             setQuizData(updated);
-                                                         }} className={`bg-transparent outline-none flex-1 ${q.correctAnswer === i ? 'text-green-400 font-medium' : 'text-gray-300'}`} />
+                                                         }} className={`bg-transparent outline-none flex-1 ${q.correctAnswer === i ? 'text-green-400 font-medium' : 'text-text-primary'}`} />
                                                       </div>
                                                       {opt?.includes('$') && (
                                                          <div className="text-xs text-indigo-300 ml-8 mb-1"><MathText>{opt}</MathText></div>
@@ -795,7 +970,7 @@ export default function QuizBuilderModal({
                                              <div className="flex flex-col gap-2 mt-2">
                                                 {q.items.map((item: any, i: number) => (
                                                    <div key={i} className="flex flex-col gap-1">
-                                                      <div className={`flex items-center gap-3 p-2.5 rounded-lg border ${item.isTrue ? 'bg-green-500/10 border-green-500/20' : 'bg-black/20 border-white/5 text-gray-300'}`}>
+                                                      <div className={`flex items-center gap-3 p-2.5 rounded-lg border ${item.isTrue ? 'bg-green-500/10 border-green-500/20' : 'bg-black/20 border-white/5 text-text-primary'}`}>
                                                          <span className="font-bold opacity-50">{item.label}.</span>
                                                          <input type="text" value={item.text} onChange={e => {
                                                             const updated = {...quizData};
@@ -806,7 +981,7 @@ export default function QuizBuilderModal({
                                                             const updated = {...quizData};
                                                             updated.sections[sIdx].questions[qIdx].items[i].isTrue = !item.isTrue;
                                                             setQuizData(updated);
-                                                         }} className={`text-xs font-bold border px-3 py-1.5 rounded uppercase transition-colors shrink-0 ${item.isTrue ? 'bg-green-600 text-white border-green-500' : 'bg-red-500/20 text-red-400 border-red-500/30'}`}>
+                                                         }} className={`text-xs font-bold border px-3 py-1.5 rounded uppercase transition-colors shrink-0 ${item.isTrue ? 'bg-green-600 text-text-primary border-green-500' : 'bg-red-500/20 text-red-400 border-red-500/30'}`}>
                                                             {item.isTrue ? "Mệnh Đề ĐÚNG" : "Mệnh Đề SAI"}
                                                          </button>
                                                       </div>
@@ -842,26 +1017,26 @@ export default function QuizBuilderModal({
                         </div>
                      </div>
                   ) : (
-                     <div className="text-center py-12 text-gray-500 border-dashed border border-white/10 rounded-xl bg-[#1a1a1a]">
+                     <div className="text-center py-12 text-text-muted border-dashed border border-border-card rounded-xl bg-bg-hover">
                         <p>Đề chưa có nội dung. Chọn Upload File Hệ thống AI tự nhận diện cấu trúc, hoặc Bấm "Thêm Trắc Nghiệm" thủ công.</p>
                         
                         <div className="mx-auto mt-4 w-fit relative group">
                            <button type="button" className="bg-orange-500/20 text-orange-500 px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-orange-500/30">
                               <Plus className="w-4 h-4"/> Thêm Câu Hỏi Ngay <ChevronDown className="w-4 h-4"/>
                            </button>
-                           <div className="absolute top-full mt-2 bg-[#222] border border-white/10 rounded-xl overflow-hidden shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20 w-48 text-left left-1/2 -translate-x-1/2">
-                                 <button type="button" onClick={() => addManualQuestion('mcq')} className="w-full px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white border-b border-white/5">Trắc Nghiệm</button>
-                                 <button type="button" onClick={() => addManualQuestion('true_false')} className="w-full px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white border-b border-white/5">Đúng/Sai</button>
-                                 <button type="button" onClick={() => addManualQuestion('short_answer')} className="w-full px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white">Trả lời Ngắn</button>
+                           <div className="absolute top-full mt-2 bg-bg-card border border-border-card rounded-xl overflow-hidden shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20 w-48 text-left left-1/2 -translate-x-1/2">
+                                 <button type="button" onClick={() => addManualQuestion('mcq')} className="w-full px-4 py-2 text-sm text-text-primary hover:bg-bg-hover hover:text-text-primary border-b border-white/5">Trắc Nghiệm</button>
+                                 <button type="button" onClick={() => addManualQuestion('true_false')} className="w-full px-4 py-2 text-sm text-text-primary hover:bg-bg-hover hover:text-text-primary border-b border-white/5">Đúng/Sai</button>
+                                 <button type="button" onClick={() => addManualQuestion('short_answer')} className="w-full px-4 py-2 text-sm text-text-primary hover:bg-bg-hover hover:text-text-primary">Trả lời Ngắn</button>
                            </div>
                         </div>
 
                      </div>
                   )}
 
-                  <div className="flex justify-end gap-3 pt-4 border-t border-white/10 mt-2">
-                     <button type="button" onClick={onClose} className="px-6 py-2.5 rounded-xl font-bold text-gray-400 hover:bg-white/5">Hủy</button>
-                     <button type="submit" disabled={loading || quizData.sections.length === 0} className="bg-orange-600 hover:bg-orange-500 text-white font-bold px-8 py-2.5 rounded-xl flex items-center justify-center gap-2 disabled:opacity-50">
+                  <div className="flex justify-end gap-3 pt-4 border-t border-border-card mt-2">
+                     <button type="button" onClick={onClose} className="px-6 py-2.5 rounded-xl font-bold text-text-secondary hover:bg-bg-hover">Hủy</button>
+                     <button type="submit" disabled={loading || quizData.sections.length === 0} className="bg-orange-600 hover:bg-orange-500 text-text-primary font-bold px-8 py-2.5 rounded-xl flex items-center justify-center gap-2 disabled:opacity-50">
                         {loading ? <Loader2 className="w-5 h-5 animate-spin"/> : (isEditing ? "Lưu Cập Nhật" : "Giao Bài")}
                      </button>
                   </div>

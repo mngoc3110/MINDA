@@ -1,0 +1,5 @@
+# This file is used internally by FFMPEG.
+file 'file:/Users/minhngoc/HCMUE/MINDA/student-center/backend/media/videos/test_render/480p15/partial_movie_files/MathAnimation/1584795214_2628506924_223132457.mp4'
+file 'file:/Users/minhngoc/HCMUE/MINDA/student-center/backend/media/videos/test_render/480p15/partial_movie_files/MathAnimation/4072820271_2438518452_2076365264.mp4'
+file 'file:/Users/minhngoc/HCMUE/MINDA/student-center/backend/media/videos/test_render/480p15/partial_movie_files/MathAnimation/4072820271_3820271883_1576354263.mp4'
+file 'file:/Users/minhngoc/HCMUE/MINDA/student-center/backend/media/videos/test_render/480p15/partial_movie_files/MathAnimation/4072820271_2872842549_2536156790.mp4'

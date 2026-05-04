@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BrainCircuit, Grid, BookOpen, GraduationCap, ClipboardCheck, Wallet, LogOut, Sun, Moon, FileUser, Trophy, UserCircle, Users, RefreshCw } from "lucide-react";
+import { BrainCircuit, Grid, BookOpen, GraduationCap, ClipboardCheck, Wallet, LogOut, Sun, Moon, FileUser, Trophy, UserCircle, Users, RefreshCw, FileText, Clapperboard } from "lucide-react";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useEffect, useState } from "react";
 
@@ -15,6 +15,8 @@ const NAV_ITEMS = [
   { name: "Quản lý Học sinh", href: "/my-students", icon: Users },
   { name: "Lớp học Live", href: "/live", icon: GraduationCap },
   { name: "Chấm điểm & Bài tập", href: "/assignments", icon: ClipboardCheck },
+  { name: "Công cụ PDF", href: "/pdf-tools", icon: FileText },
+  { name: "Manim Studio", href: "/manim-studio", icon: Clapperboard, badge: "AI" },
   { name: "Quản lý Học phí", href: "/tuition", icon: Wallet },
 ];
 
@@ -62,7 +64,12 @@ export default function TeacherSidebar() {
             >
               {isActive && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-rose-500 rounded-r-full" />}
               <Icon className={`w-5 h-5 shrink-0 transition-transform ${isActive ? "text-rose-500" : "group-hover:scale-110"}`} />
-              <span className="font-semibold text-sm">{item.name}</span>
+              <span className="font-semibold text-sm flex-1">{item.name}</span>
+              {(item as any).badge && (
+                <span className="text-[9px] font-black px-1.5 py-0.5 rounded-md bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 tracking-widest">
+                  {(item as any).badge}
+                </span>
+              )}
             </Link>
           );
         })}

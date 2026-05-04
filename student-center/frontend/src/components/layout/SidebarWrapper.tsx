@@ -25,6 +25,11 @@ export default function SidebarWrapper() {
     return <aside className="w-[280px] h-screen bg-bg-main hidden lg:block border-r border-border-card"></aside>;
   }
 
+  // Ẩn sidebar hoàn toàn khi đang trong phòng Live (để học sinh thấy full màn hình)
+  if (pathname.match(/^\/live\/[^/]+/)) {
+    return null;
+  }
+
   // Admin Context: only when logged in via Admin Portal AND currently on /admin routes
   if (role === "admin" && portal === "admin" && pathname.startsWith("/admin")) {
     return <AdminSidebar />;

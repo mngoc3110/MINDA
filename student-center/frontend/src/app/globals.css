@@ -115,3 +115,42 @@ body {
 .block-container:hover > .btn-front {
   transform: translateZ(80px) translateY(-5px) rotateX(15deg) rotateY(15deg);
 }
+
+@keyframes progress {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+
+/* ═══════════════════════════
+   KaTeX Table (array) Styling
+   ═══════════════════════════ */
+
+/* Display math blocks containing tables should be scrollable on small screens */
+.math-text-wrapper .katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 8px 0;
+  margin: 8px 0;
+}
+
+/* Array/table cells: add padding for readability */
+.math-text-wrapper .katex .mtable .col-align-c,
+.math-text-wrapper .katex .mtable .col-align-l,
+.math-text-wrapper .katex .mtable .col-align-r {
+  padding: 0 6px;
+}
+
+/* Vertical separators between columns */
+.math-text-wrapper .katex .mtable .arraycolsep {
+  width: 4px;
+}
+
+/* Horizontal lines: ensure proper thickness */
+.math-text-wrapper .katex .mtable .hline {
+  border-bottom-width: 1px;
+}
+
+/* Ensure table font size is readable */
+.math-text-wrapper .katex .mtable {
+  font-size: 0.95em;
+}

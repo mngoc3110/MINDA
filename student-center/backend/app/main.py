@@ -26,7 +26,7 @@ from app.models.tuition import TuitionRecord
 from app.models.emotion import EmotionLog
 
 # Import routers
-from app.api.endpoints import courses, assignments, exams, tuition, admin, auth, files, profile, google_auth, live_sessions, dashboard, emotion, ai_solver, assignment_folders
+from app.api.endpoints import courses, assignments, exams, tuition, admin, auth, files, profile, google_auth, live_sessions, dashboard, emotion, ai_solver, assignment_folders, manim
 # Tự động tạo bảng DB nếu chưa có
 Base.metadata.create_all(bind=engine)
 
@@ -63,7 +63,9 @@ app.add_middleware(
 # Mount tĩnh hệ thống file
 import os
 os.makedirs("static", exist_ok=True)
+os.makedirs("media", exist_ok=True)
 app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/media", StaticFiles(directory="media"), name="media")
 
 @app.get("/")
 def read_root():
@@ -84,6 +86,7 @@ app.include_router(dashboard.router, prefix="/api/dashboard", tags=["📊 Dashbo
 app.include_router(emotion.router, tags=["🧠 Emotion AI"])
 app.include_router(ai_solver.router, prefix="/api/ai", tags=["🤖 AI Solver"])
 app.include_router(assignment_folders.router, prefix="/api/folders", tags=["📁 Folders"])
+app.include_router(manim.router, prefix="/api/manim", tags=["🎬 Manim Studio"])
 
 from app.api.endpoints import contact
 app.include_router(contact.router, prefix="/api/contact", tags=["📞 Contact"])

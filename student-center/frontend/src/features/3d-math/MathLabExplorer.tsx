@@ -37,7 +37,15 @@ const K12_CURRICULUM: CurriculumGrade[] = [
   { grade: 6, label: "Toán Lớp 6", topics: [] },
   { grade: 7, label: "Toán Lớp 7", topics: [] },
   { grade: 8, label: "Toán Lớp 8", topics: [] },
-  { grade: 9, label: "Toán Lớp 9", topics: [] },
+  { grade: 9, label: "Toán Lớp 9", topics: [
+     { id: "geometry2d", name: "Hình Học Phẳng (2D)", 
+       formulas: [
+         { id: "triangle", name: "Tam Giác & Định Lý Pythagoras", trigger: "triangle" as ShapeType, icon: <Shapes className="w-4 h-4 text-emerald-500" /> },
+         { id: "square", name: "Hình Vuông & Hình Chữ Nhật", trigger: "square" as ShapeType, icon: <LayoutTemplate className="w-4 h-4 text-blue-500" /> },
+         { id: "circle", name: "Đường Tròn & Cung Tròn", trigger: "circle" as ShapeType, icon: <FunctionSquare className="w-4 h-4 text-pink-500" /> }
+       ] 
+     }
+  ]},
   { grade: 10, label: "Toán Lớp 10", topics: [
      { id: "geometry", name: "Hình học không gian sơ bộ", 
        formulas: [
@@ -55,6 +63,8 @@ const K12_CURRICULUM: CurriculumGrade[] = [
   { grade: 12, label: "Toán Lớp 12", topics: [
      { id: "solids", name: "Khối Đa Diện & Tròn Xoay", 
        formulas: [
+         { id: "tetrahedron", name: "Tứ Diện & Hình Chóp Tam Giác", trigger: "tetrahedron" as ShapeType, icon: <Shapes className="w-4 h-4 text-emerald-500" /> },
+         { id: "pyramid", name: "Hình Chóp Tứ Giác (S.ABCD)", trigger: "pyramid" as ShapeType, icon: <Layers className="w-4 h-4 text-rose-500" /> },
          { id: "cube", name: "Khối Lập Phương & Hộp Chữ Nhật", trigger: "cube" as ShapeType, icon: <Shapes className="w-4 h-4 text-blue-500" /> },
          { id: "cone", name: "Khối Nón Định Hình", trigger: "cone" as ShapeType, icon: <Calculator className="w-4 h-4 text-pink-500" /> },
          { id: "cylinder", name: "Khối Trụ & Diện Tích Xung Quanh", trigger: "cylinder" as ShapeType, icon: <FunctionSquare className="w-4 h-4 text-amber-500" /> },

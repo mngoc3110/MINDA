@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
+import HolidayDecor from "@/components/ui/HolidayDecor";
 
 const outfit = Inter({
   variable: "--font-outfit",
@@ -44,6 +45,7 @@ export default function RootLayout({
       <body className="font-outfit min-h-screen bg-bg-main text-text-primary flex flex-col">
         <ThemeProvider>
           <ServiceWorkerRegister />
+          <HolidayDecor />
           {children}
         </ThemeProvider>
       </body>

@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import {
   Loader2, Brain, Wifi, WifiOff, Users,
   Mic, MicOff, Video, VideoOff, MonitorUp, PhoneOff, BookOpen,
+  Maximize2, Minimize2,
 } from "lucide-react";
 import AnnotationBoard from "./AnnotationBoard";
 import type Peer from "peerjs";
@@ -119,28 +120,68 @@ function EmotionOverlay({ emotion, isAnalyzing, serviceOnline, compact = false }
 }
 
 // ─── VideoRefPlayer Helper ────────────────────────────────────────────────────
-function VideoRefPlayer({ stream, mirrored = false, className = "" }: {
+function VideoRefPlayer({ stream, mirrored = false, muted = true, className = "" }: {
   stream: MediaStream;
   mirrored?: boolean;
+  muted?: boolean;
   className?: string;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const audioElRef = useRef<HTMLAudioElement | null>(null);
   
   useEffect(() => {
     const video = videoRef.current;
-    if (video && stream) {
-      video.srcObject = stream;
-      video.onloadedmetadata = () => video.play().catch(console.error);
+    if (!video || !stream) return;
 
-      // Lắng nghe sự kiện thêm track mạng (thường gặp ở Safari/Mobile WebRTC)
-      const onAddTrack = () => {
-         video.srcObject = stream;
-         video.play().catch(console.error);
-      };
-      stream.addEventListener("addtrack", onAddTrack);
-      return () => stream.removeEventListener("addtrack", onAddTrack);
+    video.srcObject = stream;
+    stream.getAudioTracks().forEach(t => { t.enabled = true; });
+
+    // iOS Safari: must play muted first, then unmute after play resolves
+    video.muted = true;
+    const playPromise = video.play();
+
+    if (playPromise) {
+      playPromise.then(() => {
+        if (!muted) {
+          video.muted = false;
+        }
+      }).catch(() => {
+        // Autoplay blocked — video stays muted, fallback audio handles it
+      });
     }
-  }, [stream]);
+
+    // Fallback for iOS: use a hidden <audio> element for remote stream audio
+    // This ensures audio plays even if the <video> element stays muted
+    if (!muted && stream.getAudioTracks().length > 0) {
+      // Create a separate audio-only stream
+      const audioStream = new MediaStream(stream.getAudioTracks());
+      const audioEl = new Audio();
+      audioEl.srcObject = audioStream;
+      audioEl.autoplay = true;
+      audioEl.play().catch(() => {});
+      audioElRef.current = audioEl;
+    }
+
+    // Lắng nghe sự kiện thêm track (Safari/Mobile WebRTC)
+    const onAddTrack = () => {
+       video.srcObject = stream;
+       video.muted = true;
+       video.play().then(() => {
+         if (!muted) video.muted = false;
+       }).catch(() => {});
+    };
+    stream.addEventListener("addtrack", onAddTrack);
+
+    return () => {
+      stream.removeEventListener("addtrack", onAddTrack);
+      // Cleanup audio element
+      if (audioElRef.current) {
+        audioElRef.current.pause();
+        audioElRef.current.srcObject = null;
+        audioElRef.current = null;
+      }
+    };
+  }, [stream, muted]);
 
   return (
     <video
@@ -148,7 +189,6 @@ function VideoRefPlayer({ stream, mirrored = false, className = "" }: {
       className={`w-full h-full object-cover ${mirrored ? "scale-x-[-1]" : ""} ${className}`}
       autoPlay
       playsInline
-      muted={true} // Bắt buộc mute để Safari cho phép AutoPlay nếu gặp STUN block hoặc không tương tác
     />
   );
 }
@@ -187,6 +227,9 @@ export default function LiveRoomPage() {
   const [remoteStrokes, setRemoteStrokes] = useState<any[]>([]);
   const [showFilePicker, setShowFilePicker] = useState(false);
   const [myFiles, setMyFiles] = useState<{ id: number; filename: string; file_url: string; file_type: string }[]>([]);
+
+  // Fullscreen mode (overlay sidebar)
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Screen share viewer states
   const [screenShareActive, setScreenShareActive] = useState(false);
@@ -260,13 +303,37 @@ export default function LiveRoomPage() {
     init();
   }, [room_id]);
 
-  // --- 2. Bind teacher stream to video element
+  // --- 2. Bind teacher stream to video element (with iOS audio fallback)
+  const teacherAudioRef = useRef<HTMLAudioElement | null>(null);
   useEffect(() => {
-    if (teacherVideoRef.current && teacherStream) {
-      teacherVideoRef.current.srcObject = teacherStream;
-      teacherVideoRef.current.onloadedmetadata = () =>
-        teacherVideoRef.current?.play().catch(console.error);
+    const video = teacherVideoRef.current;
+    if (!video || !teacherStream) return;
+
+    video.srcObject = teacherStream;
+    teacherStream.getAudioTracks().forEach(t => { t.enabled = true; });
+
+    // iOS: play muted first, then unmute
+    video.muted = true;
+    video.play().then(() => {
+      video.muted = false;
+    }).catch(console.error);
+
+    // Fallback: hidden audio element for iOS
+    if (teacherStream.getAudioTracks().length > 0) {
+      const audioEl = new Audio();
+      audioEl.srcObject = new MediaStream(teacherStream.getAudioTracks());
+      audioEl.autoplay = true;
+      audioEl.play().catch(() => {});
+      teacherAudioRef.current = audioEl;
     }
+
+    return () => {
+      if (teacherAudioRef.current) {
+        teacherAudioRef.current.pause();
+        teacherAudioRef.current.srcObject = null;
+        teacherAudioRef.current = null;
+      }
+    };
   }, [teacherStream]);
 
   
@@ -292,7 +359,12 @@ export default function LiveRoomPage() {
             height: { ideal: 240, max: 480 }, 
             frameRate: { ideal: 15, max: 24 } 
           },
-          audio: true,
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true,
+            channelCount: 1,
+          },
         });
       } catch (err: any) {
         console.error("Camera/Mic permission denied:", err);
@@ -304,6 +376,12 @@ export default function LiveRoomPage() {
       if (!isMounted) { stream.getTracks().forEach(t => t.stop()); return; }
       setLocalStream(stream);
       activeStreamRef.current = stream;
+
+      // Helper: ensure remote audio tracks are enabled (no AudioContext — it can suspend on mobile)
+      const processRemoteAudio = (remoteStream: MediaStream): MediaStream => {
+        remoteStream.getAudioTracks().forEach(t => { t.enabled = true; });
+        return remoteStream;
+      };
 
       const PeerJs = (await import("peerjs")).default;
 
@@ -332,11 +410,11 @@ export default function LiveRoomPage() {
           iceServers: [
             { urls: "stun:stun.l.google.com:19302" },
             { urls: "stun:stun1.l.google.com:19302" },
-            { urls: "stun:stun2.l.google.com:19302" },
-            // Public TURN Servers (Free OpenRelay) để cứu các ca bị mạng 3G/4G hoặc iOS Safari Private Relay chặn P2P
-            { urls: "turn:openrelay.metered.ca:80", username: "openrelayproject", credential: "openrelayproject" },
-            { urls: "turn:openrelay.metered.ca:443", username: "openrelayproject", credential: "openrelayproject" },
-            { urls: "turn:openrelay.metered.ca:443?transport=tcp", username: "openrelayproject", credential: "openrelayproject" },
+            { urls: "stun:minda.io.vn:3478" },
+            // Self-hosted TURN Server (coturn) trên VPS MINDA để relay video qua NAT/firewall
+            { urls: "turn:minda.io.vn:3478", username: "minda", credential: "minda2026turn" },
+            { urls: "turn:minda.io.vn:3478?transport=tcp", username: "minda", credential: "minda2026turn" },
+            { urls: "turns:minda.io.vn:5349", username: "minda", credential: "minda2026turn" },
           ],
         },
         debug: 0,
@@ -371,7 +449,7 @@ export default function LiveRoomPage() {
               return;
             }
             call.on("stream", (remoteStream) => {
-              if (isMounted) setTeacherStream(remoteStream);
+              if (isMounted) setTeacherStream(processRemoteAudio(remoteStream));
             });
             call.on("error", () => {
               callRetryRef.current = setTimeout(attemptCall, 3000);
@@ -387,7 +465,23 @@ export default function LiveRoomPage() {
              // Tránh kết nối lại nếu đã có
              if (dataConnRef.current && dataConnRef.current.open) return;
              const conn = peerInstance.current.connect(room_id as string, { metadata: { peerId: peerInstance.current.id }});
-             conn.on("open", () => { dataConnRef.current = conn; });
+             conn.on("open", () => { 
+                dataConnRef.current = conn; 
+                conn.on("data", (data: any) => {
+                  try {
+                    if (data.type === "emotion" && data.peerId) {
+                      setStudentEmotions(prev => ({ ...prev, [data.peerId]: data.emotion }));
+                    }
+                    if (data.type?.startsWith("stroke_")) setRemoteStrokes(prev => [...prev, data]);
+                    if (data.type === "annotation_open") {
+                      setAnnotationFileUrl(data.fileUrl);
+                      setAnnotationFileType(data.fileType || "");
+                      setAnnotationOpen(true);
+                    }
+                    if (data.type === "annotation_close") setAnnotationOpen(false);
+                  } catch(e) {}
+                });
+             });
              conn.on("error", () => { setTimeout(connectData, 3000); });
              // Khi bị disconnect do GV refresh mạng
              conn.on("close", () => { dataConnRef.current = null; setTimeout(connectData, 3000); });
@@ -440,10 +534,11 @@ export default function LiveRoomPage() {
           call.on("stream", (remoteStream) => {
             if (!isMounted) return;
             const studentName = call.metadata?.name ?? `Học sinh (${call.peer.substring(0, 6)})`;
+            const processed = processRemoteAudio(remoteStream);
             setStudentStreams((prev) => {
               // Replace existing entry with same name (reconnect) hoặc same peerId
               const filtered = prev.filter(p => p.peerId !== call.peer && p.name !== studentName);
-              return [...filtered, { peerId: call.peer, stream: remoteStream, name: studentName }];
+              return [...filtered, { peerId: call.peer, stream: processed, name: studentName }];
             });
           });
           call.on("close", () => {
@@ -455,7 +550,7 @@ export default function LiveRoomPage() {
         } else {
           // Student receives teacher stream (teacher can call back too)
           call.on("stream", (remoteStream) => {
-            if (isMounted) setTeacherStream(remoteStream);
+            if (isMounted) setTeacherStream(processRemoteAudio(remoteStream));
           });
         }
       });
@@ -479,7 +574,7 @@ export default function LiveRoomPage() {
                    if (!isMounted || !peerInstance.current) return;
                    const call = peerInstance.current.call(room_id as string, stream, { metadata: { name: userInfo.full_name } });
                    if (!call) { callRetryRef.current = setTimeout(attemptCallFallback, 3000); return; }
-                   call.on("stream", (remoteStream) => { if (isMounted) setTeacherStream(remoteStream); });
+                   call.on("stream", (remoteStream) => { if (isMounted) setTeacherStream(processRemoteAudio(remoteStream)); });
                    call.on("error", () => { callRetryRef.current = setTimeout(attemptCallFallback, 3000); });
                    call.on("close", () => { setTeacherStream(null); });
                 };
@@ -489,7 +584,23 @@ export default function LiveRoomPage() {
                    if (!isMounted || !peerInstance.current) return;
                    if (dataConnRef.current && dataConnRef.current.open) return;
                    const conn = peerInstance.current.connect(room_id as string, { metadata: { peerId: peerInstance.current.id }});
-                   conn.on("open", () => { dataConnRef.current = conn; });
+                   conn.on("open", () => { 
+                      dataConnRef.current = conn; 
+                      conn.on("data", (data: any) => {
+                        try {
+                          if (data.type === "emotion" && data.peerId) {
+                            setStudentEmotions(prev => ({ ...prev, [data.peerId]: data.emotion }));
+                          }
+                          if (data.type?.startsWith("stroke_")) setRemoteStrokes(prev => [...prev, data]);
+                          if (data.type === "annotation_open") {
+                            setAnnotationFileUrl(data.fileUrl);
+                            setAnnotationFileType(data.fileType || "");
+                            setAnnotationOpen(true);
+                          }
+                          if (data.type === "annotation_close") setAnnotationOpen(false);
+                        } catch(e) {}
+                      });
+                   });
                    conn.on("error", () => { setTimeout(connectDataFallback, 3000); });
                    conn.on("close", () => { dataConnRef.current = null; setTimeout(connectDataFallback, 3000); });
                 };
@@ -515,7 +626,7 @@ export default function LiveRoomPage() {
                 metadata: { name: userInfo.full_name },
               });
               if (call) {
-                call.on("stream", (remoteStream) => { if (isMounted) setTeacherStream(remoteStream); });
+                call.on("stream", (remoteStream) => { if (isMounted) setTeacherStream(processRemoteAudio(remoteStream)); });
               }
               const conn = fallbackPeer.connect(room_id as string, { metadata: { peerId: myId } });
               conn.on("open", () => { dataConnRef.current = conn; });
@@ -883,7 +994,7 @@ export default function LiveRoomPage() {
   // ─── Render Pre-join Lobby ──────────────────────────────────────────────────
   if (!hasJoined) {
     return (
-      <div className="w-full h-[calc(100vh-60px)] flex flex-col items-center justify-center bg-black text-white font-outfit relative overflow-hidden">
+      <div className="w-full h-screen flex flex-col items-center justify-center bg-black text-white font-outfit relative overflow-hidden">
         {/* Background elements */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-500/20 blur-[120px] rounded-full pointer-events-none" />
         
@@ -896,7 +1007,7 @@ export default function LiveRoomPage() {
             <p className="text-sm text-white/50 px-4">Trình duyệt yêu cầu xác nhận để bật Camera và Microphone.</p>
           </div>
           <button
-            onClick={() => setHasJoined(true)}
+            onClick={() => { setHasJoined(true); setIsFullscreen(true); }}
             className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-[0_0_20px_rgba(99,102,241,0.3)] mt-2"
           >
             Tham gia lớp học
@@ -908,7 +1019,11 @@ export default function LiveRoomPage() {
 
   // ─── Render Main Room ───────────────────────────────────────────────────────
   return (
-    <div className="w-full h-[calc(100vh-60px)] relative overflow-hidden bg-black flex flex-col font-outfit text-white">
+    <div className={`relative overflow-hidden bg-black flex flex-col font-outfit text-white transition-all duration-300 ${
+      isFullscreen 
+        ? "fixed inset-0 z-[100] w-screen h-screen" 
+        : "w-full h-screen"
+    }`}>
       <canvas ref={canvasRef} className="hidden" />
 
       {/* ── Screen Share Overlay (JPEG frames from iPad ReplayKit) ── */}
@@ -1076,7 +1191,7 @@ export default function LiveRoomPage() {
                   >
                     {/* Aspect video box */}
                     <div className="aspect-video relative">
-                      <VideoRefPlayer stream={s.stream} mirrored />
+                      <VideoRefPlayer stream={s.stream} mirrored muted={false} />
 
                       {/* Emotion Overlay — Giáo viên xem cảm xúc học sinh */}
                       {studentEmotions[s.peerId] ? (
@@ -1190,6 +1305,15 @@ export default function LiveRoomPage() {
             </button>
           )}
 
+          {/* Fullscreen toggle */}
+          <button
+            onClick={() => setIsFullscreen(f => !f)}
+            title={isFullscreen ? "Thu nhỏ" : "Phóng to toàn màn hình"}
+            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-lg ${isFullscreen ? "bg-cyan-500 text-white shadow-[0_0_15px_rgba(6,182,212,0.5)]" : "bg-white/10 hover:bg-white/20 text-white"}`}
+          >
+            {isFullscreen ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
+          </button>
+
           <button
             onClick={handleLeave}
             className="bg-rose-600 hover:bg-rose-500 text-white font-black px-6 py-3 rounded-full flex items-center gap-2 shadow-[0_0_20px_rgba(244,63,94,0.4)] transition-all ml-2"
@@ -1230,8 +1354,33 @@ export default function LiveRoomPage() {
               <button onClick={() => setShowFilePicker(false)} className="text-white/50 hover:text-white">✕</button>
             </div>
             <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-2">
+              {/* Blank Whiteboard */}
+              <button 
+                onClick={() => {
+                  setAnnotationFileType("whiteboard");
+                  setAnnotationFileUrl("blank");
+                  setAnnotationOpen(true);
+                  setShowFilePicker(false);
+                  const conns = (peerInstance.current as any)?.connections || {};
+                  for (const id in conns) {
+                    conns[id]?.forEach((c: any) => {
+                      if (c.type === "data" && c.open) c.send({ type: "annotation_open", fileUrl: "blank", fileType: "whiteboard" });
+                    });
+                  }
+                }}
+                className="flex items-center gap-3 p-4 rounded-xl border border-solid border-white/20 hover:border-indigo-500/50 hover:bg-indigo-500/10 cursor-pointer transition-colors text-left"
+              >
+                <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center group-hover:bg-indigo-500/20 transition-colors shrink-0">
+                  <span className="text-xl">⚡</span>
+                </div>
+                <div>
+                  <div className="text-white font-bold text-sm">Bật Bảng trắng rỗng</div>
+                  <div className="text-white/40 text-xs">Vẽ nháp tự do</div>
+                </div>
+              </button>
+
               {/* Upload new */}
-              <label className="flex items-center gap-3 p-4 rounded-xl border border-dashed border-white/20 hover:border-amber-500/50 cursor-pointer transition-colors group">
+              <label className="flex items-center gap-3 p-4 rounded-xl border border-dashed border-white/20 hover:border-amber-500/50 cursor-pointer transition-colors group mt-2">
                 <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center group-hover:bg-amber-500/20 transition-colors">
                   <span className="text-xl">📤</span>
                 </div>

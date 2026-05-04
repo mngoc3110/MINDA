@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ClipboardCheck, Search, Clock, FileText, User, ChevronDown, ChevronRight, Trophy, PenLine, Trash2, Eye, X, FolderPlus } from "lucide-react";
+import { ClipboardCheck, Search, Clock, FileText, User, ChevronDown, ChevronRight, Trophy, PenLine, Trash2, Eye, X, FolderPlus, BarChart2 } from "lucide-react";
 import QuizBuilderModal from "./QuizBuilderModal";
+import SubmissionModal from "./SubmissionModal";
+import StatsPanel from "./StatsPanel";
 
 interface SubmissionGroup {
   student_id: number;
@@ -142,6 +144,8 @@ export default function AssignmentsPage() {
   const [myClasses, setMyClasses] = useState<string[]>([]);
   const [editingFolderClasses, setEditingFolderClasses] = useState<number | null>(null);
   const [expandedAssignmentIds, setExpandedAssignmentIds] = useState<Set<number>>(new Set());
+  const [rightTab, setRightTab] = useState<"results" | "stats">("results");
+  const [statsStudent, setStatsStudent] = useState<{id: number, name: string, avatar: string | null} | null>(null);
   
   // States for folder rename
   const [editingFolderId, setEditingFolderId] = useState<number | null>(null);
@@ -632,24 +636,43 @@ export default function AssignmentsPage() {
         {/* Submissions grouped by ASSIGNMENT */}
         <div className="lg:col-span-3 bg-bg-card rounded-3xl border border-border-card overflow-hidden flex flex-col max-h-[650px]">
           <div className="flex items-center justify-between p-6 border-b border-border-card shrink-0">
-            <h2 className="text-lg font-bold flex items-center gap-2">
-              <Clock className="w-5 h-5 text-orange-400" /> Kết quả theo Đề
-            </h2>
-            <div className="relative">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
-              <input
-                type="text"
-                placeholder="Tìm đề hoặc HS..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="pl-9 pr-4 py-2 bg-white/5 border border-border-card rounded-lg text-sm focus:outline-none focus:border-orange-500/50"
-              />
+            <div className="flex items-center gap-2 bg-white/5 p-1 rounded-xl">
+              <button
+                onClick={() => setRightTab("results")}
+                className={`px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${rightTab === "results" ? "bg-bg-hover text-orange-400 shadow-sm" : "text-text-muted hover:text-text-primary"}`}
+              >
+                <Clock className="w-4 h-4" /> Kết quả
+              </button>
+              <button
+                onClick={() => setRightTab("stats")}
+                className={`px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${rightTab === "stats" ? "bg-bg-hover text-indigo-400 shadow-sm" : "text-text-muted hover:text-text-primary"}`}
+              >
+                <BarChart2 className="w-4 h-4" /> Thống kê
+              </button>
             </div>
+            {rightTab === "results" && (
+              <div className="relative hidden sm:block">
+                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
+                <input
+                  type="text"
+                  placeholder="Tìm đề hoặc HS..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="pl-9 pr-4 py-2 bg-white/5 border border-border-card rounded-lg text-sm focus:outline-none focus:border-orange-500/50"
+                />
+              </div>
+            )}
           </div>
 
           <div className="overflow-y-auto flex-1">
             {loading ? (
               <div className="text-center p-8 text-text-muted">Đang tải...</div>
+            ) : rightTab === "stats" ? (
+              <StatsPanel 
+                submissions={submissions} 
+                statsStudent={statsStudent} 
+                onSelectStudent={setStatsStudent} 
+              />
             ) : (() => {
               const assignmentGroups = groupByAssignment(submissions).filter(
                 (g) =>
@@ -735,9 +758,22 @@ export default function AssignmentsPage() {
                                 <p className="font-semibold text-sm text-text-primary flex-1 truncate">{st.student_name}</p>
                                 <ScoreBadge score={st.best_score} max={ag.max_score} />
                                 {st.attempt_count > 1 ? (
-                                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-bold">
-                                    {st.attempt_count} lần
-                                  </span>
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-bold">
+                                      {st.attempt_count} lần
+                                    </span>
+                                    <button 
+                                      onClick={(e) => { 
+                                        e.stopPropagation(); 
+                                        setStatsStudent({ id: st.student_id, name: st.student_name, avatar: st.student_avatar }); 
+                                        setRightTab("stats"); 
+                                      }} 
+                                      className="p-1 text-indigo-400 hover:bg-indigo-500/20 rounded-lg transition-colors" 
+                                      title="Xem thống kê"
+                                    >
+                                      <BarChart2 className="w-3.5 h-3.5" />
+                                    </button>
+                                  </div>
                                 ) : (
                                   <button onClick={(e) => { e.stopPropagation(); handleViewSubmission(st.attempts[0]); }} className="flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300">
                                     <Eye className="w-3.5 h-3.5" /> Xem
@@ -790,134 +826,14 @@ export default function AssignmentsPage() {
 
       {/* Modal xem bài làm của học sinh */}
       {viewingSubmission && (
-        <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => { setViewingSubmission(null); setViewingQuizData(null); }}>
-          <div className="bg-bg-card rounded-2xl w-full max-w-3xl max-h-[85vh] overflow-hidden border border-border-card shadow-2xl flex flex-col" onClick={(e) => e.stopPropagation()}>
-            {/* Header */}
-            <div className="flex items-center justify-between p-5 border-b border-border-card shrink-0">
-              <div>
-                <h3 className="text-lg font-bold text-text-primary flex items-center gap-2">
-                  <Eye className="w-5 h-5 text-indigo-400" />
-                  Bài làm của {viewingSubmission.student_name}
-                </h3>
-                <p className="text-sm text-text-secondary mt-0.5">
-                  {viewingSubmission.assignment_title} · Điểm: <span className="font-bold text-text-primary">{viewingSubmission.score ?? 'Chưa chấm'}/{viewingSubmission.max_score ?? 10}đ</span>
-                  · {new Date(viewingSubmission.submitted_at).toLocaleString('vi-VN')}
-                </p>
-              </div>
-              <button onClick={() => { setViewingSubmission(null); setViewingQuizData(null); }} className="w-8 h-8 rounded-full bg-bg-hover flex items-center justify-center hover:bg-red-500/20 transition-colors">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Body */}
-            <div className="overflow-y-auto flex-1 p-5">
-              {!viewingQuizData ? (
-                <div className="text-center py-10 text-text-muted">Đang tải đề bài...</div>
-              ) : (() => {
-                const answers = viewingSubmission.quiz_answers || {};
-                const sections = viewingQuizData.sections || [];
-                let qCount = 0;
-                return sections.map((section: any, sIdx: number) => (
-                  <div key={sIdx} className="mb-6">
-                    <h4 className="text-sm font-bold text-indigo-400 uppercase tracking-wider mb-3">
-                      {section.type === 'mcq' ? '📝 Trắc nghiệm' : section.type === 'true_false' ? '✅ Đúng/Sai' : '✍️ Tự luận ngắn'}
-                    </h4>
-                    {(section.questions || []).map((q: any, qIdx: number) => {
-                      qCount++;
-                      const qid = `s${sIdx}_${q.id || qIdx}`;
-                      const studentAns = answers[qid];
-                      const correctAns = q.correctAnswer;
-                      const normalize = (s: string) => String(s || '').trim().toLowerCase().replace(/,/g, '.');
-                      const isCorrect = section.type === 'mcq'
-                        ? String(studentAns || '').trim() === String(correctAns || '').trim()
-                        : section.type === 'short_answer'
-                        ? normalize(studentAns) === normalize(correctAns)
-                        : null;
-
-                      return (
-                        <div key={qid} className={`mb-3 p-4 rounded-xl border ${isCorrect === true ? 'border-green-500/30 bg-green-500/5' : isCorrect === false ? 'border-red-500/30 bg-red-500/5' : 'border-border-card bg-bg-hover'}`}>
-                          <p className="font-medium text-sm mb-2">
-                            <span className="text-text-muted mr-1">Câu {qCount}.</span>
-                            {q.question || q.content}
-                          </p>
-
-                          {section.type === 'mcq' && (() => {
-                            // Convert numeric index (0,1,2,3) to letter (A,B,C,D) if needed
-                            const toLabel = (v: any) => {
-                              if (v === null || v === undefined || v === '') return '';
-                              const n = Number(v);
-                              if (!isNaN(n) && n >= 0 && n <= 25) return String.fromCharCode(65 + n);
-                              return String(v).trim().toUpperCase();
-                            };
-                            const studentLabel = toLabel(studentAns);
-                            const correctLabel = toLabel(correctAns);
-                            return (
-                            <div>
-                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 mb-2">
-                                {(q.options || []).map((opt: string, oIdx: number) => {
-                                  const optLabel = String.fromCharCode(65 + oIdx);
-                                  const isStudentChoice = studentLabel === optLabel;
-                                  const isCorrectChoice = correctLabel === optLabel;
-                                  return (
-                                    <div key={oIdx} className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs ${
-                                      isStudentChoice && isCorrectChoice ? 'bg-green-500/20 text-green-600 dark:text-green-400 font-bold border-2 border-green-500/50 ring-2 ring-green-500/20'
-                                      : isCorrectChoice ? 'bg-green-500/15 text-green-600 dark:text-green-400 font-bold border border-green-500/30'
-                                      : isStudentChoice ? 'bg-red-500/15 text-red-600 dark:text-red-400 font-bold border-2 border-red-500/50 ring-2 ring-red-500/20'
-                                      : 'bg-bg-hover text-t-secondary border border-transparent'
-                                    }`}>
-                                      <span className="font-bold shrink-0">{optLabel}.</span>
-                                      <span className="flex-1">{opt}</span>
-                                      {isStudentChoice && isCorrectChoice && <span className="ml-auto text-green-500 font-bold shrink-0">✓ HS chọn</span>}
-                                      {isCorrectChoice && !isStudentChoice && <span className="ml-auto text-green-500 shrink-0">✓ Đáp án</span>}
-                                      {isStudentChoice && !isCorrectChoice && <span className="ml-auto text-red-500 shrink-0">✗ HS chọn</span>}
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                              {/* Summary */}
-                              <div className="flex items-center gap-3 text-xs mt-1 px-1">
-                                <span className="text-t-secondary">HS chọn: <span className={`font-bold ${studentLabel === correctLabel ? 'text-green-500' : 'text-red-500'}`}>{studentLabel || '(bỏ trống)'}</span></span>
-                                <span className="text-t-secondary">|</span>
-                                <span className="text-t-secondary">Đáp án: <span className="font-bold text-green-500">{correctLabel}</span></span>
-                                {studentLabel === correctLabel ? <span className="text-green-500 font-bold">✓ Đúng</span> : <span className="text-red-500 font-bold">✗ Sai</span>}
-                              </div>
-                            </div>
-                            );
-                          })()}
-
-                          {section.type === 'true_false' && (
-                            <div className="space-y-1 mb-2">
-                              {(q.items || []).map((item: any) => {
-                                const tfAnswer = studentAns && typeof studentAns === 'object' ? studentAns[item.label] : undefined;
-                                const correctTF = item.isTrue;
-                                const isRight = tfAnswer !== undefined && (String(tfAnswer).toLowerCase() === 'true') === Boolean(correctTF);
-                                return (
-                                  <div key={item.label} className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs ${isRight ? 'bg-green-500/10 text-green-400' : tfAnswer !== undefined ? 'bg-red-500/10 text-red-400' : 'bg-white/5 text-text-secondary'}`}>
-                                    <span className="font-bold">{item.label}.</span>
-                                    <span className="flex-1">{item.content}</span>
-                                    <span>HS: {tfAnswer !== undefined ? (String(tfAnswer).toLowerCase() === 'true' ? 'Đ' : 'S') : '—'}</span>
-                                    <span>| ĐA: {correctTF ? 'Đ' : 'S'}</span>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          )}
-
-                          {section.type === 'short_answer' && (
-                            <div className="flex gap-4 text-xs">
-                              <span className="text-text-secondary">HS trả lời: <span className={`font-bold ${isCorrect ? 'text-green-400' : 'text-red-400'}`}>{studentAns || '(bỏ trống)'}</span></span>
-                              <span className="text-text-secondary">Đáp án: <span className="font-bold text-green-400">{correctAns}</span></span>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                ));
-              })()}
-            </div>
-          </div>
-        </div>
+        <SubmissionModal
+          submission={viewingSubmission}
+          quizData={viewingQuizData}
+          onClose={() => {
+            setViewingSubmission(null);
+            setViewingQuizData(null);
+          }}
+        />
       )}
     </div>
   );

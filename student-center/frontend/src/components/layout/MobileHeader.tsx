@@ -61,6 +61,9 @@ export default function MobileHeader() {
 
   return (
     <>
+      {/* Ẩn hoàn toàn MobileHeader khi trong phòng Live */}
+      {pathname.match(/^\/live\/[^/]+/) ? null : (
+      <>
       {/* Mobile Top Header — chỉ hiện dưới lg */}
       <header className="lg:hidden fixed top-0 left-0 right-0 z-50 h-14 bg-bg-main/95 backdrop-blur-xl border-b border-border-card flex items-center justify-between px-4">
         <div className="flex items-center gap-2.5">
@@ -182,6 +185,8 @@ export default function MobileHeader() {
           </button>
         </div>
       </div>
+      </>
+      )}
     </>
   );
 }

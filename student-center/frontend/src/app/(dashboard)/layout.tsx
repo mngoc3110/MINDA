@@ -14,7 +14,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           {/* Mobile Header with hamburger (hidden on desktop) */}
           <MobileHeader />
 
-          <main className="flex-1 overflow-y-auto w-full pt-14 lg:pt-0">
+          <main className="flex-1 overflow-y-auto w-full pt-[120px] lg:pt-[100px]">
             {children}
           </main>
         </div>

@@ -1,23 +1,28 @@
 import os
 import sys
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from app.core.drive_service import drive_service
+# Add the backend directory to sys.path
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-def check_folders():
-    if not drive_service.service:
-        print("No drive_service")
-        return
-        
-    query = f"mimeType='application/vnd.google-apps.folder' and name='MINDA_Storage' and trashed=false"
-    results = drive_service.service.files().list(q=query, fields="files(id, name, owners, shared)").execute()
-    items = results.get('files', [])
+from app.db.database import get_db
+# Import all models to resolve SQLAlchemy relationships
+from app.models import *
+from app.models.assignment_folder import AssignmentFolder
+
+def do_task():
+    db = next(get_db())
     
-    print(f"Found {len(items)} folders named MINDA_Storage:")
-    for item in items:
-        owner = item.get('owners', [{}])[0].get('emailAddress', 'unknown')
-        shared = item.get('shared', False)
-        print(f"ID: {item.get('id')} - Owner: {owner} - Shared: {shared}")
+    # Print all teachers
+    teachers = db.query(User).filter(User.role == "teacher").all()
+    for t in teachers:
+        print(f"Teacher: {t.full_name} (ID: {t.id}) - Email: {t.email}")
+        
+    print("-" * 20)
+    
+    # Print all folders
+    folders = db.query(AssignmentFolder).all()
+    for f in folders:
+        print(f"Folder: {f.name} (ID: {f.id}) - Teacher ID: {f.teacher_id}")
 
 if __name__ == "__main__":
-    check_folders()
+    do_task()
