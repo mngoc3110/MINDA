@@ -72,11 +72,15 @@ import json
 def _call_openrouter(prompt: str, system_instruction: str):
     openrouter_key = os.getenv("OPENROUTER_API_KEY", "")
     models = [
-        "google/gemini-2.5-flash", 
-        "meta-llama/llama-3.3-70b-instruct",
-        "google/gemma-3-27b-it:free"
+        "google/gemma-3-12b-it:free",
+        "meta-llama/llama-3.2-3b-instruct:free",
+        "google/gemma-3-27b-it:free",
+        "meta-llama/llama-3.3-70b-instruct:free",
+        "openai/gpt-oss-20b:free",
+        "nvidia/nemotron-nano-9b-v2:free"
     ]
     
+    merged_prompt = f"System Instruction:\n{system_instruction}\n\nTask:\n{prompt}"
     last_err = None
     for model in models:
         print(f"[OpenRouter] Trying model {model}...")
@@ -89,8 +93,7 @@ def _call_openrouter(prompt: str, system_instruction: str):
             data=json.dumps({
                 "model": model,
                 "messages": [
-                    {"role": "system", "content": system_instruction},
-                    {"role": "user", "content": prompt}
+                    {"role": "user", "content": merged_prompt}
                 ]
             }),
             timeout=30
