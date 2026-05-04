@@ -71,12 +71,10 @@ import json
 
 def _call_openrouter(prompt: str, system_instruction: str):
     openrouter_key = os.getenv("OPENROUTER_API_KEY", "")
-    print(f"[OpenRouter] Falling back to OpenRouter...")
     models = [
-        "google/gemma-3-27b-it:free", 
-        "meta-llama/llama-3.2-3b-instruct:free", 
-        "google/gemma-3-12b-it:free",
-        "meta-llama/llama-3.3-70b-instruct:free"
+        "google/gemini-2.5-flash", 
+        "meta-llama/llama-3.3-70b-instruct",
+        "google/gemma-3-27b-it:free"
     ]
     
     last_err = None
