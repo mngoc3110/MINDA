@@ -58,104 +58,96 @@ class StatsAnalyzeRequest(BaseModel):
 
 from app.services.gemini_key_manager import get_next_gemini_key
 
-def _get_client():
-    key = get_next_gemini_key()
-    if not key:
-        raise HTTPException(status_code=500, detail="Chưa cài đặt Gemini API Key trong môi trường Backend.")
-    return genai.Client(api_key=key)
-
-
 import os
 import requests
 import json
+import base64
+from fastapi import HTTPException
+from app.services.gemini_key_manager import get_next_gemini_key
 
-def _call_openrouter(prompt: str, system_instruction: str):
-    openrouter_key = os.getenv("OPENROUTER_API_KEY", "")
-    models = [
-        "google/gemma-3-12b-it:free",
-        "meta-llama/llama-3.2-3b-instruct:free",
-        "google/gemma-3-27b-it:free",
-        "meta-llama/llama-3.3-70b-instruct:free",
-        "openai/gpt-oss-20b:free",
-        "nvidia/nemotron-nano-9b-v2:free"
-    ]
-    
+def generate_ai_response(prompt: str, system_instruction: str, image_b64: str = None, mime_type: str = "image/jpeg"):
     merged_prompt = f"System Instruction:\n{system_instruction}\n\nTask:\n{prompt}"
-    last_err = None
-    for model in models:
-        print(f"[OpenRouter] Trying model {model}...")
-        response = requests.post(
-            url="https://openrouter.ai/api/v1/chat/completions",
-            headers={
-                "Authorization": f"Bearer {openrouter_key}",
+    
+    messages = []
+    if image_b64:
+        messages.append({
+            "role": "user",
+            "content": [
+                {"type": "text", "text": merged_prompt},
+                {"type": "image_url", "image_url": {"url": f"data:{mime_type};base64,{image_b64}"}}
+            ]
+        })
+    else:
+        messages.append({"role": "user", "content": merged_prompt})
+
+    PROVIDERS = [
+        {
+            "name": "LLM7.io",
+            "url": "https://api.llm7.io/v1/chat/completions",
+            "headers": {"Content-Type": "application/json"},
+            "models": ["gemini-2.5-flash-lite", "gpt-4o-mini"]
+        },
+        {
+            "name": "Kilo Code",
+            "url": "https://api.kilo.ai/api/gateway/chat/completions",
+            "headers": {"Content-Type": "application/json"},
+            "models": ["kilo-auto/free"]
+        },
+        {
+            "name": "OpenRouter",
+            "url": "https://openrouter.ai/api/v1/chat/completions",
+            "headers_func": lambda: {
+                "Authorization": f"Bearer {os.getenv('OPENROUTER_API_KEY', '')}",
                 "Content-Type": "application/json"
             },
-            data=json.dumps({
-                "model": model,
-                "messages": [
-                    {"role": "user", "content": merged_prompt}
-                ]
-            }),
-            timeout=30
-        )
-        if response.status_code == 200:
-            return response.json()["choices"][0]["message"]["content"]
-        last_err = response.text
-        print(f"[OpenRouter] Model {model} failed: {last_err}")
+            "models": ["google/gemma-3-12b-it:free", "meta-llama/llama-3.2-3b-instruct:free", "openai/gpt-oss-20b:free"]
+        },
+        {
+            "name": "OVHcloud",
+            "url": "https://oai.endpoints.kepler.ai.cloud.ovh.net/v1/chat/completions",
+            "headers": {"Content-Type": "application/json"},
+            "models": ["Meta-Llama-3_1-8B-Instruct"]
+        }
+    ]
+
+    last_err = None
+
+    for provider in PROVIDERS:
+        headers = provider.get("headers_func", lambda: provider.get("headers", {}))()
+        url = provider["url"]
         
-    raise Exception(f"OpenRouter failed all models. Last error: {last_err}")
-
-
-def _call_gemini(client, contents, system_instruction=None):
-    """Try multiple models with retry."""
-    last_error = None
-    config = types.GenerateContentConfig(
-        temperature=0.2,
-        system_instruction=system_instruction,
-    )
-    for model_name in MODELS_TO_TRY:
-        for attempt in range(4):
+        for model in provider["models"]:
+            print(f"[{provider['name']}] Trying model {model}...")
+            payload = {
+                "model": model,
+                "messages": messages,
+                "temperature": 0.2
+            }
             try:
-                print(f"[Gemini] Trying {model_name} (attempt {attempt+1})...")
-                response = client.models.generate_content(
-                    model=model_name,
-                    contents=contents,
-                    config=config,
-                )
-                return response.text
+                response = requests.post(url, headers=headers, json=payload, timeout=30)
+                if response.status_code == 200:
+                    return response.json()["choices"][0]["message"]["content"]
+                last_err = f"{response.status_code} - {response.text}"
+                print(f"[{provider['name']}] Model {model} failed: {last_err}")
             except Exception as e:
-                last_error = e
-                print(f"[Gemini] {model_name} failed: {e}")
-                err_str = str(e)
-                if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str or "403" in err_str or "PERMISSION_DENIED" in err_str:
-                    from app.services.gemini_key_manager import get_next_gemini_key
-                    new_key = get_next_gemini_key()
-                    print(f"[Gemini] Error {err_str[:30]}. Switching API key...")
-                    client = genai.Client(api_key=new_key)
-                    continue
-                else:
-                    break
-    raise last_error
+                last_err = str(e)
+                print(f"[{provider['name']}] Model {model} exception: {last_err}")
+                
+    raise Exception(f"All AI Providers failed. Last error: {last_err}")
 
 
 @router.post("/solve-math")
 async def solve_math(req: ChatRequest, current_user=Depends(get_current_user)):
     """
-    Nhận prompt của học viên, gọi tới Gemini Cloud API để giải toán
+    Nhận prompt của học viên, gọi tới Multi-Provider AI để giải toán
     kèm theo kỹ thuật System Prompt Injection trích xuất tham số 3D.
     """
     try:
-        client = _get_client()
-        reply = _call_gemini(client, [req.prompt], system_instruction=SYSTEM_INSTRUCTION)
+        reply = generate_ai_response(req.prompt, SYSTEM_INSTRUCTION)
         return {"reply": reply}
     except Exception as e:
-        print(f"[Gemini Exception]: {e}. Falling back to OpenRouter...")
-        try:
-            reply = _call_openrouter(req.prompt, SYSTEM_INSTRUCTION)
-            return {"reply": reply}
-        except Exception as openrouter_err:
-            print(f"[OpenRouter Exception]: {openrouter_err}")
-            raise HTTPException(status_code=500, detail=f"Lỗi AI: Tất cả các API đều thất bại.")
+        print(f"[AI Exception]: {e}")
+        raise HTTPException(status_code=500, detail="Lỗi AI: Tất cả các API đều thất bại.")
 
 @router.post("/analyze-stats")
 async def analyze_stats(req: StatsAnalyzeRequest, current_user=Depends(get_current_user)):
@@ -165,17 +157,11 @@ async def analyze_stats(req: StatsAnalyzeRequest, current_user=Depends(get_curre
     sys_prompt = "Bạn là một giáo viên tận tâm tại hệ thống MINDA. Dưới đây là lịch sử nộp bài tập của một học sinh (bao gồm tên bài, điểm, và thời gian nộp, điểm tối đa thường là 10). Dựa vào đây, hãy viết một nhận xét ngắn gọn (khoảng 3-4 câu) về sự tiến bộ, phân tích xu hướng học tập (đi lên/xuống) và đưa ra lời khuyên động viên mang tính cá nhân hóa. Tuyệt đối không chào hỏi dài dòng, hãy đi thẳng vào nhận xét."
     prompt = f"Lịch sử làm bài:\n{json.dumps(req.history, ensure_ascii=False, indent=2)}\n\nHãy phân tích."
     try:
-        client = _get_client()
-        reply = _call_gemini(client, [prompt], system_instruction=sys_prompt)
+        reply = generate_ai_response(prompt, sys_prompt)
         return {"reply": reply}
     except Exception as e:
-        print(f"[Gemini Exception]: {e}. Falling back to OpenRouter...")
-        try:
-            reply = _call_openrouter(prompt, sys_prompt)
-            return {"reply": reply}
-        except Exception as openrouter_err:
-            print(f"[OpenRouter Exception]: {openrouter_err}")
-            raise HTTPException(status_code=500, detail="Lỗi AI khi phân tích thống kê.")
+        print(f"[AI Exception]: {e}")
+        raise HTTPException(status_code=500, detail="Lỗi AI khi phân tích thống kê.")
 
 
 @router.post("/solve-image")
@@ -184,53 +170,18 @@ async def solve_from_image(
     current_user=Depends(get_current_user),
 ):
     """
-    Học sinh chụp ảnh bài toán → Gemini nhận diện + giải.
-    Fallback sang OpenRouter nếu Gemini hết quota.
+    Học sinh chụp ảnh bài toán → AI nhận diện + giải.
+    Xử lý tự động xoay vòng đa nền tảng (Base64 Image).
     """
     content = await file.read()
     mime = file.content_type or "image/jpeg"
+    b64 = base64.b64encode(content).decode("utf-8")
 
     try:
-        client = _get_client()
-        image_part = types.Part.from_bytes(data=content, mime_type=mime)
         prompt_part = "Hãy đọc bài toán trong ảnh và giải chi tiết từng bước. Dùng LaTeX cho công thức."
-
-        reply = _call_gemini(
-            client,
-            [image_part, prompt_part],
-            system_instruction=SYSTEM_INSTRUCTION,
-        )
+        reply = generate_ai_response(prompt_part, SYSTEM_INSTRUCTION, image_b64=b64, mime_type=mime)
         return {"reply": reply}
     except Exception as e:
-        print(f"[Gemini Image Exception]: {e}. Falling back to OpenRouter Vision...")
-        try:
-            import base64
-            openrouter_key = os.getenv("OPENROUTER_API_KEY", "")
-            b64 = base64.b64encode(content).decode("utf-8")
-            response = requests.post(
-                "https://openrouter.ai/api/v1/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {openrouter_key}",
-                    "Content-Type": "application/json",
-                },
-                json={
-                    "model": "meta-llama/llama-4-maverick:free",
-                    "messages": [
-                        {"role": "system", "content": SYSTEM_INSTRUCTION},
-                        {"role": "user", "content": [
-                            {"type": "image_url", "image_url": {"url": f"data:{mime};base64,{b64}"}},
-                            {"type": "text", "text": "Hãy đọc bài toán trong ảnh và giải chi tiết từng bước. Dùng LaTeX cho công thức."}
-                        ]}
-                    ]
-                },
-                timeout=60
-            )
-            if response.status_code == 200:
-                reply = response.json()["choices"][0]["message"]["content"]
-                return {"reply": reply}
-            else:
-                raise Exception(f"OpenRouter Vision failed: {response.status_code}")
-        except Exception as openrouter_err:
-            print(f"[OpenRouter Vision Exception]: {openrouter_err}")
-            raise HTTPException(status_code=500, detail=f"Lỗi phân tích ảnh: Tất cả API đều hết quota.")
+        print(f"[AI Image Exception]: {e}")
+        raise HTTPException(status_code=500, detail="Lỗi AI khi nhận diện ảnh. Vui lòng thử lại sau.")
 
