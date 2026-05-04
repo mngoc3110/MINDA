@@ -73,9 +73,9 @@ def _call_openrouter(prompt: str, system_instruction: str):
     openrouter_key = os.getenv("OPENROUTER_API_KEY", "")
     print(f"[OpenRouter] Falling back to OpenRouter...")
     models = [
-        "google/gemini-2.0-flash-lite-preview-02-05:free", 
-        "mistralai/mistral-7b-instruct:free", 
-        "meta-llama/llama-3-8b-instruct:free",
+        "google/gemma-3-27b-it:free", 
+        "meta-llama/llama-3.2-3b-instruct:free", 
+        "google/gemma-3-12b-it:free",
         "meta-llama/llama-3.3-70b-instruct:free"
     ]
     
