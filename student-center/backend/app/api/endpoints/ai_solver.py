@@ -71,27 +71,38 @@ import json
 
 def _call_openrouter(prompt: str, system_instruction: str):
     openrouter_key = os.getenv("OPENROUTER_API_KEY", "")
-    print(f"[OpenRouter] Falling back to OpenRouter Llama-3.3-70B...")
+    print(f"[OpenRouter] Falling back to OpenRouter...")
+    models = [
+        "google/gemini-2.0-flash-lite-preview-02-05:free", 
+        "mistralai/mistral-7b-instruct:free", 
+        "meta-llama/llama-3-8b-instruct:free",
+        "meta-llama/llama-3.3-70b-instruct:free"
+    ]
     
-    response = requests.post(
-        url="https://openrouter.ai/api/v1/chat/completions",
-        headers={
-            "Authorization": f"Bearer {openrouter_key}",
-            "Content-Type": "application/json"
-        },
-        data=json.dumps({
-            "model": "meta-llama/llama-3.3-70b-instruct:free",
-            "messages": [
-                {"role": "system", "content": system_instruction},
-                {"role": "user", "content": prompt}
-            ]
-        }),
-        timeout=30
-    )
-    if response.status_code == 200:
-        return response.json()["choices"][0]["message"]["content"]
-    else:
-        raise Exception(f"OpenRouter failed with {response.status_code}: {response.text}")
+    last_err = None
+    for model in models:
+        print(f"[OpenRouter] Trying model {model}...")
+        response = requests.post(
+            url="https://openrouter.ai/api/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {openrouter_key}",
+                "Content-Type": "application/json"
+            },
+            data=json.dumps({
+                "model": model,
+                "messages": [
+                    {"role": "system", "content": system_instruction},
+                    {"role": "user", "content": prompt}
+                ]
+            }),
+            timeout=30
+        )
+        if response.status_code == 200:
+            return response.json()["choices"][0]["message"]["content"]
+        last_err = response.text
+        print(f"[OpenRouter] Model {model} failed: {last_err}")
+        
+    raise Exception(f"OpenRouter failed all models. Last error: {last_err}")
 
 
 def _call_gemini(client, contents, system_instruction=None):
