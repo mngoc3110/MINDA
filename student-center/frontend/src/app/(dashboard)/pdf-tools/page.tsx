@@ -58,9 +58,17 @@ function usePdfPages(file: File | null) {
     (async () => {
       setLoading(true);
       try {
+        // Polyfill for Promise.withResolvers (needed for older browsers/Node with pdfjs v4+)
+        if (typeof (Promise as any).withResolvers === 'undefined') {
+          (Promise as any).withResolvers = function () {
+            let resolve, reject;
+            const promise = new Promise((res, rej) => { resolve = res; reject = rej; });
+            return { promise, resolve, reject };
+          };
+        }
+        
         const pdfjsLib = await import("pdfjs-dist");
-        // v5 requires .mjs worker
-        pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
+        pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
         const arrayBuffer = await file.arrayBuffer();
         const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(arrayBuffer) }).promise;
         setTotal(pdf.numPages);
@@ -81,6 +89,7 @@ function usePdfPages(file: File | null) {
       } catch (e: any) {
         console.error("PDF render error:", e);
         setTotal(-1); // signal error
+        if (!cancelled) setPages([e.message || String(e)]);
       }
       if (!cancelled) setLoading(false);
     })();
@@ -173,7 +182,9 @@ export default function PdfToolsPage() {
 
       const blob = await res.blob();
       const disposition = res.headers.get("Content-Disposition");
-      let filename = `result_${activeTool.id}.pdf`;
+      const contentType = res.headers.get("Content-Type") || "";
+      const isZip = contentType.includes("zip") || contentType.includes("x-zip-compressed");
+      let filename = `result_${activeTool.id}${isZip ? ".zip" : ".pdf"}`;
       if (disposition) { const m = disposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/); if (m) filename = m[1].replace(/['"]/g, ""); }
       setResultUrl(URL.createObjectURL(blob)); setResultName(filename); setDone(true);
     } catch (err: any) { setError(err.message || "Có lỗi xảy ra"); }
@@ -253,7 +264,7 @@ export default function PdfToolsPage() {
                   <div className={`flex items-center gap-3 px-4 py-3 rounded-xl border mb-4 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-gray-200"}`}>
                     <FileText className="w-5 h-5 text-indigo-400" />
                     <span className="flex-1 text-sm font-medium truncate">{singleFile?.name}</span>
-                    <span className="text-xs text-text-secondary">{pageCount} trang • {formatSize(singleFile?.size || 0)}</span>
+                    <span className="text-xs text-text-secondary">{pageCount === -1 ? <span className="text-red-500 font-bold">Lỗi: {pages[0]}</span> : `${pageCount} trang`} • {formatSize(singleFile?.size || 0)}</span>
                     <button onClick={() => { setFiles([]); setSplitPoints(new Set()); }} className="text-gray-400 hover:text-red-400"><X className="w-4 h-4" /></button>
                   </div>
 
