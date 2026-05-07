@@ -156,17 +156,10 @@ export default function PdfToolsPage() {
       if (activeTool.multiple) files.forEach(f => formData.append("fileInput", f));
       else formData.append("fileInput", files[0]);
 
-      // For visual split, convert split points to page ranges
+      // For visual split, convert split points to comma-separated string
       if (activeTool.visualSplit && splitPoints.size > 0) {
         const sorted = [...splitPoints].sort((a, b) => a - b);
-        const ranges: string[] = [];
-        let start = 1;
-        for (const sp of sorted) {
-          ranges.push(`${start}-${sp}`);
-          start = sp + 1;
-        }
-        ranges.push(`${start}-${pageCount}`);
-        formData.append("pages", ranges.join(","));
+        formData.append("pages", sorted.join(","));
       }
 
       Object.entries(fieldValues).forEach(([k, v]) => formData.append(k, v));
