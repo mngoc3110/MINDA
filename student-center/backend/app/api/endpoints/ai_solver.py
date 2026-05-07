@@ -66,74 +66,48 @@ from fastapi import HTTPException
 from app.services.gemini_key_manager import get_next_gemini_key
 
 def generate_ai_response(prompt: str, system_instruction: str, image_b64: str = None, mime_type: str = "image/jpeg"):
-    merged_prompt = f"System Instruction:\n{system_instruction}\n\nTask:\n{prompt}"
+    openrouter_key = os.getenv("OPENROUTER_API_KEY")
+    if not openrouter_key:
+        raise ValueError("OPENROUTER_API_KEY không tồn tại.")
+        
+    url = "https://openrouter.ai/api/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {openrouter_key}",
+        "Content-Type": "application/json"
+    }
     
-    messages = []
+    messages = [
+        {"role": "system", "content": system_instruction}
+    ]
+    
     if image_b64:
         messages.append({
             "role": "user",
             "content": [
-                {"type": "text", "text": merged_prompt},
+                {"type": "text", "text": prompt},
                 {"type": "image_url", "image_url": {"url": f"data:{mime_type};base64,{image_b64}"}}
             ]
         })
     else:
-        messages.append({"role": "user", "content": merged_prompt})
-
-    PROVIDERS = [
-        {
-            "name": "LLM7.io",
-            "url": "https://api.llm7.io/v1/chat/completions",
-            "headers": {"Content-Type": "application/json"},
-            "models": ["gemini-2.5-flash-lite", "gpt-4o-mini"]
-        },
-        {
-            "name": "Kilo Code",
-            "url": "https://api.kilo.ai/api/gateway/chat/completions",
-            "headers": {"Content-Type": "application/json"},
-            "models": ["kilo-auto/free"]
-        },
-        {
-            "name": "OpenRouter",
-            "url": "https://openrouter.ai/api/v1/chat/completions",
-            "headers_func": lambda: {
-                "Authorization": f"Bearer {os.getenv('OPENROUTER_API_KEY', '')}",
-                "Content-Type": "application/json"
-            },
-            "models": ["google/gemma-3-12b-it:free", "meta-llama/llama-3.2-3b-instruct:free", "openai/gpt-oss-20b:free"]
-        },
-        {
-            "name": "OVHcloud",
-            "url": "https://oai.endpoints.kepler.ai.cloud.ovh.net/v1/chat/completions",
-            "headers": {"Content-Type": "application/json"},
-            "models": ["Meta-Llama-3_1-8B-Instruct"]
-        }
-    ]
-
-    last_err = None
-
-    for provider in PROVIDERS:
-        headers = provider.get("headers_func", lambda: provider.get("headers", {}))()
-        url = provider["url"]
+        messages.append({"role": "user", "content": prompt})
         
-        for model in provider["models"]:
-            print(f"[{provider['name']}] Trying model {model}...")
-            payload = {
-                "model": model,
-                "messages": messages,
-                "temperature": 0.2
-            }
-            try:
-                response = requests.post(url, headers=headers, json=payload, timeout=30)
-                if response.status_code == 200:
-                    return response.json()["choices"][0]["message"]["content"]
-                last_err = f"{response.status_code} - {response.text}"
-                print(f"[{provider['name']}] Model {model} failed: {last_err}")
-            except Exception as e:
-                last_err = str(e)
-                print(f"[{provider['name']}] Model {model} exception: {last_err}")
-                
-    raise Exception(f"All AI Providers failed. Last error: {last_err}")
+    payload = {
+        "model": "google/gemini-2.5-flash",
+        "messages": messages,
+        "temperature": 0.2
+    }
+    
+    try:
+        response = requests.post(url, headers=headers, json=payload, timeout=60)
+        response.raise_for_status()
+        data = response.json()
+        return data["choices"][0]["message"]["content"]
+    except Exception as e:
+        last_err = str(e)
+        if 'response' in locals() and hasattr(response, 'text'):
+            last_err += f" - {response.text}"
+        print(f"[OpenRouter Exception]: {last_err}")
+        raise Exception(f"Lỗi khi gọi OpenRouter API: {last_err}")
 
 
 @router.post("/solve-math")

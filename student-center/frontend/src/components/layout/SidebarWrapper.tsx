@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import StudentSidebar from "./StudentSidebar";
 import TeacherSidebar from "./TeacherSidebar";
 import AdminSidebar from "./AdminSidebar";
+import StudentAICopilot from "./StudentAICopilot";
 
 export default function SidebarWrapper() {
   const [role, setRole] = useState<string | null>(null);
@@ -35,5 +36,10 @@ export default function SidebarWrapper() {
     return <AdminSidebar />;
   }
 
-  return role === "teacher" || role === "admin" ? <TeacherSidebar /> : <StudentSidebar />;
+  return (
+    <>
+      {role === "teacher" || role === "admin" ? <TeacherSidebar /> : <StudentSidebar />}
+      {role === "student" && <StudentAICopilot />}
+    </>
+  );
 }

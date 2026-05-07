@@ -308,14 +308,7 @@ export default function Dashboard() {
             <p className="text-xs text-center text-text-secondary">Đạt ≥80% điểm bài tập để nhận ⭐ và +20 EXP (ghi nhận 1 lần mỗi bài)!</p>
           </section>
 
-          {/* Student Stats Panel */}
-          <section className="p-0 rounded-3xl bg-bg-card border border-border-card shadow-sm overflow-hidden flex flex-col min-h-[300px]">
-             <StatsPanel 
-                submissions={submissions} 
-                statsStudent={{ id: Number(stats.student_id?.toString().replace(/\D/g, '') || 0), name: userName, avatar: stats.avatar_url as string || null }}
-                hideStudentSelector={true}
-             />
-          </section>
+          {/* Removed Student Stats Panel (Moved to AI Copilot Sidebar) */}
 
           {/* Drive Section */}
           {renderDriveSection("text-indigo-500")}

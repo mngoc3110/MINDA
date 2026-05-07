@@ -5,11 +5,9 @@ Thay the Tesseract OCR + TextToLatex pipeline.
 import os
 import json
 import time
-import tempfile
-
-from google import genai
-from google.genai import types
-from app.services.gemini_key_manager import get_next_gemini_key
+import requests
+import base64
+from typing import List, Dict
 
 PROMPT = """
 You are an expert Math Teacher in Vietnam. I am giving you an exam paper.
@@ -71,146 +69,117 @@ You are an expert Math Teacher in Vietnam. I am giving you an exam paper.
 - DO NOT output ANY markdown. Just the raw JSON object.
 """
 
-MODELS_TO_TRY = [
-    "gemini-2.5-flash",
-    "gemini-2.0-flash",
-    "gemini-2.0-flash-lite",
-]
-
-
 def _clean_and_parse_json(raw_text: str) -> dict:
     """Helper to clean markdown fences and parse JSON."""
     raw_text = raw_text.strip()
     if raw_text.startswith("```"):
         raw_text = raw_text.split("\n", 1)[1]
+        if raw_text.startswith("json"):
+            raw_text = raw_text[4:].strip()
     if raw_text.endswith("```"):
         raw_text = raw_text.rsplit("```", 1)[0]
     raw_text = raw_text.strip()
     return json.loads(raw_text)
 
 
+def _call_openrouter(messages: List[Dict]) -> str:
+    openrouter_key = os.getenv("OPENROUTER_API_KEY")
+    if not openrouter_key:
+        raise ValueError("Khong tim thay OPENROUTER_API_KEY nao.")
+
+    url = "https://openrouter.ai/api/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {openrouter_key}",
+        "Content-Type": "application/json"
+    }
+    
+    payload = {
+        "model": "google/gemini-2.5-flash",
+        "messages": messages,
+        "temperature": 0.1
+    }
+    
+    for attempt in range(2):
+        try:
+            print(f"[OpenRouter Parser] Sending request... (attempt {attempt+1})")
+            response = requests.post(url, headers=headers, json=payload, timeout=120)
+            response.raise_for_status()
+            data = response.json()
+            return data["choices"][0]["message"]["content"]
+        except Exception as e:
+            err_msg = str(e)
+            if 'response' in locals() and hasattr(response, 'text'):
+                err_msg += f" - {response.text}"
+            print(f"[OpenRouter Parser] Error: {err_msg}")
+            if attempt == 1:
+                raise Exception(f"OpenRouter that bai: {err_msg}")
+            time.sleep(2)
+            
+    raise Exception("Loi khong the ket noi OpenRouter")
+
+
 def parse_exam_with_gemini(file_bytes: bytes, mime_type: str) -> dict:
     """
-    Giai de thi tu file PDF/Image bang Gemini API.
+    Giai de thi tu file PDF/Image bang OpenRouter API.
     """
-    key = get_next_gemini_key()
-    if not key:
-        raise ValueError("Khong tim thay GEMINI_API_KEY nao.")
-
-    client = genai.Client(api_key=key)
-
-    # Save to temp file for upload
-    suffix = ".pdf" if "pdf" in mime_type else ".png"
-    with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
-        tmp.write(file_bytes)
-        tmp_path = tmp.name
-
-    try:
-        with open(tmp_path, "rb") as f:
-            uploaded = client.files.upload(
-                file=f,
-                config=types.UploadFileConfig(
-                    display_name="exam_upload",
-                    mime_type=mime_type
-                )
-            )
-        print(f"[Gemini Parser] Uploaded: {uploaded.name}, state={uploaded.state}")
-
-        # Wait for processing
-        while uploaded.state.name == "PROCESSING":
-            time.sleep(3)
-            uploaded = client.files.get(name=uploaded.name)
-
-        if uploaded.state.name != "ACTIVE":
-            raise ValueError(f"File processing failed: {uploaded.state}")
-
-        response = None
-        last_error = None
-
-        for model_name in MODELS_TO_TRY:
-            for attempt in range(2):
-                try:
-                    print(f"[Gemini Parser] Trying {model_name} (attempt {attempt+1})...")
-                    response = client.models.generate_content(
-                        model=model_name,
-                        contents=[
-                            types.Part.from_uri(file_uri=uploaded.uri, mime_type=uploaded.mime_type),
-                            PROMPT
-                        ],
-                        config=types.GenerateContentConfig(temperature=0.1)
-                    )
-                    break
-                except Exception as e:
-                    last_error = e
-                    err_str = str(e)
-                    if "429" in err_str or "503" in err_str or "RESOURCE_EXHAUSTED" in err_str or "403" in err_str or "PERMISSION_DENIED" in err_str:
-                        new_key = get_next_gemini_key()
-                        print(f"[Gemini Parser] Error {err_str[:30]}. Switching API key...")
-                        client = genai.Client(api_key=new_key)
-                        time.sleep(2)
-                    else:
-                        break
-            if response:
-                break
-
-        if not response:
-            raise ValueError(f"Tat ca model Gemini deu that bai. Loi cuoi: {last_error}")
-
-        quiz_data = _clean_and_parse_json(response.text)
-        total = sum(len(s.get("questions", [])) for s in quiz_data.get("sections", []))
-        print(f"[Gemini Parser] ✅ Parsed {total} questions from PDF/Image")
-        return quiz_data
-
-    finally:
+    messages = [
+        {"role": "system", "content": "You are a helpful assistant that strictly follows instructions."}
+    ]
+    
+    content_parts = [{"type": "text", "text": PROMPT}]
+    
+    is_pdf = "pdf" in mime_type.lower()
+    
+    if is_pdf:
         try:
-            os.unlink(tmp_path)
-        except:
-            pass
+            from pdf2image import convert_from_bytes
+            import io
+            print("[OpenRouter Parser] Converting PDF to images...")
+            images = convert_from_bytes(file_bytes, dpi=200)
+            for i, img in enumerate(images):
+                buffer = io.BytesIO()
+                img.save(buffer, format="JPEG")
+                img_b64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
+                content_parts.append({
+                    "type": "image_url",
+                    "image_url": {"url": f"data:image/jpeg;base64,{img_b64}"}
+                })
+        except Exception as e:
+            raise Exception(f"Loi khi convert PDF sang Image: {e}")
+    else:
+        img_b64 = base64.b64encode(file_bytes).decode("utf-8")
+        content_parts.append({
+            "type": "image_url",
+            "image_url": {"url": f"data:{mime_type};base64,{img_b64}"}
+        })
+        
+    messages.append({
+        "role": "user",
+        "content": content_parts
+    })
+
+    result_text = _call_openrouter(messages)
+    
+    quiz_data = _clean_and_parse_json(result_text)
+    total = sum(len(s.get("questions", [])) for s in quiz_data.get("sections", []))
+    print(f"[OpenRouter Parser] ✅ Parsed {total} questions from PDF/Image")
+    return quiz_data
 
 
 def parse_latex_with_gemini(latex_text: str) -> dict:
     """
-    Giai de thi tu noi dung LaTeX (.tex) bang Gemini API.
+    Giai de thi tu noi dung LaTeX (.tex) bang OpenRouter API.
     """
-    key = get_next_gemini_key()
-    if not key:
-        raise ValueError("Khong tim thay GEMINI_API_KEY nao.")
-
-    client = genai.Client(api_key=key)
-    
-    # Prompt tuy chinh cho LaTeX text
     latex_prompt = PROMPT + "\n\nExam Content (LaTeX Source Code):\n" + latex_text
-
-    response = None
-    last_error = None
-
-    for model_name in MODELS_TO_TRY:
-        for attempt in range(2):
-            try:
-                print(f"[Gemini Parser] (LaTeX) Trying {model_name}...")
-                response = client.models.generate_content(
-                    model=model_name,
-                    contents=[latex_prompt],
-                    config=types.GenerateContentConfig(temperature=0.1)
-                )
-                break
-            except Exception as e:
-                last_error = e
-                err_str = str(e)
-                if "429" in err_str or "503" in err_str or "RESOURCE_EXHAUSTED" in err_str or "403" in err_str or "PERMISSION_DENIED" in err_str:
-                    new_key = get_next_gemini_key()
-                    print(f"[Gemini Parser] Error {err_str[:30]}. Switching API key...")
-                    client = genai.Client(api_key=new_key)
-                    time.sleep(2)
-                else:
-                    break
-        if response:
-            break
-
-    if not response:
-        raise ValueError(f"Gemini LaTeX parse that bai: {last_error}")
-
-    quiz_data = _clean_and_parse_json(response.text)
+    
+    messages = [
+        {"role": "system", "content": "You are a helpful assistant that strictly follows instructions."},
+        {"role": "user", "content": latex_prompt}
+    ]
+    
+    result_text = _call_openrouter(messages)
+    
+    quiz_data = _clean_and_parse_json(result_text)
     total = sum(len(s.get("questions", [])) for s in quiz_data.get("sections", []))
-    print(f"[Gemini Parser] ✅ Parsed {total} questions from LaTeX source")
+    print(f"[OpenRouter Parser] ✅ Parsed {total} questions from LaTeX source")
     return quiz_data

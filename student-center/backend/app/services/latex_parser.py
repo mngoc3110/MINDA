@@ -161,9 +161,9 @@ def _clean_latex(text: str) -> str:
 
 def _split_questions(content: str) -> list:
     """Split content by \\textbf{Câu X} markers. Returns list of (number, block)."""
-    # Pattern: \textbf{Câu X}  or  \textbf{Câu X.}  or  \textbf{Câu X:}  or  \textbf{Câu X}
-    pattern = r'\\textbf\{Câu\s+(\d+)\s*[.:)]?\s*\}'
-    parts = re.split(pattern, content)
+    # Pattern: \textbf{Câu X} or \textbf{BON X.} or \textbf{Bài X}
+    pattern = r'\\textbf\{(?:Câu|C[aâ]u|Bài|BON|Ví dụ|VD)\s+(\d+)\s*[.:)]?\s*\}'
+    parts = re.split(pattern, content, flags=re.IGNORECASE)
     print(f"[LaTeX Parser] _split_questions found {len(parts)//2} questions")
     # parts = [before, num1, block1, num2, block2, ...]
     questions = []
@@ -234,6 +234,9 @@ def _extract_abcd_options(block: str) -> list:
 
     # Replace \hfill and \\ with newlines for uniform processing
     normalized = block.replace('\\\\', '\n').replace('\\hfill', '\n')
+    
+    # Remove \item before option matching
+    normalized = re.sub(r'\\item\b', '', normalized)
     
     # Protect math content: temporarily replace $...$ with placeholders
     math_blocks = []
@@ -361,7 +364,7 @@ def _parse_generic_numbered(latex_text: str) -> list:
     """Fallback: parse Câu X. or Câu X: format (without \\textbf)."""
     questions = []
 
-    pattern = r'(?:Câu|C[aâ]u)\s*(\d+)\s*[.:)}\s]\s*(.*?)(?=(?:Câu|C[aâ]u)\s*\d+\s*[.:)}\s]|\Z)'
+    pattern = r'(?:Câu|C[aâ]u|Bài|BON|Ví dụ|VD)\s*(\d+)\s*[.:)}\s]\s*(.*?)(?=(?:Câu|C[aâ]u|Bài|BON|Ví dụ|VD)\s*\d+\s*[.:)}\s]|\Z)'
     matches = re.findall(pattern, latex_text, re.DOTALL | re.IGNORECASE)
 
     for num, block in matches:

@@ -432,8 +432,11 @@ def get_practice_assignments(db: Session = Depends(get_db), current_user: User =
     """Lấy danh sách các Bài tập luyện thi tự do (không thuộc khóa học nào)."""
     from app.models.assignment_folder import AssignmentFolder
     from app.models.user import TeacherStudentLink
+    from sqlalchemy.orm import joinedload
     
-    assignments = db.query(Assignment).filter(Assignment.course_id == None).order_by(Assignment.created_at.desc()).all()
+    assignments = db.query(Assignment).filter(Assignment.course_id == None)\
+        .options(joinedload(Assignment.folder), joinedload(Assignment.assignees))\
+        .order_by(Assignment.created_at.desc()).all()
     
     # Lấy tất cả submissions của user hiện tại
     my_subs = db.query(AssignmentSubmission).filter(
@@ -547,7 +550,12 @@ def get_all_my_submissions(db: Session = Depends(get_db), current_user: User = D
     return [
         {
             "id": sub.id,
+            "student_id": sub.student_id,
+            "student_name": sub.student.full_name or f"Học sinh #{sub.student_id}",
+            "student_avatar": sub.student.avatar_url,
+            "assignment_id": sub.assignment_id,
             "assignment_title": sub.assignment.title if sub.assignment else "Bài tập",
+            "max_score": sub.assignment.max_score if sub.assignment else 10,
             "score": sub.score,
             "submitted_at": sub.submitted_at.isoformat()
         }
