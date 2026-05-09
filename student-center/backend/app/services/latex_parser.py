@@ -130,6 +130,12 @@ def _clean_latex(text: str) -> str:
     text = re.sub(r'\\begin\{center\}', '', text)
     text = re.sub(r'\\end\{center\}', '', text)
     
+    # Remove itemize/enumerate environments
+    text = re.sub(r'\\begin\{itemize\}', '', text)
+    text = re.sub(r'\\end\{itemize\}', '', text)
+    text = re.sub(r'\\begin\{enumerate\}', '', text)
+    text = re.sub(r'\\end\{enumerate\}', '', text)
+    
     # Remove layout commands
     text = re.sub(r'\\[vh]space\*?\{[^}]*\}', '', text)
     text = re.sub(r'\\noindent\b', '', text)
@@ -205,21 +211,28 @@ def _get_question_text(block: str) -> str:
         return f"__MATH_{len(math_blocks)-1}__"
     protected = re.sub(r'\$[^$]+\$', save_math, block)
     
-    lines = protected.split('\n')
-    q_lines = []
-    found_option = False
-    for line in lines:
-        stripped = line.strip()
-        if re.match(r'^A\s*[.:)]\s', stripped):
-            found_option = True
-            break
-        q_lines.append(line)
-
-    if found_option:
-        result = '\n'.join(q_lines)
+    # Strip \item before checking for option lines
+    protected_stripped = re.sub(r'\\item\b', '', protected)
+    # Also cut off at \begin{itemize} — options live inside itemize
+    before_itemize = re.split(r'\\begin\{itemize\}', protected_stripped, maxsplit=1)
+    if len(before_itemize) > 1:
+        result = before_itemize[0]
     else:
-        parts = re.split(r'(?:^|\n)\s*A\s*[.:)]\s', protected, maxsplit=1)
-        result = parts[0] if len(parts) > 1 else protected
+        lines = protected_stripped.split('\n')
+        q_lines = []
+        found_option = False
+        for line in lines:
+            stripped = line.strip()
+            if re.match(r'^A\s*[.:)]\s', stripped):
+                found_option = True
+                break
+            q_lines.append(line)
+
+        if found_option:
+            result = '\n'.join(q_lines)
+        else:
+            parts = re.split(r'(?:^|\n)\s*A\s*[.:)]\s', protected_stripped, maxsplit=1)
+            result = parts[0] if len(parts) > 1 else protected_stripped
     
     # Restore math blocks
     for i, mb in enumerate(math_blocks):
@@ -258,6 +271,8 @@ def _extract_abcd_options(block: str) -> list:
             cleaned = text.strip()
             # Remove trailing \\ or newlines
             cleaned = re.sub(r'\\\\\s*$', '', cleaned).strip()
+            # Remove trailing \end{itemize} or \end{enumerate} that leaked in
+            cleaned = re.sub(r'\\end\{(?:itemize|enumerate)\}.*$', '', cleaned, flags=re.DOTALL).strip()
             # Restore math blocks
             for i, mb in enumerate(math_blocks):
                 cleaned = cleaned.replace(f"__MATH_{i}__", mb)
