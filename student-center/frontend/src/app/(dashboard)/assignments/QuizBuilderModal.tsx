@@ -35,7 +35,7 @@ export default function QuizBuilderModal({
    const [isCreatingCourse, setIsCreatingCourse] = useState(false);
    const [newCourseTitle, setNewCourseTitle] = useState("");
    const [localCourses, setLocalCourses] = useState<any[]>([]);
-   const [examFormat, setExamFormat] = useState<"standard" | "practice">("practice");
+   const [examFormat, setExamFormat] = useState<"standard" | "practice" | "tin_thptqg">("practice");
    const [solutionDocUrl, setSolutionDocUrl] = useState("");
    const [solutionVideoUrl, setSolutionVideoUrl] = useState("");
    const [isUploadingVideo, setIsUploadingVideo] = useState(false);
@@ -257,7 +257,7 @@ export default function QuizBuilderModal({
                headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
                body: JSON.stringify({
                   title: fileName, description: '', assignment_type: 'quiz', quiz_data: data,
-                  exam_format: examFormat, max_score: examFormat === 'standard' ? 10 : 100,
+                  exam_format: examFormat, max_score: (examFormat === 'standard' || examFormat === 'tin_thptqg') ? 10 : 100,
                   is_assigned_to_all: isAssignedToAll, assignee_ids: assigneeIds,
                   folder_id: folderId ? parseInt(folderId) : null,
                   course_id: courseId ? parseInt(courseId) : null,
@@ -437,7 +437,7 @@ export default function QuizBuilderModal({
                originalDocUrl
             },
             exam_format: examFormat,
-            max_score: examFormat === "standard" ? 10 : 100,
+            max_score: (examFormat === "standard" || examFormat === "tin_thptqg") ? 10 : 100,
             is_assigned_to_all: isAssignedToAll,
             assignee_ids: assigneeIds,
             folder_id: folderId ? parseInt(folderId) : null
@@ -548,7 +548,7 @@ export default function QuizBuilderModal({
                <form id="quiz-form" onSubmit={handleSubmit} className="flex flex-col gap-6">
 
                   {/* Exam format toggle */}
-                  <div className="flex items-center gap-3 p-1 bg-bg-hover rounded-2xl border border-border-card w-fit">
+                  <div className="flex items-center gap-3 p-1 bg-bg-hover rounded-2xl border border-border-card w-fit flex-wrap">
                      <button
                         type="button"
                         onClick={() => setExamFormat("practice")}
@@ -571,10 +571,26 @@ export default function QuizBuilderModal({
                      >
                         Đề Chuẩn (TN-THPT)
                      </button>
+                     <button
+                        type="button"
+                        onClick={() => setExamFormat("tin_thptqg")}
+                        className={`px-5 py-2 rounded-xl font-bold text-sm transition-all ${
+                           examFormat === "tin_thptqg"
+                              ? "bg-cyan-500 text-text-primary shadow-lg shadow-cyan-500/30"
+                              : "text-text-secondary hover:text-text-primary"
+                        }`}
+                     >
+                        🖥️ Đề Tin THPTQG
+                     </button>
                   </div>
                   {examFormat === "standard" && (
                      <p className="-mt-3 text-xs text-amber-400/80 flex items-center gap-1">
                         📋 Thang điểm 10: MCQ=0.25đ, Đúng/Sai=1đ, Tự luận ngắn=0.5đ
+                     </p>
+                  )}
+                  {examFormat === "tin_thptqg" && (
+                     <p className="-mt-3 text-xs text-cyan-400/80 flex items-center gap-1">
+                        🖥️ Tin THPTQG 2026: P1 MCQ×0.25đ | P2 Đúng/Sai (1/4=0.1, 2/4=0.25, 3/4=0.5, 4/4=1đ) | P3 Ngắn×0.5đ
                      </p>
                   )}
 
