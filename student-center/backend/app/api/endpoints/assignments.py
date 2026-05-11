@@ -123,7 +123,8 @@ def _recalc_all_scores(assignment, db):
     
     first_sub_dates = {(row.student_id, row.min_date) for row in earliest_subs}
     
-    is_standard = assignment.exam_format == "standard"
+    is_standard = assignment.exam_format in ("standard", "tin_thptqg")
+    is_tin = assignment.exam_format == "tin_thptqg"
     sections = assignment.quiz_data.get("sections", [])
     
     def norm_tf(val):
@@ -268,7 +269,8 @@ def submit_assignment(
     
     # Auto-grader for quiz
     if assignment.assignment_type == "quiz" and assignment.quiz_data and data.quiz_answers:
-        is_standard = getattr(assignment, "exam_format", "practice") == "standard"
+        is_standard = getattr(assignment, "exam_format", "practice") in ("standard", "tin_thptqg")
+        is_tin = getattr(assignment, "exam_format", "practice") == "tin_thptqg"
         earned = 0.0
 
         def norm_tf(val):
@@ -315,7 +317,7 @@ def submit_assignment(
                                 if n == 4:   earned += 1.0
                                 elif n == 3: earned += 0.5
                                 elif n == 2: earned += 0.25
-                                # n == 1 hoặc 0 → 0đ
+                                # n ≤ 1 → 0đ (standard/tin_thptqg)
 
                         elif stype == "short_answer":
                             # Normalize: comma→period, strip spaces (VN: "3,68" == "3.68")
