@@ -248,7 +248,8 @@ def _extract_abcd_options(block: str) -> list:
     # Replace \hfill and \\ with newlines for uniform processing
     normalized = block.replace('\\\\', '\n').replace('\\hfill', '\n')
     
-    # Remove \item before option matching
+    # Remove \item before option matching (both \item and \item[A.])
+    normalized = re.sub(r'\\item\s*\[([A-D])[\.\]]', r'\n\1. ', normalized)
     normalized = re.sub(r'\\item\b', '', normalized)
     
     # Protect math content: temporarily replace $...$ with placeholders
@@ -333,11 +334,15 @@ def _extract_abcd_items(block: str) -> list:
 
     for label, text in matches:
         cleaned = _clean_latex(text)
+        # Strip leading label prefix like [a)] or a) that may appear
+        cleaned = re.sub(r'^\[?[a-d]\)?\]?\s*', '', cleaned).strip()
+        # Remove \end{document} if leaked
+        cleaned = re.sub(r'\\end\{document\}.*$', '', cleaned, flags=re.DOTALL).strip()
         if cleaned:
             items.append({
                 "label": label,
                 "text": cleaned,
-                "isTrue": False  # Teacher sẽ tự điền đáp án sau
+                "isTrue": False
             })
 
     return items
@@ -349,6 +354,8 @@ def _parse_sa_section(content: str) -> list:
     q_blocks = _split_questions(content)
 
     for num, block in q_blocks:
+        # Strip \end{document} if leaked into last question
+        block = re.sub(r'\\end\{document\}.*$', '', block, flags=re.DOTALL).strip()
         q_text = _clean_latex(block)
         if q_text:
             q_text = f"Câu {num}. {q_text}"
