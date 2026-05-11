@@ -182,23 +182,36 @@ def _recalc_all_scores(assignment, db):
                 
                 elif stype == "true_false":
                     if not is_standard: total_possible += 1.0
-                    if ans and isinstance(ans, dict):
+                    if ans and isinstance(ans, dict) and any(str(v).strip() for v in ans.values()):
                         n = count_tf_correct(ans, q.get("items", []))
-                        if n == 4: earned += 1.0
-                        elif n == 3: earned += 0.5
-                        elif n == 2: earned += 0.25
-                        elif not is_standard and n == 1: earned += 0.1
+                        pts = 0.0
+                        if n == 4: pts = 1.0
+                        elif n == 3: pts = 0.5
+                        elif n == 2: pts = 0.25
+                        elif not is_standard and n == 1: pts = 0.1
+                        
+                        if is_standard:
+                            if not hasattr(sub, '_tf_pts'): sub._tf_pts = []
+                            sub._tf_pts.append(pts)
+                        else:
+                            earned += pts
                 
                 elif stype == "short_answer":
                     student_sa = str(ans).strip().lower().replace(",", ".") if ans is not None else ""
                     correct_sa = str(q.get("correctAnswer")).strip().lower().replace(",", ".")
                     if is_standard:
-                        if student_sa and student_sa == correct_sa: earned += 0.5
+                        if student_sa and student_sa == correct_sa:
+                            earned += 0.25 if is_tin else 0.5
                     else:
                         total_possible += 1.0
                         if student_sa and student_sa == correct_sa: earned += 1.0
         
         if is_standard:
+            tf_pts = getattr(sub, '_tf_pts', [])
+            if is_tin and len(tf_pts) > 4:
+                earned += sum(tf_pts[:2]) # Phạt: chỉ tính 2 câu chung nếu làm cả 2 phần lựa chọn
+            else:
+                earned += sum(tf_pts)
             sub.score = round(earned, 2)
         else:
             # Đề ôn tập: cố định 0.25 điểm mỗi câu thay vì chia theo tỉ lệ max_score
@@ -299,7 +312,8 @@ def submit_assignment(
                 # ── Đề Chuẩn (thang điểm 10) ──────────────────────────────
                 # MCQ:           mỗi câu đúng = 0.25đ
                 # True/False:    2/4 đúng=0.25đ, 3/4=0.5đ, 4/4=1đ (1/4=0đ)
-                # Short answer:  mỗi câu đúng = 0.5đ
+                # Short answer:  môn Toán=0.5đ, môn Tin=0.25đ
+                tf_earned = []
                 for s_idx, section in enumerate(assignment.quiz_data.get("sections", [])):
                     for q in section.get("questions", []):
                         raw_id = q.get("id") or ""
@@ -312,19 +326,26 @@ def submit_assignment(
                                 earned += 0.25
 
                         elif stype == "true_false":
-                            if ans and isinstance(ans, dict):
+                            if ans and isinstance(ans, dict) and any(str(v).strip() for v in ans.values()):
                                 n = count_tf_correct(ans, q.get("items", []))
-                                if n == 4:   earned += 1.0
-                                elif n == 3: earned += 0.5
-                                elif n == 2: earned += 0.25
-                                # n ≤ 1 → 0đ (standard/tin_thptqg)
+                                pts = 0.0
+                                if n == 4:   pts = 1.0
+                                elif n == 3: pts = 0.5
+                                elif n == 2: pts = 0.25
+                                tf_earned.append(pts)
 
                         elif stype == "short_answer":
                             # Normalize: comma→period, strip spaces (VN: "3,68" == "3.68")
                             student_sa = str(ans).strip().lower().replace(",", ".") if ans is not None else ""
                             correct_sa = str(q.get("correctAnswer")).strip().lower().replace(",", ".")
                             if student_sa and student_sa == correct_sa:
-                                earned += 0.5
+                                earned += 0.25 if is_tin else 0.5
+
+                # Xử lý phần tự chọn (True/False) cho môn Tin
+                if is_tin and len(tf_earned) > 4:
+                    earned += sum(tf_earned[:2]) # Chỉ tính điểm 2 câu chung nếu HS làm cả 2 phần tự chọn
+                else:
+                    earned += sum(tf_earned)
 
                 submission.score = round(earned, 2)  # Giữ dạng thập phân (8.75)
 
