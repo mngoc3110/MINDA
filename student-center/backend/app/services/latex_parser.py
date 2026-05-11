@@ -249,8 +249,9 @@ def _extract_abcd_options(block: str) -> list:
     normalized = block.replace('\\\\', '\n').replace('\\hfill', '\n')
     
     # Remove \item before option matching (both \item and \item[A.])
-    normalized = re.sub(r'\\item\s*\[([A-D])[\.\]]', r'\n\1. ', normalized)
+    normalized = re.sub(r'\\item\s*\[([A-D])[.\\]]', r'\n\1. ', normalized)
     normalized = re.sub(r'\\item\b', '', normalized)
+    normalized = re.sub(r'\\quad\s+(?=[A-D]\s*\.)', '\n', normalized)  # split \\quad-joined options
     
     # Protect math content: temporarily replace $...$ with placeholders
     math_blocks = []
