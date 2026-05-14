@@ -1,0 +1,86 @@
+// Dữ liệu mẫu ban đầu để hiển thị trên Memory Wall
+// Mỗi object đại diện cho một lời nhắn từ học sinh
+
+export const EMOTIONS = [
+  { emoji: '🌸', label: 'Yêu quý',   bg: '#fce7f3', border: '#fbcfe8' },
+  { emoji: '🌟', label: 'Ngưỡng mộ', bg: '#fefce8', border: '#fef08a' },
+  { emoji: '💙', label: 'Biết ơn',   bg: '#eff6ff', border: '#bfdbfe' },
+  { emoji: '🌈', label: 'Vui vẻ',    bg: '#f0fdf4', border: '#bbf7d0' },
+  { emoji: '🎵', label: 'Hoài niệm', bg: '#faf5ff', border: '#e9d5ff' },
+  { emoji: '🏆', label: 'Tự hào',    bg: '#fff7ed', border: '#fed7aa' },
+];
+
+export const SAMPLE_MESSAGES = [
+  {
+    id: 'sample-1',
+    name: 'Nguyễn Thị Lan Anh',
+    emoji: '🌸',
+    bgColor: '#fce7f3',
+    message: 'Thầy ơi, những giờ học của thầy là những ký ức đẹp nhất của em thời học sinh. Em sẽ luôn nhớ cách thầy giảng bài với nụ cười ấm áp và sự kiên nhẫn không bao giờ cạn. Cảm ơn thầy đã truyền cho em ngọn lửa đam mê với môn học này! 🌸',
+    imageBase64: null,
+    mediaType: null,
+    isPublic: true,
+    date: '2026-05-10T09:30:00Z',
+    hearts: 24,
+  },
+  {
+    id: 'sample-2',
+    name: 'Trần Minh Khoa',
+    emoji: '🌟',
+    bgColor: '#fefce8',
+    message: 'Thầy là người thầy đầu tiên khiến em thực sự hiểu rằng học không phải để lấy điểm mà để trưởng thành. Lời thầy dặn hôm ấy em vẫn nhớ mãi: "Hãy học vì chính mình, không phải vì người khác." Em sẽ mang theo lời đó suốt cuộc đời.',
+    imageBase64: null,
+    mediaType: null,
+    isPublic: true,
+    date: '2026-05-11T14:15:00Z',
+    hearts: 31,
+  },
+  {
+    id: 'sample-3',
+    name: 'Phạm Hồng Nhung',
+    emoji: '💙',
+    bgColor: '#eff6ff',
+    message: 'Có những ngày em đến trường chỉ vì muốn được nghe thầy giảng bài. Thầy không chỉ dạy kiến thức, thầy còn dạy chúng em cách sống, cách đối nhân xử thế. Chúc thầy luôn mạnh khỏe và hạnh phúc! 💙',
+    imageBase64: null,
+    mediaType: null,
+    isPublic: true,
+    date: '2026-05-12T08:00:00Z',
+    hearts: 18,
+  },
+  {
+    id: 'sample-4',
+    name: 'Lê Đức Anh',
+    emoji: '🏆',
+    bgColor: '#fff7ed',
+    message: 'Em nhớ hồi lớp 10, em là đứa học kém nhất lớp môn này. Nhờ có thầy kèm cặp, chỉ bảo tận tình, em đã vươn lên và giành giải Ba kỳ thi học sinh giỏi tỉnh. Thầy là người đã thắp sáng con đường của em! 🏆',
+    imageBase64: null,
+    mediaType: null,
+    isPublic: false, // Lời nhắn gửi riêng
+    date: '2026-05-12T16:45:00Z',
+    hearts: 42,
+  },
+  {
+    id: 'sample-5',
+    name: 'Võ Thị Thu Thảo',
+    emoji: '🌈',
+    bgColor: '#f0fdf4',
+    message: 'Giờ ra chơi thầy hay kể những câu chuyện vui làm cả lớp cười nghiêng ngả. Những khoảnh khắc đó nhỏ thôi nhưng đong đầy trong tim em. Mỗi lần nhớ lại vẫn tươi như hôm qua. Em yêu quý thầy nhiều lắm! 🌈',
+    imageBase64: null,
+    mediaType: null,
+    isPublic: true,
+    date: '2026-05-13T10:20:00Z',
+    hearts: 15,
+  },
+  {
+    id: 'sample-6',
+    name: 'Hoàng Văn Nam',
+    emoji: '🎵',
+    bgColor: '#faf5ff',
+    message: 'Thầy ơi, xa trường rồi mới thấy nhớ những buổi sáng sớm đến lớp thấy thầy đã đứng ở cửa phòng, nụ cười hiền lành chào từng đứa. Giờ bước vào đời, em luôn tự nhủ phải sống xứng đáng với những gì thầy đã dạy bảo!',
+    imageBase64: null,
+    mediaType: null,
+    isPublic: false, // Lời nhắn gửi riêng
+    date: '2026-05-13T20:00:00Z',
+    hearts: 27,
+  },
+];
