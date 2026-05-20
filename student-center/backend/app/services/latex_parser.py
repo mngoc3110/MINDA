@@ -178,9 +178,9 @@ def _clean_latex(text: str) -> str:
 
 
 def _split_questions(content: str) -> list:
-    """Split content by \\textbf{Câu X} markers. Returns list of (number, block)."""
-    # Pattern: \textbf{Câu X} or \textbf{BON X.} or \textbf{Bài X}
-    pattern = r'\\textbf\{(?:Câu|C[aâ]u|Bài|BON|Ví dụ|VD)\s+(\d+)\s*[.:)]?\s*\}'
+    """Split content by \\textbf{Câu X} or \\textbf{X.} markers. Returns list of (number, block)."""
+    # Pattern: \textbf{Câu X} or \textbf{BON X.} or \textbf{Bài X} or just \textbf{X.}
+    pattern = r'\\textbf\{\s*(?:(?:Câu|C[aâ]u|Bài|BON|Ví dụ|VD)\s+)?(\d+)\s*[.:)]?\s*\}'
     parts = re.split(pattern, content, flags=re.IGNORECASE)
     print(f"[LaTeX Parser] _split_questions found {len(parts)//2} questions")
     # parts = [before, num1, block1, num2, block2, ...]
