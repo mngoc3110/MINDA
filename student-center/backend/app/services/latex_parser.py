@@ -106,6 +106,14 @@ def _clean_latex(text: str) -> str:
     """Clean LaTeX formatting for display. Keep $math$ intact."""
     text = text.strip()
     
+    # Protect math blocks (single $ and double $$)
+    math_blocks = []
+    def save_math(match):
+        math_blocks.append(match.group(0))
+        return f"__MATH_BLOCK_{len(math_blocks)-1}__"
+    
+    text = re.sub(r'\$\$[\s\S]*?\$\$|\$[\s\S]*?\$', save_math, text)
+    
     # Protect tabular blocks
     tables = []
     def save_table(match):
@@ -162,6 +170,10 @@ def _clean_latex(text: str) -> str:
         table_text = re.sub(r'\\end\{tabular\}', r'\n\\end{array}\n$$', table_text)
         text = text.replace(f"__TABLE_BLOCK_{i}__", table_text)
         
+    # Restore math blocks
+    for i, mb in enumerate(math_blocks):
+        text = text.replace(f"__MATH_BLOCK_{i}__", mb)
+        
     return text.strip()
 
 
@@ -209,7 +221,7 @@ def _get_question_text(block: str) -> str:
     def save_math(m):
         math_blocks.append(m.group(0))
         return f"__MATH_{len(math_blocks)-1}__"
-    protected = re.sub(r'\$[^$]+\$', save_math, block)
+    protected = re.sub(r'\$[^$]*\$', save_math, block)
     
     # Strip \item before checking for option lines
     protected_stripped = re.sub(r'\\item\b', '', protected)
@@ -258,7 +270,7 @@ def _extract_abcd_options(block: str) -> list:
     def save_math(m):
         math_blocks.append(m.group(0))
         return f"__MATH_{len(math_blocks)-1}__"
-    protected = re.sub(r'\$[^$]+\$', save_math, normalized)
+    protected = re.sub(r'\$[^$]*\$', save_math, normalized)
     
     # Now split by A. B. C. D. at start of line only
     # Force each option letter to start on a new line
