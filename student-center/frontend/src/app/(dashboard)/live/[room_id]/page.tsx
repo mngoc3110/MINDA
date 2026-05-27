@@ -16,6 +16,8 @@ interface EmotionResult {
   emoji: string;
   confidence: number;
   probabilities: Record<string, number>;
+  face_detected?: boolean;
+  distractedSecs?: number;
 }
 
 interface StudentStream {
@@ -235,6 +237,10 @@ export default function LiveRoomPage() {
   const [serviceOnline, setServiceOnline] = useState<boolean | null>(null);
   const [studentEmotions, setStudentEmotions] = useState<Record<string, EmotionResult>>({});
   const dataConnRef = useRef<any>(null);
+  
+  // Distraction / Fatigue alert states
+  const [distractedSecs, setDistractedSecs] = useState(0);
+  const [showDistractionPopup, setShowDistractionPopup] = useState(false);
 
   // Refs
   const localVideoRef   = useRef<HTMLVideoElement>(null);
@@ -657,6 +663,7 @@ export default function LiveRoomPage() {
   // Dùng Ref cho isAnalyzing để TRÁNH re-render mỗi lần gửi frame
   const isAnalyzingRef = useRef(false);
   const lastEmotionLabel = useRef<string>("");
+  const distractedSecsRef = useRef(0);
 
   const captureAndAnalyze = useCallback(async () => {
     if (isAnalyzingRef.current) return;
@@ -687,6 +694,21 @@ export default function LiveRoomPage() {
       });
       if (res.ok) {
         const emData = await res.json();
+        
+        // Tích lũy thời gian mất tập trung / mệt mỏi dùng Ref đồng bộ
+        if (emData.face_detected !== false && (emData.label === "Distraction" || emData.label === "Fatigue")) {
+          distractedSecsRef.current += 0.2;
+          // Demo threshold: 10 giây mất tập trung liên tục -> hiển thị cảnh báo
+          if (distractedSecsRef.current >= 10 && !showDistractionPopup) {
+            setShowDistractionPopup(true);
+          }
+        } else if (emData.face_detected !== false && (emData.label === "Neutral" || emData.label === "Enjoyment")) {
+          distractedSecsRef.current = 0;
+        }
+
+        // Đính kèm thời gian mất tập trung vào dữ liệu trước khi cập nhật & gửi đi
+        emData.distractedSecs = distractedSecsRef.current;
+
         // Luôn cập nhật UI với kết quả mới nhất (gồm cả confidence)
         setEmotion(emData);
         if (dataConnRef.current) {
@@ -695,7 +717,7 @@ export default function LiveRoomPage() {
       }
     } catch { /* ignore */ }
     finally { isAnalyzingRef.current = false; }
-  }, [sessionId, userInfo?.role, isAnalyzing]);
+  }, [sessionId, userInfo?.role, isAnalyzing, showDistractionPopup]);
 
   // Dùng Ref để tránh stale closure làm reset Interval mỗi khi component re-render
   const captureRef = useRef(captureAndAnalyze);
@@ -1133,11 +1155,18 @@ export default function LiveRoomPage() {
                   <div>
                     <div className="text-[10px] font-bold text-white/50 uppercase tracking-widest leading-none mb-1">Cảm xúc của bạn</div>
                     {emotion ? (
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-sm">{emotion.emoji}</span>
-                        <span className="text-xs font-extrabold text-white">{emotion.label}</span>
-                        <span className="text-[10px] font-mono text-purple-300 bg-purple-500/20 px-1.5 py-0.5 rounded-md font-bold">{Math.round(emotion.confidence * 100)}%</span>
-                      </div>
+                      emotion.face_detected === false ? (
+                        <div className="flex items-center gap-1.5 text-amber-400 font-extrabold animate-pulse text-xs">
+                          <span>⚠️</span>
+                          <span>Không thấy mặt</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-sm">{emotion.emoji}</span>
+                          <span className="text-xs font-extrabold text-white">{emotion.label}</span>
+                          <span className="text-[10px] font-mono text-purple-300 bg-purple-500/20 px-1.5 py-0.5 rounded-md font-bold">{Math.round(emotion.confidence * 100)}%</span>
+                        </div>
+                      )
                     ) : (
                       <div className="flex items-center gap-1.5 text-white/40 text-[10px] font-bold">
                         <Loader2 className="w-3 h-3 animate-spin text-purple-400" />
@@ -1204,45 +1233,68 @@ export default function LiveRoomPage() {
                   <p className="text-xs opacity-60 text-center">Học sinh vào phòng sẽ hiển thị ở đây</p>
                 </div>
               ) : (
-                studentStreams.map((s) => (
-                  <div
-                    key={s.peerId}
-                    className="rounded-2xl overflow-hidden border border-white/10 relative group hover:border-indigo-500/40 transition-colors bg-[#0d0d0d]"
-                  >
-                    {/* Aspect video box */}
-                    <div className="aspect-video relative">
-                      <VideoRefPlayer stream={s.stream} mirrored muted={false} />
+                studentStreams.map((s) => {
+                  const isDistractedLong = studentEmotions[s.peerId]?.distractedSecs !== undefined && studentEmotions[s.peerId].distractedSecs! >= 10;
+                  return (
+                    <div
+                      key={s.peerId}
+                      className={`rounded-2xl overflow-hidden border relative group transition-all duration-300 bg-[#0d0d0d] ${
+                        isDistractedLong 
+                          ? "border-red-500 shadow-[0_0_15px_rgba(239,68,68,0.3)] animate-pulse" 
+                          : "border-white/10 hover:border-indigo-500/40"
+                      }`}
+                    >
+                      {/* Aspect video box */}
+                      <div className="aspect-video relative">
+                        <VideoRefPlayer stream={s.stream} mirrored muted={false} />
 
-                      {/* Emotion Overlay — Giáo viên xem cảm xúc học sinh */}
-                      {studentEmotions[s.peerId] ? (
-                        <div className="absolute bottom-2 left-2 right-2 z-20">
-                          <div className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 border text-xs font-bold backdrop-blur-sm ${
-                            EMOTION_COLORS[studentEmotions[s.peerId].label] ?? "bg-white/10 border-white/20 text-white"
-                          }`}>
-                            <Brain className="w-3 h-3 shrink-0" />
-                            <span className="text-sm">{studentEmotions[s.peerId].emoji}</span>
-                            <span>{studentEmotions[s.peerId].label}</span>
-                            <span className="ml-auto font-mono">{Math.round(studentEmotions[s.peerId].confidence * 100)}%</span>
+                        {/* Distraction bouncing alert */}
+                        {isDistractedLong && (
+                          <div className="absolute top-2 left-2 z-20 bg-rose-600/90 text-white text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full shadow-lg backdrop-blur-sm flex items-center gap-1 animate-bounce">
+                            <span>🚨 MẤT TẬP TRUNG</span>
                           </div>
-                        </div>
-                      ) : serviceOnline && (
-                        <div className="absolute bottom-2 left-2 z-20">
-                          <div className="flex items-center gap-1.5 text-[10px] text-white/40 bg-black/50 backdrop-blur-sm px-2 py-1 rounded-lg">
-                            <Brain className="w-2.5 h-2.5" />
-                            <span>Đang quét...</span>
+                        )}
+
+                        {/* Emotion Overlay — Giáo viên xem cảm xúc học sinh */}
+                        {studentEmotions[s.peerId] ? (
+                          studentEmotions[s.peerId].face_detected === false ? (
+                            <div className="absolute bottom-2 left-2 right-2 z-20">
+                              <div className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 border text-xs font-bold backdrop-blur-sm bg-amber-500/20 border-amber-500/40 text-amber-300 animate-pulse">
+                                <span>⚠️</span>
+                                <span>Không thấy mặt học viên</span>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="absolute bottom-2 left-2 right-2 z-20">
+                              <div className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 border text-xs font-bold backdrop-blur-sm ${
+                                EMOTION_COLORS[studentEmotions[s.peerId].label] ?? "bg-white/10 border-white/20 text-white"
+                              }`}>
+                                <Brain className="w-3 h-3 shrink-0" />
+                                <span className="text-sm">{studentEmotions[s.peerId].emoji}</span>
+                                <span>{studentEmotions[s.peerId].label}</span>
+                                <span className="ml-auto font-mono">{Math.round(studentEmotions[s.peerId].confidence * 100)}%</span>
+                              </div>
+                            </div>
+                          )
+                        ) : serviceOnline && (
+                          <div className="absolute bottom-2 left-2 z-20">
+                            <div className="flex items-center gap-1.5 text-[10px] text-white/40 bg-black/50 backdrop-blur-sm px-2 py-1 rounded-lg">
+                              <Brain className="w-2.5 h-2.5" />
+                              <span>Đang quét...</span>
+                            </div>
                           </div>
+                        )}
+                      </div>
+                      {/* Name tag */}
+                      <div className="px-3 py-2 flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                          <span className="text-xs font-bold truncate">{s.name}</span>
                         </div>
-                      )}
-                    </div>
-                    {/* Name tag */}
-                    <div className="px-3 py-2 flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-                        <span className="text-xs font-bold truncate">{s.name}</span>
                       </div>
                     </div>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
           </div>
@@ -1357,6 +1409,32 @@ export default function LiveRoomPage() {
           </div>
         </div>
       </div>
+
+      {/* ── Distraction / Fatigue Warning Popup for Student ── */}
+      {showDistractionPopup && (
+        <div className="fixed inset-0 z-[110] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-[#121214] border border-red-500/20 max-w-sm w-full rounded-3xl p-6 shadow-[0_0_30px_rgba(239,68,68,0.25)] flex flex-col items-center text-center gap-5 relative animate-in fade-in zoom-in-95 duration-200">
+            <div className="w-16 h-16 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center animate-bounce">
+              <Brain className="w-8 h-8 text-red-500" />
+            </div>
+            <div>
+              <h3 className="text-xl font-black text-red-400 mb-2">Cảnh báo Mất tập trung!</h3>
+              <p className="text-sm text-white/70 leading-relaxed px-2">
+                Hệ thống AI nhận thấy bạn đang có dấu hiệu mất tập trung hoặc mệt mỏi liên tục. Hãy vươn vai, hít một hơi thật sâu hoặc rửa mặt để tỉnh táo lại nhé!
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                setShowDistractionPopup(false);
+                distractedSecsRef.current = 0; // reset bộ đếm
+              }}
+              className="w-full bg-red-600 hover:bg-red-500 text-white font-extrabold py-3.5 rounded-xl transition-all shadow-[0_0_15px_rgba(239,68,68,0.3)] cursor-pointer text-sm"
+            >
+              Tôi đã sẵn sàng học tiếp!
+            </button>
+          </div>
+        </div>
+      )}
 
       <style jsx global>{`
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }

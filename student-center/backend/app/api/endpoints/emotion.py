@@ -33,6 +33,7 @@ class EmotionResult(BaseModel):
     emoji: str
     confidence: float
     probabilities: dict
+    face_detected: bool = True
 
 
 # ─── Endpoints ──────────────────────────────────────────────
@@ -84,6 +85,7 @@ async def analyze_emotion(
         emoji=result["emoji"],
         confidence=result["confidence"],
         probabilities=result["probabilities"],
+        face_detected=result.get("face_detected", True),
     )
 
 
