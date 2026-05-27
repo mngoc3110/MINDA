@@ -137,24 +137,12 @@ function VideoRefPlayer({ stream, mirrored = false, muted = true, className = ""
     video.srcObject = stream;
     stream.getAudioTracks().forEach(t => { t.enabled = true; });
 
-    // iOS Safari: must play muted first, then unmute after play resolves
+    // Luôn giữ video muted để tránh phát trùng lặp âm thanh (Double-playback) gây tiếng vang, rè kim loại
     video.muted = true;
-    const playPromise = video.play();
+    video.play().catch(() => {});
 
-    if (playPromise) {
-      playPromise.then(() => {
-        if (!muted) {
-          video.muted = false;
-        }
-      }).catch(() => {
-        // Autoplay blocked — video stays muted, fallback audio handles it
-      });
-    }
-
-    // Fallback for iOS: use a hidden <audio> element for remote stream audio
-    // This ensures audio plays even if the <video> element stays muted
+    // Chỉ phát âm thanh duy nhất qua 1 thẻ <audio> ẩn để đảm bảo tương thích iOS/Android/PC và lọc tiếng vang
     if (!muted && stream.getAudioTracks().length > 0) {
-      // Create a separate audio-only stream
       const audioStream = new MediaStream(stream.getAudioTracks());
       const audioEl = new Audio();
       audioEl.srcObject = audioStream;
@@ -167,9 +155,7 @@ function VideoRefPlayer({ stream, mirrored = false, muted = true, className = ""
     const onAddTrack = () => {
        video.srcObject = stream;
        video.muted = true;
-       video.play().then(() => {
-         if (!muted) video.muted = false;
-       }).catch(() => {});
+       video.play().catch(() => {});
     };
     stream.addEventListener("addtrack", onAddTrack);
 
@@ -313,13 +299,11 @@ export default function LiveRoomPage() {
     video.srcObject = teacherStream;
     teacherStream.getAudioTracks().forEach(t => { t.enabled = true; });
 
-    // iOS: play muted first, then unmute
+    // Luôn giữ video muted để tránh hiện tượng double-playback phát trùng lặp âm thanh
     video.muted = true;
-    video.play().then(() => {
-      video.muted = false;
-    }).catch(console.error);
+    video.play().catch(console.error);
 
-    // Fallback: hidden audio element for iOS
+    // Phát âm thanh giáo viên qua đúng 1 thẻ <audio> ẩn để lọc tiếng vang và ổn định trên Safari
     if (teacherStream.getAudioTracks().length > 0) {
       const audioEl = new Audio();
       audioEl.srcObject = new MediaStream(teacherStream.getAudioTracks());
@@ -737,6 +721,14 @@ export default function LiveRoomPage() {
     const cur = localStream.getVideoTracks()[0]?.enabled ?? true;
     localStream.getVideoTracks().forEach(t => { t.enabled = !cur; });
     setCamEnabled(!cur);
+
+    // Đảm bảo video được gọi lệnh play() kích hoạt phát lại ngay lập tức khi bật cam
+    if (!cur) {
+      setTimeout(() => {
+        if (localVideoRef.current) localVideoRef.current.play().catch(() => {});
+        if (pipVideoRef.current) pipVideoRef.current.play().catch(() => {});
+      }, 150);
+    }
   };
 
   const toggleScreenShare = async () => {
