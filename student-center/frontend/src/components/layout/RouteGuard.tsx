@@ -8,83 +8,54 @@ export default function RouteGuard({ children }: { children: React.ReactNode }) 
   const pathname = usePathname();
   const router = useRouter();
   const [authorized, setAuthorized] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const CACHE_EXPIRY_MS = 12 * 60 * 60 * 1000; // 12 hours
+    setMounted(true);
+  }, []);
 
-    const forceClearAndReload = () => {
-      localStorage.clear();
-      sessionStorage.clear();
-      
-      if ('caches' in window) {
-        caches.keys().then((names) => {
-          for (const name of names) {
-            caches.delete(name);
-          }
-        });
-      }
-      
-      alert("Phiên bản cập nhật mới hoặc phiên làm việc đã hết hạn. Hệ thống sẽ tự động tải lại!");
-      window.location.href = pathname.startsWith("/admin") ? "/admin/login" : "/login";
-    };
-
-    const checkCacheExpiry = () => {
-      const now = Date.now();
-      const lastRefresh = localStorage.getItem("minda_last_refresh");
-      
-      if (!lastRefresh) {
-        localStorage.setItem("minda_last_refresh", now.toString());
-        return true;
-      } 
-      
-      if (now - parseInt(lastRefresh) > CACHE_EXPIRY_MS) {
-        forceClearAndReload();
-        return false;
-      }
-      
-      return true;
-    };
+  useEffect(() => {
+    if (!mounted) return;
 
     const checkAuth = () => {
-      // 1. Kiểm tra bộ nhớ đệm và thời hạn phiên bản
-      if (!checkCacheExpiry()) return;
-
       const token = localStorage.getItem("minda_token");
       const portal = localStorage.getItem("minda_portal");
-      
-      // Nếu không có Token (chưa đăng nhập)
-      if (!token) {
+
+      // Không có token → chuyển về login
+      if (!token || token === "undefined" || token === "null" || token.trim() === "") {
         if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
-            router.replace("/admin/login");
+          router.replace("/admin/login");
         } else {
-            router.replace("/login");
+          router.replace("/login");
         }
         return;
       }
 
-      // /admin chỉ dành cho phần mềm đăng nhập từ Admin Portal
+      // /admin chỉ dành cho admin portal
       if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
         if (portal !== "admin") {
-          // Logged in but not from admin portal → redirect to teacher dashboard
           router.replace("/dashboard");
           return;
         }
       }
-      
+
       setAuthorized(true);
     };
 
     checkAuth();
 
-    // 2. Thiết lập vòng lặp giám sát liên tục để quét thời hạn nếu người dùng treo máy
+    // Kiểm tra session mỗi 5 phút
     const interval = setInterval(() => {
-      checkCacheExpiry();
-    }, 60000); // 1 phút / lượt kiểm tra
+      const token = localStorage.getItem("minda_token");
+      if (!token || token === "undefined" || token === "null" || token.trim() === "") {
+        window.location.href = "/login";
+      }
+    }, 5 * 60 * 1000);
 
     return () => clearInterval(interval);
-  }, [pathname, router]);
+  }, [mounted, pathname, router]);
 
-  if (!authorized) {
+  if (!mounted || !authorized) {
     return (
       <div className="min-h-screen bg-[#020202] text-white flex flex-col gap-4 items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />

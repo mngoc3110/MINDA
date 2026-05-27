@@ -20,5 +20,14 @@ module.exports = {
         PORT: 3000,
       },
     },
+    {
+      name: "minda-peerjs",
+      script: "npx",
+      args: "peerjs --port 9000 --path /peerjs",
+      cwd: "./frontend",
+      env: {
+        NODE_ENV: "production",
+      },
+    },
   ],
 };

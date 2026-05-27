@@ -2,7 +2,7 @@
 import { motion } from 'framer-motion';
 import { PenLine, Heart } from 'lucide-react';
 
-export default function HeroSection({ totalMessages, onOpenForm }) {
+export default function HeroSection({ totalMessages, onOpenForm, onGoToSignature }) {
   return (
     <section className="relative pt-28 pb-16 px-4 overflow-hidden">
 
@@ -59,7 +59,7 @@ export default function HeroSection({ totalMessages, onOpenForm }) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-3"
+          className="flex flex-col sm:flex-row items-center justify-center gap-4"
         >
           <button
             onClick={onOpenForm}
@@ -68,6 +68,14 @@ export default function HeroSection({ totalMessages, onOpenForm }) {
             <PenLine size={18} />
             Gửi lời nhắn của bạn
           </button>
+
+          <button
+            onClick={onGoToSignature}
+            className="btn-ghost gap-2 text-base px-8 py-3.5"
+          >
+            ✍️ Ghi lưu bút
+          </button>
+
 
           <div className="flex items-center gap-1.5 text-ink/50 font-body text-sm">
             <Heart size={14} className="text-pink-400 fill-pink-400" />

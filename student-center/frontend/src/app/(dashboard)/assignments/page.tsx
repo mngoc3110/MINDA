@@ -230,6 +230,25 @@ export default function AssignmentsPage() {
     }
   };
 
+  const handleEditAssignment = async (item: any) => {
+    try {
+      const token = localStorage.getItem("minda_token");
+      const res = await fetch(`${API}/api/assignments/${item.id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const fullItem = await res.json();
+        setEditAssignment(fullItem);
+        setShowCreateModal(true);
+      } else {
+        alert("Không thể tải chi tiết bài tập.");
+      }
+    } catch(e) {
+      console.error(e);
+      alert("Lỗi tải chi tiết bài tập.");
+    }
+  };
+
   const handleCreateFolder = async () => {
     if (!newFolderName.trim()) return;
     try {
@@ -390,7 +409,7 @@ export default function AssignmentsPage() {
             <option key={f.id} value={f.id}>📁 {f.name}</option>
           ))}
         </select>
-        <button onClick={() => { setEditAssignment(item); setShowCreateModal(true); }} className="p-2 md:p-1 text-blue-400 hover:bg-blue-500/20 rounded-lg transition-colors" title="Sửa Đề">
+        <button onClick={() => handleEditAssignment(item)} className="p-2 md:p-1 text-blue-400 hover:bg-blue-500/20 rounded-lg transition-colors" title="Sửa Đề">
           <PenLine className="w-4 h-4 md:w-3.5 md:h-3.5"/>
         </button>
         <button onClick={() => handleDeleteAssignment(item.id)} className="p-2 md:p-1 text-red-500 hover:bg-red-500/20 rounded-lg transition-colors" title="Xóa Đề">

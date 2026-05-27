@@ -2,16 +2,18 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BrainCircuit, Grid, FolderOpen, Video, Trophy, LogOut, Sun, Moon, BookOpen, FileText, Star, Wallet, RefreshCw } from "lucide-react";
+import { BrainCircuit, Grid, FolderOpen, Video, Trophy, LogOut, Sun, Moon, BookOpen, FileText, Star, Wallet, RefreshCw, Heart, Calendar } from "lucide-react";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useEffect, useState } from "react";
 
 const NAV_ITEMS = [
   { name: "Tổng quan", href: "/dashboard", icon: Grid },
   { name: "Thư viện Lớp học", href: "/courses", icon: BookOpen },
+  { name: "Lịch học", href: "/schedule", icon: Calendar },
   { name: "Phòng học Live", href: "/live", icon: Video },
   { name: "Phòng Luyện Thi", href: "/practice", icon: FileText },
   { name: "Cặp xách (Drive)", href: "/drive", icon: Star },
+  { name: "Lưu Bút Kỷ Yếu", href: "/yearbook/", icon: Heart },
   { name: "Bảng Thành tích", href: "/leaderboard", icon: Trophy },
   { name: "Học phí", href: "/tuition", icon: Wallet },
 ];
@@ -48,6 +50,21 @@ export default function StudentSidebar() {
         {NAV_ITEMS.map((item) => {
           const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));
           const Icon = item.icon;
+          const isExternal = item.href === "/yearbook/";
+          
+          if (isExternal) {
+            return (
+              <a 
+                key={item.href} 
+                href={item.href}
+                className={`flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all duration-200 group relative border text-text-secondary hover:bg-bg-hover hover:text-text-primary border-transparent`}
+              >
+                <Icon className={`w-5 h-5 shrink-0 transition-transform group-hover:scale-110`} />
+                <span className="font-semibold text-sm">{item.name}</span>
+              </a>
+            );
+          }
+
           return (
             <Link 
               key={item.href} 

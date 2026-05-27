@@ -9,7 +9,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Tự động tìm cầu nối Capacitor và nhét Plugin vào (Chống lỗi Not Implemented của Apple Linker)
         if let rootVC = window?.rootViewController as? CAPBridgeViewController {
-            rootVC.bridge?.registerPluginType(ScreenSharePlugin.self)
+            rootVC.bridge?.registerPluginType(ScreenShare.self)
         }
         return true
     }

@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { BrainCircuit, Mail, Lock, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -32,10 +31,12 @@ export default function LoginPage() {
         if (data.user_id) localStorage.setItem("minda_user_id", data.user_id);
         if (data.avatar_url) localStorage.setItem("minda_avatar_url", data.avatar_url);
         if (data.cover_url) localStorage.setItem("minda_cover_url", data.cover_url);
-        
-        // Redirect: Admin goes to /admin, others to /dashboard
-        // Redirect everyone back to Homepage
-        window.location.href = "/";
+        // Redirect to dashboard based on role
+        if (data.role === "admin") {
+          window.location.href = "/admin";
+        } else {
+          window.location.href = "/dashboard";
+        }
       } else {
         alert("Tài khoản hoặc mật khẩu không đúng!");
       }
@@ -59,15 +60,13 @@ export default function LoginPage() {
         <span className="text-sm font-medium text-text-secondary group-hover:text-text-primary transition-colors">Trang chủ</span>
       </Link>
 
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+      <div
         className="w-full max-w-md relative z-10 px-6"
+        style={{ animation: "loginFadeIn 0.5s ease forwards" }}
       >
         <div className="flex flex-col items-center mb-8">
           <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/20 mb-4">
-            <BrainCircuit className="w-6 h-6 text-text-primary" />
+            <BrainCircuit className="w-6 h-6 text-white" />
           </div>
           <h1 className="text-3xl font-bold tracking-tight mb-2">Đăng nhập</h1>
           <p className="text-text-secondary text-sm text-center">Chào mừng bạn trở lại Cổng học trực tuyến MINDA</p>
@@ -84,8 +83,8 @@ export default function LoginPage() {
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Mail className="w-5 h-5 text-text-muted" />
                 </div>
-                <input 
-                  type="email" 
+                <input
+                  type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 bg-transparent border border-border-card rounded-xl focus:outline-none focus:border-indigo-500/50 focus:bg-bg-main transition-colors text-text-primary placeholder-gray-500"
@@ -103,8 +102,8 @@ export default function LoginPage() {
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Lock className="w-5 h-5 text-text-muted" />
                 </div>
-                <input 
-                  type="password" 
+                <input
+                  type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 bg-transparent border border-border-card rounded-xl focus:outline-none focus:border-indigo-500/50 focus:bg-bg-main transition-colors text-text-primary placeholder-gray-500"
@@ -113,19 +112,28 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <button 
+            <button
               type="submit"
-              className="mt-2 w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-text-primary font-medium flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(79,70,229,0.3)] transition-all"
+              disabled={loading}
+              className="mt-2 w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-medium flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(79,70,229,0.3)] transition-all disabled:opacity-60"
             >
-              Đăng nhập <ArrowRight className="w-4 h-4" />
+              {loading ? "Đang đăng nhập..." : <><span>Đăng nhập</span> <ArrowRight className="w-4 h-4" /></>}
             </button>
           </form>
 
           <div className="mt-6 text-center text-sm text-text-secondary">
-            Chưa có tài khoản? <Link href="/register" className="text-indigo-400 hover:text-indigo-300 hover:underline transition-all">Đăng ký ngay</Link>
+            Chưa có tài khoản?{" "}
+            <Link href="/register" className="text-indigo-400 hover:text-indigo-300 hover:underline transition-all">Đăng ký ngay</Link>
           </div>
         </div>
-      </motion.div>
+      </div>
+
+      <style>{`
+        @keyframes loginFadeIn {
+          from { opacity: 0; transform: translateY(20px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
     </div>
   );
 }

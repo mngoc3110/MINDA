@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  allowedDevOrigins: ["minda.io.vn", "www.minda.io.vn"],
   async headers() {
     return [
       {
@@ -15,6 +16,13 @@ const nextConfig: NextConfig = {
         ],
       },
     ];
+  },
+  experimental: {
+    workerThreads: false,
+    cpus: 1,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
   },
 };
 

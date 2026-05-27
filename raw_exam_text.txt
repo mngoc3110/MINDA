@@ -1,0 +1,206 @@
+PHẦN I. Thí sinh trả lời từ câu 1 đến câu 24. Mỗi câu hỏi thí sinh chỉ chọn một phương án.
+Câu 1. Selector CSS #main áp dụng cho phần tử nào sau đây?
+	A. Tất cả thẻ main.	B. Mọi phần tử HTML.
+	C. Phần tử có class='main'.	D. Phần tử có id='main'.
+Câu 2. Thuộc tính CSS nào sau đây được dùng để thay đổi kích thước chữ?
+	A. margin	B. font-size	C. padding	D. color
+Câu 3. Theo chuẩn Internet, địa chỉ IPv6 có độ dài bao nhiêu bit?
+	A. 64 bit.	B. 128 bit.	C. 32 bit.	D. 256 bit.
+Câu 4. Thuộc tính CSS nào sau đây quy định phần tử hiển thị dạng khối?
+	A. color:red	B. display:block	C. display:none	D. text-align:center
+Câu 5. Khi sử dụng nội dung do hệ thống AI tạo ra trong học tập, người dùng nên thực hiện hành động nào sau đây?
+	A. Kiểm chứng thông tin trước khi sử dụng.
+	B. Sao chép toàn bộ nội dung.
+	C. Chỉ thay đổi hình thức trình bày.
+	D. Sử dụng ngay mà không kiểm tra.
+Câu 6. Ứng dụng nào sau đây thể hiện việc sử dụng trí tuệ nhân tạo trong thực tế?
+	A. Lắp đặt thiết bị mạng trong văn phòng.
+	B. Nhận diện khuôn mặt từ hệ thống camera.
+	C. Cài đặt hệ điều hành cho máy tính.
+	D. Thay thế linh kiện phần cứng máy tính.
+Câu 7. Lựa chọn ngôn ngữ Python hoặc C++ để tìm hiểu đoạn chương trình sau:
+Sau khi thực hiện đoạn chương trình trên, giá trị của biến s được in ra trên màn hình là bao nhiêu?
+	A. 18	B. 12	C. 15	D. 9
+Câu 8. Trong quy trình phát triển phần mềm, hoạt động kiểm thử được thực hiện nhằm mục đích nào sau đây?
+	A. Thêm chức năng mới.
+	B. Thiết kế giao diện chương trình.
+	C. Phát hiện lỗi và đánh giá chất lượng.
+	D. Tối ưu phần cứng.
+Câu 9. Sau khi hoàn tất quá trình huấn luyện mô hình trong học máy, tập dữ liệu nào sau đây được sử dụng để đánh giá hiệu suất của mô hình?
+	A. Tập sao lưu.	B. Tập dữ liệu gốc.	C. Tập huấn luyện.	D. Tập kiểm tra.
+Câu 10. Công việc nào sau đây phù hợp với chuyên viên phân tích dữ liệu?
+	A. Thu thập và phân tích dữ liệu.	B. Viết ứng dụng phần mềm.
+	C. Thiết kế giao diện web.	D. Cấu hình thiết bị mạng.
+
+Câu 11. Thiết bị nào sau đây có chức năng định tuyến gói tin giữa các mạng máy tính khác nhau?
+	A. Hub.	B. Router.	C. Switch.	D. Repeater.
+Câu 12. Thẻ HTML nào sau đây được dùng để chèn hình ảnh vào trang web?
+	A. <a>	B. <p>	C. <img>	D. <div>
+Câu 13. Giao thức nào sau đây thực hiện việc phân giải tên miền thành địa chỉ IP?
+	A. Telnet.	B. DNS.	C. FTP.	D. SMTP.
+Câu 14. Để hệ thống dịch tự động ngôn ngữ hoạt động hiệu quả, cần sử dụng yếu tố nào sau đây?
+	A. Thuật toán phân cụm dữ liệu không giám sát.
+	B. Dữ liệu hình ảnh có gán nhãn.
+	C. Dữ liệu huấn luyện lớn về văn bản.
+	D. Bộ quy tắc ngữ pháp được xây dựng thủ công.
+Câu 15. Thẻ HTML nào sau đây được dùng để tạo danh sách có thứ tự?
+	A. <dl>	B. <ul>	C. <ol>	D. <li>
+Câu 16. Trong dự án phát triển phần mềm, nhiệm vụ chính của lập trình viên là nhiệm vụ nào sau đây?
+	A. Quản lí chi phí dự án.
+	B. Viết và chỉnh sửa mã nguồn chương trình.
+	C. Xây dựng thương hiệu sản phẩm.
+	D. Thiết kế chiến lược marketing.
+Câu 17. Lựa chọn ngôn ngữ Python hoặc C++ để tìm hiểu đoạn chương trình sau:
+Sau khi thực hiện đoạn chương trình trên, giá trị của biến s được in ra trên màn hình là bao nhiêu?
+	A. 40	B. 36	C. 56	D. 20
+Câu 18. Điểm khác biệt chính giữa phương thức POST và GET trong form HTML là điểm nào sau đây?
+	A. GET chỉ dùng cho hình ảnh.
+	B. POST gửi dữ liệu trong thân yêu cầu.
+	C. POST không gửi dữ liệu.
+	D. GET gửi dữ liệu trong thân yêu cầu.
+Câu 19. Khi nhận được một liên kết lạ qua email cá nhân, người dùng nên thực hiện hành động nào sau đây?
+	A. Kiểm tra nguồn liên kết trước khi truy cập.
+	B. Nhập thông tin cá nhân theo yêu cầu.
+	C. Chuyển tiếp liên kết cho người khác.
+	D. Mở liên kết để xem nội dung.
+Câu 20. Thuộc tính required trong thẻ input của HTML có tác dụng nào sau đây?
+	A. Ẩn trường nhập khỏi biểu mẫu.
+	B. Bắt buộc nhập dữ liệu trước khi gửi.
+	C. Mã hóa dữ liệu nhập.
+	D. Tăng kích thước ô nhập.
+Câu 21. Trong mạng LAN, Switch sử dụng loại địa chỉ nào sau đây để chuyển tiếp khung dữ liệu?
+	A. Tên miền.	B. Cổng dịch vụ.	C. Địa chỉ MAC.	D. Địa chỉ IP.
+Câu 22. Hành vi nào sau đây không phù hợp khi tham gia môi trường số?
+	A. Kiểm tra nguồn tin trước khi chia sẻ.
+	B. Tôn trọng quyền riêng tư.
+	C. Phát tán thông tin chưa xác thực.
+	D. Bảo vệ mật khẩu cá nhân.
+Câu 23. Việc cài đặt phần mềm không rõ nguồn gốc có thể gây ra nguy cơ nào sau đây?
+	A. Nhiễm mã độc vào hệ thống.	B. Tăng dung lượng ổ đĩa.
+	C. Không ảnh hưởng thiết bị.	D. Tăng tốc độ máy tính.
+Câu 24. Nhiệm vụ nào sau đây phù hợp với vai trò quản trị hệ thống Công nghệ thông tin?
+	A. Bảo trì và giám sát máy chủ.	B. Biên tập nội dung truyền thông.
+	C. Quảng bá sản phẩm phần mềm.	D. Thiết kế giao diện người dùng.
+PHẦN II. Thí sinh trả lời 4 câu hỏi. Trong mỗi ý a), b), c), d) ở mỗi câu, thí sinh chọn đúng hoặc sai.
+A. Phần chung cho tất cả các thí sinh
+Câu 1. Một khách sạn 5 tầng trang bị hệ thống mạng để phục vụ hoạt động quản lý và cung cấp dịch vụ   Wi-Fi cho khách lưu trú. Mỗi tầng được lắp đặt một Switch để kết nối các máy tính để bàn tại quầy lễ tân và các Access Point phát Wi-Fi cho khách sử dụng. Các Switch ở các tầng được kết nối về một Switch trung tâm đặt tại phòng kỹ thuật của khách sạn. Switch trung tâm tiếp tục được kết nối với Router để truy cập Internet.
+Sau khi thảo luận, một số học sinh đưa ra các nhận xét sau:
+a)  Hệ thống kết nối các thiết bị trong khách sạn này được gọi là mạng diện rộng (WAN) vì quy mô lớn tới 5 tầng.
+b) Các thiết bị di động khi kết nối qua Access Point sẽ truy cập trực tiếp Internet mà không cần đi qua Router của khách sạn.
+c) Nếu Switch trung tâm bị hỏng, các máy tính ở tầng 1 không thể trao đổi dữ liệu với các máy tính ở tầng 2 dù các Switch tại từng tầng vẫn hoạt động bình thường.
+d) Để quản lý quyền truy cập, khách sạn có thể thiết lập trên Router để cấp phát các dải địa chỉ IP khác nhau giữa nhóm nhân viên và nhóm khách hàng.
+Câu 2. Để quản lý việc tiêm chủng Vắc-xin, một trung tâm y tế xây dựng cơ sở dữ liệu gồm các bảng sau:
+VACXIN (maVX, tenVX, hangsx): lưu thông tin các loại vắc-xin.
+NGUOITIEM (maNT, hoTen, ngaySinh, gioiTinh): lưu thông tin người tiêm chủng.
+CHUNGNHAN (maCN, maNT, maVX, ngayTiem, muiThu): lưu nhật ký tiêm chủng.
+Sau khi tìm hiểu cơ sở dữ liệu trên, một số học sinh đưa ra các ý kiến sau:
+a) Trường maVX là khóa chính của bảng VACXIN.
+b) Trường maVX trong bảng CHUNGNHAN là khóa ngoại giúp liên kết và đảm bảo tính toàn vẹn dữ liệu với bảng VACXIN.
+c) Để thống kê họ tên những người đã tiêm vắc-xin có tên "AstraZeneca", chỉ cần sử dụng dữ liệu từ hai bảng NGUOITIEM và CHUNGNHAN để truy vấn.
+d) Để đưa ra thông tin gồm họ tên người tiêm, tên vắc-xin và ngày tiêm của những người đã tiêm mũi thứ 2, có thể thực hiện truy vấn với các thành phần sau:
+Các bảng và trường được chọn: NGUOITIEM.hoTen, VACXIN.tenVX, CHUNGNHAN.ngayTiem.
+Các bảng được liên kết qua khóa: NGUOITIEM liên kết CHUNGNHAN qua khóa maNT, CHUNGNHAN liên kết VACXIN qua khóa maVX.
+Điều kiện kết xuất dữ liệu: CHUNGNHAN.muiThu = 2.
+B. Phần riêng
+Thí sinh chỉ được phép chọn một trong hai phần: Khoa học máy tính (Câu 3 và Câu 4) hoặc Tin học ứng dụng (Câu 5 và Câu 6). Thí sinh không được tính điểm nếu làm cả hai phần.
+B1. Khoa học máy tính
+Câu 3. Một bệnh viện sử dụng hàng triệu ảnh chụp X-quang phổi đã được các bác sĩ chuyên khoa gán nhãn chẩn đoán (“Bình thường” hoặc “Có bệnh lý”) để huấn luyện một mô hình trí tuệ nhân tạo (AI) nhằm hỗ trợ phát hiện bệnh nhanh chóng. Trong khi thảo luận, một số nhân viên của bệnh viện đưa ra các nhận định sau:
+a) Việc phân loại hình ảnh X-quang thành "Bình thường" hay "Có bệnh lý" là một ứng dụng của lĩnh vực Xử lý ngôn ngữ tự nhiên.
+b) Trước khi huấn luyện mô hình AI, các ảnh X-quang thường cần được tiền xử lý như: chuẩn hóa kích thước, loại bỏ nhiễu, ... để giúp mô hình học hiệu quả hơn.
+c) Phương pháp huấn luyện dựa trên hàng triệu phim đã được bác sĩ gán nhãn chẩn đoán trước đó được gọi là Học không giám sát.
+d) Để đánh giá khách quan độ chính xác, bệnh viện nên sử dụng bộ dữ liệu kiểm thử tách biệt hoàn toàn với bộ dữ liệu đã dùng để huấn luyện.
+Câu 4. Cho hàm sau đây được viết bằng hai ngôn ngữ lập trình Python và C++:
+Sau khi chọn một trong hai ngôn ngữ Python hoặc C++ để tìm hiểu hàm trên, một số bạn học sinh đã nêu các ý kiến sau:
+a) Hàm trên thực hiện sắp xếp mảng A theo thứ tự giảm dần.
+b) Sau mỗi lượt lặp của câu lệnh for tại Dòng 2, phần tử nhỏ nhất trong đoạn từ vị trí i đến n−1 sẽ được đưa về vị trí i của mảng.
+c) Số lần thực hiện phép so sánh  trong hàm trên phụ thuộc vào việc mảng đầu vào đã được sắp xếp hay chưa.
+d) Với  và , sau khi kết thúc lượt lặp đầu tiên , giá trị của mảng  trở thành 
+B2. Tin học ứng dụng
+Câu 5. Một cửa hàng kinh doanh đồ thủ công mỹ nghệ sử dụng phần mềm tạo trang web (Website Builder) để quảng bá sản phẩm. Sau khi hoàn thành, học sinh đưa ra các nhận xét sau:
+a) Việc sử dụng mẫu (templates) có sẵn giúp người dùng tiết kiệm thời gian nhưng bắt buộc phải biết lập trình HTML mới có thể thay đổi nội dung.
+b) Cửa hàng có thể tăng tính tương tác bằng cách nhúng bản đồ chỉ đường hoặc các nút liên kết mạng xã hội trực tiếp vào trang web.
+c) Tính năng "Kéo và thả" cho phép người thiết kế sắp xếp bố cục văn bản, hình ảnh một cách trực quan trên giao diện mà không cần viết mã.
+d) Để tối ưu tốc độ tải trang trên các thiết bị di động, cửa hàng nên sử dụng định dạng ảnh .BMP thay vì .WebP hay .JPEG đã nén.
+Câu 6. Một hệ thống quản lý thư viện cần lưu trữ dữ liệu về sách, tác giả và các lượt mượn sách. Cơ sở dữ liệu gồm các bảng sau:
+ TACGIA (maTG, tenTG): lưu thông tin tác giả.
+ SACH (maSach, tenSach, namXB, maTG): lưu thông tin sách.
+ MUONSACH (maSach, ngayMuon, maSV): lưu nhật ký mượn sách của sinh viên.
+Sau khi tìm hiểu cơ sở dữ liệu trên, một số học sinh đưa ra các ý kiến sau:
+a) Việc lưu trữ tất cả thông tin từ 3 bảng này vào một trang tính duy nhất trong Excel sẽ giúp tiết kiệm không gian lưu trữ và tăng tốc độ xử lý dữ liệu.
+b) Trong bảng MUONSACH, nếu một sinh viên chỉ được phép mượn mỗi cuốn sách tối đa một lần trong một ngày, thì việc chọn tổ hợp (maSV, maSach, ngayMuon) làm khóa chính là hoàn toàn phù hợp để đảm bảo tính duy nhất.
+c) Trường maTG trong bảng SACH không cần thiết phải là khóa ngoại tham chiếu đến bảng TACGIA vì người dùng có thể tự tra cứu tên tác giả dựa trên trí nhớ.
+d) Để lấy danh sách tên các cuốn sách và ngày mượn của tác giả có mã 'TG05', ta sử dụng câu truy vấn: 
+SELECT SACH.tenSach, MUONSACH.ngayMuon
+FROM SACH INNER JOIN MUONSACH ON SACH.maSach = MUONSACH.maSach 
+WHERE SACH.maTG = 'TG05'
+--------------------------HẾT-------------------------
+- Thí sinh không được sử dụng tài liệu;
+- Giám thị không giải thích gì thêm.
+
+ĐÁP ÁN VÀ LỜI GIẢI THAM KHẢO
+PHẦN I. Thí sinh trả lời từ câu 1 đến câu 24. Mỗi câu hỏi thí sinh chỉ chọn một phương án.
+Câu 1. Đáp án: D.
+Selector #main áp dụng cho phần tử có id="main".
+Câu 2. Đáp án: B.
+font-size dùng để thay đổi kích thước chữ.
+Câu 3. Đáp án: B.
+IPv6 có độ dài 128 bit.
+Câu 4. Đáp án: B.
+display: block giúp phần tử hiển thị dạng khối.
+Câu 5. Đáp án: A.
+Cần kiểm chứng thông tin AI trước khi sử dụng.
+Câu 6. Đáp án: B.
+Nhận diện khuôn mặt là ứng dụng AI thực tế.
+Câu 7. Đáp án: D.
+Chương trình xét các số: 1, 3, 5, 7, 9 (tăng 2).
+Chia hết cho 3: 3, 9.
+s = 3 + 9 = 12.
+ Khoan! Nhưng phải kiểm tra kỹ:
+i = 1 → không 
+i = 3 → +3 
+i = 5 → không 
+i = 7 → không 
+i = 9 → +9 
+👉 s = 12
+✔ Đáp án: B (12)
+Câu 8. Đáp án: C.
+Kiểm thử nhằm phát hiện lỗi, đánh giá chất lượng.
+Câu 9. Đáp án: D.
+Dùng tập kiểm tra (test set) để đánh giá mô hình.
+Câu 10. Đáp án: A.
+Chuyên viên dữ liệu: thu thập + phân tích dữ liệu.
+Câu 11. Đáp án: B.
+Router dùng để định tuyến giữa các mạng.
+Câu 12. Đáp án: C.
+Thẻ <img> chèn ảnh.
+Câu 13. Đáp án: B.
+DNS phân giải tên miền → IP.
+Câu 14. Đáp án: C.
+Cần dữ liệu lớn về văn bản.
+Câu 15.
+Đáp án: C.
+<ol> tạo danh sách có thứ tự.
+Câu 16. Đáp án: B.
+Lập trình viên → viết code.
+Câu 17. Đáp án: C.
+Các số chẵn: 2, 4, 6
+
+✔ Đáp án: C (56)
+Câu 18. Đáp án: B.
+POST gửi dữ liệu trong body.
+Câu 19. Đáp án: A.
+Phải kiểm tra nguồn link trước.
+Câu 20. Đáp án: B.
+required → bắt buộc nhập.
+Câu 21. Đáp án: C.
+Switch dùng địa chỉ MAC.
+Câu 22. Đáp án: C.
+Phát tán tin chưa xác thực là sai.
+Câu 23. Đáp án: A.
+Nguy cơ nhiễm mã độc.
+Câu 24. Đáp án: A.
+Quản trị hệ thống → bảo trì, giám sát server.
+PHẦN II. Thí sinh trả lời 4 câu hỏi. Trong mỗi ý a), b), c), d) ở mỗi câu, thí sinh chọn đúng hoặc sai.
+
+
+

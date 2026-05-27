@@ -39,9 +39,10 @@ const ANALYZE_INTERVAL_MS = 60;
 
 // PeerJS config: Auto-detect local vs production
 const IS_LOCALHOST = typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
-const PEER_HOST   = IS_LOCALHOST ? "localhost" : "minda.io.vn";
+// Dùng máy chủ public miễn phí của PeerJS để không cần setup Nginx trên VPS
+const PEER_HOST   = IS_LOCALHOST ? "localhost" : "0.peerjs.com";
 const PEER_PORT   = IS_LOCALHOST ? 9000 : 443;
-const PEER_PATH   = IS_LOCALHOST ? "/" : "/peerjs/";
+const PEER_PATH   = IS_LOCALHOST ? "/" : "/";
 const PEER_SECURE = IS_LOCALHOST ? false : true;
 const PEER_DEBUG  = 1;
 

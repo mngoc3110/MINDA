@@ -1,0 +1,434 @@
+{
+  "sections": [
+    {
+      "instruction": "PHẦN I. Thí sinh trả lời từ câu 1 đến câu 24. Mỗi câu hỏi thí sinh chỉ chọn một phương án.",
+      "questions": [
+        {
+          "id": "1",
+          "text": "Selector \\texttt{CSS \\#main} áp dụng cho phần tử nào sau đây?",
+          "options": [
+            "Tất cả thẻ \\texttt{main}.",
+            "Mọi phần tử \\texttt{HTML}.",
+            "Phần tử có \\texttt{class='main'}.",
+            "Phần tử có \\texttt{id='main'}."
+          ],
+          "correctAnswer": 3
+        },
+        {
+          "id": "2",
+          "text": "Thuộc tính \\texttt{CSS} nào sau đây được dùng để thay đổi kích thước chữ?",
+          "options": [
+            "\\texttt{margin}",
+            "\\texttt{font-size}",
+            "\\texttt{padding}",
+            "\\texttt{color}"
+          ],
+          "correctAnswer": 1
+        },
+        {
+          "id": "3",
+          "text": "Theo chuẩn \\texttt{Internet}, địa chỉ \\texttt{IPv6} có độ dài bao nhiêu bit?",
+          "options": [
+            "64 bit.",
+            "128 bit.",
+            "32 bit.",
+            "256 bit."
+          ],
+          "correctAnswer": 1
+        },
+        {
+          "id": "4",
+          "text": "Thuộc tính \\texttt{CSS} nào sau đây quy định phần tử hiển thị dạng khối?",
+          "options": [
+            "\\texttt{color:red}",
+            "\\texttt{display:block}",
+            "\\texttt{display:none}",
+            "\\texttt{text-align:center}"
+          ],
+          "correctAnswer": 1
+        },
+        {
+          "id": "5",
+          "text": "Khi sử dụng nội dung do hệ thống \\texttt{AI} tạo ra trong học tập, người dùng nên thực hiện hành động nào sau đây?",
+          "options": [
+            "Kiểm chứng thông tin trước khi sử dụng.",
+            "Sao chép toàn bộ nội dung.",
+            "Chỉ thay đổi hình thức trình bày.",
+            "Sử dụng ngay mà không kiểm tra."
+          ],
+          "correctAnswer": 0
+        },
+        {
+          "id": "6",
+          "text": "Ứng dụng nào sau đây thể hiện việc sử dụng trí tuệ nhân tạo trong thực tế?",
+          "options": [
+            "Lắp đặt thiết bị mạng trong văn phòng.",
+            "Nhận diện khuôn mặt từ hệ thống camera.",
+            "Cài đặt hệ điều hành cho máy tính.",
+            "Thay thế linh kiện phần cứng máy tính."
+          ],
+          "correctAnswer": 1
+        },
+        {
+          "id": "7",
+          "text": "Lựa chọn ngôn ngữ \\texttt{Python} hoặc \\texttt{C++} để tìm hiểu đoạn chương trình. Sau khi thực hiện, giá trị của biến \\texttt{s} được in ra là bao nhiêu?",
+          "options": [
+            "18",
+            "12",
+            "15",
+            "9"
+          ],
+          "correctAnswer": 1
+        },
+        {
+          "id": "8",
+          "text": "Trong quy trình phát triển phần mềm, hoạt động kiểm thử được thực hiện nhằm mục đích nào sau đây?",
+          "options": [
+            "Thêm chức năng mới.",
+            "Thiết kế giao diện chương trình.",
+            "Phát hiện lỗi và đánh giá chất lượng.",
+            "Tối ưu phần cứng."
+          ],
+          "correctAnswer": 2
+        },
+        {
+          "id": "9",
+          "text": "Sau khi hoàn tất quá trình huấn luyện mô hình trong học máy, tập dữ liệu nào sau đây được sử dụng để đánh giá hiệu suất của mô hình?",
+          "options": [
+            "Tập sao lưu.",
+            "Tập dữ liệu gốc.",
+            "Tập huấn luyện.",
+            "Tập kiểm tra."
+          ],
+          "correctAnswer": 3
+        },
+        {
+          "id": "10",
+          "text": "Công việc nào sau đây phù hợp với chuyên viên phân tích dữ liệu?",
+          "options": [
+            "Thu thập và phân tích dữ liệu.",
+            "Viết ứng dụng phần mềm.",
+            "Thiết kế giao diện web.",
+            "Cấu hình thiết bị mạng."
+          ],
+          "correctAnswer": 0
+        },
+        {
+          "id": "11",
+          "text": "Thiết bị nào sau đây có chức năng định tuyến gói tin giữa các mạng máy tính khác nhau?",
+          "options": [
+            "\\texttt{Hub}.",
+            "\\texttt{Router}.",
+            "\\texttt{Switch}.",
+            "\\texttt{Repeater}."
+          ],
+          "correctAnswer": 1
+        },
+        {
+          "id": "12",
+          "text": "Thẻ \\texttt{HTML} nào sau đây được dùng để chèn hình ảnh vào trang web?",
+          "options": [
+            "\\texttt{<a>}",
+            "\\texttt{<p>}",
+            "\\texttt{<img>}",
+            "\\texttt{<div>}"
+          ],
+          "correctAnswer": 2
+        },
+        {
+          "id": "13",
+          "text": "Giao thức nào sau đây thực hiện việc phân giải tên miền thành địa chỉ \\texttt{IP}?",
+          "options": [
+            "\\texttt{Telnet}.",
+            "\\texttt{DNS}.",
+            "\\texttt{FTP}.",
+            "\\texttt{SMTP}."
+          ],
+          "correctAnswer": 1
+        },
+        {
+          "id": "14",
+          "text": "Để hệ thống dịch tự động ngôn ngữ hoạt động hiệu quả, cần sử dụng yếu tố nào sau đây?",
+          "options": [
+            "Thuật toán phân cụm dữ liệu không giám sát.",
+            "Dữ liệu hình ảnh có gán nhãn.",
+            "Dữ liệu huấn luyện lớn về văn bản.",
+            "Bộ quy tắc ngữ pháp được xây dựng thủ công."
+          ],
+          "correctAnswer": 2
+        },
+        {
+          "id": "15",
+          "text": "Thẻ \\texttt{HTML} nào sau đây được dùng để tạo danh sách có thứ tự?",
+          "options": [
+            "\\texttt{<dl>}",
+            "\\texttt{<ul>}",
+            "\\texttt{<ol>}",
+            "\\texttt{<li>}"
+          ],
+          "correctAnswer": 2
+        },
+        {
+          "id": "16",
+          "text": "Trong dự án phát triển phần mềm, nhiệm vụ chính của lập trình viên là nhiệm vụ nào sau đây?",
+          "options": [
+            "Quản lí chi phí dự án.",
+            "Viết và chỉnh sửa mã nguồn chương trình.",
+            "Xây dựng thương hiệu sản phẩm.",
+            "Thiết kế chiến lược marketing."
+          ],
+          "correctAnswer": 1
+        },
+        {
+          "id": "17",
+          "text": "Lựa chọn ngôn ngữ \\texttt{Python} hoặc \\texttt{C++} để tìm hiểu đoạn chương trình. Sau khi thực hiện, giá trị của biến \\texttt{s} được in ra là bao nhiêu?",
+          "options": [
+            "40",
+            "36",
+            "56",
+            "20"
+          ],
+          "correctAnswer": 2
+        },
+        {
+          "id": "18",
+          "text": "Điểm khác biệt chính giữa phương thức \\texttt{POST} và \\texttt{GET} trong \\texttt{form HTML} là điểm nào sau đây?",
+          "options": [
+            "\\texttt{GET} chỉ dùng cho hình ảnh.",
+            "\\texttt{POST} gửi dữ liệu trong thân yêu cầu.",
+            "\\texttt{POST} không gửi dữ liệu.",
+            "\\texttt{GET} gửi dữ liệu trong thân yêu cầu."
+          ],
+          "correctAnswer": 1
+        },
+        {
+          "id": "19",
+          "text": "Khi nhận được một liên kết lạ qua email cá nhân, người dùng nên thực hiện hành động nào sau đây?",
+          "options": [
+            "Kiểm tra nguồn liên kết trước khi truy cập.",
+            "Nhập thông tin cá nhân theo yêu cầu.",
+            "Chuyển tiếp liên kết cho người khác.",
+            "Mở liên kết để xem nội dung."
+          ],
+          "correctAnswer": 0
+        },
+        {
+          "id": "20",
+          "text": "Thuộc tính \\texttt{required} trong thẻ \\texttt{input} của \\texttt{HTML} có tác dụng nào sau đây?",
+          "options": [
+            "Ẩn trường nhập khỏi biểu mẫu.",
+            "Bắt buộc nhập dữ liệu trước khi gửi.",
+            "Mã hóa dữ liệu nhập.",
+            "Tăng kích thước ô nhập."
+          ],
+          "correctAnswer": 1
+        },
+        {
+          "id": "21",
+          "text": "Trong mạng \\texttt{LAN}, \\texttt{Switch} sử dụng loại địa chỉ nào sau đây để chuyển tiếp khung dữ liệu?",
+          "options": [
+            "Tên miền.",
+            "Cổng dịch vụ.",
+            "Địa chỉ \\texttt{MAC}.",
+            "Địa chỉ \\texttt{IP}."
+          ],
+          "correctAnswer": 2
+        },
+        {
+          "id": "22",
+          "text": "Hành vi nào sau đây không phù hợp khi tham gia môi trường số?",
+          "options": [
+            "Kiểm tra nguồn tin trước khi chia sẻ.",
+            "Tôn trọng quyền riêng tư.",
+            "Phát tán thông tin chưa xác thực.",
+            "Bảo vệ mật khẩu cá nhân."
+          ],
+          "correctAnswer": 2
+        },
+        {
+          "id": "23",
+          "text": "Việc cài đặt phần mềm không rõ nguồn gốc có thể gây ra nguy cơ nào sau đây?",
+          "options": [
+            "Nhiễm mã độc vào hệ thống.",
+            "Tăng dung lượng ổ đĩa.",
+            "Không ảnh hưởng thiết bị.",
+            "Tăng tốc độ máy tính."
+          ],
+          "correctAnswer": 0
+        },
+        {
+          "id": "24",
+          "text": "Nhiệm vụ nào sau đây phù hợp với vai trò quản trị hệ thống Công nghệ thông tin?",
+          "options": [
+            "Bảo trì và giám sát máy chủ.",
+            "Biên tập nội dung truyền thông.",
+            "Quảng bá sản phẩm phần mềm.",
+            "Thiết kế giao diện người dùng."
+          ],
+          "correctAnswer": 0
+        }
+      ]
+    },
+    {
+      "instruction": "PHẦN II. Thí sinh trả lời 4 câu hỏi. Trong mỗi ý a), b), c), d) ở mỗi câu, thí sinh chọn đúng hoặc sai.",
+      "questions": [
+        {
+          "id": "1",
+          "text": "Một khách sạn 5 tầng trang bị hệ thống mạng... Sau khi thảo luận, một số học sinh đưa ra các nhận xét sau:",
+          "items": [
+            {
+              "label": "a",
+              "text": "Hệ thống kết nối các thiết bị trong khách sạn này được gọi là mạng diện rộng (\\texttt{WAN}) vì quy mô lớn tới 5 tầng.",
+              "isTrue": false
+            },
+            {
+              "label": "b",
+              "text": "Các thiết bị di động khi kết nối qua \\texttt{Access Point} sẽ truy cập trực tiếp \\texttt{Internet} mà không cần đi qua \\texttt{Router} của khách sạn.",
+              "isTrue": false
+            },
+            {
+              "label": "c",
+              "text": "Nếu \\texttt{Switch} trung tâm bị hỏng, các máy tính ở tầng 1 không thể trao đổi dữ liệu với các máy tính ở tầng 2 dù các \\texttt{Switch} tại từng tầng vẫn hoạt động bình thường.",
+              "isTrue": true
+            },
+            {
+              "label": "d",
+              "text": "Để quản lý quyền truy cập, khách sạn có thể thiết lập trên \\texttt{Router} để cấp phát các dải địa chỉ \\texttt{IP} khác nhau giữa nhóm nhân viên và nhóm khách hàng.",
+              "isTrue": true
+            }
+          ]
+        },
+        {
+          "id": "2",
+          "text": "Để quản lý việc tiêm chủng \\texttt{Vắc-xin}, một trung tâm y tế xây dựng cơ sở dữ liệu... Sau khi tìm hiểu cơ sở dữ liệu trên, một số học sinh đưa ra các ý kiến sau:",
+          "items": [
+            {
+              "label": "a",
+              "text": "Trường \\texttt{maVX} là khóa chính của bảng \\texttt{VACXIN}.",
+              "isTrue": true
+            },
+            {
+              "label": "b",
+              "text": "Trường \\texttt{maVX} trong bảng \\texttt{CHUNGNHAN} là khóa ngoại giúp liên kết và đảm bảo tính toàn vẹn dữ liệu với bảng \\texttt{VACXIN}.",
+              "isTrue": true
+            },
+            {
+              "label": "c",
+              "text": "Để thống kê họ tên những người đã tiêm vắc-xin có tên \"AstraZeneca\", chỉ cần sử dụng dữ liệu từ hai bảng \\texttt{NGUOITIEM} và \\texttt{CHUNGNHAN} để truy vấn.",
+              "isTrue": false
+            },
+            {
+              "label": "d",
+              "text": "Để đưa ra thông tin gồm họ tên người tiêm, tên vắc-xin và ngày tiêm của những người đã tiêm mũi thứ 2, có thể thực hiện truy vấn với các bảng \\texttt{NGUOITIEM}, \\texttt{VACXIN}, \\texttt{CHUNGNHAN} liên kết qua khóa.",
+              "isTrue": true
+            }
+          ]
+        },
+        {
+          "id": "3",
+          "text": "Một bệnh viện sử dụng hàng triệu ảnh chụp \\texttt{X-quang} phổi... Trong khi thảo luận, một số nhân viên của bệnh viện đưa ra các nhận định sau:",
+          "items": [
+            {
+              "label": "a",
+              "text": "Việc phân loại hình ảnh \\texttt{X-quang} thành \"Bình thường\" hay \"Có bệnh lý\" là một ứng dụng của lĩnh vực Xử lý ngôn ngữ tự nhiên.",
+              "isTrue": false
+            },
+            {
+              "label": "b",
+              "text": "Trước khi huấn luyện mô hình \\texttt{AI}, các ảnh \\texttt{X-quang} thường cần được tiền xử lý như: chuẩn hóa kích thước, loại bỏ nhiễu...",
+              "isTrue": true
+            },
+            {
+              "label": "c",
+              "text": "Phương pháp huấn luyện dựa trên hàng triệu phim đã được bác sĩ gán nhãn chẩn đoán trước đó được gọi là Học không giám sát.",
+              "isTrue": false
+            },
+            {
+              "label": "d",
+              "text": "Để đánh giá khách quan độ chính xác, bệnh viện nên sử dụng bộ dữ liệu kiểm thử tách biệt hoàn toàn với bộ dữ liệu đã dùng để huấn luyện.",
+              "isTrue": true
+            }
+          ]
+        },
+        {
+          "id": "4",
+          "text": "Cho hàm sắp xếp được viết bằng \\texttt{Python} và \\texttt{C++}. Một số bạn học sinh đã nêu các ý kiến sau:",
+          "items": [
+            {
+              "label": "a",
+              "text": "Hàm trên thực hiện sắp xếp mảng \\texttt{A} theo thứ tự giảm dần.",
+              "isTrue": false
+            },
+            {
+              "label": "b",
+              "text": "Sau mỗi lượt lặp của câu lệnh \\texttt{for} tại Dòng 2, phần tử nhỏ nhất trong đoạn từ vị trí \\texttt{i} đến \\texttt{n-1} sẽ được đưa về vị trí \\texttt{i} của mảng.",
+              "isTrue": true
+            },
+            {
+              "label": "c",
+              "text": "Số lần thực hiện phép so sánh trong hàm trên phụ thuộc vào việc mảng đầu vào đã được sắp xếp hay chưa.",
+              "isTrue": false
+            },
+            {
+              "label": "d",
+              "text": "Với \\texttt{n=5} và \\texttt{A=[5, 3, 8, 1, 6]}, sau khi kết thúc lượt lặp đầu tiên \\texttt{i=0}, giá trị của mảng \\texttt{A} trở thành \\texttt{[1, 3, 8, 5, 6]}.",
+              "isTrue": true
+            }
+          ]
+        },
+        {
+          "id": "5",
+          "text": "Một cửa hàng kinh doanh đồ thủ công mỹ nghệ sử dụng phần mềm tạo trang web (\\texttt{Website Builder}). Học sinh đưa ra các nhận xét sau:",
+          "items": [
+            {
+              "label": "a",
+              "text": "Việc sử dụng mẫu (\\texttt{templates}) có sẵn giúp người dùng tiết kiệm thời gian nhưng bắt buộc phải biết lập trình \\texttt{HTML} mới có thể thay đổi nội dung.",
+              "isTrue": false
+            },
+            {
+              "label": "b",
+              "text": "Cửa hàng có thể tăng tính tương tác bằng cách nhúng bản đồ chỉ đường hoặc các nút liên kết mạng xã hội trực tiếp vào trang web.",
+              "isTrue": true
+            },
+            {
+              "label": "c",
+              "text": "Tính năng \"Kéo và thả\" cho phép người thiết kế sắp xếp bố cục văn bản, hình ảnh một cách trực quan trên giao diện mà không cần viết mã.",
+              "isTrue": true
+            },
+            {
+              "label": "d",
+              "text": "Để tối ưu tốc độ tải trang trên các thiết bị di động, cửa hàng nên sử dụng định dạng ảnh \\texttt{.BMP} thay vì \\texttt{.WebP} hay \\texttt{.JPEG} đã nén.",
+              "isTrue": false
+            }
+          ]
+        },
+        {
+          "id": "6",
+          "text": "Một hệ thống quản lý thư viện cần lưu trữ dữ liệu... Một số học sinh đưa ra các ý kiến sau:",
+          "items": [
+            {
+              "label": "a",
+              "text": "Việc lưu trữ tất cả thông tin từ 3 bảng này vào một trang tính duy nhất trong \\texttt{Excel} sẽ giúp tiết kiệm không gian lưu trữ và tăng tốc độ xử lý dữ liệu.",
+              "isTrue": false
+            },
+            {
+              "label": "b",
+              "text": "Trong bảng \\texttt{MUONSACH}, việc chọn tổ hợp \\texttt{(maSV, maSach, ngayMuon)} làm khóa chính là hoàn toàn phù hợp để đảm bảo tính duy nhất.",
+              "isTrue": true
+            },
+            {
+              "label": "c",
+              "text": "Trường \\texttt{maTG} trong bảng \\texttt{SACH} không cần thiết phải là khóa ngoại tham chiếu đến bảng \\texttt{TACGIA}.",
+              "isTrue": false
+            },
+            {
+              "label": "d",
+              "text": "Câu truy vấn \\texttt{SELECT SACH.tenSach, MUONSACH.ngayMuon FROM SACH INNER JOIN MUONSACH ON SACH.maSach = MUONSACH.maSach WHERE SACH.maTG = 'TG05'} lấy đúng dữ liệu yêu cầu.",
+              "isTrue": true
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

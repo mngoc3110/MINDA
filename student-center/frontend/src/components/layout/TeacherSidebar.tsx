@@ -2,19 +2,21 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BrainCircuit, Grid, BookOpen, GraduationCap, ClipboardCheck, Wallet, LogOut, Sun, Moon, FileUser, Trophy, UserCircle, Users, RefreshCw, FileText, Clapperboard } from "lucide-react";
+import { BrainCircuit, Grid, BookOpen, GraduationCap, ClipboardCheck, Wallet, LogOut, Sun, Moon, FileUser, Trophy, UserCircle, Users, RefreshCw, FileText, Clapperboard, Heart, Calendar } from "lucide-react";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useEffect, useState } from "react";
 
 const NAV_ITEMS = [
   { name: "Tổng quan", href: "/dashboard", icon: Grid },
   { name: "Bảng thành tích", href: "/leaderboard", icon: Trophy },
+  { name: "Lịch học", href: "/schedule", icon: Calendar },
   { name: "Trang cá nhân", href: "/profile", icon: UserCircle },
   { name: "Hồ sơ CV", href: "/cv", icon: FileUser },
   { name: "Quản lý Khoá học", href: "/courses", icon: BookOpen },
   { name: "Quản lý Học sinh", href: "/my-students", icon: Users },
   { name: "Lớp học Live", href: "/live", icon: GraduationCap },
   { name: "Chấm điểm & Bài tập", href: "/assignments", icon: ClipboardCheck },
+  { name: "Lưu Bút Kỷ Yếu", href: "/yearbook/", icon: Heart },
   { name: "Công cụ PDF", href: "/pdf-tools", icon: FileText },
   { name: "Manim Studio", href: "/manim-studio", icon: Clapperboard, badge: "AI" },
   { name: "Quản lý Học phí", href: "/tuition", icon: Wallet },
@@ -50,8 +52,28 @@ export default function TeacherSidebar() {
       <nav className="flex-1 py-6 px-5 flex flex-col gap-1.5">
         <span className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mb-2 ml-2">Công cụ giảng dạy</span>
         {NAV_ITEMS.map((item) => {
-          const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));
+          const isActive = pathname === item.href || (item.href !== "/teacher-dashboard" && pathname.startsWith(item.href));
           const Icon = item.icon;
+          const isExternal = item.href === "/yearbook/";
+
+          if (isExternal) {
+            return (
+              <a 
+                key={item.href} 
+                href={item.href}
+                className={`flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all duration-200 group relative border text-text-secondary hover:bg-bg-hover hover:text-text-primary border-transparent`}
+              >
+                <Icon className={`w-5 h-5 shrink-0 transition-transform group-hover:scale-110`} />
+                <span className="font-semibold text-sm flex-1">{item.name}</span>
+                {(item as any).badge && (
+                  <span className="text-[9px] font-black px-1.5 py-0.5 rounded-md bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 tracking-widest">
+                    {(item as any).badge}
+                  </span>
+                )}
+              </a>
+            );
+          }
+
           return (
             <Link 
               key={item.href} 

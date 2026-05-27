@@ -3,10 +3,20 @@
 import { BrainCircuit, Video, BarChart3, ArrowRight, Star, Menu, X, Sun, Moon } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import IslandHero from "@/components/ui/IslandHero";
+import dynamic from "next/dynamic";
 import { VerticalTimeline, VerticalTimelineElement }  from 'react-vertical-timeline-component';
 import 'react-vertical-timeline-component/style.min.css';
 import { useTheme } from "@/providers/ThemeProvider";
+
+const IslandHero = dynamic(() => import("@/components/ui/IslandHero"), {
+  ssr: false,
+  loading: () => (
+    <section className="w-full h-screen bg-slate-900 flex flex-col items-center justify-center relative overflow-hidden">
+      <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin shadow-[0_0_15px_rgba(99,102,241,0.5)]"></div>
+      <span className="mt-4 text-indigo-400 font-bold uppercase tracking-widest text-xs select-none">Đang khởi tạo môi trường 3D...</span>
+    </section>
+  ),
+});
 
 interface TeacherInfo {
   id: number;
@@ -75,6 +85,9 @@ export default function Home() {
           <div className="hidden md:flex items-center gap-8 text-sm font-bold text-t-secondary">
             <Link href="#classes" className="hover:text-t-primary transition-colors uppercase tracking-wider text-xs">Các Lớp Học</Link>
             <Link href="#features" className="hover:text-t-primary transition-colors uppercase tracking-wider text-xs">Công nghệ AI</Link>
+            <Link href="/yearbook" className="hover:text-pink-500 text-pink-400 transition-colors uppercase tracking-wider text-xs flex items-center gap-1">
+              <Star className="w-3 h-3 fill-pink-400" /> Kỷ Yếu
+            </Link>
             {userName ? (
               <div className="flex items-center gap-4 ml-4">
                 <span className="text-t-secondary capitalize">Xin chào, <span className="font-bold text-t-primary">{userName}</span></span>
@@ -87,6 +100,9 @@ export default function Home() {
               </div>
             ) : (
               <div className="flex items-center gap-4 ml-4">
+                <Link href="/yearbook" className="px-5 py-2.5 rounded-full bg-pink-50 border border-pink-200 text-pink-600 hover:bg-pink-100 transition-all font-bold flex items-center gap-2 shadow-sm">
+                  <Star className="w-4 h-4 fill-pink-500" /> Kỷ Yếu
+                </Link>
                 <Link href="/login" className="px-5 py-2.5 rounded-full bg-bg-card border border-border-card hover:bg-bg-hover transition-all text-t-primary font-semibold">Đăng nhập</Link>
                 <Link href="/register" className="px-5 py-2.5 rounded-full bg-indigo-600 text-white hover:bg-indigo-500 transition-all font-black">XUẤT PHÁT NGAY</Link>
               </div>
@@ -113,8 +129,12 @@ export default function Home() {
           <div className="md:hidden bg-bg-main/98 backdrop-blur-xl border-t border-border-card px-6 py-6 flex flex-col gap-4">
             <Link href="#classes" onClick={() => setMobileMenuOpen(false)} className="text-t-primary font-bold uppercase tracking-wider text-sm py-2 border-b border-border-card">Các Lớp Học</Link>
             <Link href="#features" onClick={() => setMobileMenuOpen(false)} className="text-t-primary font-bold uppercase tracking-wider text-sm py-2 border-b border-border-card">Công nghệ AI</Link>
+            
             {userName ? (
               <>
+                <Link href="/yearbook" onClick={() => setMobileMenuOpen(false)} className="text-pink-500 font-bold uppercase tracking-wider text-sm py-2 border-b border-border-card flex items-center gap-2">
+                  <Star className="w-4 h-4 fill-pink-500" /> Kỷ Yếu
+                </Link>
                 <span className="text-t-secondary text-sm">Xin chào, <span className="font-bold text-t-primary">{userName}</span></span>
                 <Link href={role === "admin" ? "/admin" : "/dashboard"} onClick={() => setMobileMenuOpen(false)} className="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-center transition-all">
                   Vào Lớp Học
@@ -125,6 +145,9 @@ export default function Home() {
               </>
             ) : (
               <>
+                <Link href="/yearbook" onClick={() => setMobileMenuOpen(false)} className="w-full py-3 rounded-xl bg-pink-50 border border-pink-200 text-pink-600 font-bold text-center flex items-center justify-center gap-2">
+                  <Star className="w-4 h-4 fill-pink-500" /> Viết Sổ Kỷ Yếu
+                </Link>
                 <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="w-full py-3 rounded-xl bg-bg-card border border-border-card text-center font-bold text-t-primary">Đăng nhập</Link>
                 <Link href="/register" onClick={() => setMobileMenuOpen(false)} className="w-full py-3 rounded-xl bg-indigo-600 text-white text-center font-black">XUẤT PHÁT NGAY</Link>
               </>

@@ -43,7 +43,7 @@ def create_assignment(
     return assignment
 
 
-@router.get("/courses/{course_id}/assignments", response_model=List[AssignmentResponse])
+@router.get("/courses/{course_id}/assignments", response_model=List[AssignmentResponse], response_model_exclude={"quiz_data"})
 def list_assignments(course_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Danh sách bài tập của khoá học."""
     assignments = db.query(Assignment).filter(Assignment.course_id == course_id).all()
@@ -514,7 +514,7 @@ def get_practice_assignments(db: Session = Depends(get_db), current_user: User =
             resp.assignee_ids = [u.id for u in getattr(a, "assignees", [])]
             
             sub = sub_map.get(a.id)
-            item = resp.model_dump()
+            item = resp.model_dump(exclude={"quiz_data"})
             item["my_score"] = sub.score if sub else None
             item["my_submitted_at"] = str(sub.submitted_at) if sub else None
             item["folder_id"] = a.folder_id
@@ -550,7 +550,7 @@ def teacher_dashboard_assignments(db: Session = Depends(get_db), current_user: U
     
     result = []
     for a in assignments:
-        resp_dict = AssignmentResponse.model_validate(a).model_dump()
+        resp_dict = AssignmentResponse.model_validate(a).model_dump(exclude={"quiz_data"})
         resp_dict["assignee_ids"] = [u.id for u in getattr(a, "assignees", [])]
         result.append(resp_dict)
     return result

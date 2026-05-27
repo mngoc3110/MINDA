@@ -1,14 +1,13 @@
-// Card lưu bút — click để mở modal xem chi tiết đầy đủ
 import { useState, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, X, Maximize2, Film, Lock } from 'lucide-react';
+import { Calendar, X, Maximize2, Film, Lock, Edit3 } from 'lucide-react';
 import { formatDate, getInitials } from '../../utils/helpers';
 import { updateHearts, toggleLike, isLiked } from '../../utils/storage';
 
 const HEART_EMOJIS = ['❤️', '💕', '💖', '💗', '💓', '🩷'];
 
-export default function MessageCard({ message, onHeartUpdate }) {
+export default function MessageCard({ message, onHeartUpdate, viewMode, onEditMessage }) {
   const [hearts, setHearts]     = useState(message.hearts);
   const [liked, setLiked]       = useState(isLiked(message.id));
   const [particles, setParticles] = useState([]);
@@ -78,12 +77,24 @@ export default function MessageCard({ message, onHeartUpdate }) {
               <span className="text-xs font-body">{formatDate(message.date)}</span>
             </div>
           </div>
-          {/* Hint icon — mở rộng */}
-          <Maximize2 size={13} className="text-ink/25 flex-shrink-0" />
+          
+          <div className="flex items-center gap-2">
+            {onEditMessage && message.name === localStorage.getItem('minda_user_name') && (
+              <button 
+                onClick={(e) => { e.stopPropagation(); onEditMessage(message); }}
+                className="p-1.5 text-ink/40 hover:text-pink-500 hover:bg-pink-50 rounded-full transition-colors"
+                title="Chỉnh sửa"
+              >
+                <Edit3 size={16} />
+              </button>
+            )}
+            {/* Hint icon — mở rộng */}
+            <Maximize2 size={13} className="text-ink/25 flex-shrink-0" />
+          </div>
         </div>
 
         {/* Thumbnail ảnh/video (nhỏ, không tương tác) */}
-        {message.imageBase64 && (
+        {message.image && (
           <div className="mx-4 mt-3 rounded-xl overflow-hidden pointer-events-none">
             {message.mediaType === 'video' ? (
               <div className="relative bg-black/80 rounded-xl flex items-center justify-center h-32">
@@ -92,7 +103,7 @@ export default function MessageCard({ message, onHeartUpdate }) {
               </div>
             ) : (
               <img
-                src={message.imageBase64}
+                src={message.image}
                 alt={`Ảnh của ${message.name}`}
                 className="w-full object-cover max-h-40"
                 loading="lazy"
@@ -201,11 +212,11 @@ function DetailModal({ message, hearts, liked, onHeart, onClose }) {
           </button>
 
           {/* Ảnh / Video full width */}
-          {message.imageBase64 && (
+          {message.image && (
             <div className="w-full overflow-hidden rounded-t-3xl">
               {message.mediaType === 'video' ? (
                 <video
-                  src={message.imageBase64}
+                  src={message.image}
                   controls
                   playsInline
                   autoPlay={false}
@@ -213,7 +224,7 @@ function DetailModal({ message, hearts, liked, onHeart, onClose }) {
                 />
               ) : (
                 <img
-                  src={message.imageBase64}
+                  src={message.image}
                   alt={`Ảnh của ${message.name}`}
                   className="w-full max-h-72 object-cover"
                 />
@@ -255,9 +266,18 @@ function DetailModal({ message, hearts, liked, onHeart, onClose }) {
               <p className="font-body text-ink/80 text-base leading-relaxed pt-4 px-3">
                 {message.message}
               </p>
-              <span className="text-5xl text-pink-200 font-display leading-none select-none float-right -mt-4">
-                "
-              </span>
+              {message.signature ? (
+                <div className="flex justify-end mt-4 px-4">
+                  <div className="text-right">
+                    <p className="font-body text-ink/40 text-[10px] uppercase tracking-widest mb-1">Chữ ký</p>
+                    <img src={message.signature} alt="Chữ ký" className="h-16 object-contain transform -rotate-3" />
+                  </div>
+                </div>
+              ) : (
+                <span className="text-5xl text-pink-200 font-display leading-none select-none float-right -mt-4">
+                  "
+                </span>
+              )}
             </div>
           </div>
 

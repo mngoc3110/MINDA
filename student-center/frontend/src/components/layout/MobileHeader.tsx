@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { Menu, X, ShieldAlert, BrainCircuit, Grid, Users, Settings, LogOut,
   LayoutDashboard, BookOpen, Radio, ClipboardCheck, Trophy, Wallet,
-  Dumbbell, User, Sun, Moon, UserCircle, FolderOpen } from "lucide-react";
+  Dumbbell, User, Sun, Moon, UserCircle, FolderOpen, Heart } from "lucide-react";
 import Link from "next/link";
 import { useTheme } from "@/providers/ThemeProvider";
 
@@ -41,6 +41,7 @@ export default function MobileHeader() {
     { name: "Học sinh", href: "/my-students", icon: Users },
     { name: "Lớp Live", href: "/live", icon: Radio },
     { name: "Bài tập", href: "/assignments", icon: ClipboardCheck },
+    { name: "Lưu Bút Kỷ Yếu", href: "/yearbook/", icon: Heart },
     { name: "Bảng xếp hạng", href: "/leaderboard", icon: Trophy },
     { name: "Học phí", href: "/tuition", icon: Wallet },
   ];
@@ -51,6 +52,7 @@ export default function MobileHeader() {
     { name: "Phòng học Live", href: "/live", icon: Radio },
     { name: "Phòng Luyện Thi", href: "/practice", icon: Dumbbell },
     { name: "Cặp xách (Drive)", href: "/drive", icon: FolderOpen },
+    { name: "Lưu Bút Kỷ Yếu", href: "/yearbook/", icon: Heart },
     { name: "Bảng Thành tích", href: "/leaderboard", icon: Trophy },
     { name: "Học phí", href: "/tuition", icon: Wallet },
   ];
@@ -128,6 +130,21 @@ export default function MobileHeader() {
           {navItems.map((item) => {
             const isActive = pathname === item.href || (pathname.startsWith(item.href) && item.href !== "/dashboard" && item.href !== "/admin");
             const Icon = item.icon;
+            const isExternal = item.href === "/yearbook/";
+
+            if (isExternal) {
+              return (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-semibold text-sm border text-text-secondary border-transparent hover:bg-bg-hover hover:text-text-primary`}
+                >
+                  <Icon className="w-4 h-4 shrink-0" />
+                  {item.name}
+                </a>
+              );
+            }
+
             return (
               <Link
                 key={item.href}

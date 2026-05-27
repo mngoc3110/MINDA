@@ -1,0 +1,259 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[vietnamese]{babel}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{graphicx} % Thư viện hỗ trợ chèn hình ảnh
+
+% Cấu hình tràn viền giấy A4 (Có thể sửa thành 0cm nếu muốn tràn tuyệt đối)
+\usepackage[a4paper, left=2cm, right=2cm, top=2cm, bottom=2cm]{geometry} 
+
+\begin{document}
+\begin{center}
+    \textbf{\Huge Đề toàn diện 9+ số 5}
+\end{center}
+\section*{PHẦN I. Câu trắc nghiệm nhiều phương án lựa chọn.}
+\textit{Mỗi câu hỏi thí sinh chỉ chọn một phương án}
+
+\begin{enumerate}
+    \item[\textbf{Câu 1}] Nguyên hàm của hàm số $f(x)=2x+1$ là
+    
+    \textbf{A.} $x^{2}+1+C.$
+    
+    \textbf{B.} $x^{2}+x+C.$
+    
+    \textbf{C.} $x^{2}+C.$
+    
+    \textbf{D.} $2x+C.$
+
+    \item[\textbf{Câu 2}] Cho hàm số $y=f(x)$ xác định trên $\mathbb{R}$. Bảng xét dấu của $f^{\prime}(x)$ như hình vẽ.
+    \[
+    \begin{array}{c|ccccccc} 
+    x & -\infty & & -3 & & -1 & & +\infty \\ 
+    \hline 
+    f^{\prime}(x) & & - & 0 & + & 0 & - & 
+    \end{array}
+    \]
+    Hàm số $y=f(x)$ đồng biến trên khoảng nào dưới đây?
+    
+    \textbf{A.} $(-\infty;-3).$
+    
+    \textbf{B.} $(-3;-1).$
+    
+    \textbf{C.} $(-3;1).$
+    
+    \textbf{D.} $(-1;1).$
+
+    \item[\textbf{Câu 3}] Nhiệt độ trong 55 ngày của một địa phương được cho trong bảng ghép nhóm sau:
+    \[
+    \begin{array}{|c|c|c|c|c|c|c|} 
+    \hline 
+    \text{Nhiệt độ } (^\circ\text{C}) & [19;22) & [22;25) & [25;28) & [28;31) & [31;34) & [34;37) \\ 
+    \hline 
+    \text{Số ngày} & 5 & 7 & 8 & 16 & 12 & 7 \\ 
+    \hline 
+    \end{array}
+    \]
+    Phương sai của mẫu số liệu nằm trong khoảng
+    
+    \textbf{A.} $(17;19).$
+    
+    \textbf{B.} $(20;21).$
+    
+    \textbf{C.} $(19;20).$
+    
+    \textbf{D.} $(23;25).$
+
+    \item[\textbf{Câu 4}] Trong không gian $Oxyz$, cho ba điểm $A(2;1;3), B(0;0;1), C(-2;1;2)$. Phương trình nào dưới đây là phương trình chính tắc của đường thẳng đi qua $A$ và song song với đường thẳng $BC$?
+    
+    \textbf{A.} $\begin{cases}x=-2t\\ y=-1+t\\ z=3+t\end{cases}$
+    
+    \textbf{B.} $x-2y+z=0.$
+    
+    \textbf{C.} $\frac{x-2}{-2}=\frac{y-1}{1}=\frac{z-3}{1}.$
+    
+    \textbf{D.} $\frac{x-1}{-2}=\frac{y}{1}=\frac{z-1}{1}.$
+
+    \item[\textbf{Câu 5}] Cho hàm số $y=\frac{ax+b}{cx+d}$ ($c\ne0, ad-bc\ne0$) có đồ thị như hình vẽ bên.
+    
+    \begin{center}
+        \includegraphics[width=0.22\textwidth]{hinh_bon5_phani.png} 
+        % <-- THAY TÊN FILE ẢNH ĐỒ THỊ Câu 5 VÀO ĐÂY (Có thể chỉnh lại width để tăng giảm cỡ ảnh)
+    \end{center}
+    
+    Phương trình đường tiệm cận đứng của đồ thị hàm số là
+    
+    \textbf{A.} $x=2.$
+    
+    \textbf{B.} $y=1.$
+    
+    \textbf{C.} $y=2.$
+    
+    \textbf{D.} $x=1.$
+
+    \item[\textbf{Câu 6}] Tập nghiệm của bất phương trình $e^{x}<1$ là
+    
+    \textbf{A.} $(-\infty;0).$
+    
+    \textbf{B.} $(-\infty;1).$
+    
+    \textbf{C.} $(2;+\infty).$
+    
+    \textbf{D.} $(1;7).$
+
+    \item[\textbf{Câu 7}] Cho hình chóp $S.ABC$, gọi $G$ là trọng tâm tam giác $ABC$. Khi đó $\vec{SA}+\vec{SB}+\vec{SC}$ bằng
+    
+    \textbf{A.} $\vec{SG}.$
+    
+    \textbf{B.} $2\vec{SG}.$
+    
+    \textbf{C.} $3\vec{SG}.$
+    
+    \textbf{D.} $4\vec{SG}.$
+
+    \item[\textbf{Câu 8}] Họ nguyên hàm của hàm số $f(x)=e^{x}+x$ là
+    
+    \textbf{A.} $e^{x}+x^{2}+C.$
+    
+    \textbf{B.} $e^{x}+\frac{1}{2}x^{2}+C.$
+    
+    \textbf{C.} $\frac{1}{x+1}e^{x}+\frac{1}{2}x^{2}+C.$
+    
+    \textbf{D.} $e^{x}+1+C.$
+
+    \item[\textbf{Câu 9}] Nếu $\int_{1}^{2}f(x)dx=3, \int_{2}^{5}f(x)dx=-1$ thì $\int_{1}^{5}f(x)dx$ bằng
+    
+    \textbf{A.} 2.
+    
+    \textbf{B.} -2.
+    
+    \textbf{C.} 3.
+    
+    \textbf{D.} 4.
+
+    \item[\textbf{Câu 10}] Cho cấp số cộng $(u_{n})$ có $u_{1}=-2$ và công sai $d=3$. Tìm số hạng thứ 10 của cấp số cộng.
+    
+    \textbf{A.} $u_{10}=28.$
+    
+    \textbf{B.} $u_{10}=-29.$
+    
+    \textbf{C.} $u_{10}=25.$
+    
+    \textbf{D.} $u_{10}=-23.$
+
+    \item[\textbf{Câu 11}] Trong không gian $Oxyz$, cho $\vec{u}=(1;3;-2)$ và $\vec{v}=(2;1;-1)$. Tọa độ của $\vec{u}-\vec{v}$ là
+    
+    \textbf{A.} $(3;4;-3).$
+    
+    \textbf{B.} $(-1;2;-3).$
+    
+    \textbf{C.} $(-1;2;-1).$
+    
+    \textbf{D.} $(1;-2;1).$
+
+    \item[\textbf{Câu 12}] Từ một hộp chứa 10 quả bóng gồm 6 quả bóng màu đỏ và 4 quả bóng màu xanh (các quả bóng cân đối, đồng chất), lấy ngẫu nhiên đồng thời 3 quả. Xác suất để lấy 3 quả màu xanh bằng
+    
+    \textbf{A.} $\frac{2}{5}.$
+    
+    \textbf{B.} $\frac{1}{6}.$
+    
+    \textbf{C.} $\frac{1}{30}.$
+    
+    \textbf{D.} $\frac{1}{5}.$
+\end{enumerate}
+
+\newpage
+
+\section*{PHẦN II. Câu trắc nghiệm đúng sai.}
+\textit{Thí sinh chọn đúng hoặc sai trong mỗi ý a), b), c), d)}
+
+\begin{enumerate}
+    \item[\textbf{Câu 1}] Cho hàm số $y=f(x)=\frac{ax^{2}+bx+c}{x+m}$ ($a,b,c,m\in\mathbb{R}$) có đồ thị như hình vẽ bên.
+    
+    \begin{center}
+        \includegraphics[width=0.25\textwidth]{hinh_bon1_phanii.png} 
+        % <-- THAY TÊN FILE ẢNH ĐỒ THỊ PHẦN II - Câu 1 VÀO ĐÂY
+    \end{center}
+    
+    \textbf{a)} Đồ thị hàm số đã cho có đường tiệm cận đứng là đường thẳng $x=-1.$\\
+    \textbf{b)} Đồ thị hàm số đã cho có đường tiệm cận xiên là đường thẳng $y=x+1.$\\
+    \textbf{c)} Đồ thị hàm số đã cho đi qua các điểm có tọa độ là $(0;2)$ và $(-2;-2).$\\
+    \textbf{d)} Giá trị của biểu thức $a+b+c+m$ là một số nguyên tố.
+
+    \item[\textbf{Câu 2}] Một người đang điều khiển xe máy với vận tốc là 36 km/h thì phát hiện đèn tín hiệu giao thông chuyển đỏ cách vị trí xe 80 m. Ba giây sau đó, xe máy bắt đầu giảm tốc với vận tốc được cho bởi $v_{1}(t)=at+b \text{ (m/s)}$ ($a,b\in\mathbb{R}, a<0$), trong đó $t$ là thời gian (tính bằng giây) kể từ khi xe bắt đầu giảm tốc. Khi xe máy đến vị trí đèn tín hiệu, đèn vẫn còn đó và xe dừng hẳn. Sau khi đèn chuyển xanh, xe tiếp tục di chuyển với vận tốc được cho bởi $v_{2}(t)=mt^{2}+nt \text{ (m/s)}$ ($m,n\in\mathbb{R}, m<0$), trong đó $t$ là thời gian (tính bằng giây) kể từ lúc đèn chuyển xanh. Cuối cùng, xe máy dừng hẳn lại tại một quán ăn trên đường. Biết rằng thời gian xe máy đi từ vị trí đèn tín hiệu đến quán ăn là 20 giây và vận tốc lớn nhất trên đoạn đường này là 54 km/h.\\
+    \textbf{a)} Quãng đường xe máy đi được từ lúc bắt đầu giảm tốc lần thứ nhất đến khi dừng hẳn tại vị trí đèn tín hiệu là 80 m.\\
+    \textbf{b)} Giá trị của hệ số $b$ là 10.\\
+    \textbf{c)} Xe máy dừng hẳn tại vị trí đèn tín hiệu sau 10 giây kể từ khi bắt đầu giảm tốc lần thứ nhất.\\
+    \textbf{d)} Khoảng cách từ vị trí đèn tín hiệu đến vị trí quán ăn là 200 m.
+
+    \item[\textbf{Câu 3}] Có hai chiếc hộp đựng các bóng đèn. Hộp 1 đựng 17 bóng đèn loại I và 3 bóng đèn loại II. Hộp 2 đựng 12 bóng đèn loại I và 3 bóng đèn loại II. Các bóng cùng loại giống nhau hoàn toàn. Lấy ngẫu nhiên mỗi hộp ra một bóng đèn, sau đó lấy ngẫu nhiên ra một bóng đèn từ hai bóng đèn đó.\\
+    \textbf{a)} Xác suất cả hai bóng đèn lấy ra đều loại I bằng 0,68.\\
+    \textbf{b)} Biết rằng hai bóng đèn lấy ra khác loại, xác suất bóng đèn lấy ra sau cùng loại I bằng $\frac{29}{135}.$\\
+    \textbf{c)} Xác suất bóng đèn lấy ra sau cùng loại I bằng 0,825.\\
+    \textbf{d)} Biết rằng bóng đèn lấy ra sau cùng loại I, xác suất bóng đèn đó ban đầu nằm trong hộp 1 là 0,48 (kết quả làm tròn đến hàng phần trăm).
+
+    \item[\textbf{Câu 4}] Tại một nút giao thông của một khu vực đông dân cư với tốc độ tối đa cho phép đối với ô tô là 50 km/h người ta gắn một camera phạt nguội tại điểm $S(0;0;14)$ trong không gian $Oxyz$ (đơn vị trên mỗi trục tọa độ là mét), mặt phẳng $Oxy$ song song với mặt đường và chứa vùng nhận diện biển số xe của các phương tiện tham gia giao thông. Biết rằng camera nhận diện tốt nhất biển số xe của các phương tiện tham gia giao thông là khi biển số của chúng nằm trong hình thang cân $ABCD$ với: $SA=SB=27\text{m}$, $OD=OC=5\text{m}$, $AB=14\text{m}$, $CD=9,6\text{m}$ và tia $Ox$ nằm trên đường trung trực các đoạn thẳng $AB$ và $DC$ (xem hình vẽ minh họa).
+    
+    \begin{center}
+        \includegraphics[width=0.35\textwidth]{hinh_bon4_phanii.png} 
+        % <-- THAY TÊN FILE ẢNH CAMERA PHẠT NGUỘI VÀO ĐÂY
+    \end{center}
+    
+    Giả sử tại thời điểm 9h00 (được xem là thời điểm xuất phát) một ô tô chuyển động thẳng đều theo phương song song với trục $Ox$, hướng về phía trục $Oy$ và có vị trí của biển số xe là $M(50;-6;0).$\\
+    \textbf{a)} Tọa độ điểm $D$ có tọa độ là $(1,4;-4,8;0).$\\
+    \textbf{b)} Đường thẳng $AD$ có phương trình là $\begin{cases}x=1,4-20,6t\\ y=-4,8+2,2t\\ z=0\end{cases}, (t\in\mathbb{R}).$\\
+    \textbf{c)} Nếu ô tô đi với vận tốc 45 km/h thì sau đúng 2,2 giây kể từ thời điểm xuất phát biển số của xe ô tô đã nằm trong vùng nhận diện tốt nhất của camera.\\
+    \textbf{d)} Nếu camera ghi nhận được hình ảnh biển số xe ô tô liên tục trong một khoảng thời gian kéo dài đúng 0,7 giây, và khoảng thời gian 0,7 giây này kết thúc đồng thời với thời điểm xe vừa ra khỏi vùng nhận diện tốt nhất, thì ô tô đã vượt quá tốc độ cho phép.
+\end{enumerate}
+
+\newpage
+
+\section*{PHẦN III. Câu trắc nghiệm trả lời ngắn.}
+
+\begin{enumerate}
+    \item[\textbf{Câu 1}] Cho tứ diện $ABCD$ có $AC=CB=BD=DA=2$, $CD=2\sqrt{2}$, $AB<2$ và thể tích khối tứ diện $ABCD$ bằng $\frac{\sqrt{14}}{6}.$ Khoảng cách giữa hai đường thẳng chéo nhau $AB$ và $CD$ bằng bao nhiêu (kết quả làm tròn đến hàng phần trăm)?
+
+    \item[\textbf{Câu 2}] Một khúc gỗ dạng khối nón có bán kính đáy $r=30\text{ cm}$ và chiều cao $h=120\text{ cm}$. Một người thợ mộc chế tác khúc gỗ đó thành một khúc gỗ có dạng khối trụ như hình bên.
+    
+    \begin{center}
+        \includegraphics[width=0.25\textwidth]{hinh_bon2_phaniii.png} 
+        % <-- THAY TÊN FILE ẢNH KHỐI TRỤ/NÓN VÀO ĐÂY
+    \end{center}
+    
+    Thể tích lớn nhất của khúc gỗ dạng khối trụ có thể chế tác được là bao nhiêu $\text{dm}^3$ (kết quả làm tròn đến hàng đơn vị)?
+
+    \item[\textbf{Câu 3}] Khi người ta mắc dây cáp điện thoại giữa hai cây cột, dây cáp võng xuống một cách tự nhiên, tạo thành một đường cong được gọi là đường võng Catenary, có phương trình tổng quát là $y=\frac{a}{2}\left(e^{\frac{x}{a}}+e^{-\frac{x}{a}}\right)$ $\left(x\in\left[-\frac{a}{2};\frac{a}{2}\right]\right)$, với $a$ là khoảng cách giữa hai cây cột. Xét một tình huống mà ở đó hai cây cột cách nhau một khoảng bằng 6m, được gắn hệ trục toạ độ $Oxy$ như hình vẽ bên.
+    
+    \begin{center}
+        \includegraphics[width=0.3\textwidth]{hinh_bon3_phaniii.png} 
+        % <-- THAY TÊN FILE ẢNH DÂY CÁP CATENARY VÀO ĐÂY
+    \end{center}
+    
+    Hỏi điểm cao nhất của đoạn dây cáp cao hơn điểm thấp nhất của đoạn dây cáp một đoạn bằng bao nhiêu mét (kết quả làm tròn đến hàng phần trăm)?
+
+    \item[\textbf{Câu 4}] Trên bàn đặt một cái cốc nước có dạng một parabol quay quanh trục đối xứng của nó. Đường kính miệng cốc là 8cm và chiều cao của cốc là 12cm (chiều cao tính từ đáy cốc đến miệng cốc). Hai viên bi có bán kính 1cm được thả vào cốc, sau đó người ta đổ nước vào cốc cho tới khi mực nước đạt độ cao 8cm thì lấy hai viên bi ra. Lượng nước được đổ vào cốc có chiều cao là bao nhiêu centimet (sau khi đã lấy hai viên bi ra) (kết quả làm tròn đến hàng phần trăm)?
+    
+    \begin{center}
+        \includegraphics[width=0.35\textwidth]{hinh_bon4_phaniii.png} 
+        % <-- THAY TÊN FILE ẢNH CỐC NƯỚC PARABOL VÀO ĐÂY
+    \end{center}
+
+    \item[\textbf{Câu 5}] Hình bên biểu diễn các con đường trong một khu vườn. $ABCDEF$ là hình lục giác đều có tâm là $O$ có cạnh bằng 1. $H$ là trung điểm của cạnh $AB$.
+    
+    \begin{center}
+        \includegraphics[width=0.25\textwidth]{hinh_bon5_phaniii.png} 
+        % <-- THAY TÊN FILE ẢNH HÌNH LỤC GIÁC ĐỀU VÀO ĐÂY
+    \end{center}
+    
+    Đường đi ngắn nhất từ $H$ đến $E$ dọc theo các con đường đã cho có độ dài bằng bao nhiêu?
+
+    \item[\textbf{Câu 6}] Một đề thi trắc nghiệm gồm tổng cộng 40 câu hỏi. Mỗi câu có 4 phương án, trong đó chỉ có 1 phương án đúng. Mỗi câu trả lời đúng được cộng 0,3 điểm, trả lời sai bị trừ 0,1 điểm và nếu bỏ qua thì không tính điểm. Một thí sinh hoàn toàn không học bài, phải chọn một trong hai chiến lược sau:
+    \begin{itemize}
+        \item \textbf{Chiến lược 1:} Thí sinh trả lời ngẫu nhiên cả 40 câu hỏi.
+        \item \textbf{Chiến lược 2:} Thí sinh trả lời ngẫu nhiên tất cả các câu hỏi có số thứ tự là số lẻ (20 câu) và bỏ qua tất cả các câu hỏi có số thứ tự là số chẵn (20 câu).
+    \end{itemize}
+    Gọi $P_{1}$ là xác suất thí sinh đạt được tổng điểm lớn hơn 0 theo chiến lược 1. Gọi $P_{2}$ là xác suất thí sinh đạt được tổng điểm lớn hơn 1 theo chiến lược 2. Tìm giá trị của $T=|P_{1}-P_{2}|$ (kết quả làm tròn đến hàng phần trăm).
+\end{enumerate}
+
+\end{document}

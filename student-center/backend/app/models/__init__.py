@@ -7,6 +7,7 @@ from app.models.exam import Exam, ExamQuestion, ExamSubmission
 from app.models.file import FileItem
 from app.models.live_session import LiveSession
 from app.models.tuition import TuitionRecord
+from app.models.yearbook import YearbookMessage
 
 __all__ = [
     "User", "UserRole",
@@ -17,4 +18,5 @@ __all__ = [
     "FileItem",
     "LiveSession",
     "TuitionRecord",
+    "YearbookMessage",
 ]

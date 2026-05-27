@@ -1,2 +1,31 @@
+node_modules/
+.next/
+dist/
+build/
+*.log
+.env
+.env.local
 student-center/backend/drive_credentials.json
-student-center/backend/drive_credentials.json
+.DS_Store
+*.tar.gz
+*.zip
+calendar.json
+calendar_token.json
+*token.json
+
+# Large binary files
+*.dylib
+*.so
+*.pyd
+*.dll
+
+# Python virtual environments (large)
+tools/chandra_ocr/.venv/
+.venv/
+venv/
+
+# Cache directories
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/

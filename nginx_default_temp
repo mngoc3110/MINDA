@@ -1,0 +1,94 @@
+server {
+    server_name minda.io.vn www.minda.io.vn;
+# Max upload size (Cho phép upload bài tập nặng)
+    client_max_body_size 500M;
+    # Headers cho phép Screen Capture trên Safari iPadOS 18+
+    add_header Permissions-Policy "display-capture=*";
+    add_header Cross-Origin-Opener-Policy "same-origin";
+    # ONTAP - static quiz page
+    # PHOI - static quiz page
+    location = /phoi {
+        alias /var/www/minda/student-center/frontend/public/phoi/index.html;
+        default_type text/html;
+    }
+
+    location = /ontap {
+        alias /var/www/minda/student-center/frontend/public/ontap.html;
+        default_type text/html;
+    }
+
+    location /yearbook {
+        alias /var/www/minda/yearbook;
+        try_files $uri $uri/ /yearbook/index.html;
+    }
+
+# 1. FRONTEND (Next.js)
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+# 2. BACKEND API (FastAPI) — with WebSocket support for Screen Share
+    location /api {
+        proxy_pass http://localhost:8000/api;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 86400s;
+        proxy_send_timeout 86400s;
+    }
+    # STIRLING-PDF API (Docker)
+    location /stirling-api/ {
+        proxy_pass http://localhost:8080/api/v1/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_read_timeout 300s;
+        proxy_send_timeout 300s;
+        client_max_body_size 100M;
+    }
+
+# 3. STATIC FILES (Ảnh/Video)
+    location /static {
+        alias /var/www/minda/student-center/backend/static;
+    }
+    
+    # 3.5 MEDIA FILES (Manim Videos)
+    location /media/ {
+        alias /var/www/minda/student-center/backend/media/;
+    }
+    # 4. PEERJS WebSocket Server
+    location /peerjs/ {
+        proxy_pass http://127.0.0.1:9000/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_read_timeout 86400s;
+        proxy_send_timeout 86400s;
+    }
+listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/minda.io.vn/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/minda.io.vn/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+}
+server {
+    if ($host = www.minda.io.vn) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+if ($host = minda.io.vn) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+listen 80;
+    server_name minda.io.vn www.minda.io.vn;
+    return 404; # managed by Certbot
+}

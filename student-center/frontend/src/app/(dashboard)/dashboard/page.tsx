@@ -2,9 +2,19 @@
 
 import { useEffect, useState, useRef } from "react";
 import { BrainCircuit, HardDrive, Star, Trophy, Users, BookOpen, Clock, Activity, FileText, UploadCloud, Loader2, ExternalLink } from "lucide-react";
-import AILearningWorkspace from "@/features/3d-math/AILearningWorkspace";
+import dynamic from "next/dynamic";
 import StatsPanel from "@/app/(dashboard)/assignments/StatsPanel";
 import Link from "next/link";
+
+const AILearningWorkspace = dynamic(() => import("@/features/3d-math/AILearningWorkspace"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex-1 flex flex-col items-center justify-center min-h-[500px] bg-bg-card border border-border-card rounded-3xl opacity-60">
+      <Loader2 className="w-10 h-10 animate-spin text-indigo-500 mb-4" />
+      <p className="text-sm text-text-secondary font-medium">Đang khởi tạo không gian học tập 3D...</p>
+    </div>
+  ),
+});
 
 export default function Dashboard() {
   const [role, setRole] = useState<string | null>(null);

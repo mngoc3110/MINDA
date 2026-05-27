@@ -24,9 +24,11 @@ from app.models.exam import Exam, ExamQuestion, ExamSubmission
 from app.models.live_session import LiveSession
 from app.models.tuition import TuitionRecord
 from app.models.emotion import EmotionLog
+from app.models.schedule import ScheduleItem
 
 # Import routers
-from app.api.endpoints import courses, assignments, exams, tuition, admin, auth, files, profile, google_auth, live_sessions, dashboard, emotion, ai_solver, assignment_folders, manim
+from app.api.endpoints import courses, assignments, exams, tuition, admin, auth, files, profile, google_auth, live_sessions, dashboard, emotion, ai_solver, assignment_folders, manim, yearbook, schedules
+
 # Tự động tạo bảng DB nếu chưa có
 Base.metadata.create_all(bind=engine)
 
@@ -87,6 +89,8 @@ app.include_router(emotion.router, tags=["🧠 Emotion AI"])
 app.include_router(ai_solver.router, prefix="/api/ai", tags=["🤖 AI Solver"])
 app.include_router(assignment_folders.router, prefix="/api/folders", tags=["📁 Folders"])
 app.include_router(manim.router, prefix="/api/manim", tags=["🎬 Manim Studio"])
+app.include_router(yearbook.router, prefix="/api/yearbook", tags=["📖 Yearbook"])
+app.include_router(schedules.router, prefix="/api/schedules", tags=["📅 Schedules"])
 
 from app.api.endpoints import contact
 app.include_router(contact.router, prefix="/api/contact", tags=["📞 Contact"])

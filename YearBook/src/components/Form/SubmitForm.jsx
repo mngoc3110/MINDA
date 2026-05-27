@@ -12,7 +12,7 @@ const MAX_CHARS = 1000;
 const STEPS = ['Giới thiệu', 'Hình ảnh', 'Lời nhắn'];
 
 const initialForm = {
-  name:        '',
+  name:        localStorage.getItem('minda_user_name') || '',
   emotion:     EMOTIONS[0],
   imageBase64: null,
   mediaType:   null,   // 'image' | 'video' | null
@@ -22,7 +22,7 @@ const initialForm = {
 
 export default function SubmitForm({ isOpen, onClose, onSubmit }) {
   const [step, setStep]         = useState(0);
-  const [form, setForm]         = useState(initialForm);
+  const [form, setForm]         = useState({ ...initialForm, name: localStorage.getItem('minda_user_name') || '' });
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading]   = useState(false);
 
