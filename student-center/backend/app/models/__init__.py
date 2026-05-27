@@ -8,6 +8,7 @@ from app.models.file import FileItem
 from app.models.live_session import LiveSession
 from app.models.tuition import TuitionRecord
 from app.models.yearbook import YearbookMessage
+from app.models.schedule import ScheduleItem, ScheduleType
 
 __all__ = [
     "User", "UserRole",
@@ -19,4 +20,5 @@ __all__ = [
     "LiveSession",
     "TuitionRecord",
     "YearbookMessage",
+    "ScheduleItem", "ScheduleType",
 ]
