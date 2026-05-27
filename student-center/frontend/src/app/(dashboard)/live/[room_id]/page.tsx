@@ -675,6 +675,9 @@ export default function LiveRoomPage() {
     const frame_b64 = canvas.toDataURL("image/jpeg", 0.5);
 
     isAnalyzingRef.current = true;
+    if (!isAnalyzing) {
+      setIsAnalyzing(true);
+    }
     try {
       const token = localStorage.getItem("minda_token");
       const res = await fetch(`${API_BASE_URL}/api/emotion/analyze`, {
@@ -692,7 +695,7 @@ export default function LiveRoomPage() {
       }
     } catch { /* ignore */ }
     finally { isAnalyzingRef.current = false; }
-  }, [sessionId, userInfo?.role]);
+  }, [sessionId, userInfo?.role, isAnalyzing]);
 
   // Dùng Ref để tránh stale closure làm reset Interval mỗi khi component re-render
   const captureRef = useRef(captureAndAnalyze);
@@ -1120,6 +1123,30 @@ export default function LiveRoomPage() {
                   <p className="text-sm opacity-60 animate-pulse">Đang kết nối P2P với phòng {room_id}</p>
                 </div>
               )}
+
+              {/* Floating Self Emotion Badge for Student */}
+              <div className="absolute top-6 left-6 z-30 pointer-events-auto flex flex-col gap-2">
+                <div className="backdrop-blur-md bg-black/80 border border-white/10 rounded-2xl p-3 shadow-2xl flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-purple-500/10 border border-purple-500/30 flex items-center justify-center shrink-0">
+                    <Brain className="w-4 h-4 text-purple-400" />
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-bold text-white/50 uppercase tracking-widest leading-none mb-1">Cảm xúc của bạn</div>
+                    {emotion ? (
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-sm">{emotion.emoji}</span>
+                        <span className="text-xs font-extrabold text-white">{emotion.label}</span>
+                        <span className="text-[10px] font-mono text-purple-300 bg-purple-500/20 px-1.5 py-0.5 rounded-md font-bold">{Math.round(emotion.confidence * 100)}%</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1.5 text-white/40 text-[10px] font-bold">
+                        <Loader2 className="w-3 h-3 animate-spin text-purple-400" />
+                        <span>Đang quét...</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
 
               {/* PiP hoặc Fullscreen: self cam (Học sinh) */}
               <div 
