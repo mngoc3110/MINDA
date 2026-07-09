@@ -152,7 +152,7 @@ def get_leaderboard(db: Session = Depends(get_db)):
     def to_dict(u):
         if isinstance(u, dict):
             return u
-        is_mystic = u.email in admin_emails
+        is_mystic = u.email in admin_emails or getattr(u, "current_rank", None) in ("Thần Thoại (Mystic)", "Mystic", "Tối Thượng (Mystic)")
         exp = 99999999 if is_mystic else (u.exp_points or 0)
         is_teacher = getattr(u, "role", "student") in ["teacher"] or getattr(u, "secondary_role", None) == "teacher"
         if is_teacher:
@@ -280,6 +280,35 @@ def my_offline_students(db: Session = Depends(get_db), current_user: User = Depe
         for link in links if link.student
     ]
 
+@router.post("/create-class")
+def create_class(data: dict, db: Session = Depends(get_db), current_user: User = Depends(require_role("teacher", "admin"))):
+    """Tạo một lớp học mới (có thể rỗng)."""
+    from app.models.user import TeacherStudentLink
+    class_name = data.get("class_name")
+    academic_year = data.get("academic_year")
+    if not class_name:
+        raise HTTPException(status_code=400, detail="class_name is required")
+    
+    # Check if class already exists
+    existing = db.query(TeacherStudentLink).filter(
+        TeacherStudentLink.teacher_id == current_user.id,
+        TeacherStudentLink.class_name == class_name
+    ).first()
+    
+    if existing:
+        return {"message": "Lớp đã tồn tại"}
+        
+    link = TeacherStudentLink(
+        student_id=None,
+        teacher_id=current_user.id,
+        class_name=class_name,
+        academic_year=academic_year,
+        is_graduated=False
+    )
+    db.add(link)
+    db.commit()
+    return {"message": "Đã tạo lớp thành công"}
+
 @router.get("/my-classes")
 def my_classes(db: Session = Depends(get_db), current_user: User = Depends(require_role("teacher", "admin"))):
     """Lấy danh sách tên lớp đã tạo (distinct)."""
@@ -291,17 +320,97 @@ def my_classes(db: Session = Depends(get_db), current_user: User = Depends(requi
     ).distinct().all()
     return [l[0] for l in links if l[0]]
 
+@router.get("/my-class-groups")
+def my_class_groups(db: Session = Depends(get_db), current_user: User = Depends(require_role("teacher", "admin"))):
+    """Lấy danh sách lớp với thông tin năm học và trạng thái tốt nghiệp."""
+    from app.models.user import TeacherStudentLink
+    from sqlalchemy import func
+    groups = db.query(
+        TeacherStudentLink.class_name,
+        func.max(TeacherStudentLink.academic_year).label('academic_year'),
+        func.bool_or(TeacherStudentLink.is_graduated).label('is_graduated')
+    ).filter(
+        TeacherStudentLink.teacher_id == current_user.id,
+        TeacherStudentLink.class_name != None,
+        TeacherStudentLink.class_name != ""
+    ).group_by(TeacherStudentLink.class_name).all()
+    
+    return [
+        {
+            "class_name": g[0],
+            "academic_year": g[1],
+            "is_graduated": g[2]
+        }
+        for g in groups
+    ]
+
+@router.put("/update-class-metadata")
+def update_class_metadata(data: dict, db: Session = Depends(get_db), current_user: User = Depends(require_role("teacher", "admin"))):
+    """Cập nhật năm học cho một lớp."""
+    from app.models.user import TeacherStudentLink
+    class_name = data.get("class_name")
+    academic_year = data.get("academic_year")
+    if not class_name:
+        raise HTTPException(status_code=400, detail="class_name is required")
+        
+    db.query(TeacherStudentLink).filter(
+        TeacherStudentLink.teacher_id == current_user.id,
+        TeacherStudentLink.class_name == class_name
+    ).update({"academic_year": academic_year})
+    
+    db.commit()
+    return {"message": "Đã cập nhật năm học cho lớp"}
+
+@router.put("/graduate-class")
+def graduate_class(data: dict, db: Session = Depends(get_db), current_user: User = Depends(require_role("teacher", "admin"))):
+    """Đánh dấu một lớp là đã tốt nghiệp."""
+    from app.models.user import TeacherStudentLink
+    class_name = data.get("class_name")
+    is_graduated = data.get("is_graduated", True)
+    if not class_name:
+        raise HTTPException(status_code=400, detail="class_name is required")
+        
+    db.query(TeacherStudentLink).filter(
+        TeacherStudentLink.teacher_id == current_user.id,
+        TeacherStudentLink.class_name == class_name
+    ).update({"is_graduated": is_graduated})
+    
+    db.commit()
+    return {"message": "Đã cập nhật trạng thái tốt nghiệp cho lớp"}
+
 @router.put("/update-student-class/{student_id}")
 def update_student_class(student_id: int, data: dict, db: Session = Depends(get_db), current_user: User = Depends(require_role("teacher", "admin"))):
     """Đổi lớp cho học sinh."""
     from app.models.user import TeacherStudentLink
-    link = db.query(TeacherStudentLink).filter(
+    old_class_name = data.get("old_class_name")
+    
+    query = db.query(TeacherStudentLink).filter(
         TeacherStudentLink.student_id == student_id,
         TeacherStudentLink.teacher_id == current_user.id
-    ).first()
+    )
+    if old_class_name is not None:
+        if old_class_name == "__unclassified__":
+            query = query.filter(TeacherStudentLink.class_name == None)
+        else:
+            query = query.filter(TeacherStudentLink.class_name == old_class_name)
+            
+    link = query.first()
     if not link:
         raise HTTPException(status_code=404, detail="Không tìm thấy học sinh này trong lớp của bạn")
-    link.class_name = data.get("class_name", "")
+    
+    class_name = data.get("class_name", "")
+    link.class_name = class_name
+    
+    # Inherit academic_year and is_graduated if class already exists
+    if class_name:
+        existing_class = db.query(TeacherStudentLink).filter(
+            TeacherStudentLink.teacher_id == current_user.id,
+            TeacherStudentLink.class_name == class_name
+        ).first()
+        if existing_class:
+            link.academic_year = existing_class.academic_year
+            link.is_graduated = existing_class.is_graduated
+            
     db.commit()
     return {"message": f"Đã cập nhật lớp cho học sinh"}
 
@@ -311,27 +420,67 @@ def batch_update_class(data: dict, db: Session = Depends(get_db), current_user: 
     from app.models.user import TeacherStudentLink
     student_ids = data.get("student_ids", [])
     class_name = data.get("class_name", "")
+    
+    # Inherit academic_year and is_graduated if class already exists
+    academic_year = None
+    is_graduated = False
+    if class_name:
+        existing_class = db.query(TeacherStudentLink).filter(
+            TeacherStudentLink.teacher_id == current_user.id,
+            TeacherStudentLink.class_name == class_name
+        ).first()
+        if existing_class:
+            academic_year = existing_class.academic_year
+            is_graduated = existing_class.is_graduated
+
     count = 0
     for sid in student_ids:
-        link = db.query(TeacherStudentLink).filter(
+        # Check if already in THIS class
+        existing = db.query(TeacherStudentLink).filter(
             TeacherStudentLink.student_id == sid,
-            TeacherStudentLink.teacher_id == current_user.id
+            TeacherStudentLink.teacher_id == current_user.id,
+            TeacherStudentLink.class_name == class_name
         ).first()
-        if link:
-            link.class_name = class_name
+        
+        if not existing:
+            # Check if they have an unclassified link
+            unclassified = db.query(TeacherStudentLink).filter(
+                TeacherStudentLink.student_id == sid,
+                TeacherStudentLink.teacher_id == current_user.id,
+                TeacherStudentLink.class_name == None
+            ).first()
+            
+            if unclassified:
+                unclassified.class_name = class_name
+                unclassified.academic_year = academic_year
+                unclassified.is_graduated = is_graduated
+            else:
+                link = TeacherStudentLink(
+                    student_id=sid,
+                    teacher_id=current_user.id,
+                    class_name=class_name,
+                    academic_year=academic_year,
+                    is_graduated=is_graduated
+                )
+                db.add(link)
             count += 1
     db.commit()
     return {"message": f"Đã cập nhật lớp cho {count} học sinh"}
 
 @router.get("/search-students")
-def search_students(q: str = "", db: Session = Depends(get_db), current_user: User = Depends(require_role("teacher", "admin"))):
+def search_students(q: str = "", class_name: str = "", db: Session = Depends(get_db), current_user: User = Depends(require_role("teacher", "admin"))):
     """Tìm kiếm học sinh theo tên hoặc email (cho giáo viên thêm vào lớp)."""
     from app.models.user import TeacherStudentLink
     
-    # Lấy danh sách ID đã có trong lớp
-    linked_ids = [link.student_id for link in db.query(TeacherStudentLink).filter(
+    # Lấy danh sách ID đã có trong lớp cụ thể (để disable nút chọn)
+    query_linked = db.query(TeacherStudentLink).filter(
         TeacherStudentLink.teacher_id == current_user.id
-    ).all()]
+    )
+    if class_name == "":
+        query_linked = query_linked.filter(TeacherStudentLink.class_name == None)
+    else:
+        query_linked = query_linked.filter(TeacherStudentLink.class_name == class_name)
+    linked_ids = [link.student_id for link in query_linked.all()]
     
     query = db.query(User).filter(User.role == "student")
     if q:
@@ -358,27 +507,68 @@ def add_student_to_class(data: dict, db: Session = Depends(get_db), current_user
     
     student_ids = data.get("student_ids", [])
     class_name = data.get("class_name", "")
+    academic_year = data.get("academic_year")
+    
+    # Inherit if existing
+    is_graduated = False
+    if class_name:
+        existing_class = db.query(TeacherStudentLink).filter(
+            TeacherStudentLink.teacher_id == current_user.id,
+            TeacherStudentLink.class_name == class_name
+        ).first()
+        if existing_class:
+            academic_year = existing_class.academic_year
+            is_graduated = existing_class.is_graduated
+
     added = 0
     for sid in student_ids:
+        # Check if already in THIS class
         existing = db.query(TeacherStudentLink).filter(
             TeacherStudentLink.student_id == sid,
-            TeacherStudentLink.teacher_id == current_user.id
+            TeacherStudentLink.teacher_id == current_user.id,
+            TeacherStudentLink.class_name == class_name
         ).first()
+        
         if not existing:
-            link = TeacherStudentLink(student_id=sid, teacher_id=current_user.id, class_name=class_name or None)
-            db.add(link)
+            # If they have an "Unclassified" link (class_name=None), update it instead of creating duplicate
+            unclassified = db.query(TeacherStudentLink).filter(
+                TeacherStudentLink.student_id == sid,
+                TeacherStudentLink.teacher_id == current_user.id,
+                TeacherStudentLink.class_name == None
+            ).first()
+            
+            if unclassified:
+                unclassified.class_name = class_name
+                unclassified.academic_year = academic_year
+                unclassified.is_graduated = is_graduated
+            else:
+                link = TeacherStudentLink(
+                    student_id=sid, 
+                    teacher_id=current_user.id, 
+                    class_name=class_name or None,
+                    academic_year=academic_year,
+                    is_graduated=is_graduated
+                )
+                db.add(link)
             added += 1
     db.commit()
     return {"message": f"Đã thêm {added} học sinh vào lớp", "added": added}
 
 @router.delete("/remove-student/{student_id}")
-def remove_student_from_class(student_id: int, db: Session = Depends(get_db), current_user: User = Depends(require_role("teacher", "admin"))):
+def remove_student_from_class(student_id: int, class_name: str = None, db: Session = Depends(get_db), current_user: User = Depends(require_role("teacher", "admin"))):
     """Giáo viên xoá học sinh khỏi lớp."""
     from app.models.user import TeacherStudentLink
-    link = db.query(TeacherStudentLink).filter(
+    query = db.query(TeacherStudentLink).filter(
         TeacherStudentLink.student_id == student_id,
         TeacherStudentLink.teacher_id == current_user.id
-    ).first()
+    )
+    if class_name is not None:
+        if class_name == "__unclassified__":
+            query = query.filter(TeacherStudentLink.class_name == None)
+        else:
+            query = query.filter(TeacherStudentLink.class_name == class_name)
+            
+    link = query.first()
     if not link:
         raise HTTPException(status_code=404, detail="Không tìm thấy liên kết này")
     db.delete(link)

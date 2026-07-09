@@ -11,6 +11,7 @@ from app.db.database import get_db
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 ALGORITHM = "HS256"
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
+oauth2_scheme_optional = OAuth2PasswordBearer(tokenUrl="/api/auth/login", auto_error=False)
 
 
 def create_access_token(subject: Union[str, Any], expires_delta: timedelta = None) -> str:
@@ -51,6 +52,25 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     user = db.query(User).filter(User.id == int(user_id)).first()
     if user is None or not user.is_active:
         raise credentials_exception
+    return user
+
+
+def get_current_user_optional(token: str = Depends(oauth2_scheme_optional), db: Session = Depends(get_db)):
+    """Giải mã JWT Token nếu có, trả về User hoặc None nếu không cung cấp."""
+    if not token:
+        return None
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM])
+        user_id: str = payload.get("sub")
+        if user_id is None:
+            return None
+    except JWTError:
+        return None
+        
+    from app.models.user import User
+    user = db.query(User).filter(User.id == int(user_id)).first()
+    if user is None or not user.is_active:
+        return None
     return user
 
 

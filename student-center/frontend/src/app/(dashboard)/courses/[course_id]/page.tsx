@@ -14,6 +14,7 @@ interface Lesson {
   description: string;
   video_url: string;
   document_url?: string;
+  notes_url?: string;
   order_index: number;
 }
 
@@ -51,6 +52,7 @@ export default function CoursePlayerPage() {
   const router = useRouter();
 
   const [course, setCourse] = useState<CourseData | null>(null);
+  const [chapters, setChapters] = useState<any[]>([]);
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -62,13 +64,15 @@ export default function CoursePlayerPage() {
   // Submissions state
   const [submittingAss, setSubmittingAss] = useState(false);
   const [assContent, setAssContent] = useState("");
+  const [uploadingAssFile, setUploadingAssFile] = useState(false);
+  const [assFileUrl, setAssFileUrl] = useState("");
   const [submittedIds, setSubmittedIds] = useState<Record<number, boolean>>({});
   const [completedLessons, setCompletedLessons] = useState<Record<number, boolean>>({});
 
   // Exam States
   const [exams, setExams] = useState<Exam[]>([]);
   const [activeQuestions, setActiveQuestions] = useState<ExamQuestion[]>([]);
-  const [examAnswers, setExamAnswers] = useState<Record<number, string>>({});
+  const [examAnswers, setExamAnswers] = useState<any>({});
   const [examScore, setExamScore] = useState<number | null>(null);
   const [examTimeLeft, setExamTimeLeft] = useState<number>(0);
   const [isTakingExam, setIsTakingExam] = useState(false);
@@ -148,6 +152,7 @@ export default function CoursePlayerPage() {
            return numA - numB;
          });
 
+         setChapters(chapters);
          setLessons(flatLessons);
          setAssignments(flatAssignments);
          setExams(flatExams);
@@ -176,8 +181,32 @@ export default function CoursePlayerPage() {
     }
   };
 
+  const handleUploadAssFile = async (file: File) => {
+    setUploadingAssFile(true);
+    const formData = new FormData();
+    formData.append("file", file);
+    
+    try {
+      const token = localStorage.getItem("minda_token");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/files/upload`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setUploadingAssFile(false);
+        return data.file_url;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    setUploadingAssFile(false);
+    return null;
+  };
+
   const handleSubmitAssignment = async (assignmentId: number) => {
-    if (!assContent.trim()) return alert("Vui lòng nhập nội dung bài làm!");
+    if (!assContent.trim() && !assFileUrl) return alert("Vui lòng nhập nội dung bài làm hoặc tải lên file bài làm!");
     setSubmittingAss(true);
     try {
       const token = localStorage.getItem("minda_token");
@@ -189,7 +218,7 @@ export default function CoursePlayerPage() {
         },
         body: JSON.stringify({
             content: assContent,
-            file_url: ""
+            file_url: assFileUrl
         })
       });
       
@@ -197,6 +226,7 @@ export default function CoursePlayerPage() {
         alert("Nộp bài thành công!");
         setSubmittedIds(prev => ({ ...prev, [assignmentId]: true }));
         setAssContent("");
+        setAssFileUrl("");
       } else {
         const error = await res.json();
         alert(error.detail || "Lỗi khi nộp bài");
@@ -263,10 +293,14 @@ export default function CoursePlayerPage() {
          setActiveType("exam");
          setActiveItemId(examId);
          setExamScore(null);
+         setAssContent("");
+         setAssFileUrl("");
       } else if (!isTakingExam) {
          setActiveType("exam");
          setActiveItemId(examId);
          setExamScore(null);
+         setAssContent("");
+         setAssFileUrl("");
       }
   };
 
@@ -277,16 +311,29 @@ export default function CoursePlayerPage() {
       setIsTakingExam(false);
       setActiveType(type);
       setActiveItemId(id);
+      setAssContent("");
+      setAssFileUrl("");
   };
 
-  // Safe YouTube embed parser
+  // Safe URL parser for YouTube and Google Drive
   const getEmbedUrl = (url: string) => {
     if (!url) return "";
     let videoId = "";
+    
+    // YouTube
     if (url.includes("youtube.com/watch?v=")) videoId = url.split("v=")[1].split("&")[0];
     else if (url.includes("youtu.be/")) videoId = url.split("youtu.be/")[1];
+    if (videoId) return `https://www.youtube.com/embed/${videoId}?autoplay=0&rel=0`;
+
+    // Google Drive
+    if (url.includes("drive.google.com/file/d/")) {
+       const match = url.match(/\/d\/(.*?)\//);
+       if (match && match[1]) {
+           return `https://drive.google.com/file/d/${match[1]}/preview`;
+       }
+    }
     
-    return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=0&rel=0` : url;
+    return url;
   };
 
   if (loading) return (
@@ -383,96 +430,81 @@ export default function CoursePlayerPage() {
           </div>
 
           <div className="p-4 flex-1 flex flex-col gap-6">
-             {/* Section: Video Lessons */}
-             <div>
-                <h3 className="text-sm font-black text-t-secondary uppercase tracking-widest mb-3 flex items-center gap-2">
-                   <PlayCircle className="w-4 h-4" /> Bài Giảng Video
-                </h3>
-                {lessons.length === 0 && <p className="text-sm text-t-secondary/60 italic ml-6">Chưa có bài giảng</p>}
-                <div className="flex flex-col gap-2">
-                   {lessons.map((lesson, idx) => {
-                      const isActive = activeType === "lesson" && activeItemId === lesson.id;
-                      const isCompleted = completedLessons[lesson.id];
-                      return (
-                         <div 
-                           key={lesson.id} 
-                           onClick={() => { setActiveType("lesson"); setActiveItemId(lesson.id); }}
-                           className={`p-3 rounded-xl border cursor-pointer transition-all duration-300 flex items-start gap-3 group ${isActive ? 'bg-indigo-600/10 border-indigo-500 shadow-md' : 'bg-transparent border-transparent hover:bg-bg-hover hover:border-border-card'}`}
-                         >
-                            <div className="mt-0.5 shrink-0">
-                               {isCompleted ? (
-                                  <CheckCircle2 className="w-5 h-5 text-emerald-500 drop-shadow-[0_0_5px_rgba(16,185,129,0.4)]" />
-                               ) : (
-                                  <div className={`w-5 h-5 rounded-full border-2 ${isActive ? 'border-indigo-500' : 'border-slate-500 group-hover:border-slate-400'} flex items-center justify-center text-[10px] font-bold text-slate-500`}>{idx + 1}</div>
-                               )}
-                            </div>
-                            <div className="flex flex-col flex-1">
-                               <span className={`font-bold text-sm ${isActive ? 'text-indigo-400' : 'text-t-primary'}`}>{lesson.title}</span>
-                            </div>
-                         </div>
-                      );
-                   })}
-                </div>
-             </div>
+             {chapters.length === 0 && <p className="text-sm text-t-secondary/60 italic text-center">Chưa có nội dung</p>}
+             {chapters.map(chap => (
+                <div key={chap.id} className="flex flex-col gap-2">
+                   <h3 className="text-sm font-black text-t-primary uppercase tracking-widest mb-1 px-2 border-b border-border-card pb-2">
+                      {chap.title}
+                   </h3>
+                   <div className="flex flex-col gap-3">
+                      {chap.lessons?.map((less: any, idx: number) => {
+                         const isLessActive = activeType === "lesson" && activeItemId === less.id;
+                         const isCompleted = completedLessons[less.id];
+                         return (
+                            <div key={less.id} className="flex flex-col gap-1 pl-2 border-l-2 border-indigo-500/20 ml-2">
+                               <div 
+                                 onClick={() => { setActiveType("lesson"); setActiveItemId(less.id); }}
+                                 className={`p-2 rounded-xl cursor-pointer transition-all duration-300 flex items-start gap-3 group ${isLessActive ? 'bg-indigo-600/10 text-indigo-500' : 'hover:bg-bg-hover text-t-primary'}`}
+                               >
+                                  <div className="mt-0.5 shrink-0">
+                                     {isCompleted ? (
+                                        <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                                     ) : (
+                                        <PlayCircle className={`w-4 h-4 ${isLessActive ? 'text-indigo-500' : 'text-slate-500 group-hover:text-slate-400'}`} />
+                                     )}
+                                  </div>
+                                  <span className="font-bold text-sm leading-tight flex-1">{less.title}</span>
+                               </div>
+                               
+                               {/* Assignments for this lesson */}
+                               {less.assignments?.map((ass: any) => {
+                                  if (ass.assignment_type === "quiz" || ass.quiz_data) {
+                                     return (
+                                        <div 
+                                          key={`ass-${ass.id}`}
+                                          onClick={() => router.push(`/practice/${ass.id}`)}
+                                          className={`ml-7 p-2 rounded-lg cursor-pointer transition-all duration-300 flex items-center gap-2 group hover:bg-orange-500/10 text-t-secondary hover:text-orange-500`}
+                                        >
+                                           <Timer className="w-3.5 h-3.5" />
+                                           <span className="text-xs font-medium">Đề kiểm tra: {ass.title}</span>
+                                        </div>
+                                     );
+                                  }
 
-             {/* Section: Assignments */}
-             <div>
-                <h3 className="text-sm font-black text-t-secondary uppercase tracking-widest mb-3 flex items-center gap-2">
-                   <ClipboardList className="w-4 h-4" /> Bài Tập Thực Hành
-                </h3>
-                {assignments.length === 0 && <p className="text-sm text-t-secondary/60 italic ml-6">Chưa có bài tập</p>}
-                <div className="flex flex-col gap-2">
-                   {assignments.map(ass => {
-                      const isActive = activeType === "assignment" && activeItemId === ass.id;
-                      const isSubmitted = submittedIds[ass.id];
-                      return (
-                         <div 
-                           key={ass.id} 
-                           onClick={() => { setActiveType("assignment"); setActiveItemId(ass.id); }}
-                           className={`p-3 rounded-xl border cursor-pointer transition-all duration-300 flex items-start gap-3 group ${isActive ? 'bg-amber-500/10 border-amber-500 shadow-md' : 'bg-transparent border-transparent hover:bg-bg-hover hover:border-border-card'}`}
-                         >
-                            <div className="mt-0.5 shrink-0">
-                               {isSubmitted ? (
-                                  <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-                               ) : (
-                                  <PenTool className={`w-5 h-5 ${isActive ? 'text-amber-500' : 'text-slate-500'}`} />
-                               )}
+                                  const isAssActive = activeType === "assignment" && activeItemId === ass.id;
+                                  const isSubmitted = submittedIds[ass.id];
+                                  return (
+                                     <div 
+                                       key={`ass-${ass.id}`}
+                                       onClick={() => { setActiveType("assignment"); setActiveItemId(ass.id); }}
+                                       className={`ml-7 p-2 rounded-lg cursor-pointer transition-all duration-300 flex items-center gap-2 group ${isAssActive ? 'bg-amber-500/10 text-amber-500' : 'hover:bg-bg-hover text-t-secondary'}`}
+                                     >
+                                        {isSubmitted ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> : <PenTool className="w-3.5 h-3.5" />}
+                                        <span className="text-xs font-medium">Thực hành: {ass.title}</span>
+                                     </div>
+                                  );
+                               })}
+
+                               {/* Exams for this lesson */}
+                               {less.exams?.map((exam: any) => {
+                                  const isExamActive = activeType === "exam" && activeItemId === exam.id;
+                                  return (
+                                     <div 
+                                       key={`exam-${exam.id}`}
+                                       onClick={() => selectExamSwitch(exam.id)}
+                                       className={`ml-7 p-2 rounded-lg cursor-pointer transition-all duration-300 flex items-center gap-2 group ${isExamActive ? 'bg-rose-500/10 text-rose-500' : 'hover:bg-bg-hover text-t-secondary'}`}
+                                     >
+                                        <Timer className="w-3.5 h-3.5" />
+                                        <span className="text-xs font-medium truncate">Tự luyện: {exam.title} ({exam.duration_minutes}P)</span>
+                                     </div>
+                                  );
+                               })}
                             </div>
-                            <div className="flex flex-col flex-1">
-                               <span className={`font-bold text-sm ${isActive ? 'text-amber-500' : 'text-t-primary'}`}>{ass.title}</span>
-                            </div>
-                         </div>
-                      );
-                   })}
+                         );
+                      })}
+                   </div>
                 </div>
-             </div>
-              {/* Section: Exams */}
-             <div>
-                <h3 className="text-sm font-black text-t-secondary uppercase tracking-widest mb-3 flex items-center gap-2">
-                   <HelpCircle className="w-4 h-4" /> Đề Thi & Đánh Giá
-                </h3>
-                {exams.length === 0 && <p className="text-sm text-t-secondary/60 italic ml-6">Chưa có đề thi</p>}
-                <div className="flex flex-col gap-2">
-                   {exams.map(exam => {
-                      const isActive = activeType === "exam" && activeItemId === exam.id;
-                      return (
-                         <div 
-                           key={exam.id} 
-                           onClick={() => selectExamSwitch(exam.id)}
-                           className={`p-3 rounded-xl border cursor-pointer transition-all duration-300 flex items-start gap-3 group ${isActive ? 'bg-rose-500/10 border-rose-500 shadow-md' : 'bg-transparent border-transparent hover:bg-bg-hover hover:border-border-card'}`}
-                         >
-                            <div className="mt-0.5 shrink-0">
-                               <Timer className={`w-5 h-5 ${isActive ? 'text-rose-500' : 'text-slate-500'}`} />
-                            </div>
-                            <div className="flex flex-col flex-1">
-                               <span className={`font-bold text-sm ${isActive ? 'text-rose-500' : 'text-t-primary'}`}>{exam.title}</span>
-                               <span className="text-xs text-t-secondary">{exam.duration_minutes} Phút</span>
-                            </div>
-                         </div>
-                      );
-                   })}
-                </div>
-             </div>
+             ))}
           </div>
        </aside>
 
@@ -521,6 +553,11 @@ export default function CoursePlayerPage() {
                                    <BookOpen className="w-4 h-4" /> Tải xuống Tài Liệu Bài Giảng đính kèm
                                 </a>
                              )}
+                             {activeLesson.notes_url && (
+                                <a href={activeLesson.notes_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 border border-indigo-500/20 rounded-xl text-sm font-bold transition-all shadow-lg shadow-indigo-500/10 w-fit ml-2">
+                                   <BookOpen className="w-4 h-4" /> Tải xuống File Giải Tay
+                                </a>
+                             )}
                           </div>
                           <div className="shrink-0 flex items-center justify-center">
                              <button 
@@ -543,15 +580,40 @@ export default function CoursePlayerPage() {
                            <div className="absolute right-0 top-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4"></div>
                            <h2 className="text-3xl md:text-4xl font-black mb-2 relative z-10">{activeAssignment.title}</h2>
                            <div className="flex items-center gap-4 text-white/90 font-medium relative z-10">
-                              <span className="flex items-center gap-1.5 bg-black/20 px-3 py-1 rounded-full"><Clock className="w-4 h-4"/> Deadline: {new Date(activeAssignment.due_date).toLocaleDateString("vi-VN")}</span>
-                              <span className="flex items-center gap-1.5 bg-black/20 px-3 py-1 rounded-full"><Trophy className="w-4 h-4"/> Max: {activeAssignment.max_score} điểm</span>
+                              {activeAssignment.due_date && (
+                                 <span className="flex items-center gap-1.5 bg-black/20 px-3 py-1 rounded-full">
+                                    <Clock className="w-4 h-4"/> 
+                                    Deadline: {!isNaN(new Date(activeAssignment.due_date).getTime()) ? new Date(activeAssignment.due_date).toLocaleDateString("vi-VN") : "Không rõ"}
+                                 </span>
+                              )}
+                              {activeAssignment.max_score != null && (
+                                 <span className="flex items-center gap-1.5 bg-black/20 px-3 py-1 rounded-full">
+                                    <Trophy className="w-4 h-4"/> Max: {activeAssignment.max_score} điểm
+                                 </span>
+                              )}
                            </div>
                        </div>
                        
                        <div className="p-6 md:p-8">
                           <h3 className="font-bold text-lg mb-3 flex items-center gap-2 text-t-secondary"><FileText className="w-5 h-5"/> Mô Tả Bài Tập</h3>
                           <div className="bg-bg-hover p-5 rounded-xl text-t-primary leading-relaxed whitespace-pre-wrap border border-border-card mb-8">
-                             {activeAssignment.description}
+                             {activeAssignment.description || "Không có mô tả chi tiết."}
+                             {activeAssignment.attachment_url && (
+                                <div className="mt-6 flex flex-col gap-4">
+                                   <div className="w-full bg-bg-main border border-border-card rounded-xl overflow-hidden min-h-[400px]">
+                                      {activeAssignment.attachment_url.match(/\.(jpeg|jpg|gif|png)$/i) ? (
+                                         <img src={activeAssignment.attachment_url} alt="Đề bài" className="w-full h-auto object-contain max-h-[800px]" />
+                                      ) : activeAssignment.attachment_url.includes("drive.google.com/file/d/") ? (
+                                         <iframe src={activeAssignment.attachment_url.replace(/\/view.*$/, "/preview")} className="w-full h-[600px] border-0" allow="autoplay"></iframe>
+                                      ) : (
+                                         <iframe src={activeAssignment.attachment_url} className="w-full h-[600px] border-0"></iframe>
+                                      )}
+                                   </div>
+                                   <a href={activeAssignment.attachment_url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 px-6 py-3 bg-indigo-500/10 text-indigo-500 hover:bg-indigo-500/20 rounded-xl font-bold transition-colors">
+                                      <FileText className="w-5 h-5" /> Mở tab mới / Tải xuống file đính kèm
+                                   </a>
+                                </div>
+                             )}
                           </div>
 
                           <h3 className="font-bold text-lg mb-3 flex items-center gap-2 text-t-secondary"><PenTool className="w-5 h-5"/> Bài Làm Của Bạn</h3>
@@ -568,15 +630,37 @@ export default function CoursePlayerPage() {
                           ) : (
                               <div className="flex flex-col gap-4">
                                  <textarea 
-                                    className="w-full bg-bg-main border border-border-card rounded-xl p-4 min-h-[200px] outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50 transition-all font-medium resize-y"
+                                    className="w-full bg-bg-main border border-border-card rounded-xl p-4 min-h-[150px] outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50 transition-all font-medium resize-y"
                                     placeholder="Nhập câu trả lời hoặc dán đường dẫn file Drive của bạn vào đây..."
                                     value={assContent}
                                     onChange={(e) => setAssContent(e.target.value)}
                                  ></textarea>
+                                 <div className="bg-bg-hover border border-border-card rounded-xl p-4 flex flex-col gap-3">
+                                   <label className="text-sm font-bold text-t-primary flex items-center gap-2">
+                                     <FileText className="w-4 h-4 text-amber-500" /> Tải lên bài làm (Ảnh/PDF)
+                                   </label>
+                                   <input 
+                                     type="file" 
+                                     accept="image/*,.pdf"
+                                     onChange={async (e) => {
+                                        if (e.target.files && e.target.files[0]) {
+                                           const url = await handleUploadAssFile(e.target.files[0]);
+                                           if (url) setAssFileUrl(url);
+                                        }
+                                     }}
+                                     className="text-sm w-full file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-amber-500/10 file:text-amber-500 hover:file:bg-amber-500/20 file:transition-colors cursor-pointer text-t-secondary"
+                                   />
+                                   {uploadingAssFile && <p className="text-xs text-amber-500 animate-pulse">Đang tải lên, vui lòng đợi...</p>}
+                                   {assFileUrl && (
+                                     <div className="flex items-center gap-2 text-emerald-500 text-sm font-bold bg-emerald-500/10 px-3 py-2 rounded-lg w-fit">
+                                       <CheckCircle2 className="w-4 h-4" /> Đã đính kèm file thành công
+                                     </div>
+                                   )}
+                                 </div>
                                  <div className="flex justify-end">
                                     <button 
                                       onClick={() => handleSubmitAssignment(activeAssignment.id)}
-                                      disabled={submittingAss}
+                                      disabled={submittingAss || uploadingAssFile}
                                       className="bg-amber-500 hover:bg-amber-400 text-white font-black px-8 py-3 rounded-full flex items-center gap-2 shadow-lg hover:shadow-amber-500/30 transition-all disabled:opacity-50"
                                     >
                                        {submittingAss ? <Loader2 className="w-5 h-5 animate-spin"/> : <Send className="w-5 h-5"/> }

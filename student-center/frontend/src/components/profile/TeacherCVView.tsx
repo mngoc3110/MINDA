@@ -94,7 +94,10 @@ export default function TeacherCVView({ teacherId, enableGoBack = true }: Teache
         
         // Ensure defaults for JSON arrays
         const safeParse = (str: string) => {
-          try { return JSON.parse(str || "[]"); } 
+          try { 
+             const parsed = JSON.parse(str || "[]"); 
+             return Array.isArray(parsed) ? parsed : [];
+          } 
           catch { return []; }
         };
         

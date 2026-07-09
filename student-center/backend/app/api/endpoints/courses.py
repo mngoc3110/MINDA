@@ -260,7 +260,7 @@ def update_lesson(
     lesson = db.query(Lesson).filter(Lesson.id == lesson_id).first()
     if not lesson:
         raise HTTPException(status_code=404, detail="Bài học không tồn tại")
-    for field in ["title", "description", "video_url", "document_url", "order_index"]:
+    for field in ["title", "description", "video_url", "document_url", "notes_url", "order_index"]:
         if field in data and data[field] is not None:
             setattr(lesson, field, data[field])
     db.commit()
@@ -322,9 +322,10 @@ def get_curriculum(course_id: int, db: Session = Depends(get_db), current_user: 
                "description": less.description,
                "video_url": less.video_url,
                "document_url": less.document_url,
+               "notes_url": less.notes_url,
                "order_index": less.order_index,
                "duration_seconds": less.duration_seconds,
-               "assignments": [{"id": a.id, "course_id": a.course_id, "lesson_id": a.lesson_id, "teacher_id": a.teacher_id, "title": a.title, "description": a.description, "due_date": a.due_date, "max_score": a.max_score, "created_at": a.created_at} for a in filtered_assignments],
+               "assignments": [{"id": a.id, "course_id": a.course_id, "lesson_id": a.lesson_id, "teacher_id": a.teacher_id, "title": a.title, "description": a.description, "due_date": a.due_date, "max_score": a.max_score, "created_at": a.created_at, "assignment_type": a.assignment_type, "attachment_url": getattr(a, "attachment_url", None), "quiz_data": getattr(a, "quiz_data", None), "exam_format": getattr(a, "exam_format", None)} for a in filtered_assignments],
                "exams": [{"id": e.id, "course_id": e.course_id, "lesson_id": e.lesson_id, "teacher_id": e.teacher_id, "title": e.title, "description": e.description, "duration_minutes": e.duration_minutes, "max_score": e.max_score, "start_time": e.start_time, "end_time": e.end_time, "created_at": e.created_at} for e in exams]
            })
        curriculum.append({

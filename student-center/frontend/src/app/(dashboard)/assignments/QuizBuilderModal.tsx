@@ -8,21 +8,25 @@ export default function QuizBuilderModal({
    folders = [],
    onClose, 
    onSuccess,
-   editAssignment = null 
+   editAssignment = null,
+   defaultCourseId = "",
+   defaultLessonId = ""
 }: { 
    courses: any[], 
    folders?: any[],
    onClose: () => void,
    onSuccess: () => void,
-   editAssignment?: any 
+   editAssignment?: any,
+   defaultCourseId?: string,
+   defaultLessonId?: string
 }) {
    const [loading, setLoading] = useState(false);
    const [aiLoading, setAiLoading] = useState(false);
    const isEditing = !!editAssignment;
    
-   const [courseId, setCourseId] = useState("");
+   const [courseId, setCourseId] = useState(defaultCourseId);
    const [folderId, setFolderId] = useState("");
-   const [lessonId, setLessonId] = useState("");
+   const [lessonId, setLessonId] = useState(defaultLessonId);
    const [lessons, setLessons] = useState<any[]>([]);
    const [title, setTitle] = useState("");
    const [description, setDescription] = useState("");
@@ -955,6 +959,18 @@ export default function QuizBuilderModal({
                                                 {q.imageUrl ? "Đổi ảnh khác" : "Đính kèm ảnh/hình vẽ"}
                                                 <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(sIdx, qIdx, e)} />
                                              </label>
+
+                                             {/* Score Input cho Đề Ôn Tập */}
+                                             {examFormat === 'practice' && (
+                                                <label className="mt-2 ml-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 text-xs text-emerald-400 font-bold border border-emerald-500/20">
+                                                   Điểm câu này:
+                                                   <input type="number" step="0.1" min="0" value={q.score !== undefined ? q.score : 0.25} onChange={e => {
+                                                      const updated = {...quizData};
+                                                      updated.sections[sIdx].questions[qIdx].score = parseFloat(e.target.value) || 0;
+                                                      setQuizData(updated);
+                                                   }} className="w-12 bg-transparent outline-none border-b border-emerald-500/30 focus:border-emerald-400 text-center" />
+                                                </label>
+                                             )}
 
                                           </div>
                                           

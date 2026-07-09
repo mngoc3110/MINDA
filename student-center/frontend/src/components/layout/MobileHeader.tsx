@@ -30,6 +30,7 @@ export default function MobileHeader() {
   const ADMIN_ITEMS = [
     { name: "Tổng quan", href: "/admin", icon: Grid },
     { name: "Người dùng", href: "/admin/users", icon: Users },
+    { name: "Bảng Vinh Danh", href: "/honors", icon: Trophy },
     { name: "Hệ thống", href: "/admin/settings", icon: Settings },
   ];
 
@@ -41,8 +42,8 @@ export default function MobileHeader() {
     { name: "Học sinh", href: "/my-students", icon: Users },
     { name: "Lớp Live", href: "/live", icon: Radio },
     { name: "Bài tập", href: "/assignments", icon: ClipboardCheck },
+    { name: "Bảng Vinh Danh", href: "/honors", icon: Trophy },
     { name: "Lưu Bút Kỷ Yếu", href: "/yearbook/", icon: Heart },
-    { name: "Bảng xếp hạng", href: "/leaderboard", icon: Trophy },
     { name: "Học phí", href: "/tuition", icon: Wallet },
   ];
 

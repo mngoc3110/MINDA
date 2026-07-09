@@ -154,3 +154,25 @@ body {
 .math-text-wrapper .katex .mtable {
   font-size: 0.95em;
 }
+
+/* Custom Scrollbar for Desktop */
+.custom-scrollbar::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: var(--c-bg-hover);
+  border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--c-border-card);
+  border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--c-text-muted);
+}
+@media (hover: none) and (pointer: coarse) {
+  .custom-scrollbar::-webkit-scrollbar {
+    display: none; /* Hide on mobile devices */
+  }
+}

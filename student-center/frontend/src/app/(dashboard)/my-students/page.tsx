@@ -1,7 +1,13 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { Users, Search, UserPlus, UserMinus, CheckCircle, X, ChevronDown, ChevronRight, GraduationCap, ArrowRight, CheckSquare, Square } from "lucide-react";
+import { Users, Search, UserPlus, UserMinus, CheckCircle, X, ChevronDown, ChevronRight, GraduationCap, ArrowRight, CheckSquare, Square, PenLine } from "lucide-react";
+
+interface ClassGroup {
+  class_name: string;
+  academic_year: string | null;
+  is_graduated: boolean;
+}
 
 interface Student {
   id: number;
@@ -15,7 +21,8 @@ interface Student {
 
 export default function MyStudentsPage() {
   const [myStudents, setMyStudents] = useState<Student[]>([]);
-  const [classes, setClasses] = useState<string[]>([]);
+  const [classes, setClasses] = useState<ClassGroup[]>([]);
+  const [newAcademicYear, setNewAcademicYear] = useState("");
   const [searchResults, setSearchResults] = useState<Student[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
@@ -29,6 +36,7 @@ export default function MyStudentsPage() {
   const [movingStudent, setMovingStudent] = useState<Student | null>(null);
   const [bulkMode, setBulkMode] = useState(false);
   const [showBulkAssign, setShowBulkAssign] = useState(false);
+  const [editingClassYear, setEditingClassYear] = useState<{class_name: string, year: string} | null>(null);
 
   const API = process.env.NEXT_PUBLIC_API_URL || "https://minda.io.vn";
   const getToken = () => localStorage.getItem("minda_token");
@@ -39,7 +47,7 @@ export default function MyStudentsPage() {
         fetch(`${API}/api/profile/my-offline-students`, {
           headers: { Authorization: `Bearer ${getToken()}` },
         }),
-        fetch(`${API}/api/profile/my-classes`, {
+        fetch(`${API}/api/profile/my-class-groups`, {
           headers: { Authorization: `Bearer ${getToken()}` },
         }),
       ]);
@@ -47,7 +55,7 @@ export default function MyStudentsPage() {
       if (classesRes.ok) {
         const cls = await classesRes.json();
         setClasses(cls);
-        setExpandedClasses(new Set(["__all__", "__unclassified__", ...cls]));
+        setExpandedClasses(new Set(["__all__", "__unclassified__", ...cls.map((c: any) => c.class_name)]));
       }
     } catch (e) {
       console.error(e);
@@ -60,10 +68,11 @@ export default function MyStudentsPage() {
     fetchMyStudents();
   }, [fetchMyStudents]);
 
-  const handleSearch = async (q: string) => {
+  const handleSearch = async (q: string, overrideClass?: string) => {
     setSearchQuery(q);
+    const cls = overrideClass !== undefined ? overrideClass : addClassName;
     try {
-      const res = await fetch(`${API}/api/profile/search-students?q=${encodeURIComponent(q)}`, {
+      const res = await fetch(`${API}/api/profile/search-students?q=${encodeURIComponent(q)}&class_name=${encodeURIComponent(cls)}`, {
         headers: { Authorization: `Bearer ${getToken()}` },
       });
       if (res.ok) setSearchResults(await res.json());
@@ -125,10 +134,10 @@ export default function MyStudentsPage() {
     }
   };
 
-  const handleRemoveStudent = async (id: number, name: string) => {
+  const handleRemoveStudent = async (id: number, name: string, className: string) => {
     if (!confirm(`Bạn có chắc muốn xoá "${name}" khỏi lớp?`)) return;
     try {
-      const res = await fetch(`${API}/api/profile/remove-student/${id}`, {
+      const res = await fetch(`${API}/api/profile/remove-student/${id}?class_name=${encodeURIComponent(className)}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${getToken()}` },
       });
@@ -138,12 +147,12 @@ export default function MyStudentsPage() {
     }
   };
 
-  const handleMoveStudent = async (studentId: number, className: string) => {
+  const handleMoveStudent = async (studentId: number, newClassName: string, oldClassName: string) => {
     try {
       await fetch(`${API}/api/profile/update-student-class/${studentId}`, {
         method: "PUT",
         headers: { Authorization: `Bearer ${getToken()}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ class_name: className }),
+        body: JSON.stringify({ class_name: newClassName, old_class_name: oldClassName }),
       });
       setMovingStudent(null);
       fetchMyStudents();
@@ -165,14 +174,50 @@ export default function MyStudentsPage() {
     } catch (e) { console.error(e); }
   };
 
-  const handleCreateClass = () => {
+  const handleUpdateClassYear = async () => {
+    if (!editingClassYear) return;
+    try {
+      const res = await fetch(`${API}/api/profile/update-class-metadata`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${getToken()}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ class_name: editingClassYear.class_name, academic_year: editingClassYear.year })
+      });
+      if (res.ok) {
+        setClasses(prev => prev.map(c => c.class_name === editingClassYear.class_name ? { ...c, academic_year: editingClassYear.year } : c));
+        setEditingClassYear(null);
+      }
+    } catch (e) { console.error(e); }
+  };
+
+  const handleCreateClass = async () => {
     if (!newClassName.trim()) return;
-    if (!classes.includes(newClassName.trim())) {
-      setClasses((prev) => [...prev, newClassName.trim()]);
-      setExpandedClasses((prev) => new Set([...prev, newClassName.trim()]));
-    }
+    try {
+      const res = await fetch(`${API}/api/profile/create-class`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${getToken()}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ class_name: newClassName.trim(), academic_year: newAcademicYear || null })
+      });
+      if (res.ok) {
+        setExpandedClasses((prev) => new Set([...prev, newClassName.trim()]));
+        fetchMyStudents();
+      }
+    } catch (e) { console.error(e); }
     setNewClassName("");
+    setNewAcademicYear("");
     setShowNewClass(false);
+  };
+
+  const handleGraduate = async (className: string, isGraduated: boolean) => {
+    try {
+      const res = await fetch(`${API}/api/profile/graduate-class`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${getToken()}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ class_name: className, is_graduated: isGraduated })
+      });
+      if (res.ok) {
+        setClasses(prev => prev.map(c => c.class_name === className ? { ...c, is_graduated: isGraduated } : c));
+      }
+    } catch (e) { console.error(e); }
   };
 
   const toggleClass = (name: string) => {
@@ -197,10 +242,22 @@ export default function MyStudentsPage() {
   });
 
   classes.forEach((c) => {
-    if (!studentsByClass.has(c)) studentsByClass.set(c, []);
+    if (!studentsByClass.has(c.class_name)) studentsByClass.set(c.class_name, []);
   });
 
-  const allClassNames = [...classes, ...Array.from(studentsByClass.keys())].filter((v, i, a) => a.indexOf(v) === i);
+  const activeClasses = classes.filter(c => !c.is_graduated);
+  const graduatedClasses = classes.filter(c => c.is_graduated);
+
+  const groupedActiveClasses = new Map<string, ClassGroup[]>();
+  activeClasses.forEach(c => {
+    const year = c.academic_year || "Chưa phân năm học";
+    if (!groupedActiveClasses.has(year)) groupedActiveClasses.set(year, []);
+    groupedActiveClasses.get(year)!.push(c);
+  });
+  
+  const activeClassNames = activeClasses.map(c => c.class_name);
+  const graduatedClassNames = graduatedClasses.map(c => c.class_name);
+  const allClassNames = classes.map(c => c.class_name);
 
   const renderStudent = (s: Student) => (
     <div key={s.id} className={`flex items-center gap-4 px-4 py-3 transition-colors group ${bulkMode ? 'cursor-pointer' : ''} ${bulkSelectedIds.has(s.id) ? 'bg-indigo-500/10' : 'hover:bg-bg-hover'}`}
@@ -239,7 +296,7 @@ export default function MyStudentsPage() {
             <ArrowRight className="w-4 h-4" />
           </button>
           <button
-            onClick={(e) => { e.stopPropagation(); handleRemoveStudent(s.id, s.full_name); }}
+            onClick={(e) => { e.stopPropagation(); handleRemoveStudent(s.id, s.full_name, s.class_name || "__unclassified__"); }}
             className="p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
             title="Xoá khỏi lớp"
           >
@@ -253,32 +310,79 @@ export default function MyStudentsPage() {
   const renderGroupHeader = (title: string, students: Student[], icon: React.ReactNode, colorClass: string, groupKey: string) => {
     const isExpanded = expandedClasses.has(groupKey);
     const allInGroupSelected = students.length > 0 && students.every((s) => bulkSelectedIds.has(s.id));
-
     return (
-      <div
-        className="flex items-center gap-3 px-5 py-4 cursor-pointer hover:bg-bg-hover transition-colors"
-        onClick={() => toggleClass(groupKey)}
-      >
-        {isExpanded ? (
-          <ChevronDown className={`w-4 h-4 ${colorClass} shrink-0`} />
-        ) : (
-          <ChevronRight className={`w-4 h-4 ${colorClass} shrink-0`} />
-        )}
-        {bulkMode && students.length > 0 && (
-          <div className="shrink-0" onClick={(e) => { e.stopPropagation(); selectAllInGroup(students); }}>
-            {allInGroupSelected ? (
-              <CheckSquare className="w-5 h-5 text-indigo-400" />
-            ) : (
-              <Square className="w-5 h-5 text-text-muted" />
-            )}
+      <>
+        <div
+          className="flex items-center gap-3 px-5 py-4 cursor-pointer hover:bg-bg-hover transition-colors"
+          onClick={() => toggleClass(groupKey)}
+        >
+          {isExpanded ? (
+            <ChevronDown className={`w-4 h-4 ${colorClass} shrink-0`} />
+          ) : (
+            <ChevronRight className={`w-4 h-4 ${colorClass} shrink-0`} />
+          )}
+          {bulkMode && students.length > 0 && (
+            <div className="shrink-0" onClick={(e) => { e.stopPropagation(); selectAllInGroup(students); }}>
+              {allInGroupSelected ? (
+                <CheckSquare className="w-5 h-5 text-indigo-400" />
+              ) : (
+                <Square className="w-5 h-5 text-text-muted" />
+              )}
+            </div>
+          )}
+          {icon}
+          <span className="font-bold text-text-primary flex-1">{title}</span>
+          <span className={`text-xs px-3 py-1 rounded-full font-bold ${colorClass === 'text-indigo-400' ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20' : 'bg-white/5 text-text-muted border border-white/10'}`}>
+            {students.length} HS
+          </span>
+          {groupKey !== "__unclassified__" && !groupKey.startsWith("__year__") && (
+            <div className="flex items-center">
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const c = classes.find(x => x.class_name === groupKey);
+                  if (c) {
+                    setEditingClassYear({ class_name: c.class_name, year: c.academic_year || "" });
+                  }
+                }}
+                className="ml-2 p-1.5 hover:bg-white/10 rounded-lg text-text-muted hover:text-orange-400 transition-colors"
+                title="Đổi năm học"
+              >
+                <PenLine className="w-4 h-4" />
+              </button>
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const c = classes.find(x => x.class_name === groupKey);
+                  if (c) handleGraduate(c.class_name, !c.is_graduated);
+                }}
+                className="p-1.5 hover:bg-white/10 rounded-lg text-text-muted hover:text-white transition-colors"
+                title="Đổi trạng thái Tốt nghiệp"
+              >
+                🎓
+              </button>
+            </div>
+          )}
+        </div>
+        
+        {/* Inline Edit Year Form */}
+        {editingClassYear && editingClassYear.class_name === groupKey && (
+          <div className="px-5 py-3 bg-white/5 border-t border-white/10 flex items-center gap-3">
+            <span className="text-sm font-bold text-orange-400">Đổi năm học:</span>
+            <input
+              type="text"
+              value={editingClassYear.year}
+              onChange={(e) => setEditingClassYear({ ...editingClassYear, year: e.target.value })}
+              placeholder="Năm học mới (VD: 2024-2025)..."
+              className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-sm outline-none focus:border-orange-500"
+              onKeyDown={(e) => e.key === "Enter" && handleUpdateClassYear()}
+              autoFocus
+            />
+            <button onClick={handleUpdateClassYear} className="px-3 py-1.5 bg-orange-600 hover:bg-orange-500 rounded-lg text-sm font-bold transition-colors">Lưu</button>
+            <button onClick={() => setEditingClassYear(null)} className="p-1.5 hover:bg-white/10 rounded-lg"><X className="w-4 h-4" /></button>
           </div>
         )}
-        {icon}
-        <span className="font-bold text-text-primary flex-1">{title}</span>
-        <span className={`text-xs px-3 py-1 rounded-full font-bold ${colorClass === 'text-indigo-400' ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20' : 'bg-white/5 text-text-muted border border-white/10'}`}>
-          {students.length} HS
-        </span>
-      </div>
+      </>
     );
   };
 
@@ -317,10 +421,15 @@ export default function MyStudentsPage() {
           <GraduationCap className="w-5 h-5 text-indigo-400" />
           <input
             type="text" value={newClassName} onChange={(e) => setNewClassName(e.target.value)}
-            placeholder="Tên lớp mới (VD: Lớp 12-2026)..."
+            placeholder="Tên lớp mới..."
+            className="w-1/3 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-500 text-text-primary"
+            autoFocus
+          />
+          <input
+            type="text" value={newAcademicYear} onChange={(e) => setNewAcademicYear(e.target.value)}
+            placeholder="Năm học (VD: 2024-2025)..."
             className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-500 text-text-primary"
             onKeyDown={(e) => e.key === "Enter" && handleCreateClass()}
-            autoFocus
           />
           <button onClick={handleCreateClass} className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 rounded-xl text-sm font-bold transition-colors">Tạo</button>
           <button onClick={() => setShowNewClass(false)} className="p-2 hover:bg-white/5 rounded-lg"><X className="w-5 h-5" /></button>
@@ -331,7 +440,7 @@ export default function MyStudentsPage() {
       <div className="flex gap-4 mb-6 flex-wrap items-center">
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
           <Users className="w-4 h-4 text-emerald-500" />
-          <span className="text-sm font-bold text-emerald-500">{myStudents.length} học sinh</span>
+          <span className="text-sm font-bold text-emerald-500">{new Set(myStudents.map(s => s.id)).size} học sinh</span>
         </div>
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-500/10 border border-indigo-500/20 rounded-xl">
           <GraduationCap className="w-4 h-4 text-indigo-400" />
@@ -382,26 +491,65 @@ export default function MyStudentsPage() {
           </div>
         ) : (
           <>
-            {/* Classes */}
-            {allClassNames.map((className) => {
-              const students = studentsByClass.get(className) || [];
-              const isExpanded = expandedClasses.has(className);
-
-              return (
-                <div key={className} className="bg-bg-card rounded-2xl border border-border-card overflow-hidden">
-                  {renderGroupHeader(className, students, <GraduationCap className="w-5 h-5 text-indigo-400 shrink-0" />, "text-indigo-400", className)}
-                  {isExpanded && (
-                    <div className="border-t border-border-card divide-y divide-border-card">
-                      {students.length === 0 ? (
-                        <p className="text-sm text-text-muted px-6 py-4 italic">Chưa có học sinh nào trong lớp này. Bấm &quot;Chọn nhiều HS&quot; để gán hàng loạt!</p>
-                      ) : (
-                        students.map((s) => renderStudent(s))
-                      )}
-                    </div>
-                  )}
+            {/* Active Classes Grouped By Year */}
+            {Array.from(groupedActiveClasses.entries()).map(([year, classGroups]) => (
+              <div key={year} className="mb-6">
+                <h3 className="font-bold text-text-muted text-sm uppercase tracking-wider mb-3 px-2 flex items-center gap-2 group">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                  Năm học: {year}
+                </h3>
+                <div className="space-y-3">
+                  {classGroups.map((c) => {
+                    const students = studentsByClass.get(c.class_name) || [];
+                    const isExpanded = expandedClasses.has(c.class_name);
+                    return (
+                      <div key={c.class_name} className="bg-bg-card rounded-2xl border border-border-card overflow-hidden shadow-sm">
+                        {renderGroupHeader(c.class_name, students, <GraduationCap className="w-5 h-5 text-indigo-400 shrink-0" />, "text-indigo-400", c.class_name)}
+                        {isExpanded && (
+                          <div className="border-t border-border-card divide-y divide-border-card">
+                            {students.length === 0 ? (
+                              <p className="text-sm text-text-muted px-6 py-4 italic">Chưa có học sinh nào trong lớp này.</p>
+                            ) : (
+                              students.map((s) => renderStudent(s))
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
-              );
-            })}
+              </div>
+            ))}
+
+            {/* Graduated Classes */}
+            {graduatedClasses.length > 0 && (
+              <div className="mb-6 opacity-70 hover:opacity-100 transition-opacity">
+                <h3 className="font-bold text-text-muted text-sm uppercase tracking-wider mb-3 px-2 flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-gray-500"></span>
+                  Lưu trữ / Đã Tốt Nghiệp 🎓
+                </h3>
+                <div className="space-y-3">
+                  {graduatedClasses.map((c) => {
+                    const students = studentsByClass.get(c.class_name) || [];
+                    const isExpanded = expandedClasses.has(c.class_name);
+                    return (
+                      <div key={c.class_name} className="bg-bg-card rounded-2xl border border-border-card overflow-hidden">
+                        {renderGroupHeader(c.class_name, students, <GraduationCap className="w-5 h-5 text-gray-400 shrink-0" />, "text-gray-400", c.class_name)}
+                        {isExpanded && (
+                          <div className="border-t border-border-card divide-y divide-border-card">
+                            {students.length === 0 ? (
+                              <p className="text-sm text-text-muted px-6 py-4 italic">Chưa có học sinh nào.</p>
+                            ) : (
+                              students.map((s) => renderStudent(s))
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* Unclassified */}
             {unclassifiedStudents.length > 0 && (
@@ -464,7 +612,7 @@ export default function MyStudentsPage() {
             </div>
             <div className="p-4 space-y-2 max-h-60 overflow-y-auto">
               <button
-                onClick={() => handleMoveStudent(movingStudent.id, "")}
+                onClick={() => handleMoveStudent(movingStudent.id, "", movingStudent.class_name || "__unclassified__")}
                 className={`w-full text-left px-4 py-3 rounded-xl border transition-colors text-sm ${!movingStudent.class_name ? 'bg-indigo-500/10 border-indigo-500/30 text-indigo-400 font-bold' : 'border-border-card hover:bg-bg-hover'}`}
               >
                 Không phân lớp
@@ -472,7 +620,7 @@ export default function MyStudentsPage() {
               {allClassNames.map((c) => (
                 <button
                   key={c}
-                  onClick={() => handleMoveStudent(movingStudent.id, c)}
+                  onClick={() => handleMoveStudent(movingStudent.id, c, movingStudent.class_name || "__unclassified__")}
                   className={`w-full text-left px-4 py-3 rounded-xl border transition-colors text-sm flex items-center gap-2 ${movingStudent.class_name === c ? 'bg-indigo-500/10 border-indigo-500/30 text-indigo-400 font-bold' : 'border-border-card hover:bg-bg-hover'}`}
                 >
                   <GraduationCap className="w-4 h-4" /> {c}
@@ -505,7 +653,10 @@ export default function MyStudentsPage() {
               <label className="block text-xs font-bold text-text-muted uppercase tracking-wider mb-2">Thêm vào lớp</label>
               <select
                 value={addClassName}
-                onChange={(e) => setAddClassName(e.target.value)}
+                onChange={(e) => {
+                  setAddClassName(e.target.value);
+                  handleSearch(searchQuery, e.target.value);
+                }}
                 className="w-full bg-bg-hover border border-border-card rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500"
               >
                 <option value="">-- Chưa phân lớp --</option>

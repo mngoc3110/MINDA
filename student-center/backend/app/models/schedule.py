@@ -7,6 +7,7 @@ import enum
 class ScheduleType(str, enum.Enum):
     course_session = "course_session"
     personal = "personal"
+    student = "student"
 
 class ScheduleItem(Base):
     __tablename__ = "schedule_items"
@@ -25,10 +26,14 @@ class ScheduleItem(Base):
     # User who owns this schedule (the student for 'personal', the teacher for 'course_session')
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     
+    # Nullable, only used if type is 'student'
+    student_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    
     location = Column(String, nullable=True)
     color = Column(String, nullable=True) # Optional hex color for custom styling
     
     created_at = Column(DateTime, default=datetime.utcnow)
 
     course = relationship("Course")
-    user = relationship("User")
+    user = relationship("User", foreign_keys=[user_id])
+    student = relationship("User", foreign_keys=[student_id])

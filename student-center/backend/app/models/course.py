@@ -71,6 +71,7 @@ class Lesson(Base):
     description = Column(String, nullable=True)
     video_url = Column(String, nullable=True)
     document_url = Column(String, nullable=True)
+    notes_url = Column(String, nullable=True)
     order_index = Column(Integer, default=0)
     duration_seconds = Column(Integer, default=0)
 

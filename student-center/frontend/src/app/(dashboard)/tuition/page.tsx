@@ -280,7 +280,7 @@ function TeacherTuitionView() {
         </div>
         <div className="p-5 bg-bg-card rounded-2xl border border-border-card shadow-sm">
           <p className="text-xs text-text-secondary font-bold uppercase tracking-wider mb-2">Số học sinh Offline</p>
-          <p className="text-2xl font-black text-text-primary">{offlineStudents.length} <span className="text-base text-text-secondary font-normal">học sinh</span></p>
+          <p className="text-2xl font-black text-text-primary">{new Set(offlineStudents.map(s => s.id)).size} <span className="text-base text-text-secondary font-normal">học sinh</span></p>
         </div>
         <div className="p-5 bg-red-500/10 rounded-2xl border border-red-500/20 shadow-sm">
           <p className="text-xs text-red-700 font-bold uppercase tracking-wider mb-2">Chưa thanh toán</p>
@@ -328,7 +328,7 @@ function TeacherTuitionView() {
           <div className="mb-8 bg-bg-card rounded-3xl border border-border-card overflow-hidden shadow-sm">
             <div className="p-5 border-b border-border-card flex items-center gap-2">
               <Users className="w-5 h-5 text-purple-400" />
-              <h2 className="text-base font-bold text-text-primary">Học sinh của bạn ({offlineStudents.length} HS)</h2>
+              <h2 className="text-base font-bold text-text-primary">Học sinh của bạn ({new Set(offlineStudents.map(s => s.id)).size} HS)</h2>
             </div>
             {classNames.map(cls => {
               const students = classGroups[cls];

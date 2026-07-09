@@ -63,6 +63,7 @@ class LessonCreate(BaseModel):
     description: Optional[str] = None
     video_url: Optional[str] = None
     document_url: Optional[str] = None
+    notes_url: Optional[str] = None
     order_index: Optional[int] = 0
     duration_seconds: Optional[int] = 0
 
@@ -73,6 +74,7 @@ class LessonResponse(BaseModel):
     description: Optional[str]
     video_url: Optional[str]
     document_url: Optional[str] = None
+    notes_url: Optional[str] = None
     order_index: int
     duration_seconds: int
     class Config:
@@ -268,6 +270,8 @@ class CourseCurriculumResponse(BaseModel):
 # ═══════════════════ ASSIGNMENT FOLDER ═══════════════════
 class FolderCreate(BaseModel):
     name: str
+    academic_year: Optional[str] = None
+    is_graduated: Optional[bool] = False
     is_assigned_to_all: Optional[bool] = True
     assignee_ids: Optional[List[int]] = None
     assigned_classes: Optional[List[str]] = None  # ["Lớp 12-2k8", "Lớp 11-2k9"]
@@ -275,6 +279,8 @@ class FolderCreate(BaseModel):
 class FolderResponse(BaseModel):
     id: int
     name: str
+    academic_year: Optional[str] = None
+    is_graduated: bool
     teacher_id: int
     is_assigned_to_all: bool
     assignee_ids: Optional[List[int]] = None

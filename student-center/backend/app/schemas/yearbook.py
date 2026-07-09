@@ -10,6 +10,8 @@ class YearbookMessageCreate(BaseModel):
     bg_color: Optional[str] = None
     message: str
     image_data: Optional[str] = None
+    signature_data: Optional[str] = None
+    canvas_data: Optional[str] = None
     is_public: bool = True
 
 class YearbookMessageResponse(BaseModel):
@@ -20,6 +22,8 @@ class YearbookMessageResponse(BaseModel):
     bg_color: Optional[str] = None
     message: str
     image_data: Optional[str] = None
+    signature_data: Optional[str] = None
+    canvas_data: Optional[str] = None
     is_public: bool
     hearts: int
     created_at: datetime
@@ -29,3 +33,17 @@ class YearbookMessageResponse(BaseModel):
 
 class YearbookHeartUpdate(BaseModel):
     hearts: int
+
+class YearbookGroupCreate(BaseModel):
+    title: str
+    description: Optional[str] = None
+
+class YearbookGroupResponse(BaseModel):
+    id: str
+    title: str
+    description: Optional[str] = None
+    teacher_id: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True

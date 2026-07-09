@@ -16,6 +16,7 @@ const NAV_ITEMS = [
   { name: "Quản lý Học sinh", href: "/my-students", icon: Users },
   { name: "Lớp học Live", href: "/live", icon: GraduationCap },
   { name: "Chấm điểm & Bài tập", href: "/assignments", icon: ClipboardCheck },
+  { name: "Bảng Vinh Danh", href: "/honors", icon: Trophy },
   { name: "Lưu Bút Kỷ Yếu", href: "/yearbook/", icon: Heart },
   { name: "Công cụ PDF", href: "/pdf-tools", icon: FileText },
   { name: "Manim Studio", href: "/manim-studio", icon: Clapperboard, badge: "AI" },

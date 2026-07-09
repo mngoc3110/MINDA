@@ -16,6 +16,8 @@ class AssignmentFolder(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
+    academic_year = Column(String, nullable=True)  # VD: "2023-2024"
+    is_graduated = Column(Boolean, default=False)
     teacher_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     is_assigned_to_all = Column(Boolean, default=True)
     assigned_classes = Column(Text, nullable=True)  # Comma-separated: "Lớp 12-2k8,Lớp 11-2k9"

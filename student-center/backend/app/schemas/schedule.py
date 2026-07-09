@@ -10,19 +10,26 @@ class ScheduleItemBase(BaseModel):
     end_time: datetime
     type: ScheduleType = ScheduleType.personal
     course_id: Optional[int] = None
+    student_id: Optional[int] = None
     location: Optional[str] = None
     color: Optional[str] = None
 
 class ScheduleItemCreate(ScheduleItemBase):
-    pass
+    is_recurring: Optional[bool] = False
+    repeat_weeks: Optional[int] = 12
 
 class ScheduleItemUpdate(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
     start_time: Optional[datetime] = None
     end_time: Optional[datetime] = None
+    type: Optional[ScheduleType] = None
+    course_id: Optional[int] = None
+    student_id: Optional[int] = None
     location: Optional[str] = None
     color: Optional[str] = None
+    is_recurring: Optional[bool] = False
+    repeat_weeks: Optional[int] = 12
 
 class ScheduleItemResponse(ScheduleItemBase):
     id: int
@@ -31,6 +38,7 @@ class ScheduleItemResponse(ScheduleItemBase):
     
     # Optional fields for frontend display context
     course_title: Optional[str] = None
+    student_name: Optional[str] = None
 
     class Config:
         from_attributes = True

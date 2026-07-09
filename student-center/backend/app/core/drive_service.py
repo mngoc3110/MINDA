@@ -124,7 +124,9 @@ async def upload_file(file: UploadFile, user: User) -> str:
         if os.path.exists(temp_path):
             os.remove(temp_path)
 
-def upload_local_file_to_drive(file_path: str, filename: str, content_type: str, user: User) -> str:
+import asyncio
+
+def upload_local_file_to_drive(file_path: str, filename: str, content_type: str, user: User, progress_callback=None) -> str:
     """
     Upload file cứng (từ đường dẫn local) lên thẳng Google Drive cá nhân của người dùng.
     """
@@ -142,21 +144,32 @@ def upload_local_file_to_drive(file_path: str, filename: str, content_type: str,
             'name': filename,
             'parents': [user_folder_id]
         }
-        media = MediaFileUpload(file_path, mimetype=content_type, resumable=True)
+        # Use chunksize for resumable uploads to get progress
+        media = MediaFileUpload(file_path, mimetype=content_type, resumable=True, chunksize=1024*1024*5) # 5MB chunks
         
-        uploaded_file = service.files().create(
+        request = service.files().create(
             body=file_metadata,
             media_body=media,
             fields='id, webViewLink, webContentLink'
-        ).execute()
+        )
 
-        file_id = uploaded_file.get('id')
+        response = None
+        while response is None:
+            status, response = request.next_chunk()
+            if status and progress_callback:
+                percent = int(status.progress() * 100)
+                if asyncio.iscoroutinefunction(progress_callback):
+                    asyncio.run(progress_callback(percent))
+                else:
+                    progress_callback(percent)
+
+        file_id = response.get('id')
         service.permissions().create(
             fileId=file_id,
             body={'type': 'anyone', 'role': 'reader'}
         ).execute()
 
-        return uploaded_file.get('webViewLink')
+        return response.get('webViewLink')
 
     except Exception as e:
         print(f"Lỗi upload Drive Record: {e}")

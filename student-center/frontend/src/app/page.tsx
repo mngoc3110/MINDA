@@ -1,6 +1,6 @@
 "use client";
 
-import { BrainCircuit, Video, BarChart3, ArrowRight, Star, Menu, X, Sun, Moon } from "lucide-react";
+import { BrainCircuit, Video, BarChart3, ArrowRight, Star, Menu, X, Sun, Moon, Award, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
@@ -29,8 +29,32 @@ export default function Home() {
   const [userName, setUserName] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
   const [teachers, setTeachers] = useState<TeacherInfo[]>([]);
+  const [honors, setHonors] = useState<any[]>([]);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
+
+  // Testimonials State
+  const [testimonials, setTestimonials] = useState<any[]>([]);
+  const [showTestimonialModal, setShowTestimonialModal] = useState(false);
+  const [testimonialForm, setTestimonialForm] = useState({
+    student_name: "",
+    avatar_url: "",
+    content: "",
+    rating: 5
+  });
+  const [testimonialAvatarFile, setTestimonialAvatarFile] = useState<File | null>(null);
+  const [testimonialSubmitStatus, setTestimonialSubmitStatus] = useState<"idle"|"loading"|"success"|"error">("idle");
+
+  const getDirectImageUrl = (url: string | null) => {
+    if (!url) return "";
+    const driveRegex = /drive\.google\.com\/file\/d\/([^/]+)/;
+    const match = url.match(driveRegex);
+    if (match && match[1]) {
+      // Use thumbnail API which bypasses Google Drive's hotlink protection
+      return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1000`;
+    }
+    return url;
+  };
 
   // Contact Form State
   const [contactForm, setContactForm] = useState({ name: "", email: "", message: "" });
@@ -52,9 +76,63 @@ export default function Home() {
     }
   };
 
+  const handleTestimonialSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setTestimonialSubmitStatus("loading");
+    try {
+      let finalAvatarUrl = testimonialForm.avatar_url;
+
+      if (testimonialAvatarFile) {
+        const formData = new FormData();
+        formData.append("file", testimonialAvatarFile);
+        
+        const uploadRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/testimonials/upload-avatar`, {
+          method: "POST",
+          body: formData
+        });
+        
+        if (uploadRes.ok) {
+          const uploadData = await uploadRes.json();
+          finalAvatarUrl = uploadData.avatar_url;
+        } else {
+          setTestimonialSubmitStatus("error");
+          return;
+        }
+      }
+
+      const token = localStorage.getItem("minda_token");
+      const headers: any = { "Content-Type": "application/json" };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+      
+      const payload = { ...testimonialForm, avatar_url: finalAvatarUrl };
+      
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/testimonials/`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        setTestimonialSubmitStatus("success");
+        setTimeout(() => {
+          setShowTestimonialModal(false);
+          setTestimonialSubmitStatus("idle");
+          setTestimonialForm({ ...testimonialForm, content: "", rating: 5, avatar_url: "" });
+          setTestimonialAvatarFile(null);
+        }, 3000);
+      } else {
+        setTestimonialSubmitStatus("error");
+      }
+    } catch {
+      setTestimonialSubmitStatus("error");
+    }
+  };
 
   useEffect(() => {
-    setUserName(localStorage.getItem("minda_user_name"));
+    const savedName = localStorage.getItem("minda_user_name");
+    setUserName(savedName);
+    if (savedName) {
+       setTestimonialForm(prev => ({ ...prev, student_name: savedName }));
+    }
     setRole(localStorage.getItem("minda_role"));
 
     fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/profile/teachers`)
@@ -66,44 +144,103 @@ export default function Home() {
           t.full_name !== "Admin"
         );
         setTeachers(filtered);
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/honors/public`)
+        .then(async res => {
+           if (!res.ok) throw new Error("API not ok");
+           return res.json();
+        })
+        .then(data => {
+           if (Array.isArray(data) && data.length > 0) {
+             setHonors(data);
+           } else {
+             throw new Error("Empty array");
+           }
+        })
+        .catch(err => {
+           console.error("Honors API fetch failed or empty:", err);
+           // Fallback demo data để hiển thị khi chưa có ai hoặc lỗi API
+           setHonors([
+             {
+               id: 999,
+               student_name: "Nguyễn Văn A",
+               teacher_name: "Thầy Hùng",
+               title: "Thủ Khoa Đánh Giá Năng Lực",
+               description: "Đạt 1150/1200 điểm thi ĐGNL ĐHQG. Phong độ cực kỳ ổn định, luôn lọt top 1 bảng vàng của lớp trong 12 tháng liên tiếp.",
+               image_url: "https://ui-avatars.com/api/?name=Nguyễn+Văn+A&background=f59e0b&color=fff&size=200",
+               academic_year: "2023-2024"
+             },
+             {
+               id: 998,
+               student_name: "Trần Thị B",
+               teacher_name: "Cô giáo Thuỷ",
+               title: "Giải Nhất QG Môn Toán",
+               description: "Tư duy nhạy bén, khả năng giải quyết các bài toán hóc búa siêu việt. Thường xuyên support giảng bài cho các bạn học kém hơn.",
+               image_url: "https://ui-avatars.com/api/?name=Trần+Thị+B&background=10b981&color=fff&size=200",
+               academic_year: "2022-2023"
+             },
+             {
+               id: 997,
+               student_name: "Lê Hoàng C",
+               teacher_name: "Nguyễn Lê Minh Ngọc",
+               title: "Best Coder Khóa K1",
+               description: "Hoàn thành 100% bài tập thực hành trên MINDA. Tự tay code dự án web chia sẻ tài liệu học tập cho lớp.",
+               image_url: "https://ui-avatars.com/api/?name=Lê+Hoàng+C&background=3b82f6&color=fff&size=200",
+               academic_year: "2021-2022"
+             }
+           ]);
+         });
+
+        // Lấy danh sách cảm nhận học sinh
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/testimonials/`)
+          .then(res => res.json())
+          .then(data => {
+            if (Array.isArray(data)) setTestimonials(data);
+          })
+          .catch(err => console.error("Testimonials API err:", err));
       })
       .catch(err => console.error(err));
   }, []);
 
   return (
-    <div className="min-h-screen bg-bg-main text-t-primary selection:bg-indigo-200 overflow-x-hidden relative scroll-smooth font-outfit">
+    <div className={`min-h-screen ${theme === 'dark' ? 'dark' : ''} bg-bg-main font-outfit text-t-primary selection:bg-indigo-500/30 overflow-x-hidden`}>
       
       {/* Navigation */}
-      <nav className="fixed w-full z-50 top-0 backdrop-blur-xl bg-bg-main/90 border-b border-border-card">
-        <div className="max-w-7xl mx-auto px-6 h-18 flex items-center justify-between py-4">
-          {/* Logo */}
-          <Link href="/" className="font-black text-xl tracking-tighter text-t-primary">
-            MINDA<span className="text-indigo-600">.EDU</span>
-          </Link>
+      <nav className="fixed w-full z-50 transition-all duration-300 bg-bg-main/80 backdrop-blur-md border-b border-border-card">
+        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+               <span className="text-white font-black text-xl tracking-tighter">M</span>
+             </div>
+             <span className="text-xl font-black tracking-tight text-t-primary">MINDA<span className="text-indigo-500">.EDU</span></span>
+          </div>
+          
+          {/* Desktop Menu */}
+          <div className="hidden md:flex items-center gap-8">
+            <Link href="#classes" className="text-sm font-bold text-t-secondary hover:text-indigo-500 transition-colors uppercase tracking-wider">Các Lớp Học</Link>
+            <Link href="#features" className="text-sm font-bold text-t-secondary hover:text-indigo-500 transition-colors uppercase tracking-wider">Công nghệ AI</Link>
+          </div>
 
-          {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-8 text-sm font-bold text-t-secondary">
-            <Link href="#classes" className="hover:text-t-primary transition-colors uppercase tracking-wider text-xs">Các Lớp Học</Link>
-            <Link href="#features" className="hover:text-t-primary transition-colors uppercase tracking-wider text-xs">Công nghệ AI</Link>
-            <Link href="/yearbook" className="hover:text-pink-500 text-pink-400 transition-colors uppercase tracking-wider text-xs flex items-center gap-1">
-              <Star className="w-3 h-3 fill-pink-400" /> Kỷ Yếu
-            </Link>
+          {/* Desktop Auth / User */}
+          <div className="hidden md:flex items-center gap-4">
             {userName ? (
-              <div className="flex items-center gap-4 ml-4">
-                <span className="text-t-secondary capitalize">Xin chào, <span className="font-bold text-t-primary">{userName}</span></span>
-                <Link href={role === "admin" ? "/admin" : "/dashboard"} className="px-5 py-2.5 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white transition-all font-bold shadow-lg shadow-indigo-500/20">
+              <div className="flex items-center gap-4">
+                <Link href="/yearbook/" className="px-4 py-2 rounded-xl bg-pink-50 border border-pink-200 text-pink-600 font-bold hover:bg-pink-100 transition-colors flex items-center gap-2 shadow-sm">
+                  <Star className="w-4 h-4 fill-pink-500" /> Kỷ Yếu Khóa Học
+                </Link>
+                <span className="text-t-secondary text-sm">Xin chào, <span className="font-bold text-t-primary">{userName}</span></span>
+                <Link href={role === "admin" ? "/admin" : "/dashboard"} className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition-all shadow-[0_0_15px_rgba(79,70,229,0.3)]">
                   Vào Lớp Học
                 </Link>
-                <button onClick={() => { localStorage.clear(); window.location.reload(); }} className="px-4 py-2 border border-border-card hover:bg-bg-hover rounded-full text-sm font-medium transition-colors text-t-secondary">
+                <button onClick={() => { localStorage.clear(); window.location.reload(); }} className="px-4 py-2.5 border border-border-card rounded-xl text-sm font-medium text-t-secondary hover:bg-bg-hover transition-colors">
                   Đăng xuất
                 </button>
               </div>
             ) : (
-              <div className="flex items-center gap-4 ml-4">
-                <Link href="/yearbook" className="px-5 py-2.5 rounded-full bg-pink-50 border border-pink-200 text-pink-600 hover:bg-pink-100 transition-all font-bold flex items-center gap-2 shadow-sm">
-                  <Star className="w-4 h-4 fill-pink-500" /> Kỷ Yếu
+              <div className="flex items-center gap-3">
+                <Link href="/yearbook/" className="px-4 py-2 rounded-xl bg-pink-50 border border-pink-200 text-pink-600 font-bold hover:bg-pink-100 transition-colors flex items-center gap-2 shadow-sm">
+                  <Star className="w-4 h-4 fill-pink-500" /> Viết Sổ Kỷ Yếu
                 </Link>
-                <Link href="/login" className="px-5 py-2.5 rounded-full bg-bg-card border border-border-card hover:bg-bg-hover transition-all text-t-primary font-semibold">Đăng nhập</Link>
+                <Link href="/login" className="px-5 py-2.5 rounded-full border border-border-card text-t-primary hover:bg-bg-hover transition-colors font-bold">Đăng nhập</Link>
                 <Link href="/register" className="px-5 py-2.5 rounded-full bg-indigo-600 text-white hover:bg-indigo-500 transition-all font-black">XUẤT PHÁT NGAY</Link>
               </div>
             )}
@@ -132,7 +269,7 @@ export default function Home() {
             
             {userName ? (
               <>
-                <Link href="/yearbook" onClick={() => setMobileMenuOpen(false)} className="text-pink-500 font-bold uppercase tracking-wider text-sm py-2 border-b border-border-card flex items-center gap-2">
+                <Link href="/yearbook/" onClick={() => setMobileMenuOpen(false)} className="text-pink-500 font-bold uppercase tracking-wider text-sm py-2 border-b border-border-card flex items-center gap-2">
                   <Star className="w-4 h-4 fill-pink-500" /> Kỷ Yếu
                 </Link>
                 <span className="text-t-secondary text-sm">Xin chào, <span className="font-bold text-t-primary">{userName}</span></span>
@@ -145,7 +282,7 @@ export default function Home() {
               </>
             ) : (
               <>
-                <Link href="/yearbook" onClick={() => setMobileMenuOpen(false)} className="w-full py-3 rounded-xl bg-pink-50 border border-pink-200 text-pink-600 font-bold text-center flex items-center justify-center gap-2">
+                <Link href="/yearbook/" onClick={() => setMobileMenuOpen(false)} className="w-full py-3 rounded-xl bg-pink-50 border border-pink-200 text-pink-600 font-bold text-center flex items-center justify-center gap-2">
                   <Star className="w-4 h-4 fill-pink-500" /> Viết Sổ Kỷ Yếu
                 </Link>
                 <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="w-full py-3 rounded-xl bg-bg-card border border-border-card text-center font-bold text-t-primary">Đăng nhập</Link>
@@ -185,7 +322,7 @@ export default function Home() {
                 </div>
               </div>
               <div className='mt-7 flex flex-col'>
-                <h4 className='text-3xl font-black tracking-tight text-t-primary'>Toán Hình Không Gian Lớp 11</h4>
+                <h4 className='text-3xl font-black tracking-tight text-t-primary'>Phòng Lab 3D</h4>
                 <p className='mt-3 text-t-secondary font-medium leading-relaxed text-sm'>Phá đảo tư duy không gian với xưởng vẽ 3D WebGL. Bạn sẽ không bao giờ nhìn nhầm nét đứt nét liền nữa!</p>
                 <div className='mt-5 flex items-center gap-2'>
                   <Link href='/register' className='font-bold text-indigo-600 flex items-center gap-2 hover:text-indigo-500'>
@@ -204,7 +341,7 @@ export default function Home() {
                 </div>
               </div>
               <div className='mt-7 flex flex-col'>
-                <h4 className='text-3xl font-black tracking-tight text-t-primary'>Đại Số Biến Hình Lớp 12 & Luyện Thi</h4>
+                <h4 className='text-3xl font-black tracking-tight text-t-primary'>Môn Học Đa Dạng</h4>
                 <p className='mt-3 text-t-secondary font-medium leading-relaxed text-sm'>Cày nát các dạng đề Đại số. Hệ thống AI RAPT-CLIP tự động phân tích lỗ hổng kiến thức qua các biểu cảm khi làm bài khó.</p>
                 <div className='mt-5 flex items-center gap-2'>
                   <Link href='/register' className='font-bold text-red-600 flex items-center gap-2 hover:text-red-500'>
@@ -223,7 +360,7 @@ export default function Home() {
                 </div>
               </div>
               <div className='mt-7 flex flex-col'>
-                <h4 className='text-3xl font-black tracking-tight text-t-primary'>Giải Tích AI Chuyên Đề Cao Cấp</h4>
+                <h4 className='text-3xl font-black tracking-tight text-t-primary'>AI Giải Đề Tích Hợp Vẽ Hình</h4>
                 <p className='mt-3 text-t-secondary font-medium leading-relaxed text-sm'>Không dành cho số đông. Tương tác đa chiều độ trễ 0ms qua WebRTC với thầy giáo để gỡ rối các bài tích phân hóc búa.</p>
                 <div className='mt-5 flex items-center gap-2'>
                   <Link href='/register' className='font-bold text-emerald-600 flex items-center gap-2 hover:text-emerald-500'>
@@ -236,67 +373,113 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Features Core Tech */}
-      <section id="features" className="py-24 relative z-10 bg-bg-card border-t border-border-card">
+      {/* AI Features */}
+      <section id="features" className="py-24 relative z-10 border-t border-border-card bg-bg-card">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-black mb-5 tracking-tight uppercase text-t-primary">Công nghệ Cốt Lõi</h2>
-            <p className="text-t-secondary text-lg font-light">MINDA được thiết kế với chuẩn kiến trúc Module độc lập của Thung lũng Silicon.</p>
+            <h2 className="text-3xl md:text-5xl font-black mb-5 tracking-tight uppercase text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-cyan-500">
+              Công nghệ tiên phong
+            </h2>
+            <p className="text-t-secondary text-lg font-light max-w-2xl mx-auto">
+              MINDA không chỉ là nền tảng học trực tuyến, mà là hệ sinh thái AI đồng hành cùng giáo viên và học sinh.
+            </p>
           </div>
-          
-          <VerticalTimeline lineColor="rgba(26, 20, 16, 0.12)">
-            <VerticalTimelineElement
-              className="vertical-timeline-element--work"
-              contentStyle={{ background: 'var(--bg-card)', color: 'var(--t-primary)', border: '1px solid var(--border-card)', borderRadius: '1.5rem', boxShadow: '0 4px 24px rgba(99,102,241,0.08)' }}
-              contentArrowStyle={{ borderRight: '7px solid #FFFFFF' }}
-              date="Nền tảng Giao tiếp"
-              iconStyle={{ background: '#4f46e5', color: '#fff', boxShadow: '0 0 0 4px rgba(99,102,241,0.15)' }}
-              icon={<Video />}
-            >
-              <h3 className="text-2xl font-black text-indigo-600">Live Streaming WebRTC</h3>
-              <h4 className="text-sm text-t-secondary font-bold my-2 uppercase tracking-wide">Kiến trúc Peer-to-Peer</h4>
-              <p className="text-t-secondary font-medium text-sm !leading-relaxed">
-                Đường truyền nén tốc độ cao độ trễ 0ms. Kết nối video và audio hai chiều mượt mà để giáo viên luôn theo sát cử chỉ học sinh từ xa như đang ở trên lớp.
-              </p>
-            </VerticalTimelineElement>
 
-            <VerticalTimelineElement
-              className="vertical-timeline-element--work"
-              contentStyle={{ background: 'var(--bg-card)', color: 'var(--t-primary)', border: '1px solid var(--border-card)', borderRadius: '1.5rem', boxShadow: '0 4px 24px rgba(168,85,247,0.08)' }}
-              contentArrowStyle={{ borderRight: '7px solid #FFFFFF' }}
-              date="Lõi Trí tuệ Nhân tạo"
-              iconStyle={{ background: '#a855f7', color: '#fff', boxShadow: '0 0 0 4px rgba(168,85,247,0.15)' }}
-              icon={<BrainCircuit />}
-            >
-              <h3 className="text-2xl font-black text-purple-600">AI RAPT-CLIP Scanner</h3>
-              <h4 className="text-sm text-t-secondary font-bold my-2 uppercase tracking-wide">Mô hình PyTorch / Máy chủ FastAPI</h4>
-              <p className="text-t-secondary font-medium text-sm !leading-relaxed">
-                Mô hình SOTA độc quyền tự động xé nhỏ các dòng video thành từng Khung hình (Frame), đẩy ngầm qua máy chủ Backend phân tích nhãn quan và biểu cảm để chấm điểm tập trung theo thời gian thực.
-              </p>
-            </VerticalTimelineElement>
-
-            <VerticalTimelineElement
-              className="vertical-timeline-element--work"
-              contentStyle={{ background: 'var(--bg-card)', color: 'var(--t-primary)', border: '1px solid var(--border-card)', borderRadius: '1.5rem', boxShadow: '0 4px 24px rgba(236,72,153,0.08)' }}
-              contentArrowStyle={{ borderRight: '7px solid #FFFFFF' }}
-              date="Hệ thống Khích lệ"
-              iconStyle={{ background: '#ec4899', color: '#fff', boxShadow: '0 0 0 4px rgba(236,72,153,0.15)' }}
-              icon={<BarChart3 />}
-            >
-              <h3 className="text-2xl font-black text-pink-600">Ranking Vũ Trụ</h3>
-              <h4 className="text-sm text-t-secondary font-bold my-2 uppercase tracking-wide">Gamification Engine</h4>
-              <p className="text-t-secondary font-medium text-sm !leading-relaxed">
-                Hệ thống đánh giá đa chiều. Học sinh không chỉ lấy điểm bài thi mà còn tích lũy EXP thái độ học (từ Cảm biến AI) để ganh đua lên cấp độ Thách Đấu với các bạn cùng lớp.
-              </p>
-            </VerticalTimelineElement>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="bg-bg-main rounded-3xl p-8 border border-border-card hover:border-indigo-400 transition-colors shadow-sm group">
+              <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 flex items-center justify-center mb-6 group-hover:bg-indigo-500/20 transition-colors">
+                <BrainCircuit className="w-7 h-7 text-indigo-500" />
+              </div>
+              <h3 className="text-xl font-bold mb-3 text-t-primary">AI Theo Dõi Cảm Xúc</h3>
+              <p className="text-t-secondary leading-relaxed">RAPT-CLIP theo dõi độ tập trung qua webcam, báo cáo chi tiết cho giáo viên những đoạn video học sinh sao nhãng.</p>
+            </div>
             
-            <VerticalTimelineElement
-              iconStyle={{ background: '#10b981', color: '#fff', boxShadow: '0 0 0 4px rgba(16,185,129,0.15)' }}
-              icon={<Star />}
-            />
-          </VerticalTimeline>
+            <div className="bg-bg-main rounded-3xl p-8 border border-border-card hover:border-cyan-400 transition-colors shadow-sm group">
+              <div className="w-14 h-14 rounded-2xl bg-cyan-500/10 flex items-center justify-center mb-6 group-hover:bg-cyan-500/20 transition-colors">
+                <Video className="w-7 h-7 text-cyan-500" />
+              </div>
+              <h3 className="text-xl font-bold mb-3 text-t-primary">WebRTC Streaming</h3>
+              <p className="text-t-secondary leading-relaxed">Học Live đỉnh cao. Bảng vẽ đồng bộ trực tiếp hai chiều không có độ trễ giữa giáo viên và học sinh.</p>
+            </div>
+
+            <div className="bg-bg-main rounded-3xl p-8 border border-border-card hover:border-pink-400 transition-colors shadow-sm group">
+              <div className="w-14 h-14 rounded-2xl bg-pink-500/10 flex items-center justify-center mb-6 group-hover:bg-pink-500/20 transition-colors">
+                <Sparkles className="w-7 h-7 text-pink-500" />
+              </div>
+              <h3 className="text-xl font-bold mb-3 text-t-primary">Tự động hóa bài tập</h3>
+              <p className="text-t-secondary leading-relaxed">Trợ lý AI tự động chấm trắc nghiệm, nhận diện chữ viết tay để phân tích điểm yếu trong bài giải tự luận.</p>
+            </div>
+          </div>
         </div>
       </section>
+
+      {/* Honors Board Section */}
+      {honors.length > 0 && (
+        <section id="honors" className="py-24 relative z-10 border-t border-border-card bg-bg-card overflow-hidden">
+          {/* Decorative glow - Valedictorian Royal style */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-amber-500/10 blur-[120px] rounded-full pointer-events-none"></div>
+          <div className="absolute top-0 right-0 w-[400px] h-[300px] bg-red-500/10 blur-[100px] rounded-full pointer-events-none"></div>
+
+          <div className="max-w-7xl mx-auto px-6 relative z-10">
+            <div className="text-center mb-16 relative">
+              <div className="inline-flex items-center justify-center p-3 bg-amber-500/10 rounded-2xl mb-4 border border-amber-500/20">
+                 <Award className="w-8 h-8 text-amber-500" />
+              </div>
+              <h2 className="text-3xl md:text-5xl font-black mb-5 tracking-tight uppercase text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-yellow-500 to-red-500">Bảng Vinh Danh</h2>
+              <p className="text-t-secondary text-lg font-light max-w-2xl mx-auto">Tôn vinh những cá nhân xuất sắc nhất MINDA với thành tích vượt trội và sự nỗ lực không ngừng nghỉ.</p>
+            </div>
+
+            <div className="flex overflow-x-auto gap-6 pb-10 snap-x snap-mandatory custom-scrollbar">
+              {honors.map((h, i) => (
+                <div key={h.id} className="w-[300px] md:w-[380px] shrink-0 snap-center bg-bg-main rounded-3xl p-1 relative group overflow-hidden border border-border-card hover:border-amber-500/50 transition-colors shadow-xl">
+                   {/* Gradient border effect */}
+                   <div className="absolute inset-0 bg-gradient-to-br from-amber-500/20 via-transparent to-red-500/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                   
+                   <div className="bg-bg-main w-full h-full rounded-[22px] p-6 relative z-10 flex flex-col">
+                      <div className="flex items-start gap-6 mb-6">
+                        <div className="w-24 h-24 shrink-0 relative flex items-center justify-center mt-1">
+                           {/* Rank Frame Layer (z-0 to stay behind avatar and act as a border since the image is a JPEG without transparency) */}
+                           <img src="/square_rank_frame.png" alt="rank frame" className="absolute inset-0 w-[125%] h-[125%] -top-[12.5%] -left-[12.5%] max-w-none z-0 pointer-events-none drop-shadow-[0_0_15px_rgba(245,158,11,0.5)] object-fill" />
+                           
+                           {/* Avatar Layer */}
+                           <div className="w-[80%] h-[80%] rounded-sm overflow-hidden relative z-10 shadow-inner bg-bg-main">
+                             {h.image_url ? (
+                                <img src={getDirectImageUrl(h.image_url)} alt={h.student_name} className="w-full h-full object-cover" />
+                             ) : (
+                                <div className="w-full h-full flex items-center justify-center bg-bg-main">
+                                  <Award className="w-8 h-8 text-amber-500/50" />
+                                </div>
+                             )}
+                           </div>
+                           
+                           {/* University Logo has been moved below */}
+                        </div>
+                        <div>
+                           <h3 className="font-black text-xl text-t-primary leading-tight mb-1">{h.student_name}</h3>
+                           {h.academic_year && <p className="text-xs text-t-secondary font-bold mb-1">Năm học: {h.academic_year}</p>}
+                           
+                           {/* University Logo positioned above the title */}
+                           {h.university_logo_url && (
+                             <div className="w-12 h-12 bg-white rounded-full p-1 shadow-sm border border-border-card overflow-hidden mt-3 mb-2">
+                                <img src={getDirectImageUrl(h.university_logo_url)} alt="University" className="w-full h-full object-contain" />
+                             </div>
+                           )}
+                           
+                           <div className="text-xs font-bold text-amber-500 uppercase tracking-widest bg-amber-500/10 px-3 py-2 rounded-lg inline-block border border-amber-500/20">
+                             {h.title}
+                           </div>
+                        </div>
+                      </div>
+                      <div className="text-[10px] text-t-secondary uppercase font-bold tracking-widest mt-auto pt-4 border-t border-border-card">
+                         Học sinh của: <span className="text-amber-500/80">{h.teacher_name}</span>
+                      </div>
+                   </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
       
       {/* Teacher Showcase */}
       <section id="teachers" className="py-24 relative z-10 border-t border-border-card bg-bg-main">
@@ -356,6 +539,53 @@ export default function Home() {
             </div>
 
           </div>
+        </div>
+      </section>
+
+      {/* Testimonials Showcase */}
+      <section id="testimonials" className="py-24 relative z-10 border-t border-border-card bg-bg-card">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+            <div>
+              <div className="inline-flex items-center justify-center p-3 bg-pink-500/10 rounded-2xl mb-4 border border-pink-500/20">
+                <Star className="w-8 h-8 text-pink-500" />
+              </div>
+              <h2 className="text-3xl md:text-5xl font-black tracking-tight uppercase text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-rose-500">
+                Học sinh nói gì?
+              </h2>
+            </div>
+            <button 
+              onClick={() => setShowTestimonialModal(true)}
+              className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-lg transition-all"
+            >
+              Viết cảm nhận của bạn
+            </button>
+          </div>
+
+          {testimonials.length === 0 ? (
+            <div className="text-center text-t-secondary py-10 bg-bg-main rounded-3xl border border-border-card">
+              Chưa có cảm nhận nào. Hãy là người đầu tiên!
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {testimonials.map((t, idx) => (
+                <div key={idx} className="bg-bg-main p-8 rounded-3xl border border-border-card shadow-sm hover:shadow-md transition-shadow">
+                  <div className="flex text-amber-400 mb-4">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className={`w-5 h-5 ${i < t.rating ? "fill-current" : "text-border-card"}`} />
+                    ))}
+                  </div>
+                  <p className="text-t-secondary mb-6 italic leading-relaxed">"{t.content}"</p>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full overflow-hidden bg-bg-hover">
+                      <img src={t.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(t.student_name)}&background=6366f1&color=fff`} alt={t.student_name} className="w-full h-full object-cover" />
+                    </div>
+                    <span className="font-bold text-t-primary">{t.student_name}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -436,6 +666,85 @@ export default function Home() {
           <span className="text-xs font-bold text-indigo-600 tracking-wider">V0.8.1</span>
         </div>
       </footer>
+      {/* Testimonial Modal */}
+      {showTestimonialModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-bg-main w-full max-w-lg rounded-3xl border border-border-card overflow-hidden shadow-2xl relative animate-in zoom-in-95 duration-200">
+            <button onClick={() => setShowTestimonialModal(false)} className="absolute top-4 right-4 p-2 rounded-full hover:bg-bg-hover text-t-secondary transition-colors">
+              <X className="w-5 h-5" />
+            </button>
+            <div className="p-6 md:p-8">
+              <h3 className="text-2xl font-black text-t-primary mb-2">Gửi Cảm Nhận</h3>
+              <p className="text-sm text-t-secondary mb-6">Chia sẻ trải nghiệm học tập của bạn tại MINDA.</p>
+              
+              {testimonialSubmitStatus === "success" ? (
+                <div className="bg-emerald-50 text-emerald-700 p-6 rounded-2xl text-center border border-emerald-200 py-10">
+                  <p className="font-bold text-xl mb-2">Cảm ơn bạn! 🎉</p>
+                  <p>Cảm nhận của bạn đã được gửi và đang chờ duyệt.</p>
+                </div>
+              ) : (
+                <form onSubmit={handleTestimonialSubmit} className="space-y-5">
+                  <div>
+                    <label className="block text-sm font-bold text-t-secondary mb-2">Tên hiển thị</label>
+                    <input 
+                      required type="text"
+                      className="w-full bg-bg-hover border border-border-card rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-500 text-t-primary"
+                      value={testimonialForm.student_name} onChange={e=>setTestimonialForm({...testimonialForm, student_name: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-t-secondary mb-2">Ảnh đại diện (Tuỳ chọn)</label>
+                    <div className="flex flex-col gap-2">
+                       <input 
+                         type="file" accept="image/*"
+                         onChange={e => setTestimonialAvatarFile(e.target.files ? e.target.files[0] : null)}
+                         className="w-full text-sm text-t-secondary file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-500/10 file:text-indigo-500 hover:file:bg-indigo-500/20"
+                       />
+                       <div className="text-center text-xs text-t-secondary opacity-70">hoặc dán Link ảnh</div>
+                       <input 
+                         type="url"
+                         placeholder="https://..."
+                         className="w-full bg-bg-hover border border-border-card rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-500 text-t-primary"
+                         value={testimonialForm.avatar_url} onChange={e=>setTestimonialForm({...testimonialForm, avatar_url: e.target.value})}
+                         disabled={!!testimonialAvatarFile}
+                       />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-t-secondary mb-2">Đánh giá sao</label>
+                    <div className="flex gap-2">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button 
+                          key={star} type="button" 
+                          onClick={() => setTestimonialForm({...testimonialForm, rating: star})}
+                          className="focus:outline-none"
+                        >
+                          <Star className={`w-8 h-8 transition-colors ${star <= testimonialForm.rating ? "fill-amber-400 text-amber-400" : "text-border-card"}`} />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-t-secondary mb-2">Nội dung</label>
+                    <textarea 
+                      required rows={4}
+                      className="w-full bg-bg-hover border border-border-card rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-500 text-t-primary resize-none"
+                      value={testimonialForm.content} onChange={e=>setTestimonialForm({...testimonialForm, content: e.target.value})}
+                    />
+                  </div>
+                  {testimonialSubmitStatus === "error" && <p className="text-red-500 text-sm font-medium">Có lỗi xảy ra, vui lòng thử lại sau.</p>}
+                  <button 
+                    type="submit" disabled={testimonialSubmitStatus === "loading"}
+                    className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition-colors disabled:opacity-50 mt-2"
+                  >
+                    {testimonialSubmitStatus === "loading" ? "Đang gửi..." : "Gửi cảm nhận"}
+                  </button>
+                </form>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

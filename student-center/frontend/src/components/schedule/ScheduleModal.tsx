@@ -8,6 +8,7 @@ interface ScheduleModalProps {
   onDelete?: (id: number) => void;
   initialData?: any;
   courses: any[];
+  students?: any[];
   userRole: string;
 }
 
@@ -18,6 +19,7 @@ export default function ScheduleModal({
   onDelete,
   initialData,
   courses,
+  students = [],
   userRole
 }: ScheduleModalProps) {
   const [formData, setFormData] = useState({
@@ -27,32 +29,49 @@ export default function ScheduleModal({
     end_time: "",
     type: "personal",
     course_id: "",
+    student_id: "",
     location: "",
-    color: "#3b82f6"
+    color: "#3b82f6",
+    is_recurring: false,
+    repeat_weeks: 12
   });
+
+  const toLocalISOString = (date: Date | string) => {
+    if (!date) return "";
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return "";
+    const tzOffset = d.getTimezoneOffset() * 60000;
+    return new Date(d.getTime() - tzOffset).toISOString().slice(0, 16);
+  };
 
   useEffect(() => {
     if (initialData) {
       setFormData({
         title: initialData.title || "",
         description: initialData.description || "",
-        start_time: initialData.start_time ? new Date(initialData.start_time).toISOString().slice(0, 16) : "",
-        end_time: initialData.end_time ? new Date(initialData.end_time).toISOString().slice(0, 16) : "",
+        start_time: initialData.start_time ? toLocalISOString(initialData.start_time) : "",
+        end_time: initialData.end_time ? toLocalISOString(initialData.end_time) : "",
         type: initialData.type || "personal",
         course_id: initialData.course_id?.toString() || "",
+        student_id: initialData.student_id?.toString() || "",
         location: initialData.location || "",
-        color: initialData.color || "#3b82f6"
+        color: initialData.color || "#3b82f6",
+        is_recurring: false,
+        repeat_weeks: 12
       });
     } else {
       setFormData({
         title: "",
         description: "",
-        start_time: new Date().toISOString().slice(0, 16),
-        end_time: new Date(Date.now() + 3600000).toISOString().slice(0, 16),
+        start_time: toLocalISOString(new Date()),
+        end_time: toLocalISOString(new Date(Date.now() + 3600000)),
         type: "personal",
         course_id: "",
+        student_id: "",
         location: "",
-        color: "#3b82f6"
+        color: "#3b82f6",
+        is_recurring: false,
+        repeat_weeks: 12
       });
     }
   }, [initialData, isOpen]);
@@ -63,14 +82,17 @@ export default function ScheduleModal({
     e.preventDefault();
     const payload = {
       ...formData,
-      start_time: new Date(formData.start_time).toISOString(),
-      end_time: new Date(formData.end_time).toISOString(),
-      course_id: formData.type === "course_session" && formData.course_id ? parseInt(formData.course_id) : null
+      start_time: formData.start_time,
+      end_time: formData.end_time,
+      course_id: formData.type === "course_session" && formData.course_id ? parseInt(formData.course_id) : null,
+      student_id: formData.type === "student" && formData.student_id ? parseInt(formData.student_id) : null
     };
     onSave(payload);
   };
 
-  const isReadOnly = initialData && initialData.user_id !== undefined && initialData.type === "course_session" && userRole === "student";
+  const isReadOnly = initialData && initialData.user_id !== undefined && 
+    (initialData.type === "course_session" || initialData.type === "student") && 
+    userRole === "student";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
@@ -98,7 +120,7 @@ export default function ScheduleModal({
             />
           </div>
 
-          {(userRole === "teacher" || userRole === "admin") && !initialData && (
+          {(userRole === "teacher" || userRole === "admin") && !isReadOnly && (
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Loại sự kiện</label>
               <select
@@ -107,7 +129,8 @@ export default function ScheduleModal({
                 onChange={(e) => setFormData({ ...formData, type: e.target.value })}
               >
                 <option value="personal">Lịch cá nhân</option>
-                <option value="course_session">Lịch lớp học (Học sinh sẽ thấy)</option>
+                <option value="course_session">Lịch lớp học (Học sinh trong lớp sẽ thấy)</option>
+                <option value="student">Lịch học sinh cụ thể (Học sinh được chọn sẽ thấy)</option>
               </select>
             </div>
           )}
@@ -128,6 +151,23 @@ export default function ScheduleModal({
               </select>
             </div>
           )}
+
+          {formData.type === "student" && (!initialData || !isReadOnly) && (
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Chọn học sinh</label>
+              <select
+                required
+                className="w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                value={formData.student_id}
+                onChange={(e) => setFormData({ ...formData, student_id: e.target.value })}
+              >
+                <option value="">-- Chọn học sinh --</option>
+                {(students || []).map(s => (
+                  <option key={s.id} value={s.id}>{s.full_name} ({s.email})</option>
+                ))}
+              </select>
+            </div>
+          )}
           
           {isReadOnly && initialData.course_title && (
              <div>
@@ -136,9 +176,23 @@ export default function ScheduleModal({
              </div>
           )}
 
+          {isReadOnly && initialData.student_name && (
+             <div>
+               <label className="block text-sm font-medium text-slate-700 mb-1">Lịch gán cho</label>
+               <input type="text" readOnly className="w-full px-3 py-2 bg-slate-50 border rounded-xl text-slate-600" value={initialData.student_name} />
+             </div>
+          )}
+
+          {!isReadOnly && initialData && initialData.type === "student" && initialData.student_name && (
+             <div>
+               <label className="block text-sm font-medium text-slate-700 mb-1">Đang xếp lịch cho học sinh</label>
+               <input type="text" readOnly className="w-full px-3 py-2 bg-slate-50 border rounded-xl text-slate-600 font-semibold" value={initialData.student_name} />
+             </div>
+          )}
+
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Bắt đầu</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Bắt đầu (1 buổi học)</label>
               <input
                 type="datetime-local"
                 required
@@ -149,7 +203,7 @@ export default function ScheduleModal({
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Kết thúc</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Kết thúc (1 buổi học)</label>
               <input
                 type="datetime-local"
                 required
@@ -160,6 +214,38 @@ export default function ScheduleModal({
               />
             </div>
           </div>
+
+          {!isReadOnly && (
+            <div className="bg-blue-50 p-3 rounded-xl border border-blue-100 flex flex-col gap-3">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                  checked={formData.is_recurring}
+                  onChange={(e) => setFormData({ ...formData, is_recurring: e.target.checked })}
+                />
+                <span className="text-sm font-medium text-slate-700">Lặp lại hàng tuần (Dành cho Lịch cố định)</span>
+              </label>
+              
+              {formData.is_recurring && (
+                <div className="flex items-center gap-3 pl-6">
+                  <label className="text-sm text-slate-600">Số tuần lặp lại:</label>
+                  <select
+                    className="px-3 py-1.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+                    value={formData.repeat_weeks}
+                    onChange={(e) => setFormData({ ...formData, repeat_weeks: parseInt(e.target.value) })}
+                  >
+                    <option value={4}>4 tuần (1 tháng)</option>
+                    <option value={8}>8 tuần (2 tháng)</option>
+                    <option value={12}>12 tuần (3 tháng)</option>
+                    <option value={16}>16 tuần (4 tháng)</option>
+                    <option value={24}>24 tuần (6 tháng)</option>
+                    <option value={48}>48 tuần (1 năm)</option>
+                  </select>
+                </div>
+              )}
+            </div>
+          )}
 
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">Địa điểm / Link học</label>

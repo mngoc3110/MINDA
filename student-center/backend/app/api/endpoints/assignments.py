@@ -1,17 +1,21 @@
 import os
 import json
 import base64
-from app.services.ocr_service import extract_quiz_from_pdf_local, extract_quiz_from_image_local
+import requests
+from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
-
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
-from typing import List
 from datetime import datetime
+from google.genai import types
+
 from app.db.database import get_db
 from app.models.user import User
 from app.models.assignment import Assignment, AssignmentSubmission
 from app.schemas.course import AssignmentCreate, AssignmentResponse, SubmissionCreate, SubmissionResponse, GradeSubmission
 from app.core.security import get_current_user, require_role
+from app.services.ocr_service import extract_quiz_from_pdf_local, extract_quiz_from_image_local
+from app.api.endpoints.ai_solver import _get_client, _call_gemini, SYSTEM_INSTRUCTION
 
 router = APIRouter()
 
@@ -178,22 +182,26 @@ def _recalc_all_scores(assignment, db):
                         if ok: earned += 0.25
                     else:
                         total_possible += 1.0
-                        if ok: earned += 1.0
+                        if ok: earned += float(q.get("score", 0.25))
                 
                 elif stype == "true_false":
                     if not is_standard: total_possible += 1.0
                     if ans and isinstance(ans, dict) and any(str(v).strip() for v in ans.values()):
                         n = count_tf_correct(ans, q.get("items", []))
                         pts = 0.0
-                        if n == 4: pts = 1.0
-                        elif n == 3: pts = 0.5
-                        elif n == 2: pts = 0.25
-                        elif not is_standard and n == 1: pts = 0.1
-                        
                         if is_standard:
+                            if n == 4: pts = 1.0
+                            elif n == 3: pts = 0.5
+                            elif n == 2: pts = 0.25
+                            
                             if not hasattr(sub, '_tf_pts'): sub._tf_pts = []
                             sub._tf_pts.append(pts)
                         else:
+                            q_score = float(q.get("score", 0.25))
+                            if n == 4: pts = q_score
+                            elif n == 3: pts = q_score * 0.5
+                            elif n == 2: pts = q_score * 0.25
+                            elif n == 1: pts = q_score * 0.1
                             earned += pts
                 
                 elif stype == "short_answer":
@@ -204,7 +212,7 @@ def _recalc_all_scores(assignment, db):
                             earned += 0.25 if is_tin else 0.5
                     else:
                         total_possible += 1.0
-                        if student_sa and student_sa == correct_sa: earned += 1.0
+                        if student_sa and student_sa == correct_sa: earned += float(q.get("score", 0.25))
         
         if is_standard:
             tf_pts = getattr(sub, '_tf_pts', [])
@@ -214,8 +222,8 @@ def _recalc_all_scores(assignment, db):
                 earned += sum(tf_pts)
             sub.score = round(earned, 2)
         else:
-            # Đề ôn tập: cố định 0.25 điểm mỗi câu thay vì chia theo tỉ lệ max_score
-            sub.score = round(earned * 0.25, 2)
+            # Đề ôn tập: điểm tùy chỉnh trên mỗi câu (hoặc mặc định 0.25)
+            sub.score = round(earned, 2)
         
         sub.graded_at = datetime.utcnow()
         
@@ -350,7 +358,7 @@ def submit_assignment(
                 submission.score = round(earned, 2)  # Giữ dạng thập phân (8.75)
 
             else:
-                # ── Đề Ôn Tập (thang điểm tỉ lệ theo max_score) ──────────
+                # ── Đề Ôn Tập (thang điểm tùy chỉnh hoặc mặc định 0.25) ──────────
                 total_possible = 0.0
                 for s_idx, section in enumerate(assignment.quiz_data.get("sections", [])):
                     for q in section.get("questions", []):
@@ -358,30 +366,32 @@ def submit_assignment(
                         qid = f"s{s_idx}_{raw_id}" if raw_id else None
                         ans = data.quiz_answers.get(qid) if qid else None
                         stype = section.get("type")
+                        
+                        q_score = float(q.get("score", 0.25))
 
                         if stype == "mcq":
                             total_possible += 1.0
                             if ans is not None and str(ans).strip() == str(q.get("correctAnswer")).strip():
-                                earned += 1.0
+                                earned += q_score
 
                         elif stype == "true_false":
                             total_possible += 1.0
                             if ans and isinstance(ans, dict):
                                 n = count_tf_correct(ans, q.get("items", []))
-                                if n == 4:   earned += 1.0
-                                elif n == 3: earned += 0.5
-                                elif n == 2: earned += 0.25
-                                elif n == 1: earned += 0.1
+                                if n == 4:   earned += q_score
+                                elif n == 3: earned += q_score * 0.5
+                                elif n == 2: earned += q_score * 0.25
+                                elif n == 1: earned += q_score * 0.1
 
                         elif stype == "short_answer":
                             total_possible += 1.0
                             student_sa = str(ans).strip().lower().replace(",", ".") if ans is not None else ""
                             correct_sa = str(q.get("correctAnswer")).strip().lower().replace(",", ".")
                             if student_sa and student_sa == correct_sa:
-                                earned += 1.0
+                                earned += q_score
 
-                # Tính điểm cố định 0.25 cho mỗi câu đối với Đề Ôn Tập
-                submission.score = round(earned * 0.25, 2)
+                # Tính điểm dựa trên tổng các câu 
+                submission.score = round(earned, 2)
 
             submission.graded_at = datetime.utcnow()
         except Exception as e:
@@ -449,6 +459,65 @@ def grade_submission(
     db.commit()
     db.refresh(submission)
     return submission
+
+class AIGradeResponse(BaseModel):
+    score: float
+    feedback: str
+
+@router.post("/submissions/{submission_id}/ai-grade", response_model=AIGradeResponse)
+def ai_grade_submission(
+    submission_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role("teacher", "admin")),
+):
+    """Giáo viên gọi AI để chấm điểm tự luận/file_upload."""
+    submission = db.query(AssignmentSubmission).filter(AssignmentSubmission.id == submission_id).first()
+    if not submission:
+        raise HTTPException(status_code=404, detail="Bài nộp không tồn tại")
+    
+    assignment = submission.assignment
+    if not assignment:
+        raise HTTPException(status_code=404, detail="Bài tập không tồn tại")
+
+    prompt = f"Bạn là giáo viên chấm điểm bài tập. Dưới đây là thông tin bài tập:\n- Tiêu đề: {assignment.title}\n- Yêu cầu: {assignment.description}\n- Điểm tối đa: {assignment.max_score}\n\n"
+    prompt += f"Dưới đây là phần bài làm của học sinh:\n"
+    
+    if submission.content:
+        prompt += f"- Trả lời văn bản: {submission.content}\n"
+    if submission.file_url:
+        prompt += f"- Hình ảnh đính kèm: (hãy xem ảnh học sinh nộp)\n"
+
+    prompt += "\nNhiệm vụ của bạn: Hãy phân tích bài làm, chỉ ra chỗ đúng/sai (nếu có), cho điểm trên thang điểm tối đa, và viết nhận xét chi tiết. PHẢI TRẢ VỀ DỮ LIỆU ĐÚNG CHUẨN JSON VỚI ĐỊNH DẠNG SAU (tuyệt đối không thêm text bên ngoài JSON):\n"
+    prompt += '{\n  "score": <số_điểm>,\n  "feedback": "<nhận xét của bạn>"\n}'
+
+    contents = []
+    
+    # Tải ảnh nếu có
+    if submission.file_url and (submission.file_url.lower().endswith(".jpg") or submission.file_url.lower().endswith(".jpeg") or submission.file_url.lower().endswith(".png")):
+        try:
+            image_bytes = requests.get(submission.file_url).content
+            mime_type = "image/jpeg" if "jpg" in submission.file_url.lower() or "jpeg" in submission.file_url.lower() else "image/png"
+            image_part = types.Part.from_bytes(data=image_bytes, mime_type=mime_type)
+            contents.append(image_part)
+        except Exception as e:
+            print(f"Lỗi tải ảnh để AI chấm: {e}")
+
+    contents.append(prompt)
+
+    try:
+        client = _get_client()
+        reply_json = _call_gemini(client, contents, system_instruction=SYSTEM_INSTRUCTION)
+        # Parse JSON
+        start_idx = reply_json.find('{')
+        end_idx = reply_json.rfind('}')
+        if start_idx != -1 and end_idx != -1:
+            reply_json = reply_json[start_idx:end_idx+1]
+        
+        parsed = json.loads(reply_json)
+        return AIGradeResponse(score=float(parsed.get("score", 0)), feedback=parsed.get("feedback", "AI đã chấm điểm thành công."))
+    except Exception as e:
+        print(f"AI Grade Error: {e}")
+        raise HTTPException(status_code=500, detail="Không thể kết nối API AI hoặc AI trả về sai định dạng. Vui lòng thử lại.")
 
 @router.get("/assignments/practice")
 def get_practice_assignments(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
@@ -545,8 +614,10 @@ def get_my_submission(assignment_id: int, db: Session = Depends(get_db), current
 
 @router.get("/assignments/teacher/dashboard/assignments")
 def teacher_dashboard_assignments(db: Session = Depends(get_db), current_user: User = Depends(require_role("teacher", "admin"))):
-    """Lấy danh sách Bài tập đã tạo của Giáo viên (kèm assignee_ids)."""
-    assignments = db.query(Assignment).filter(Assignment.teacher_id == current_user.id).order_by(Assignment.created_at.desc()).all()
+    """Lấy danh sách Bài tập đã tạo của Giáo viên (kèm assignee_ids) không thuộc khoá học nào."""
+    assignments = db.query(Assignment).filter(
+        Assignment.teacher_id == current_user.id
+    ).order_by(Assignment.created_at.desc()).all()
     
     result = []
     for a in assignments:
@@ -608,6 +679,8 @@ def teacher_dashboard_submissions(db: Session = Depends(get_db), current_user: U
             "score": sub.score,
             "submitted_at": sub.submitted_at.isoformat(),
             "quiz_answers": sub.quiz_answers,
+            "content": sub.content,
+            "file_url": sub.file_url,
         }
         for sub in submissions
     ]

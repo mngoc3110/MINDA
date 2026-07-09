@@ -22,6 +22,8 @@ class LiveSession(Base):
     duration_minutes = Column(Integer, default=60)
     status = Column(SAEnum(SessionStatus), default=SessionStatus.scheduled)
     room_id = Column(String, nullable=True)
+    recording_url = Column(String, nullable=True)
+    document_url = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     course = relationship("Course", back_populates="live_sessions")

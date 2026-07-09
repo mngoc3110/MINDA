@@ -27,6 +27,7 @@ const localizer = dateFnsLocalizer({
 export default function SchedulePage() {
   const [events, setEvents] = useState<any[]>([]);
   const [courses, setCourses] = useState<any[]>([]);
+  const [students, setStudents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
@@ -39,7 +40,7 @@ export default function SchedulePage() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const role = localStorage.getItem("minda_user_role") || "student";
+      const role = localStorage.getItem("minda_role") || "student";
       const token = localStorage.getItem("minda_token");
       setUserRole(role);
 
@@ -65,6 +66,13 @@ export default function SchedulePage() {
         if (courseRes.ok) {
           setCourses(await courseRes.json());
         }
+
+        const studentRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/profile/students`, {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        if (studentRes.ok) {
+          setStudents(await studentRes.json());
+        }
       }
     } catch (error) {
       console.error("Error fetching schedule data:", error);
@@ -74,8 +82,8 @@ export default function SchedulePage() {
 
   const handleSelectSlot = (slotInfo: any) => {
     setSelectedEvent({
-      start_time: slotInfo.start.toISOString(),
-      end_time: slotInfo.end.toISOString()
+      start_time: slotInfo.start,
+      end_time: slotInfo.end
     });
     setIsModalOpen(true);
   };
@@ -213,6 +221,7 @@ export default function SchedulePage() {
         onDelete={handleDeleteEvent}
         initialData={selectedEvent}
         courses={courses}
+        students={students}
         userRole={userRole}
       />
     </div>

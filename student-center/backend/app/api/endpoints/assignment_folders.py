@@ -27,6 +27,8 @@ def _to_response(f) -> FolderResponse:
         assignee_ids=[u.id for u in f.assignees],
         assigned_classes=_parse_classes(f),
         assignment_count=len(f.assignments),
+        academic_year=f.academic_year,
+        is_graduated=f.is_graduated,
         created_at=f.created_at,
     )
 
@@ -56,6 +58,8 @@ def create_folder(
     """Tạo folder mới."""
     folder = AssignmentFolder(
         name=data.name,
+        academic_year=data.academic_year,
+        is_graduated=data.is_graduated,
         teacher_id=current_user.id,
         is_assigned_to_all=data.is_assigned_to_all,
         assigned_classes=",".join(data.assigned_classes) if data.assigned_classes else None,
@@ -91,6 +95,10 @@ def update_folder(
         raise HTTPException(status_code=404, detail="Folder không tồn tại")
 
     folder.name = data.name
+    if data.academic_year is not None:
+        folder.academic_year = data.academic_year
+    if data.is_graduated is not None:
+        folder.is_graduated = data.is_graduated
     folder.is_assigned_to_all = data.is_assigned_to_all
     folder.assigned_classes = ",".join(data.assigned_classes) if data.assigned_classes else None
 
@@ -100,6 +108,30 @@ def update_folder(
     elif data.is_assigned_to_all:
         folder.assignees = []
 
+    db.commit()
+    db.refresh(folder)
+
+    return _to_response(folder)
+
+
+@router.put("/{folder_id}/graduate", response_model=FolderResponse)
+def toggle_graduate_folder(
+    folder_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role("teacher", "admin")),
+):
+    """Đánh dấu folder là đã tốt nghiệp (hoặc huỷ đánh dấu)."""
+    folder = db.query(AssignmentFolder).options(
+        joinedload(AssignmentFolder.assignments),
+        joinedload(AssignmentFolder.assignees),
+    ).filter(
+        AssignmentFolder.id == folder_id,
+        AssignmentFolder.teacher_id == current_user.id,
+    ).first()
+    if not folder:
+        raise HTTPException(status_code=404, detail="Folder không tồn tại")
+
+    folder.is_graduated = not folder.is_graduated
     db.commit()
     db.refresh(folder)
 

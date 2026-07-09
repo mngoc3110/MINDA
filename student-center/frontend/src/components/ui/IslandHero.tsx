@@ -24,10 +24,39 @@ export default function IslandHero() {
   const [isRotating, setIsRotating] = useState(false);
   const [currentStage, setCurrentStage] = useState<number | null>(1);
   const [isMounted, setIsMounted] = useState(false);
+  const [hasWebGL, setHasWebGL] = useState(true);
   const { theme } = useTheme();
 
   useEffect(() => {
     setIsMounted(true);
+    // Kiểm tra cơ bản
+    try {
+      const canvas = document.createElement('canvas');
+      const webgl = !!(window.WebGLRenderingContext && (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')));
+      if (!webgl) setHasWebGL(false);
+    } catch (e) {
+      setHasWebGL(false);
+    }
+
+    // Bắt lỗi WebGL văng ra từ Promise (của ThreeJS)
+    const handleRejection = (event: PromiseRejectionEvent) => {
+      if (event.reason && event.reason.message && event.reason.message.includes("WebGL")) {
+        setHasWebGL(false);
+      }
+    };
+    window.addEventListener("unhandledrejection", handleRejection);
+
+    // Bắt lỗi WebGL context lost từ DOM
+    const handleContextLost = (e: Event) => {
+      e.preventDefault();
+      setHasWebGL(false);
+    };
+    window.addEventListener("webglcontextlost", handleContextLost);
+
+    return () => {
+      window.removeEventListener("unhandledrejection", handleRejection);
+      window.removeEventListener("webglcontextlost", handleContextLost);
+    };
   }, []);
 
   const adjustBiplaneForScreenSize = () => {
@@ -67,49 +96,61 @@ export default function IslandHero() {
     }`}>
       
       {/* Cửa sổ Canvas 3D chứa mọi thứ */}
-      <Canvas
-        className={`w-full h-screen ${isRotating ? "cursor-grabbing" : "cursor-grab"}`}
-        camera={{ near: 0.1, far: 1000 }}
-        dpr={[1, 1.5]} // Quan trọng: Giới hạn độ phân giải render trên màn hình Retina Mac để chống nóng máy
-        performance={{ min: 0.5 }} // Cho phép tự giảm chất lượng nếu FPS tụt
-      >
-        <Suspense fallback={<Loader />}>
-          {theme === 'dark' ? (
-            <>
-              <directionalLight position={[1, 1, 1]} intensity={0.5} color="#b3d4ff" />
-              <ambientLight intensity={0.3} color="#2b2b40" />
-              <hemisphereLight groundColor="#000000" intensity={0.4} color="#65658b" />
-              <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
-            </>
-          ) : (
-            <>
-              <directionalLight position={[1, 1, 1]} intensity={2} color="#ffe2b3" />
-              <ambientLight intensity={0.6} color="#ffd4df" />
-              <hemisphereLight groundColor="#000000" intensity={1} color="#ffaebc" />
-              <Sky isRotating={isRotating} />
-            </>
-          )}
+      {!hasWebGL ? (
+        <div className="w-full h-screen flex flex-col items-center justify-center bg-slate-900/80 backdrop-blur-sm z-10 relative px-6 text-center">
+          <div className="w-20 h-20 mb-6 rounded-full bg-red-500/20 flex items-center justify-center border-2 border-red-500/50">
+            <svg className="w-10 h-10 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-black mb-3 text-white">Chưa Bật Tăng Tốc Phần Cứng (WebGL)</h2>
+          <p className="text-base text-slate-300 max-w-lg mb-6 leading-relaxed">
+            Hệ thống MINDA phát hiện trình duyệt của bạn đang tắt chế độ Tăng Tốc Phần Cứng (Hardware Acceleration), 
+            hoặc thiết bị hiện tại không hỗ trợ xử lý đồ hoạ 3D, do đó mô hình Đảo 3D không thể hiển thị.
+          </p>
+          <div className="bg-white/10 rounded-xl p-4 max-w-lg text-left border border-white/20">
+            <p className="text-sm text-indigo-200 font-bold mb-2">Cách khắc phục:</p>
+            <ul className="text-sm text-slate-300 list-disc list-inside space-y-1">
+              <li>Mở Cài đặt trình duyệt (Chrome/Edge/Cốc Cốc).</li>
+              <li>Tìm kiếm từ khoá <strong>"Hardware Acceleration"</strong>.</li>
+              <li>Bật tính năng này lên và khởi động lại trình duyệt.</li>
+            </ul>
+          </div>
+        </div>
+      ) : (
+        <Canvas
+          className={`w-full h-screen relative z-10 ${isRotating ? "cursor-grabbing" : "cursor-grab"}`}
+          camera={{ near: 0.1, far: 1000 }}
+          dpr={typeof window !== "undefined" && window.innerWidth < 768 ? 1 : [1, 1.2]} // Tối ưu GPU trên đt và Retina
+          performance={{ min: 0.5 }} // Cho phép tự giảm chất lượng nếu FPS tụt
+        >
+          <Suspense fallback={<Loader />}>
+            {/* Tối ưu hóa: Chỉ giữ lại 3 nguồn sáng thiết yếu nhất để giảm khối lượng tính toán nội suy */}
+            <directionalLight position={[1, 1, 1]} intensity={2} color="#ffe2b3" />
+            <ambientLight intensity={0.6} color="#ffd4df" />
+            <hemisphereLight groundColor="#000000" intensity={1} color="#ffaebc" />
 
-          <Bird />
-          <Island
-            isRotating={isRotating}
-            setIsRotating={setIsRotating}
-            setCurrentStage={setCurrentStage}
-            position={islandPosition as [number, number, number]}
-            rotation={[0.1, 4.7077, 0]}
-            scale={islandScale as [number, number, number]}
-          />
-          <Plane
-            isRotating={isRotating}
-            position={biplanePosition as [number, number, number]}
-            rotation={[0, 20.1, 0]}
-            scale={biplaneScale as [number, number, number]}
-          />
-        </Suspense>
-      </Canvas>
+            <Bird />
+            <Island
+              isRotating={isRotating}
+              setIsRotating={setIsRotating}
+              setCurrentStage={setCurrentStage}
+              position={islandPosition as [number, number, number]}
+              rotation={[0.1, 4.7077, 0]}
+              scale={islandScale as [number, number, number]}
+            />
+            <Plane
+              isRotating={isRotating}
+              position={biplanePosition as [number, number, number]}
+              rotation={[0, 20.1, 0]}
+              scale={biplaneScale as [number, number, number]}
+            />
+          </Suspense>
+        </Canvas>
+      )}
 
       {/* Floating Info Boxes (Neo-Brutalism Style) mượn ý tưởng HomeInfo.jsx */}
-      <div className="absolute top-32 left-0 right-0 z-10 flex items-center justify-center pointer-events-none select-none">
+      <div className="absolute top-32 left-0 right-0 z-20 flex items-center justify-center pointer-events-none select-none">
         {currentStage === 1 && (
           <div className="bg-white/80 backdrop-blur-md px-6 py-4 rounded-xl shadow-2xl border border-white max-w-sm text-center">
             <h1 className="text-2xl font-black text-indigo-600 block line-clamp-1">Chào mừng tới MINDA! 🦊</h1>
@@ -137,7 +178,7 @@ export default function IslandHero() {
       </div>
 
       {/* Blinking Scroll Down Arrow */}
-      <div className="absolute bottom-10 right-10 z-10 flex flex-col items-center pointer-events-none">
+      <div className="absolute bottom-10 right-10 z-20 flex flex-col items-center pointer-events-none">
         <span className="text-[10px] uppercase tracking-[0.2em] font-bold mb-2 text-indigo-800 bg-white/70 px-3 py-1 rounded-full backdrop-blur-sm">Cuộn Xuống</span>
         <div className="w-12 h-16 rounded-full border-2 border-indigo-600 flex items-center justify-center bg-indigo-500/20 shadow-xl">
           <ArrowDown className="w-6 h-6 text-indigo-700 animate-[bounce_1s_infinite]" />

@@ -28,8 +28,8 @@ export default function StudentPage({ pageData, onUpdatePage, isEditing }) {
         {/* Header: Info Học sinh */}
         <div className="flex items-center gap-4 mb-8">
           <div className="w-20 h-20 rounded-2xl overflow-hidden shadow-sm border-2 border-pink-100 flex-shrink-0">
-            {content.image ? (
-              <img src={content.image} alt={content.author} className="w-full h-full object-cover" />
+            {content.avatar_url ? (
+              <img src={content.avatar_url} alt={content.name} className="w-full h-full object-cover" />
             ) : (
               <div className="w-full h-full bg-cream-100 flex items-center justify-center text-3xl">
                 {content.emoji || '😎'}
@@ -37,16 +37,29 @@ export default function StudentPage({ pageData, onUpdatePage, isEditing }) {
             )}
           </div>
           <div>
-            <h2 className="font-display font-bold text-2xl text-ink leading-tight">{content.author}</h2>
+            <h2 className="font-display font-bold text-2xl text-ink leading-tight">{content.name}</h2>
             <p className="font-body text-ink/60 text-sm">Gửi gắm lúc {new Date(content.date).toLocaleDateString('vi-VN')}</p>
           </div>
         </div>
 
         {/* Lời nhắn chính */}
-        <div className="flex-1">
-          <p className="font-caveat text-2xl sm:text-3xl text-ink leading-relaxed whitespace-pre-wrap px-4">
-            {content.text}
-          </p>
+        <div className="flex-1 flex flex-col min-h-0">
+          {content.image && (
+            <div className={`mb-4 rounded-xl overflow-hidden border border-cream-100 shadow-sm flex justify-center items-center bg-cream-50 shrink-0 ${!content.message ? 'flex-1 min-h-0' : 'max-h-60'}`}>
+              {content.mediaType === 'video' ? (
+                <video src={content.image} controls className="max-w-full max-h-full object-contain" />
+              ) : (
+                <img src={content.image} alt="Đính kèm" className="max-w-full max-h-full object-contain" />
+              )}
+            </div>
+          )}
+          {content.message && (
+            <div className="overflow-y-auto shrink-0 flex-1">
+              <p className="font-caveat text-2xl sm:text-3xl text-ink leading-relaxed whitespace-pre-wrap px-4">
+                {content.message}
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Footer: Hearts & Chữ ký */}
@@ -57,14 +70,18 @@ export default function StudentPage({ pageData, onUpdatePage, isEditing }) {
           </div>
           <div className="text-right">
             <p className="font-body text-ink/40 text-xs uppercase tracking-widest mb-1">Chữ ký</p>
-            <p className="font-display font-bold text-xl italic text-ink/80">{content.author}</p>
+            {content.signature ? (
+              <img src={content.signature} alt="Chữ ký" className="h-16 object-contain transform -rotate-3 ml-auto" />
+            ) : (
+              <p className="font-display font-bold text-xl italic text-ink/80">{content.name}</p>
+            )}
           </div>
         </div>
       </div>
 
       {/* Render Stickers */}
       <div className="absolute inset-0 pointer-events-none z-20">
-        <div className="relative w-full h-full pointer-events-auto">
+        <div className="relative w-full h-full">
           {stickers && stickers.map(sticker => (
             <DraggableSticker
               key={sticker.id}

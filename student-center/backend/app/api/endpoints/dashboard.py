@@ -64,12 +64,12 @@ STUDENT_RANKS = [
 ]
 
 def get_student_rank(user: User, xp: int) -> dict:
-    if user.email == "darber3110@gmail.com":
+    if user.email == "darber3110@gmail.com" or xp >= 99999999 or getattr(user, "current_rank", None) in ("Thần Thoại (Mystic)", "Mystic"):
         return {
             "rank_name": "Thần Thoại (Mystic)",
             "rank_abbr": "👑",
             "rank_color": "from-yellow-400 via-red-500 to-fuchsia-500",
-            "xp": 99999999,
+            "xp": xp if xp < 99999999 else 99999999,
             "next_rank_name": None,
             "next_min_xp": 99999999,
             "xp_to_next": 0,

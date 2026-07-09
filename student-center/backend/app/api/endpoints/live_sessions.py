@@ -24,6 +24,7 @@ class LiveSessionCreate(BaseModel):
     scheduled_at: datetime
     duration_minutes: int = 60
     room_id: str
+    document_url: Optional[str] = None
 
 class LiveSessionResponse(LiveSessionBase):
     id: int
@@ -32,6 +33,8 @@ class LiveSessionResponse(LiveSessionBase):
     created_at: datetime
     teacher_name: Optional[str] = None
     course_thumbnail_url: Optional[str] = None
+    recording_url: Optional[str] = None
+    document_url: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -55,7 +58,9 @@ def list_live_sessions(db: Session = Depends(get_db)):
             "status": s.status,
             "created_at": s.created_at,
             "teacher_name": s.course.teacher.full_name if s.course and s.course.teacher else "Giáo Viên",
-            "course_thumbnail_url": s.course.thumbnail_url if s.course else None
+            "course_thumbnail_url": s.course.thumbnail_url if s.course else None,
+            "recording_url": s.recording_url,
+            "document_url": s.document_url
         }
         results.append(data)
     
@@ -104,7 +109,8 @@ def create_live_session(
         scheduled_at=data.scheduled_at,
         duration_minutes=data.duration_minutes,
         room_id=data.room_id,
-        status=SessionStatus.scheduled
+        status=SessionStatus.scheduled,
+        document_url=data.document_url
     )
     db.add(session)
     db.commit()
@@ -120,7 +126,9 @@ def create_live_session(
         "room_id": session.room_id,
         "status": session.status,
         "created_at": session.created_at,
-        "teacher_name": current_user.full_name
+        "teacher_name": current_user.full_name,
+        "recording_url": session.recording_url,
+        "document_url": session.document_url
     }
 
 @router.put("/{session_id}/status")
@@ -134,7 +142,7 @@ def update_session_status(
     session = db.query(LiveSession).filter(LiveSession.id == session_id).first()
     if not session:
         raise HTTPException(status_code=404, detail="Lớp học không tồn tại")
-    if session.teacher_id != current_user.id and current_user.role.value != "admin":
+    if session.teacher_id != current_user.id and current_user.role.value != "admin" and current_user.secondary_role != "admin":
         raise HTTPException(status_code=403, detail="Chỉ giáo viên của lớp học mới được cấp quyền xử lý!")
         
     try:
@@ -143,6 +151,88 @@ def update_session_status(
         return {"message": f"Trạng thái lớp chuyển thành '{status}' thành công."}
     except ValueError:
         raise HTTPException(status_code=400, detail="Trạng thái không hợp lệ")
+
+from fastapi import UploadFile, File, Form
+from app.core.cloudinary_service import cloudinary_service
+
+@router.delete("/{session_id}")
+def delete_live_session(
+    session_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role("teacher", "admin"))
+):
+    """Giáo viên hoặc Admin xoá lớp học trực tuyến"""
+    session = db.query(LiveSession).filter(LiveSession.id == session_id).first()
+    if not session:
+        raise HTTPException(status_code=404, detail="Lớp học không tồn tại")
+        
+    is_admin = current_user.role.value == "admin" or current_user.secondary_role == "admin"
+    if session.teacher_id != current_user.id and not is_admin:
+        raise HTTPException(status_code=403, detail="Chỉ giáo viên của lớp học mới được cấp quyền xoá!")
+        
+    # Delete associated emotion logs to prevent ForeignKeyViolation
+    from app.models.emotion import EmotionLog
+    db.query(EmotionLog).filter(EmotionLog.session_id == session.id).delete(synchronize_session=False)
+    
+    db.delete(session)
+    db.commit()
+    return {"message": "Xoá lớp học thành công."}
+
+@router.post("/{session_id}/document")
+async def upload_document(
+    session_id: int,
+    document: Optional[UploadFile] = File(None),
+    document_name: Optional[str] = Form(None),
+    document_url: Optional[str] = Form(None),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role("teacher", "admin"))
+):
+    """Giáo viên hoặc Admin tải lên tài liệu cho lớp học"""
+    session = db.query(LiveSession).filter(LiveSession.id == session_id).first()
+    if not session:
+        raise HTTPException(status_code=404, detail="Lớp học không tồn tại")
+    if session.teacher_id != current_user.id and current_user.role.value != "admin" and current_user.secondary_role != "admin":
+        raise HTTPException(status_code=403, detail="Chỉ giáo viên của lớp học mới được cấp quyền cập nhật tài liệu!")
+
+    import json
+    existing_docs = []
+    if session.document_url:
+        try:
+            parsed = json.loads(session.document_url)
+            if isinstance(parsed, list):
+                existing_docs = parsed
+            else:
+                existing_docs = [{"name": "Tài liệu", "url": session.document_url}]
+        except:
+            existing_docs = [{"name": "Tài liệu", "url": session.document_url}]
+
+    new_doc_url = document_url
+    new_doc_name = document_name or "Tài liệu mới"
+
+    if document and document.filename:
+        try:
+            cloud_link = await cloudinary_service.upload_file(
+                document, 
+                user_name=current_user.full_name, 
+                user_id=current_user.id, 
+                role=current_user.role.value, 
+                folder_suffix="live_documents"
+            )
+            new_doc_url = cloud_link
+            if not document_name:
+                new_doc_name = document.filename
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Lỗi tải tài liệu lên Cloudinary: {str(e)}")
+
+    if new_doc_url:
+        existing_docs.append({"name": new_doc_name, "url": new_doc_url})
+
+    final_document_url = json.dumps(existing_docs, ensure_ascii=False) if existing_docs else session.document_url
+
+    session.document_url = final_document_url
+    db.commit()
+    db.refresh(session)
+    return {"message": "Cập nhật tài liệu thành công.", "document_url": final_document_url}
 
 from jose import jwt
 import os
@@ -184,23 +274,57 @@ async def record_session(websocket: WebSocket, session_id: str, token: str, db: 
     except Exception as e:
         print(f"WebSocket Record error: {e}")
         
-    try:
-        await websocket.close()
-    except:
-        pass
-    
-    def background_upload():
+    loop = asyncio.get_event_loop()
+    def progress_cb(percent: int):
+        try:
+            asyncio.run_coroutine_threadsafe(
+                websocket.send_json({"type": "upload_progress", "percent": percent}), 
+                loop
+            )
+        except Exception:
+            pass
+
+    def do_upload():
         try:
             filename = f"Lop_Hoc_Recording_{session_id}.webm"
-            print(f"Bắt đầu upload {filename} lên Drive của {user.username}...")
-            url = upload_local_file_to_drive(file_path, filename, "video/webm", user)
+            print(f"Bắt đầu upload {filename} lên Drive của {user.full_name}...")
+            url = upload_local_file_to_drive(file_path, filename, "video/webm", user, progress_callback=progress_cb)
             print(f"✅ Đã tải Recording {session_id} lên mạng: {url}")
+            
+            # Save the url to database
+            from app.db.database import SessionLocal
+            db_session = SessionLocal()
+            try:
+                target_session = db_session.query(LiveSession).filter(
+                    LiveSession.room_id == session_id
+                ).order_by(LiveSession.created_at.desc()).first()
+                if target_session:
+                    target_session.recording_url = url
+                    db_session.commit()
+                    print(f"✅ Đã lưu URL vào Database cho buổi học {target_session.id}")
+            finally:
+                db_session.close()
+            return url
         except Exception as e:
             print(f"❌ Upload Recording Error: {e}")
             if os.path.exists(file_path):
                 os.remove(file_path)
+            return None
 
-    asyncio.get_event_loop().run_in_executor(None, background_upload)
+    url = await loop.run_in_executor(None, do_upload)
+    
+    try:
+        if url:
+            await websocket.send_json({"type": "upload_complete", "url": url})
+        else:
+            await websocket.send_json({"type": "upload_error"})
+    except Exception:
+        pass
+        
+    try:
+        await websocket.close()
+    except Exception:
+        pass
 
 # ── Screen Share relay (ReplayKit → Students) ──────────────────────────────────
 # Dict lưu danh sách viewer WebSocket theo room_id

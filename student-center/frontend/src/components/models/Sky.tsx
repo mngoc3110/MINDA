@@ -15,7 +15,7 @@ export function Sky({ isRotating }: { isRotating: boolean }) {
   });
 
   return (
-    <mesh ref={skyRef}>
+    <mesh ref={skyRef} scale={[500, 500, 500]}>
       <primitive object={sky.scene} />
     </mesh>
   );

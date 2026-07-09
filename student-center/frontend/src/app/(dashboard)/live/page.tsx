@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Radio, Users, Clock, Loader2, Calendar, Plus, X, Video, Brain, BarChart3 } from "lucide-react";
+import { Radio, Users, Clock, Loader2, Calendar, Plus, X, Video, Brain, BarChart3, Trash2, FileText, Download } from "lucide-react";
 
 interface LiveSession {
   id: number;
@@ -15,6 +15,7 @@ interface LiveSession {
   status: "scheduled" | "live" | "ended";
   teacher_name: string;
   course_thumbnail_url: string | null;
+  document_url: string | null;
 }
 
 export default function LiveSchedulePage() {
@@ -41,14 +42,32 @@ export default function LiveSchedulePage() {
      title: "",
      scheduled_at: "",
      duration_minutes: 60,
-     room_id: `minda-class-${Math.floor(Math.random() * 10000)}`
+     room_id: `minda-class-${Math.floor(Math.random() * 10000)}`,
+     document_url: ""
   });
+  const [documentFile, setDocumentFile] = useState<File | null>(null);
+
+  // Document Upload State
+  const [showDocModal, setShowDocModal] = useState<LiveSession | null>(null);
+  const [docModalFiles, setDocModalFiles] = useState<File[]>([]);
+  const [docModalName, setDocModalName] = useState("");
+  const [docModalUrl, setDocModalUrl] = useState("");
+  const [docModalLoading, setDocModalLoading] = useState(false);
 
   useEffect(() => {
     fetchSessions();
     const intervalId = setInterval(fetchSessions, 10000); // Tự động lấy danh sách lớp mỗi 10 giây
     return () => clearInterval(intervalId);
   }, []);
+
+  const parseDocuments = (docStr: string | null) => {
+      if (!docStr) return [];
+      try {
+          const parsed = JSON.parse(docStr);
+          if (Array.isArray(parsed)) return parsed;
+      } catch (e) {}
+      return [{ name: "Tài liệu buổi học", url: docStr }];
+  };
 
   const fetchSessions = async () => {
     try {
@@ -89,20 +108,145 @@ export default function LiveSchedulePage() {
             "Authorization": `Bearer ${token}`,
             "Content-Type": "application/json"
          },
-         body: JSON.stringify(formData)
+         body: JSON.stringify({
+            course_id: formData.course_id,
+            title: formData.title,
+            scheduled_at: formData.scheduled_at,
+            duration_minutes: formData.duration_minutes,
+            room_id: formData.room_id
+         })
        });
        if(res.ok) {
           const newSession = await res.json();
+          
+          if (documentFile || formData.document_url) {
+             const docData = new FormData();
+             if (documentFile) docData.append("document", documentFile);
+             if (formData.document_url) docData.append("document_url", formData.document_url);
+             
+             const docRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/live-sessions/${newSession.id}/document`, {
+               method: "POST",
+               headers: { "Authorization": `Bearer ${token}` },
+               body: docData
+             });
+             if (docRes.ok) {
+                 const docResult = await docRes.json();
+                 newSession.document_url = docResult.document_url;
+             }
+          }
+
           setSessions([...sessions, newSession].sort((a,b) => new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime()));
           setShowCreateModal(false);
-          setFormData({ ...formData, room_id: `minda-class-${Math.floor(Math.random() * 10000)}` });
+          setFormData({ ...formData, room_id: `minda-class-${Math.floor(Math.random() * 10000)}`, title: "", document_url: "" });
+          setDocumentFile(null);
        } else {
           alert("Lỗi khi tạo lớp học. Hãy đảm bảo bạn là Giáo viên liên kết với Khóa học hợp lệ (Course ID).");
        }
      } catch(err) {
        console.error(err);
      } finally {
-       setFormLoading(false);
+        setFormLoading(false);
+     }
+  };
+
+  const handleUpdateDocument = async (e: React.FormEvent) => {
+     e.preventDefault();
+     if (!showDocModal) return;
+     if (docModalFiles.length === 0 && !docModalUrl) return;
+     
+     setDocModalLoading(true);
+     try {
+       const token = localStorage.getItem("minda_token");
+       let finalDocumentUrl = "";
+       let hasError = false;
+
+       if (docModalFiles.length > 0) {
+           for (let i = 0; i < docModalFiles.length; i++) {
+               const file = docModalFiles[i];
+               const docData = new FormData();
+               docData.append("document", file);
+               
+               let nameToUse = docModalName;
+               if (docModalFiles.length > 1) {
+                   nameToUse = docModalName ? `${docModalName} ${i+1}` : file.name;
+               } else {
+                   nameToUse = docModalName || file.name;
+               }
+               docData.append("document_name", nameToUse);
+
+               const docRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/live-sessions/${showDocModal.id}/document`, {
+                 method: "POST",
+                 headers: { "Authorization": `Bearer ${token}` },
+                 body: docData
+               });
+               
+               if (docRes.ok) {
+                   const docResult = await docRes.json();
+                   finalDocumentUrl = docResult.document_url;
+               } else {
+                   hasError = true;
+               }
+           }
+       }
+
+       if (docModalUrl) {
+           const docData = new FormData();
+           docData.append("document_url", docModalUrl);
+           docData.append("document_name", docModalName || "Link tài liệu");
+           
+           const docRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/live-sessions/${showDocModal.id}/document`, {
+             method: "POST",
+             headers: { "Authorization": `Bearer ${token}` },
+             body: docData
+           });
+           
+           if (docRes.ok) {
+               const docResult = await docRes.json();
+               finalDocumentUrl = docResult.document_url;
+           } else {
+               hasError = true;
+           }
+       }
+       
+       if (finalDocumentUrl) {
+           setSessions(sessions.map(s => s.id === showDocModal.id ? { ...s, document_url: finalDocumentUrl } : s));
+       }
+       
+       if (hasError) {
+           alert("Có một hoặc vài tài liệu bị lỗi trong quá trình tải lên.");
+       }
+       
+       setShowDocModal(null);
+       setDocModalFiles([]);
+       setDocModalName("");
+       setDocModalUrl("");
+     } catch(err) {
+       console.error(err);
+     } finally {
+       setDocModalLoading(false);
+     }
+  };
+
+  const handleDeleteSession = async (session: LiveSession) => {
+     if (!confirm("Bạn có chắc chắn muốn xoá lớp học này? Hành động này không thể hoàn tác.")) return;
+     try {
+       const token = localStorage.getItem("minda_token");
+       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/live-sessions/${session.id}`, {
+         method: "DELETE",
+         headers: { "Authorization": `Bearer ${token}` }
+       });
+       if(res.ok) {
+          setSessions(sessions.filter(s => s.id !== session.id));
+       } else {
+          try {
+             const errData = await res.json();
+             alert(`Lỗi: ${errData.detail}`);
+          } catch {
+             alert("Lỗi khi xoá lớp học.");
+          }
+       }
+     } catch(err) {
+       console.error(err);
      }
   };
 
@@ -322,6 +466,15 @@ export default function LiveSchedulePage() {
                                   <div className="flex items-center gap-2 text-sm text-white/80">
                                       <Users className="w-4 h-4" /> Giáo viên: {session.teacher_name}
                                   </div>
+                                  {parseDocuments(session.document_url).length > 0 && (
+                                     <div className="flex flex-col gap-1 mt-1">
+                                         {parseDocuments(session.document_url).map((doc: any, i: number) => (
+                                             <a key={i} href={doc.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-amber-400 hover:text-amber-300 transition-colors w-fit">
+                                                <FileText className="w-4 h-4" /> {doc.name}
+                                             </a>
+                                         ))}
+                                     </div>
+                                  )}
                               </div>
                               <div className="absolute top-4 right-4 bg-rose-500 text-white font-black px-3 py-1 rounded-full text-xs shadow-lg animate-pulse flex items-center gap-2">
                                  <Radio className="w-3 h-3" /> LIVE
@@ -352,6 +505,15 @@ export default function LiveSchedulePage() {
                                   Kết Thúc
                                 </button>
                               )}
+                              {(userRole === "teacher" || userRole === "admin") && (
+                                 <button 
+                                   onClick={() => setShowDocModal(session)}
+                                   className="absolute top-4 right-14 w-8 h-8 rounded-full bg-bg-main border border-border-card flex items-center justify-center text-t-secondary hover:bg-amber-500 hover:text-white hover:border-amber-500 transition-colors shadow-md"
+                                   title="Bổ sung tài liệu"
+                                 >
+                                    <FileText className="w-4 h-4" />
+                                 </button>
+                              )}
                            </div>
                        </div>
                     ))}
@@ -367,7 +529,7 @@ export default function LiveSchedulePage() {
                  </h2>
                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {upcoming.map(session => (
-                       <div key={session.id} className="bg-bg-card rounded-xl overflow-hidden border border-border-card shadow-sm flex flex-col p-5 group">
+                       <div key={session.id} className="bg-bg-card rounded-xl overflow-hidden border border-border-card shadow-sm flex flex-col p-5 group relative">
                           <h3 className="font-bold text-lg mb-2">{session.title}</h3>
                           <div className="flex flex-col gap-2 mb-6">
                              <div className="flex items-center gap-2 text-sm text-t-secondary">
@@ -376,7 +538,16 @@ export default function LiveSchedulePage() {
                              <div className="flex items-center gap-2 text-sm text-t-secondary">
                                 <Clock className="w-4 h-4 text-emerald-400" /> Bắt đầu: {new Date(session.scheduled_at).toLocaleString('vi-VN')}
                              </div>
-                          </div>
+                              {parseDocuments(session.document_url).length > 0 && (
+                                 <div className="flex flex-col gap-1 mt-1">
+                                     {parseDocuments(session.document_url).map((doc: any, i: number) => (
+                                         <a key={i} href={doc.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-amber-500 hover:text-amber-400 transition-colors w-fit">
+                                            <FileText className="w-4 h-4" /> {doc.name}
+                                         </a>
+                                     ))}
+                                 </div>
+                              )}
+                           </div>
                           
                           {(userRole === "teacher" || userRole === "admin") ? (
                               <button 
@@ -392,6 +563,93 @@ export default function LiveSchedulePage() {
                               >
                                  Giáo viên chưa mở phòng
                               </button>
+                          )}
+                          {(userRole === "teacher" || userRole === "admin") && (
+                             <button 
+                               onClick={() => handleDeleteSession(session)}
+                               className="absolute top-4 right-4 w-8 h-8 rounded-full bg-bg-main border border-border-card flex items-center justify-center text-t-secondary hover:bg-rose-500 hover:text-white hover:border-rose-500 transition-colors opacity-0 group-hover:opacity-100 shadow-md"
+                               title="Xoá lớp học"
+                             >
+                                <Trash2 className="w-4 h-4" />
+                             </button>
+                          )}
+                          {(userRole === "teacher" || userRole === "admin") && (
+                             <button 
+                               onClick={() => setShowDocModal(session)}
+                               className="absolute top-4 right-14 w-8 h-8 rounded-full bg-bg-main border border-border-card flex items-center justify-center text-t-secondary hover:bg-amber-500 hover:text-white hover:border-amber-500 transition-colors opacity-0 group-hover:opacity-100 shadow-md"
+                               title="Bổ sung tài liệu"
+                             >
+                                <FileText className="w-4 h-4" />
+                             </button>
+                          )}
+                       </div>
+                    ))}
+                 </div>
+              </section>
+            )}
+
+            {/* Các lớp đã kết thúc */}
+            {sessions.filter(s => s.status === "ended").length > 0 && (
+              <section>
+                 <h2 className="text-xl font-bold mb-6 text-t-secondary flex items-center gap-2">
+                    <Clock className="w-5 h-5" /> Các lớp đã kết thúc
+                 </h2>
+                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {sessions.filter(s => s.status === "ended")
+                       .sort((a,b) => new Date(b.scheduled_at).getTime() - new Date(a.scheduled_at).getTime())
+                       .map(session => (
+                       <div key={session.id} className="bg-bg-card rounded-xl overflow-hidden border border-border-card shadow-sm flex flex-col p-5 group opacity-80 hover:opacity-100 transition-opacity relative">
+                          <h3 className="font-bold text-lg mb-2">{session.title}</h3>
+                          <div className="flex flex-col gap-2 mb-6">
+                             <div className="flex items-center gap-2 text-sm text-t-secondary">
+                                <Users className="w-4 h-4 text-indigo-400" /> Giáo viên: {session.teacher_name}
+                             </div>
+                             <div className="flex items-center gap-2 text-sm text-t-secondary">
+                                <Calendar className="w-4 h-4 text-emerald-400" /> Ngày học: {new Date(session.scheduled_at).toLocaleDateString('vi-VN')}
+                             </div>
+                              {parseDocuments(session.document_url).length > 0 && (
+                                 <div className="flex flex-col gap-1 mt-1">
+                                     {parseDocuments(session.document_url).map((doc: any, i: number) => (
+                                         <a key={i} href={doc.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-amber-500 hover:text-amber-400 transition-colors w-fit">
+                                            <FileText className="w-4 h-4" /> {doc.name}
+                                         </a>
+                                     ))}
+                                 </div>
+                              )}
+                           </div>
+                          
+                          {(session as any).recording_url ? (
+                              <button 
+                                 onClick={() => window.open((session as any).recording_url, '_blank')}
+                                 className="mt-auto w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-lg shadow-md transition-all text-sm flex items-center justify-center gap-2"
+                              >
+                                 <Video className="w-4 h-4" /> Xem lại Video
+                              </button>
+                          ) : (
+                              <button 
+                                 disabled
+                                 className="mt-auto w-full bg-bg-hover text-t-secondary font-bold py-2.5 rounded-lg border border-border-card cursor-not-allowed text-sm"
+                              >
+                                 Không có bản ghi
+                              </button>
+                          )}
+                          {(userRole === "teacher" || userRole === "admin") && (
+                             <button 
+                               onClick={() => handleDeleteSession(session)}
+                               className="absolute top-4 right-4 w-8 h-8 rounded-full bg-bg-main border border-border-card flex items-center justify-center text-t-secondary hover:bg-rose-500 hover:text-white hover:border-rose-500 transition-colors opacity-0 group-hover:opacity-100 shadow-md"
+                               title="Xoá lớp học"
+                             >
+                                <Trash2 className="w-4 h-4" />
+                             </button>
+                          )}
+                          {(userRole === "teacher" || userRole === "admin") && (
+                             <button 
+                               onClick={() => setShowDocModal(session)}
+                               className="absolute top-4 right-14 w-8 h-8 rounded-full bg-bg-main border border-border-card flex items-center justify-center text-t-secondary hover:bg-amber-500 hover:text-white hover:border-amber-500 transition-colors opacity-0 group-hover:opacity-100 shadow-md"
+                               title="Bổ sung tài liệu"
+                             >
+                                <FileText className="w-4 h-4" />
+                             </button>
                           )}
                        </div>
                     ))}
@@ -441,6 +699,15 @@ export default function LiveSchedulePage() {
                          <input type="text" readOnly value={formData.room_id} className="w-full bg-bg-hover border border-border-card rounded-lg px-4 py-2.5 text-t-secondary font-mono tracking-widest cursor-not-allowed" />
                          <p className="text-xs text-t-secondary/60 mt-1">Chuỗi khóa bí mật định danh máy chủ P2P Jitsi.</p>
                       </div>
+                       
+                      <div className="border border-border-card rounded-xl p-4 bg-bg-hover mt-2">
+                          <label className="block text-sm font-bold text-t-primary mb-2">Tài liệu buổi học (Tùy chọn)</label>
+                          <div className="flex flex-col gap-3">
+                             <input type="file" onChange={e => setDocumentFile(e.target.files ? e.target.files[0] : null)} className="w-full text-sm text-t-secondary file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-500/10 file:text-indigo-500 hover:file:bg-indigo-500/20" />
+                             <div className="text-center text-xs text-t-secondary opacity-70">hoặc dán Link tài liệu (Google Drive/Notion)</div>
+                             <input type="url" placeholder="https://..." value={formData.document_url} onChange={e => setFormData({...formData, document_url: e.target.value})} className="w-full bg-bg-main border border-border-card rounded-lg px-4 py-2.5 outline-none focus:border-indigo-500 transition-colors" disabled={!!documentFile} />
+                          </div>
+                       </div>
                       
                       <div className="mt-4 flex justify-end gap-3">
                          <button type="button" onClick={() => setShowCreateModal(false)} className="px-5 py-2.5 rounded-lg border border-border-card font-bold text-t-secondary hover:bg-bg-hover transition-colors">
@@ -448,6 +715,56 @@ export default function LiveSchedulePage() {
                          </button>
                          <button type="submit" disabled={formLoading} className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-6 py-2.5 rounded-lg shadow-md transition-all flex items-center justify-center gap-2 min-w-[120px] disabled:opacity-50">
                             {formLoading ? <Loader2 className="w-5 h-5 animate-spin"/> : "Khởi Tạo"}
+                         </button>
+                      </div>
+                   </form>
+                </div>
+             </div>
+         </div>
+      )}
+
+      {/* MODAL BỔ SUNG TÀI LIỆU */}
+      {showDocModal && (
+         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+             <div className="bg-bg-card border border-border-card rounded-2xl w-full max-w-md shadow-2xl relative overflow-hidden animate-in zoom-in-95 duration-200">
+                <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-amber-500 to-orange-500"></div>
+                <div className="p-6">
+                   <div className="flex justify-between items-center mb-6">
+                      <h2 className="text-xl font-black tracking-tight flex items-center gap-2">
+                         <FileText className="w-5 h-5 text-amber-500"/> Bổ sung tài liệu
+                      </h2>
+                      <button onClick={() => setShowDocModal(null)} className="p-1 hover:bg-bg-hover rounded-full text-t-secondary transition-colors">
+                         <X className="w-6 h-6" />
+                      </button>
+                   </div>
+                   
+                   <p className="text-sm text-t-secondary mb-4">
+                      Cho lớp học: <strong className="text-t-primary">{showDocModal.title}</strong>
+                   </p>
+
+                   <form onSubmit={handleUpdateDocument} className="flex flex-col gap-4">
+                      <div>
+                         <label className="block text-sm font-bold text-t-secondary mb-1">Tên tài liệu</label>
+                         <input type="text" placeholder="VD: Slide bài giảng hôm nay" value={docModalName} onChange={e => setDocModalName(e.target.value)} className="w-full bg-bg-main border border-border-card rounded-lg px-4 py-2.5 outline-none focus:border-amber-500 transition-colors" />
+                      </div>
+                      <div className="border border-border-card rounded-xl p-4 bg-bg-hover">
+                          <label className="block text-sm font-bold text-t-primary mb-2">Tải file lên hoặc dán Link</label>
+                          <div className="flex flex-col gap-3">
+                             <input type="file" multiple onChange={e => setDocModalFiles(e.target.files ? Array.from(e.target.files) : [])} className="w-full text-sm text-t-secondary file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-500/10 file:text-amber-500 hover:file:bg-amber-500/20" />
+                             {docModalFiles.length > 0 && (
+                                <div className="text-xs text-amber-500 font-bold ml-2">Đã chọn {docModalFiles.length} tệp</div>
+                             )}
+                             <div className="text-center text-xs text-t-secondary opacity-70">hoặc</div>
+                             <input type="url" placeholder="https://..." value={docModalUrl} onChange={e => setDocModalUrl(e.target.value)} className="w-full bg-bg-main border border-border-card rounded-lg px-4 py-2.5 outline-none focus:border-amber-500 transition-colors" />
+                          </div>
+                      </div>
+                      
+                      <div className="mt-4 flex justify-end gap-3">
+                         <button type="button" onClick={() => setShowDocModal(null)} className="px-5 py-2.5 rounded-lg border border-border-card font-bold text-t-secondary hover:bg-bg-hover transition-colors">
+                            Hủy bỏ
+                         </button>
+                         <button type="submit" disabled={docModalLoading} className="bg-amber-600 hover:bg-amber-500 text-white font-bold px-6 py-2.5 rounded-lg shadow-md transition-all flex items-center justify-center gap-2 min-w-[120px] disabled:opacity-50">
+                            {docModalLoading ? <Loader2 className="w-5 h-5 animate-spin"/> : "Cập Nhật"}
                          </button>
                       </div>
                    </form>

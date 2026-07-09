@@ -8,6 +8,9 @@ from fastapi import APIRouter, HTTPException, Depends, UploadFile, File
 from pydantic import BaseModel
 from app.core.config import settings
 from app.core.security import get_current_user
+from sqlalchemy.orm import Session
+from app.db.database import get_db
+from app.models.assignment import AssignmentSubmission, Assignment
 
 router = APIRouter()
 
@@ -51,6 +54,18 @@ Cuối bài, nhớ gửi lời chúc / cổ vũ học viên học tốt nhé!"""
 
 class ChatRequest(BaseModel):
     prompt: str
+
+from typing import List, Optional
+
+class StatHistoryItem(BaseModel):
+    title: str
+    score: float
+    max: float
+    normalized_score: float
+    date: str
+
+class AnalyzeStatsRequest(BaseModel):
+    history: List[StatHistoryItem]
 
 
 from app.services.gemini_key_manager import get_next_gemini_key
@@ -123,20 +138,117 @@ def _call_gemini(client, contents, system_instruction=None):
     raise last_error
 
 
+def _get_student_weaknesses(student_id: int, db: Session) -> str:
+    subs = db.query(AssignmentSubmission).join(Assignment).filter(
+        AssignmentSubmission.student_id == student_id,
+        Assignment.assignment_type == "quiz",
+        AssignmentSubmission.quiz_answers.isnot(None),
+        Assignment.quiz_data.isnot(None)
+    ).order_by(AssignmentSubmission.submitted_at.desc()).limit(5).all()
+
+    weaknesses = []
+    
+    def norm_tf(val):
+        if isinstance(val, bool): return val
+        if isinstance(val, int): return val != 0
+        s = str(val).strip().lower()
+        return s in ("true", "1", "yes")
+
+    for sub in subs:
+        if not sub.quiz_answers or not sub.assignment.quiz_data:
+            continue
+            
+        sections = sub.assignment.quiz_data.get("sections", [])
+        for s_idx, section in enumerate(sections):
+            stype = section.get("type")
+            for q in section.get("questions", []):
+                raw_id = q.get("id") or ""
+                qid = f"s{s_idx}_{raw_id}" if raw_id else None
+                ans = sub.quiz_answers.get(qid) if qid else None
+                
+                is_wrong = False
+                correct_text = ""
+                student_text = str(ans) if ans is not None else "Không chọn"
+                
+                if stype == "mcq":
+                    if str(ans).strip() != str(q.get("correctAnswer")).strip():
+                        is_wrong = True
+                        correct_text = str(q.get("correctAnswer"))
+                elif stype == "true_false":
+                    if ans and isinstance(ans, dict):
+                        for item in q.get("items", []):
+                            lbl = item.get("label")
+                            if lbl in ans:
+                                student_val = norm_tf(ans.get(lbl))
+                                correct_val = norm_tf(item.get("isTrue"))
+                                if student_val != correct_val:
+                                    is_wrong = True
+                                    correct_text += f" {lbl}={correct_val}"
+                elif stype == "short_answer":
+                    student_sa = str(ans).strip().lower().replace(",", ".") if ans is not None else ""
+                    correct_sa = str(q.get("correctAnswer")).strip().lower().replace(",", ".")
+                    if student_sa != correct_sa:
+                        is_wrong = True
+                        correct_text = correct_sa
+                        
+                if is_wrong and q.get("text"):
+                    q_text = q.get("text")
+                    if len(q_text) > 100:
+                        q_text = q_text[:100] + "..."
+                    weaknesses.append(f"- Câu hỏi: {q_text} | HS làm: {student_text} | Đáp án đúng: {correct_text}")
+
+    if not weaknesses:
+        return ""
+    
+    weaknesses = weaknesses[:10]
+    res = "\n--- THÔNG TIN LỊCH SỬ HỌC TẬP CỦA HỌC SINH ---\n"
+    res += "Gần đây học sinh thường làm sai các câu hỏi sau (hãy dùng thông tin này để nhận xét nếu học sinh hỏi 'Tôi hay sai chỗ nào' hoặc khi phân tích điểm):\n"
+    res += "\n".join(weaknesses)
+    res += "\n--------------------------------------------\n"
+    return res
+
+
 @router.post("/solve-math")
-async def solve_math(req: ChatRequest, current_user=Depends(get_current_user)):
+async def solve_math(req: ChatRequest, current_user=Depends(get_current_user), db: Session = Depends(get_db)):
     """
     Nhận prompt của học viên, gọi tới Gemini Cloud API để giải toán
     kèm theo kỹ thuật System Prompt Injection trích xuất tham số 3D.
     """
     try:
-        client = _get_client()
-        reply = _call_gemini(client, [req.prompt], system_instruction=SYSTEM_INSTRUCTION)
-        return {"reply": reply}
+        # Inject context
+        weakness_context = _get_student_weaknesses(current_user.id, db)
+        custom_system_instruction = SYSTEM_INSTRUCTION + "\n" + weakness_context
+
+        # Try Web2API first
+        try:
+            import os, requests
+            web2api_url = os.getenv("GEMINI_WEB2API_URL", "http://127.0.0.1:8081/v1/chat/completions")
+            print(f"[AI Solver] Calling Gemini Web2API at {web2api_url}...")
+            
+            messages = []
+            if custom_system_instruction:
+                messages.append({"role": "system", "content": custom_system_instruction})
+            messages.append({"role": "user", "content": req.prompt})
+
+            res = requests.post(
+                web2api_url,
+                json={"model": "gemini-3.1-pro", "messages": messages},
+                timeout=120
+            )
+            if res.status_code == 200:
+                return {"reply": res.json()["choices"][0]["message"]["content"]}
+            else:
+                print(f"[AI Solver] Gemini Web2API returned error: {res.text}")
+                raise Exception(f"Web2API Error: {res.status_code}")
+        except Exception as web2api_err:
+            print(f"[Gemini Web2API Exception]: {web2api_err}. Falling back to official Gemini API...")
+            client = _get_client()
+            reply = _call_gemini(client, [req.prompt], system_instruction=custom_system_instruction)
+            return {"reply": reply}
     except Exception as e:
         print(f"[Gemini Exception]: {e}. Falling back to OpenRouter...")
         try:
-            reply = _call_openrouter(req.prompt, SYSTEM_INSTRUCTION)
+            reply = _call_openrouter(req.prompt, custom_system_instruction)
             return {"reply": reply}
         except Exception as openrouter_err:
             print(f"[OpenRouter Exception]: {openrouter_err}")
@@ -198,4 +310,61 @@ async def solve_from_image(
         except Exception as openrouter_err:
             print(f"[OpenRouter Vision Exception]: {openrouter_err}")
             raise HTTPException(status_code=500, detail=f"Lỗi phân tích ảnh: Tất cả API đều hết quota.")
+
+
+@router.post("/analyze-stats")
+async def analyze_stats(req: AnalyzeStatsRequest, current_user=Depends(get_current_user), db: Session = Depends(get_db)):
+    """
+    Giáo viên AI phân tích điểm số của học sinh qua lịch sử bài tập.
+    """
+    if not req.history:
+        return {"reply": "Chưa có dữ liệu bài tập để phân tích."}
+
+    prompt = "Dưới đây là lịch sử điểm số gần đây của học sinh (từ cũ đến mới):\n"
+    for item in req.history[-10:]: # limit to last 10
+        prompt += f"- Bài tập '{item.title}': Điểm {item.score}/{item.max}\n"
+    
+    prompt += "\nĐóng vai là một giáo viên tận tâm, hãy nhận xét ngắn gọn (tối đa 4 câu) về sự thay đổi điểm số của học sinh dựa trên lịch sử này và đưa ra một lời khuyên động viên ngắn gọn. Chỉ trả lời phần nhận xét, không cần chào hỏi dài dòng."
+    
+    sys_inst = "Bạn là giáo viên phân tích dữ liệu kết quả học tập của học sinh trường tư thục MINDA."
+    
+    weakness_context = _get_student_weaknesses(current_user.id, db)
+    sys_inst += "\n" + weakness_context
+
+    try:
+        # Try Web2API first
+        try:
+            import os, requests
+            web2api_url = os.getenv("GEMINI_WEB2API_URL", "http://127.0.0.1:8081/v1/chat/completions")
+            print(f"[AI Analyze] Calling Gemini Web2API at {web2api_url}...")
+            
+            messages = []
+            if sys_inst:
+                messages.append({"role": "system", "content": sys_inst})
+            messages.append({"role": "user", "content": prompt})
+
+            res = requests.post(
+                web2api_url,
+                json={"model": "gemini-3.1-pro", "messages": messages},
+                timeout=60
+            )
+            if res.status_code == 200:
+                return {"reply": res.json()["choices"][0]["message"]["content"]}
+            else:
+                print(f"[AI Analyze] Gemini Web2API returned error: {res.text}")
+                raise Exception(f"Web2API Error: {res.status_code}")
+        except Exception as web2api_err:
+            print(f"[Gemini Web2API Exception Analyze]: {web2api_err}. Falling back to official Gemini API...")
+            client = _get_client()
+            reply = _call_gemini(client, [prompt], system_instruction=sys_inst)
+            return {"reply": reply}
+    except Exception as e:
+        print(f"[Gemini Exception Analyze]: {e}. Falling back to OpenRouter...")
+        try:
+            reply = _call_openrouter(prompt, sys_inst)
+            return {"reply": reply}
+        except Exception as openrouter_err:
+            print(f"[OpenRouter Exception]: {openrouter_err}")
+            raise HTTPException(status_code=500, detail="Hệ thống AI đang bận, không thể phân tích lúc này.")
+
 

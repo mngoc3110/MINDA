@@ -31,8 +31,8 @@ export default function SidebarWrapper() {
     return null;
   }
 
-  // Admin Context: only when logged in via Admin Portal AND currently on /admin routes
-  if (role === "admin" && portal === "admin" && pathname.startsWith("/admin")) {
+  // Admin Context: only when logged in via Admin Portal AND currently on /admin, /honors, or /testimonials routes
+  if (role === "admin" && portal === "admin" && (pathname.startsWith("/admin") || pathname.startsWith("/honors") || pathname.startsWith("/testimonials"))) {
     return <AdminSidebar />;
   }
 

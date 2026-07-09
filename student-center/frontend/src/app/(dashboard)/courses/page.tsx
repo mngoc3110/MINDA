@@ -129,13 +129,23 @@ export default function CoursesDiscoveryPage() {
       const token = localStorage.getItem("minda_token");
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/courses/${courseId}/enroll`, {
         method: "POST",
-        headers: { "Authorization": `Bearer ${token}` }
+        headers: { 
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({})
       });
       if (res.ok) {
         await fetchData(); // Refresh data!
       } else {
         const error = await res.json();
-        alert(error.detail || "Ghi danh thất bại");
+        let errorMsg = "Ghi danh thất bại";
+        if (typeof error.detail === 'string') {
+          errorMsg = error.detail;
+        } else if (Array.isArray(error.detail)) {
+          errorMsg = "Lỗi dữ liệu: " + (error.detail[0]?.msg || "");
+        }
+        alert(errorMsg);
       }
     } catch (err) {
       alert("Lỗi kết nối");

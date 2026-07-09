@@ -27,7 +27,7 @@ export default function DraggableSticker({ sticker, onUpdate, onDelete, readonly
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       bounds="parent"
-      className={readonly ? '' : 'hover:outline hover:outline-2 hover:outline-pink-400 hover:outline-dashed rounded-md group'}
+      className={readonly ? 'pointer-events-auto' : 'pointer-events-auto hover:outline hover:outline-2 hover:outline-pink-400 hover:outline-dashed rounded-md group'}
     >
       <div className="relative w-full h-full flex items-center justify-center">
         {/* Render sticker content based on type (emoji, image) */}

@@ -138,8 +138,10 @@ export default function AssignmentsPage() {
   const [expandedFolders, setExpandedFolders] = useState<Set<number>>(new Set());
   const [search, setSearch] = useState("");
   const [viewingSubmission, setViewingSubmission] = useState<any>(null);
-  const [viewingQuizData, setViewingQuizData] = useState<any>(null);
+  const [viewingQuizData, setViewingQuizData] = useState<any | null>(null);
+  const [viewingAssignmentDetails, setViewingAssignmentDetails] = useState<any | null>(null);
   const [newFolderName, setNewFolderName] = useState("");
+  const [newFolderAcademicYear, setNewFolderAcademicYear] = useState(new Date().getFullYear() + "-" + (new Date().getFullYear() + 1));
   const [showNewFolder, setShowNewFolder] = useState(false);
   const [myClasses, setMyClasses] = useState<string[]>([]);
   const [editingFolderClasses, setEditingFolderClasses] = useState<number | null>(null);
@@ -150,6 +152,7 @@ export default function AssignmentsPage() {
   // States for folder rename
   const [editingFolderId, setEditingFolderId] = useState<number | null>(null);
   const [editingFolderName, setEditingFolderName] = useState<string>("");
+  const [editingFolderYear, setEditingFolderYear] = useState<string>("");
 
   const API = process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn';
 
@@ -256,12 +259,13 @@ export default function AssignmentsPage() {
       const res = await fetch(`${API}/api/folders/`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ name: newFolderName.trim() }),
+        body: JSON.stringify({ name: newFolderName.trim(), academic_year: newFolderAcademicYear, is_graduated: false }),
       });
       if (res.ok) {
         const newFolder = await res.json();
         setFolders((prev) => [newFolder, ...prev]);
         setNewFolderName("");
+        setNewFolderAcademicYear(new Date().getFullYear() + "-" + (new Date().getFullYear() + 1));
         setShowNewFolder(false);
       }
     } catch (e) { console.error(e); }
@@ -281,6 +285,8 @@ export default function AssignmentsPage() {
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify({
           name: folder.name,
+          academic_year: folder.academic_year,
+          is_graduated: folder.is_graduated,
           is_assigned_to_all: folder.is_assigned_to_all,
           assignee_ids: folder.assignee_ids,
           assigned_classes: newClasses,
@@ -293,10 +299,10 @@ export default function AssignmentsPage() {
     } catch (e) { console.error(e); }
   };
 
-  const handleRenameFolder = async (folderId: number, newName: string) => {
+  const handleRenameFolder = async (folderId: number, newName: string, newYear: string) => {
     if (!newName.trim()) return;
     const folder = folders.find((f: any) => f.id === folderId);
-    if (!folder || folder.name === newName) return;
+    if (!folder || (folder.name === newName && folder.academic_year === newYear)) return;
     try {
       const token = localStorage.getItem("minda_token");
       const res = await fetch(`${API}/api/folders/${folderId}`, {
@@ -304,6 +310,8 @@ export default function AssignmentsPage() {
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify({
           name: newName.trim(),
+          academic_year: newYear,
+          is_graduated: folder.is_graduated,
           is_assigned_to_all: folder.is_assigned_to_all,
           assignee_ids: folder.assignee_ids,
           assigned_classes: folder.assigned_classes,
@@ -328,6 +336,20 @@ export default function AssignmentsPage() {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) fetchSubmissions();
+    } catch (e) { console.error(e); }
+  };
+
+  const handleGraduateFolder = async (folderId: number) => {
+    try {
+      const token = localStorage.getItem("minda_token");
+      const res = await fetch(`${API}/api/folders/${folderId}/graduate`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        setFolders((prev) => prev.map((f: any) => f.id === folderId ? updated : f));
+      }
     } catch (e) { console.error(e); }
   };
 
@@ -369,15 +391,37 @@ export default function AssignmentsPage() {
       if (res.ok) {
         const data = await res.json();
         setViewingQuizData(data.quiz_data);
+        setViewingAssignmentDetails(data);
       }
     } catch (e) { console.error(e); }
   };
 
   // Nhóm bài tập theo folder
-  const folderedAssignments = folders.map((f: any) => ({
+  const activeFolders = folders.filter((f: any) => !f.is_graduated).map((f: any) => ({
     ...f,
     items: assignments.filter((a: any) => a.folder_id === f.id),
   }));
+  const graduatedFolders = folders.filter((f: any) => f.is_graduated).map((f: any) => ({
+    ...f,
+    items: assignments.filter((a: any) => a.folder_id === f.id),
+  }));
+
+  // Group active folders by academic_year
+  const activeGrouped = activeFolders.reduce((acc: any, folder: any) => {
+    const year = folder.academic_year || "Không xác định";
+    if (!acc[year]) acc[year] = [];
+    acc[year].push(folder);
+    return acc;
+  }, {});
+
+  // Group graduated folders by academic_year
+  const gradGrouped = graduatedFolders.reduce((acc: any, folder: any) => {
+    const year = folder.academic_year || "Không xác định";
+    if (!acc[year]) acc[year] = [];
+    acc[year].push(folder);
+    return acc;
+  }, {});
+
   const unfolderedAssignments = assignments.filter((a: any) => !a.folder_id);
 
   const renderAssignmentRow = (item: any) => (
@@ -416,6 +460,152 @@ export default function AssignmentsPage() {
           <Trash2 className="w-4 h-4 md:w-3.5 md:h-3.5"/>
         </button>
       </div>
+    </div>
+  );
+
+  const renderFolder = (folder: any) => (
+    <div key={`folder-${folder.id}`} className="border-b border-border-card">
+      <div
+        className="flex items-center gap-2 px-4 py-3 cursor-pointer hover:bg-bg-hover transition-colors"
+        onClick={() => toggleFolder(folder.id)}
+      >
+        {expandedFolders.has(folder.id) ? (
+          <ChevronDown className="w-4 h-4 text-indigo-400 shrink-0" />
+        ) : (
+          <ChevronRight className="w-4 h-4 text-indigo-400 shrink-0" />
+        )}
+        <span className="text-base">📁</span>
+        <div className="flex-1 min-w-0">
+          {editingFolderId === folder.id ? (
+            <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+              <input
+                type="text"
+                value={editingFolderName}
+                onChange={(e) => setEditingFolderName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleRenameFolder(folder.id, editingFolderName, editingFolderYear);
+                    setEditingFolderId(null);
+                  } else if (e.key === "Escape") {
+                    setEditingFolderId(null);
+                  }
+                }}
+                className="bg-white/10 border border-white/20 rounded px-2 py-1 text-sm outline-none focus:border-indigo-500 text-text-primary w-full max-w-[200px]"
+                autoFocus
+              />
+              <input
+                type="text"
+                value={editingFolderYear}
+                onChange={(e) => setEditingFolderYear(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleRenameFolder(folder.id, editingFolderName, editingFolderYear);
+                    setEditingFolderId(null);
+                  } else if (e.key === "Escape") {
+                    setEditingFolderId(null);
+                  }
+                }}
+                className="bg-white/10 border border-white/20 rounded px-2 py-1 text-sm outline-none focus:border-indigo-500 text-text-primary w-full max-w-[120px]"
+                placeholder="Năm học..."
+              />
+              <button
+                onClick={() => {
+                  handleRenameFolder(folder.id, editingFolderName, editingFolderYear);
+                  setEditingFolderId(null);
+                }}
+                className="px-2 py-1 bg-indigo-600 hover:bg-indigo-500 rounded text-xs"
+              >
+                Lưu
+              </button>
+              <button onClick={() => setEditingFolderId(null)} className="p-1 hover:bg-white/10 rounded">
+                <X className="w-3 h-3" />
+              </button>
+            </div>
+          ) : (
+            <span className="font-bold text-sm text-text-primary truncate block">{folder.name}</span>
+          )}
+          <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+            {(folder.assigned_classes || []).length > 0 ? (
+              (folder.assigned_classes || []).map((c: string) => (
+                <span key={c} className="text-[9px] px-1.5 py-0.5 bg-emerald-500/10 text-emerald-400 rounded border border-emerald-500/20 font-bold">
+                  🎓 {c}
+                </span>
+              ))
+            ) : (
+              <span className="text-[9px] text-text-muted">Giao cho tất cả</span>
+            )}
+          </div>
+        </div>
+        <span className="text-[10px] px-2 py-0.5 bg-indigo-500/10 text-indigo-400 rounded-full border border-indigo-500/20 font-bold shrink-0">
+          {folder.items.length} đề
+        </span>
+        <button
+          onClick={(e) => { e.stopPropagation(); setEditingFolderClasses(editingFolderClasses === folder.id ? null : folder.id); }}
+          className="p-1 text-emerald-400/50 hover:text-emerald-400 hover:bg-emerald-500/10 rounded-lg transition-colors"
+          title="Giao cho lớp"
+        >
+          <User className="w-3.5 h-3.5" />
+        </button>
+        <button
+          onClick={(e) => { e.stopPropagation(); handleGraduateFolder(folder.id); }}
+          className="p-1 text-blue-400/50 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors"
+          title={folder.is_graduated ? "Khôi phục" : "Lưu trữ / Tốt nghiệp"}
+        >
+          🎓
+        </button>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setEditingFolderId(folder.id);
+            setEditingFolderName(folder.name);
+            setEditingFolderYear(folder.academic_year || "");
+          }}
+          className="p-1 text-orange-400/50 hover:text-orange-400 hover:bg-orange-500/10 rounded-lg transition-colors"
+          title="Đổi tên"
+        >
+          <PenLine className="w-3.5 h-3.5" />
+        </button>
+        <button
+          onClick={(e) => { e.stopPropagation(); handleDeleteFolder(folder.id); }}
+          className="p-1 text-red-500/50 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+          title="Xoá Folder"
+        >
+          <Trash2 className="w-3.5 h-3.5" />
+        </button>
+      </div>
+      {/* Class assignment dropdown */}
+      {editingFolderClasses === folder.id && (
+        <div className="px-4 py-3 bg-emerald-500/5 border-t border-emerald-500/10">
+          <p className="text-xs font-bold text-emerald-400 mb-2">🎓 Giao folder này cho lớp:</p>
+          <div className="flex flex-wrap gap-2">
+            {myClasses.length === 0 ? (
+              <p className="text-xs text-text-muted italic">Chưa tạo lớp nào. Vào Quản lý Học sinh để tạo lớp trước!</p>
+            ) : (
+              myClasses.map((c) => {
+                const isActive = (folder.assigned_classes || []).includes(c);
+                return (
+                  <button
+                    key={c}
+                    onClick={(e) => { e.stopPropagation(); handleToggleFolderClass(folder.id, c); }}
+                    className={`text-xs px-3 py-1.5 rounded-lg font-bold transition-all border ${isActive ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-white/5 text-text-muted border-white/10 hover:border-emerald-500/20'}`}
+                  >
+                    {isActive ? '✅' : '⬜'} {c}
+                  </button>
+                );
+              })
+            )}
+          </div>
+        </div>
+      )}
+      {expandedFolders.has(folder.id) && (
+        <div className="pl-6 bg-white/[0.01]">
+          {folder.items.length === 0 ? (
+            <p className="text-xs text-text-muted px-4 py-3 italic">Folder trống</p>
+          ) : (
+            folder.items.map((item: any) => renderAssignmentRow(item))
+          )}
+        </div>
+      )}
     </div>
   );
 
@@ -459,6 +649,16 @@ export default function AssignmentsPage() {
             onKeyDown={(e) => e.key === "Enter" && handleCreateFolder()}
             autoFocus
           />
+          <select
+            value={newFolderAcademicYear}
+            onChange={(e) => setNewFolderAcademicYear(e.target.value)}
+            className="bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-500 text-text-primary w-[150px]"
+          >
+            <option value="2023-2024">2023-2024</option>
+            <option value="2024-2025">2024-2025</option>
+            <option value="2025-2026">2025-2026</option>
+            <option value="2026-2027">2026-2027</option>
+          </select>
           <button onClick={handleCreateFolder} className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 rounded-xl text-sm font-bold transition-colors">Tạo</button>
           <button onClick={() => setShowNewFolder(false)} className="p-2 hover:bg-white/5 rounded-lg"><X className="w-5 h-5" /></button>
         </div>
@@ -510,129 +710,34 @@ export default function AssignmentsPage() {
               <div className="text-center p-8 text-text-muted">Đang tải...</div>
             ) : (
               <>
-                {/* Folders */}
-                {folderedAssignments.map((folder: any) => (
-                  <div key={`folder-${folder.id}`} className="border-b border-border-card">
-                    <div
-                      className="flex items-center gap-2 px-4 py-3 cursor-pointer hover:bg-bg-hover transition-colors"
-                      onClick={() => toggleFolder(folder.id)}
-                    >
-                      {expandedFolders.has(folder.id) ? (
-                        <ChevronDown className="w-4 h-4 text-indigo-400 shrink-0" />
-                      ) : (
-                        <ChevronRight className="w-4 h-4 text-indigo-400 shrink-0" />
-                      )}
-                      <span className="text-base">📁</span>
-                      <div className="flex-1 min-w-0">
-                        {editingFolderId === folder.id ? (
-                          <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                            <input
-                              type="text"
-                              value={editingFolderName}
-                              onChange={(e) => setEditingFolderName(e.target.value)}
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter") {
-                                  handleRenameFolder(folder.id, editingFolderName);
-                                  setEditingFolderId(null);
-                                } else if (e.key === "Escape") {
-                                  setEditingFolderId(null);
-                                }
-                              }}
-                              className="bg-white/10 border border-white/20 rounded px-2 py-1 text-sm outline-none focus:border-indigo-500 text-text-primary w-full max-w-[200px]"
-                              autoFocus
-                            />
-                            <button
-                              onClick={() => {
-                                handleRenameFolder(folder.id, editingFolderName);
-                                setEditingFolderId(null);
-                              }}
-                              className="px-2 py-1 bg-indigo-600 hover:bg-indigo-500 rounded text-xs"
-                            >
-                              Lưu
-                            </button>
-                            <button onClick={() => setEditingFolderId(null)} className="p-1 hover:bg-white/10 rounded">
-                              <X className="w-3 h-3" />
-                            </button>
-                          </div>
-                        ) : (
-                          <span className="font-bold text-sm text-text-primary truncate block">{folder.name}</span>
-                        )}
-                        <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-                          {(folder.assigned_classes || []).length > 0 ? (
-                            (folder.assigned_classes || []).map((c: string) => (
-                              <span key={c} className="text-[9px] px-1.5 py-0.5 bg-emerald-500/10 text-emerald-400 rounded border border-emerald-500/20 font-bold">
-                                🎓 {c}
-                              </span>
-                            ))
-                          ) : (
-                            <span className="text-[9px] text-text-muted">Giao cho tất cả</span>
-                          )}
-                        </div>
-                      </div>
-                      <span className="text-[10px] px-2 py-0.5 bg-indigo-500/10 text-indigo-400 rounded-full border border-indigo-500/20 font-bold shrink-0">
-                        {folder.items.length} đề
-                      </span>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); setEditingFolderClasses(editingFolderClasses === folder.id ? null : folder.id); }}
-                        className="p-1 text-emerald-400/50 hover:text-emerald-400 hover:bg-emerald-500/10 rounded-lg transition-colors"
-                        title="Giao cho lớp"
-                      >
-                        🎓
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setEditingFolderId(folder.id);
-                          setEditingFolderName(folder.name);
-                        }}
-                        className="p-1 text-orange-400/50 hover:text-orange-400 hover:bg-orange-500/10 rounded-lg transition-colors"
-                        title="Đổi tên"
-                      >
-                        <PenLine className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); handleDeleteFolder(folder.id); }}
-                        className="p-1 text-red-500/50 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
-                        title="Xoá Folder"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                {/* Folders grouped by Academic Year */}
+                {Object.keys(activeGrouped).sort((a, b) => b.localeCompare(a)).map(year => (
+                  <div key={`year-${year}`}>
+                    <div className="px-4 py-2 bg-white/[0.02] border-b border-border-card">
+                      <p className="text-xs font-bold text-indigo-400 uppercase tracking-wider">🗓 Năm học {year}</p>
                     </div>
-                    {/* Class assignment dropdown */}
-                    {editingFolderClasses === folder.id && (
-                      <div className="px-4 py-3 bg-emerald-500/5 border-t border-emerald-500/10">
-                        <p className="text-xs font-bold text-emerald-400 mb-2">🎓 Giao folder này cho lớp:</p>
-                        <div className="flex flex-wrap gap-2">
-                          {myClasses.length === 0 ? (
-                            <p className="text-xs text-text-muted italic">Chưa tạo lớp nào. Vào Quản lý Học sinh để tạo lớp trước!</p>
-                          ) : (
-                            myClasses.map((c) => {
-                              const isActive = (folder.assigned_classes || []).includes(c);
-                              return (
-                                <button
-                                  key={c}
-                                  onClick={(e) => { e.stopPropagation(); handleToggleFolderClass(folder.id, c); }}
-                                  className={`text-xs px-3 py-1.5 rounded-lg font-bold transition-all border ${isActive ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-white/5 text-text-muted border-white/10 hover:border-emerald-500/20'}`}
-                                >
-                                  {isActive ? '✅' : '⬜'} {c}
-                                </button>
-                              );
-                            })
-                          )}
-                        </div>
-                      </div>
-                    )}
-                    {expandedFolders.has(folder.id) && (
-                      <div className="pl-6 bg-white/[0.01]">
-                        {folder.items.length === 0 ? (
-                          <p className="text-xs text-text-muted px-4 py-3 italic">Folder trống</p>
-                        ) : (
-                          folder.items.map((item: any) => renderAssignmentRow(item))
-                        )}
-                      </div>
-                    )}
+                    {activeGrouped[year].map((folder: any) => renderFolder(folder))}
                   </div>
                 ))}
+
+                {/* Graduated Folders */}
+                {Object.keys(gradGrouped).length > 0 && (
+                  <div className="mt-4">
+                    <div className="px-4 py-2 bg-gray-500/10 border-b border-border-card border-t">
+                      <p className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+                        🎓 Đã Tốt Nghiệp / Lưu Trữ
+                      </p>
+                    </div>
+                    {Object.keys(gradGrouped).sort((a, b) => b.localeCompare(a)).map(year => (
+                      <div key={`grad-year-${year}`}>
+                        <div className="px-4 py-1.5 bg-black/20 border-b border-border-card">
+                          <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Năm học {year}</p>
+                        </div>
+                        {gradGrouped[year].map((folder: any) => renderFolder(folder))}
+                      </div>
+                    ))}
+                  </div>
+                )}
 
                 {/* Unfoldered assignments */}
                 {unfolderedAssignments.length > 0 && (
@@ -848,9 +953,12 @@ export default function AssignmentsPage() {
         <SubmissionModal
           submission={viewingSubmission}
           quizData={viewingQuizData}
+          assignment={viewingAssignmentDetails}
           onClose={() => {
             setViewingSubmission(null);
             setViewingQuizData(null);
+            setViewingAssignmentDetails(null);
+            fetchSubmissions(); // reload to get new score
           }}
         />
       )}

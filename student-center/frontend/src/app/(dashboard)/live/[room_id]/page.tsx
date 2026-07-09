@@ -5,10 +5,13 @@ import { useParams, useRouter } from "next/navigation";
 import {
   Loader2, Brain, Wifi, WifiOff, Users,
   Mic, MicOff, Video, VideoOff, MonitorUp, PhoneOff, BookOpen,
-  Maximize2, Minimize2,
+  Maximize2, Minimize2, PictureInPicture, VolumeX, Volume2
 } from "lucide-react";
 import AnnotationBoard from "./AnnotationBoard";
 import type Peer from "peerjs";
+import dynamic from "next/dynamic";
+
+const VTuberAvatar = dynamic(() => import("./VTuberAvatar"), { ssr: false });
 
 // ─── Types & Constants ────────────────────────────────────────────────────────
 interface EmotionResult {
@@ -200,6 +203,8 @@ export default function LiveRoomPage() {
   const [peerStatus, setPeerStatus] = useState<"connecting" | "connected" | "error">("connecting");
   const [micEnabled, setMicEnabled]   = useState(true);
   const [camEnabled, setCamEnabled]   = useState(true);
+  const [vtuberEnabled, setVtuberEnabled] = useState(false);
+  const [vtuberModel, setVtuberModel] = useState("/models/three-vrm-girl.vrm");
   const [isScreenSharing, setIsScreenSharing] = useState(false);
   const [isSelfCamEnlarged, setIsSelfCamEnlarged] = useState(false);
   
@@ -219,6 +224,7 @@ export default function LiveRoomPage() {
 
   // Fullscreen mode (overlay sidebar)
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [teacherAudioMuted, setTeacherAudioMuted] = useState(false);
 
   // Screen share viewer states
   const [screenShareActive, setScreenShareActive] = useState(false);
@@ -249,7 +255,11 @@ export default function LiveRoomPage() {
   const canvasRef       = useRef<HTMLCanvasElement>(null);
   const intervalRef     = useRef<NodeJS.Timeout | null>(null);
   const peerInstance    = useRef<Peer | null>(null);
-  const callRetryRef    = useRef<NodeJS.Timeout | null>(null);
+  const callRetryRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Upload Progress State
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  const [isEndingClass, setIsEndingClass] = useState(false);
 
   // --- 1. Init user info & session
   useEffect(() => {
@@ -309,20 +319,16 @@ export default function LiveRoomPage() {
     video.muted = true;
     video.play().catch(console.error);
 
-    // Phát âm thanh giáo viên qua đúng 1 thẻ <audio> ẩn để lọc tiếng vang và ổn định trên Safari
-    if (teacherStream.getAudioTracks().length > 0) {
-      const audioEl = new Audio();
-      audioEl.srcObject = new MediaStream(teacherStream.getAudioTracks());
-      audioEl.autoplay = true;
-      audioEl.play().catch(() => {});
-      teacherAudioRef.current = audioEl;
+    // Play audio through a dedicated audio element in the DOM for WebRTC Acoustic Echo Cancellation to work
+    if (teacherAudioRef.current && teacherStream.getAudioTracks().length > 0) {
+      teacherAudioRef.current.srcObject = new MediaStream(teacherStream.getAudioTracks());
+      teacherAudioRef.current.play().catch(() => {});
     }
 
     return () => {
       if (teacherAudioRef.current) {
         teacherAudioRef.current.pause();
         teacherAudioRef.current.srcObject = null;
-        teacherAudioRef.current = null;
       }
     };
   }, [teacherStream]);
@@ -348,7 +354,7 @@ export default function LiveRoomPage() {
             facingMode: "user",
             width: { ideal: 320, max: 640 }, 
             height: { ideal: 240, max: 480 }, 
-            frameRate: { ideal: 15, max: 24 } 
+            frameRate: { ideal: 30, max: 60 } 
           },
           audio: {
             echoCancellation: true,
@@ -695,15 +701,16 @@ export default function LiveRoomPage() {
       if (res.ok) {
         const emData = await res.json();
         
-        // Tích lũy thời gian mất tập trung / mệt mỏi dùng Ref đồng bộ
-        if (emData.face_detected !== false && (emData.label === "Distraction" || emData.label === "Fatigue")) {
-          distractedSecsRef.current += 0.2;
-          // Demo threshold: 10 giây mất tập trung liên tục -> hiển thị cảnh báo
-          if (distractedSecsRef.current >= 10 && !showDistractionPopup) {
+        // Tích lũy thời gian mất tập trung / mệt mỏi dùng Ref đồng bộ (kể cả khi không thấy mặt)
+        if (emData.face_detected === false || emData.label === "Distraction" || emData.label === "Fatigue") {
+          distractedSecsRef.current += 15;
+          // Threshold: 300 giây (5 phút) liên tục -> hiển thị cảnh báo
+          if (distractedSecsRef.current >= 300 && !showDistractionPopup) {
             setShowDistractionPopup(true);
           }
         } else if (emData.face_detected !== false && (emData.label === "Neutral" || emData.label === "Enjoyment")) {
           distractedSecsRef.current = 0;
+          if (showDistractionPopup) setShowDistractionPopup(false);
         }
 
         // Đính kèm thời gian mất tập trung vào dữ liệu trước khi cập nhật & gửi đi
@@ -726,8 +733,8 @@ export default function LiveRoomPage() {
   useEffect(() => {
     if (localStream && userInfo?.role === "student") {
       if (intervalRef.current) clearInterval(intervalRef.current);
-      // 200ms = 5 FPS → RAPT-CLIP buffer 16 frames trong ~3.2 giây → kết quả nhanh hơn!
-      intervalRef.current = setInterval(() => { captureRef.current(); }, 200);
+      // Quét AI mỗi 15 giây 1 lần để tiết kiệm tài nguyên
+      intervalRef.current = setInterval(() => { captureRef.current(); }, 15000);
     }
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
   }, [localStream, userInfo?.role]);
@@ -753,6 +760,27 @@ export default function LiveRoomPage() {
         if (localVideoRef.current) localVideoRef.current.play().catch(() => {});
         if (pipVideoRef.current) pipVideoRef.current.play().catch(() => {});
       }, 150);
+    }
+  };
+
+  // VTuber Stream replacement
+  const handleVtuberStream = (vtuberStream: MediaStream) => {
+    if (!localStream) return;
+    const vtuberTrack = vtuberStream.getVideoTracks()[0];
+    const comboStream = new MediaStream([vtuberTrack, ...localStream.getAudioTracks()]);
+    if (localVideoRef.current) localVideoRef.current.srcObject = comboStream;
+    activeStreamRef.current = comboStream;
+
+    if (peerInstance.current) {
+      const conns = (peerInstance.current as any).connections;
+      for (const id in conns) {
+        conns[id].forEach((c: any) => {
+          if (c.type === "media" && c.peerConnection) {
+            const sender = c.peerConnection.getSenders().find((s: any) => s.track?.kind === "video");
+            if (sender) sender.replaceTrack(vtuberTrack).catch(() => {});
+          }
+        });
+      }
     }
   };
 
@@ -829,6 +857,26 @@ export default function LiveRoomPage() {
     }
   };
 
+  // Khi tắt VTuber, khôi phục lại webcam
+  useEffect(() => {
+    if (!vtuberEnabled && localStream && !isScreenSharing) {
+      if (localVideoRef.current) localVideoRef.current.srcObject = localStream;
+      activeStreamRef.current = localStream;
+      const camTrack = localStream.getVideoTracks()[0];
+      if (peerInstance.current) {
+        const conns = (peerInstance.current as any).connections;
+        for (const id in conns) {
+          conns[id].forEach((c: any) => {
+            if (c.type === "media" && c.peerConnection) {
+              const sender = c.peerConnection.getSenders().find((s: any) => s.track?.kind === "video");
+              if (sender && camTrack) sender.replaceTrack(camTrack).catch(() => {});
+            }
+          });
+        }
+      }
+    }
+  }, [vtuberEnabled, localStream, isScreenSharing]);
+
   const toggleRecording = async () => {
     if (isRecording) {
       if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
@@ -880,14 +928,37 @@ export default function LiveRoomPage() {
           }
         };
 
+        ws.onmessage = (evt) => {
+          try {
+            const msg = JSON.parse(evt.data);
+            if (msg.type === "upload_progress") {
+               setUploadProgress(msg.percent);
+            } else if (msg.type === "upload_complete") {
+               setUploadProgress(null);
+               alert("Đã tải Recording lên Google Drive thành công!");
+               ws.close();
+               if (isEndingClass) {
+                  doLeave();
+               }
+            } else if (msg.type === "upload_error") {
+               setUploadProgress(null);
+               alert("Lỗi tải Recording lên Drive!");
+               ws.close();
+               if (isEndingClass) {
+                  doLeave();
+               }
+            }
+          } catch(e) {}
+        };
+
         recorder.onstop = () => {
           if (ws.readyState === WebSocket.OPEN) {
              ws.send(JSON.stringify({ type: "EOF" })); 
-             ws.close();
+             // We do NOT close ws here. We wait for the upload progress.
           }
           displayStream.getTracks().forEach(t => t.stop());
           setIsRecording(false);
-          alert("Đã kết thúc ghi hình. File sẽ được uploard lên Google Drive tự động.");
+          setUploadProgress(0); // Start showing the progress bar
         };
 
         recorder.start(2000); 
@@ -906,7 +977,7 @@ export default function LiveRoomPage() {
     }
   };
 
-  const handleLeave = async () => {
+  const doLeave = async () => {
     if (intervalRef.current) clearInterval(intervalRef.current);
     if (callRetryRef.current) clearTimeout(callRetryRef.current);
     if (localStream) localStream.getTracks().forEach(t => t.stop());
@@ -932,6 +1003,17 @@ export default function LiveRoomPage() {
       }
     } catch { /* ignore */ }
     finally { router.push("/live"); }
+  };
+
+  const handleLeave = async () => {
+    if (isRecording || uploadProgress !== null) {
+       setIsEndingClass(true);
+       if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+         mediaRecorderRef.current.stop();
+       }
+       return; // Wait for upload_complete message to trigger doLeave
+    }
+    await doLeave();
   };
 
 
@@ -1043,6 +1125,8 @@ export default function LiveRoomPage() {
         : "w-full h-screen"
     }`}>
       <canvas ref={canvasRef} className="hidden" />
+      {/* Hidden DOM Audio element for teacher stream to ensure Chrome WebRTC Acoustic Echo Cancellation hooks into it */}
+      <audio ref={teacherAudioRef} autoPlay className="hidden" muted={teacherAudioMuted} />
 
       {/* ── Screen Share Overlay (JPEG frames from iPad ReplayKit) ── */}
       {screenShareActive && (
@@ -1054,6 +1138,24 @@ export default function LiveRoomPage() {
           <div className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-indigo-600/90 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg backdrop-blur-sm">
             <MonitorUp className="w-4 h-4" />
             Giáo viên đang Share màn hình
+          </div>
+        </div>
+      )}
+
+      {/* ── Upload Progress Modal ── */}
+      {uploadProgress !== null && (
+        <div className="absolute inset-0 z-[200] bg-black/80 flex items-center justify-center backdrop-blur-sm p-4">
+          <div className="bg-[#111] border border-white/10 p-8 rounded-3xl max-w-sm w-full text-center flex flex-col items-center gap-6 shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 left-0 h-1 bg-indigo-500 transition-all duration-300" style={{ width: `${uploadProgress}%` }} />
+            <Loader2 className="w-12 h-12 text-indigo-500 animate-spin" />
+            <div>
+              <h2 className="text-xl font-bold mb-2 text-white">Đang tải Video lên Cloud...</h2>
+              <p className="text-sm text-white/50">{uploadProgress}% hoàn thành</p>
+              <p className="text-xs text-rose-400 mt-2 italic">Xin vui lòng không đóng trình duyệt!</p>
+            </div>
+            <div className="w-full bg-white/10 rounded-full h-3 overflow-hidden">
+              <div className="bg-linear-to-r from-indigo-500 to-purple-500 h-full transition-all duration-300" style={{ width: `${uploadProgress}%` }} />
+            </div>
           </div>
         </div>
       )}
@@ -1234,7 +1336,9 @@ export default function LiveRoomPage() {
                 </div>
               ) : (
                 studentStreams.map((s) => {
-                  const isDistractedLong = studentEmotions[s.peerId]?.distractedSecs !== undefined && studentEmotions[s.peerId].distractedSecs! >= 10;
+                  const isDistractedLong = studentEmotions[s.peerId]?.distractedSecs !== undefined && 
+                                           studentEmotions[s.peerId].distractedSecs! >= 10 &&
+                                           studentEmotions[s.peerId].face_detected !== false;
                   return (
                     <div
                       key={s.peerId}
@@ -1340,6 +1444,30 @@ export default function LiveRoomPage() {
             {camEnabled ? <Video className="w-5 h-5" /> : <VideoOff className="w-5 h-5" />}
           </button>
           
+          <div className="relative group flex items-center">
+            <button
+              onClick={() => setVtuberEnabled(!vtuberEnabled)}
+              title={vtuberEnabled ? "Tắt Avatar 3D" : "Bật Avatar 3D"}
+              className={`w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-lg ${vtuberEnabled ? "bg-purple-500 text-white shadow-[0_0_15px_rgba(168,85,247,0.4)]" : "bg-white/10 hover:bg-white/20 text-white"}`}
+            >
+              <span className="text-xl">🎭</span>
+            </button>
+            {vtuberEnabled && (
+              <select
+                value={vtuberModel}
+                onChange={(e) => setVtuberModel(e.target.value)}
+                className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-40 bg-slate-800 text-white text-sm rounded-lg border border-slate-700 p-2 shadow-xl outline-none"
+              >
+                <option value="/models/three-vrm-girl.vrm">Cô gái 3D (Mặc định)</option>
+                <option value="/models/shibu_sendagaya.vrm">Cô gái Anime 1</option>
+                <option value="/models/SampleA.vrm">Cô gái Anime 2</option>
+                <option value="/models/SampleB.vrm">Cô gái Anime 3</option>
+                <option value="/models/test.vrm">Nhân vật Test</option>
+                <option value="/models/VAL.vrm">Nhân vật VAL</option>
+              </select>
+            )}
+          </div>
+
           <button
             onClick={toggleScreenShare}
             title={isScreenSharing ? "Dừng chia sẻ" : "Chia sẻ màn hình"}
@@ -1377,6 +1505,45 @@ export default function LiveRoomPage() {
             </button>
           )}
 
+          {/* Teacher PiP button - for student */}
+          {!isHost && teacherStream && (
+             <>
+               <button
+                 onClick={async () => {
+                   try {
+                     if (document.pictureInPictureElement) {
+                       await document.exitPictureInPicture();
+                     } else if (teacherVideoRef.current) {
+                       await teacherVideoRef.current.requestPictureInPicture();
+                     }
+                   } catch (err) {
+                     alert("Trình duyệt không hỗ trợ Ghim màn hình (PiP) hoặc xảy ra lỗi.");
+                   }
+                 }}
+                 title="Ghim Video Giáo viên (Picture-in-Picture)"
+                 className="w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-lg bg-indigo-500/20 text-indigo-400 border border-indigo-500/50 hover:bg-indigo-500/40"
+               >
+                 <PictureInPicture className="w-5 h-5" />
+               </button>
+
+               <button
+                 onClick={async () => {
+                   try {
+                     if (!document.pictureInPictureElement && teacherVideoRef.current) {
+                       await teacherVideoRef.current.requestPictureInPicture();
+                     }
+                   } catch(e) {}
+                   window.open("/dashboard", "_blank");
+                 }}
+                 title="Mở tab làm bài (Giữ nguyên lớp học)"
+                 className="hidden sm:flex bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-4 py-2.5 rounded-full items-center gap-2 shadow-[0_0_15px_rgba(99,102,241,0.4)] transition-all"
+               >
+                 <BookOpen className="w-4 h-4" />
+                 Làm bài
+               </button>
+             </>
+          )}
+
           {/* Fullscreen toggle */}
           <button
             onClick={() => setIsFullscreen(f => !f)}
@@ -1385,6 +1552,20 @@ export default function LiveRoomPage() {
           >
             {isFullscreen ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
           </button>
+          
+          {/* Audio toggle for student (mute teacher) */}
+          {!isHost && teacherStream && (
+             <button
+               onClick={() => {
+                  setTeacherAudioMuted(!teacherAudioMuted);
+                  if (teacherAudioRef.current) teacherAudioRef.current.muted = !teacherAudioMuted;
+               }}
+               title={teacherAudioMuted ? "Bật âm thanh Giáo viên" : "Tắt âm thanh Giáo viên (Chống vang)"}
+               className={`w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-lg ${teacherAudioMuted ? "bg-amber-500 text-white shadow-[0_0_15px_rgba(245,158,11,0.5)]" : "bg-white/10 hover:bg-white/20 text-white"}`}
+             >
+               {teacherAudioMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+             </button>
+          )}
 
           <button
             onClick={handleLeave}
@@ -1572,6 +1753,13 @@ export default function LiveRoomPage() {
             }
           }}
         />
+      )}
+
+      {/* Hidden VTuber Renderer */}
+      {vtuberEnabled && (
+        <div className="hidden absolute">
+          <VTuberAvatar onStreamReady={handleVtuberStream} modelUrl={vtuberModel} />
+        </div>
       )}
     </div>
   );

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { BookOpen, Plus, Copy, Check, Users, KeyRound, ArrowRight } from 'lucide-react';
-import { fetchYearbookGroups, createYearbookGroupDB } from '../../utils/storage';
+import { fetchYearbookGroups, createYearbookGroupDB, getYearbooks, createYearbook } from '../../utils/storage';
 
 export default function TeacherDashboard({ onSelectGroup }) {
   const [groups, setGroups] = useState([]);
@@ -18,25 +18,42 @@ export default function TeacherDashboard({ onSelectGroup }) {
 
   const loadGroups = async () => {
     setLoading(true);
-    const data = await fetchYearbookGroups();
+    let data = await fetchYearbookGroups();
     
-    // Đảm bảo luôn có sổ mặc định nếu DB trống
+    // Fallback: Lấy dữ liệu cũ từ localStorage nếu API rỗng hoặc lỗi
     if (data.length === 0) {
-      setGroups([{
+      const localData = getYearbooks().map(yb => ({
+        id: yb.id,
+        title: yb.title,
+        description: yb.type === 'teacher' ? 'Sổ mẫu giáo viên' : 'Sổ lưu bút lớp',
+        created_at: new Date().toISOString()
+      }));
+      data = localData.length > 0 ? localData : [{
         id: 'teacher_template_01',
         title: 'Kỷ Yếu Lớp (Mặc định)',
         description: 'Sổ lưu bút mặc định từ phiên bản cũ',
         created_at: new Date().toISOString()
-      }]);
-    } else {
-      setGroups(data);
+      }];
     }
+    setGroups(data);
     setLoading(false);
   };
 
   const handleCreate = async () => {
     if (!newTitle.trim()) return;
-    const created = await createYearbookGroupDB(newTitle, newDesc);
+    let created = await createYearbookGroupDB(newTitle, newDesc);
+    
+    // Nếu backend lỗi (không có API /groups), fallback lưu local
+    if (!created) {
+      const localYb = createYearbook(newTitle);
+      created = {
+        id: localYb.id,
+        title: localYb.title,
+        description: newDesc,
+        created_at: new Date().toISOString()
+      };
+    }
+    
     if (created) {
       setGroups([created, ...groups]);
       setShowCreate(false);

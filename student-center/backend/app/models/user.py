@@ -77,9 +77,11 @@ class TeacherStudentLink(Base):
     __tablename__ = "teacher_student_links"
 
     id = Column(Integer, primary_key=True, index=True)
-    student_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    student_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     teacher_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     class_name = Column(String, nullable=True)  # VD: "Lớp 11-2026", "Lớp 12-2026"
+    academic_year = Column(String, nullable=True) # VD: "2023-2024"
+    is_graduated = Column(Boolean, default=False)
     status = Column(String, default="active")
     created_at = Column(DateTime, default=datetime.utcnow)
 

@@ -25,9 +25,11 @@ from app.models.live_session import LiveSession
 from app.models.tuition import TuitionRecord
 from app.models.emotion import EmotionLog
 from app.models.schedule import ScheduleItem
+from app.models.honor import HonorBoard
+from app.models.testimonial import Testimonial
 
 # Import routers
-from app.api.endpoints import courses, assignments, exams, tuition, admin, auth, files, profile, google_auth, live_sessions, dashboard, emotion, ai_solver, assignment_folders, manim, yearbook, schedules
+from app.api.endpoints import courses, assignments, exams, tuition, admin, auth, files, profile, google_auth, live_sessions, dashboard, emotion, ai_solver, assignment_folders, manim, yearbook, schedules, honors, testimonials
 
 # Tự động tạo bảng DB nếu chưa có
 Base.metadata.create_all(bind=engine)
@@ -77,6 +79,7 @@ def read_root():
 app.include_router(auth.router, prefix="/api/auth", tags=["🔐 Auth"])
 app.include_router(google_auth.router, prefix="/api/auth/google", tags=["🌐 Google Auth"])
 app.include_router(courses.router, prefix="/api/courses", tags=["📚 Courses"])
+app.include_router(testimonials.router, prefix="/api/testimonials", tags=["💬 Testimonials"])
 app.include_router(assignments.router, prefix="/api", tags=["📝 Assignments"])
 app.include_router(exams.router, prefix="/api", tags=["📋 Exams"])
 app.include_router(tuition.router, prefix="/api/tuition", tags=["💰 Tuition"])
@@ -91,6 +94,7 @@ app.include_router(assignment_folders.router, prefix="/api/folders", tags=["📁
 app.include_router(manim.router, prefix="/api/manim", tags=["🎬 Manim Studio"])
 app.include_router(yearbook.router, prefix="/api/yearbook", tags=["📖 Yearbook"])
 app.include_router(schedules.router, prefix="/api/schedules", tags=["📅 Schedules"])
+app.include_router(honors.router, prefix="/api/honors", tags=["🏆 Honors"])
 
 from app.api.endpoints import contact
 app.include_router(contact.router, prefix="/api/contact", tags=["📞 Contact"])

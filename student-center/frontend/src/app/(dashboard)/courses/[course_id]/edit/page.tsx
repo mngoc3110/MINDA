@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { BookOpen, Plus, Video, Edit3, ClipboardList, Trash2, ArrowLeft, ChevronDown, ChevronUp, PlayCircle, X, Pencil, Check, GripVertical, FileText } from "lucide-react";
+import { BookOpen, Plus, Video, Edit3, ClipboardList, Trash2, ArrowLeft, ChevronDown, ChevronUp, PlayCircle, X, Pencil, Check, GripVertical, FileText, Timer } from "lucide-react";
+import QuizBuilderModal from "@/app/(dashboard)/assignments/QuizBuilderModal";
 
 export default function CourseBuilderPage() {
   const params = useParams();
@@ -27,6 +28,10 @@ export default function CourseBuilderPage() {
 
   const [showExamModal, setShowExamModal] = useState(false);
   const [examForm, setExamForm] = useState({ title: "", duration_minutes: 60 });
+  const [editingQuiz, setEditingQuiz] = useState<any | null>(null);
+
+  const [showQuizModal, setShowQuizModal] = useState(false);
+  const [uploadingLessonId, setUploadingLessonId] = useState<number | null>(null);
 
   const [uploadingMedia, setUploadingMedia] = useState(false);
   
@@ -83,6 +88,32 @@ export default function CourseBuilderPage() {
     } catch(e) { console.error(e); }
   };
 
+  const handleRemoveAssignment = async (e: any, id: number) => {
+    e.stopPropagation();
+    if (!confirm("Bạn có chắc muốn xoá nội dung này?")) return;
+    try {
+      const res = await fetch(`${apiBase}/api/assignments/${id}`, {
+        method: "DELETE",
+        headers: { "Authorization": `Bearer ${getToken()}` }
+      });
+      if (res.ok) fetchCurriculum();
+      else alert("Lỗi khi xoá nội dung");
+    } catch(err) { console.error(err); }
+  };
+
+  const handleRemoveExam = async (e: any, id: number) => {
+    e.stopPropagation();
+    if (!confirm("Bạn có chắc muốn xoá đề thi này?")) return;
+    try {
+      const res = await fetch(`${apiBase}/api/exams/${id}`, {
+        method: "DELETE",
+        headers: { "Authorization": `Bearer ${getToken()}` }
+      });
+      if (res.ok) fetchCurriculum();
+      else alert("Lỗi khi xoá đề thi");
+    } catch(err) { console.error(err); }
+  };
+
   useEffect(() => {
     const init = async () => {
       setLoading(true);
@@ -119,6 +150,50 @@ export default function CourseBuilderPage() {
     return null;
   };
 
+  const handleUpdateLessonVideo = async (lessonId: number, file: File) => {
+    setUploadingLessonId(lessonId);
+    const url = await handleFileUpload(file);
+    if (url) {
+      const res = await fetch(`${apiBase}/api/courses/lessons/${lessonId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
+        body: JSON.stringify({ video_url: url })
+      });
+      if (res.ok) {
+        fetchCurriculum();
+      }
+    }
+    setUploadingLessonId(null);
+  };
+
+  const handleUpdateLessonNotes = async (lessonId: number, file: File) => {
+    setUploadingLessonId(lessonId);
+    const url = await handleFileUpload(file);
+    if (url) {
+      const res = await fetch(`${apiBase}/api/courses/lessons/${lessonId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
+        body: JSON.stringify({ notes_url: url })
+      });
+      if (res.ok) {
+        fetchCurriculum();
+      }
+    }
+    setUploadingLessonId(null);
+  };
+
+  const handleRemoveLessonMedia = async (lessonId: number, field: "video_url" | "document_url" | "notes_url") => {
+    if (!confirm(`Bạn có chắc muốn xoá ${field === 'video_url' ? 'video' : field === 'document_url' ? 'tài liệu' : 'file giải tay'} này khỏi bài học?`)) return;
+    const res = await fetch(`${apiBase}/api/courses/lessons/${lessonId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
+      body: JSON.stringify({ [field]: "" })
+    });
+    if (res.ok) {
+      fetchCurriculum();
+    }
+  };
+
   const handleCreateChapter = async (e: React.FormEvent) => {
     e.preventDefault();
     const res = await fetch(`${apiBase}/api/courses/${courseId}/chapters`, {
@@ -149,15 +224,26 @@ export default function CourseBuilderPage() {
 
   const handleCreateAssignment = async (e: React.FormEvent) => {
       e.preventDefault();
-      const res = await fetch(`${apiBase}/api/courses/${courseId}/assignments`, {
+      if (!assignmentForm.title.trim()) {
+        alert("Vui lòng nhập tên bài tập!");
+        return;
+      }
+      if (!assignmentForm.attachment_url) {
+        alert("Vui lòng đính kèm file bài tập!");
+        return;
+      }
+      
+      const res = await fetch(`${apiBase}/api/assignments`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
-        body: JSON.stringify({...assignmentForm, lesson_id: activeLessonId})
+        body: JSON.stringify({...assignmentForm, course_id: parseInt(courseId as string), lesson_id: activeLessonId})
       });
       if (res.ok) {
         setShowAssignmentModal(false);
         setAssignmentForm({title: "", description: "", attachment_url: ""});
         fetchCurriculum();
+      } else {
+        alert("Có lỗi xảy ra khi tạo bài tập. Vui lòng thử lại.");
       }
   };
 
@@ -356,52 +442,103 @@ export default function CourseBuilderPage() {
                                 <div className="px-4 pb-4 pt-0">
                                    <div className="pl-8 pt-3 border-t border-border-card space-y-3">
                                       {less.video_url && (
-                                         <a href={less.video_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-xs text-blue-500 bg-blue-500/10 hover:bg-blue-500/15 w-fit px-3 py-1.5 rounded-lg border border-blue-500/20 transition-colors cursor-pointer">
-                                            <Video className="w-3.5 h-3.5" /> Video: Bấm để xem
-                                         </a>
+                                         <div className="flex items-center gap-2">
+                                            <a href={less.video_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-xs text-blue-500 bg-blue-500/10 hover:bg-blue-500/15 w-fit px-3 py-1.5 rounded-lg border border-blue-500/20 transition-colors cursor-pointer">
+                                               <Video className="w-3.5 h-3.5" /> Video: Bấm để xem
+                                            </a>
+                                            <button onClick={(e) => { e.stopPropagation(); handleRemoveLessonMedia(less.id, "video_url"); }} className="p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors" title="Xóa video"><Trash2 className="w-3.5 h-3.5" /></button>
+                                         </div>
                                       )}
                                       {less.document_url && (
-                                         <div className="flex flex-col gap-2">
-                                           {!less.document_url.endsWith(".html") ? (
-                                              <a href={less.document_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-xs text-purple-500 bg-purple-500/10 hover:bg-purple-500/15 w-fit px-3 py-1.5 rounded-lg border border-purple-500/20 transition-colors cursor-pointer">
-                                                 <FileText className="w-3.5 h-3.5" /> Tài liệu đính kèm
-                                              </a>
-                                           ) : (
-                                              <div className="flex items-center gap-2 text-xs text-purple-500 bg-purple-500/10 w-fit px-3 py-1.5 rounded-lg border border-purple-500/20">
-                                                 <BookOpen className="w-3.5 h-3.5" /> SCORM: Đã nhận diện gói Web
-                                              </div>
-                                           )}
-                                           {less.document_url.endsWith(".html") && (
-                                              <button onClick={() => setPreviewUrl(less.document_url)} className="flex items-center gap-2 text-xs text-emerald-500 bg-emerald-500/10 hover:bg-emerald-500/15 w-fit px-3 py-1.5 rounded-lg border border-emerald-500/20 transition-colors">
-                                                 <PlayCircle className="w-3.5 h-3.5" /> Chạy thử Preview SCORM
-                                              </button>
-                                           )}
-                                         </div>
-                                      )}
+                                          <div className="flex flex-col gap-2">
+                                            <div className="flex items-center gap-2">
+                                               {!less.document_url.endsWith(".html") ? (
+                                                  <a href={less.document_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-xs text-purple-500 bg-purple-500/10 hover:bg-purple-500/15 w-fit px-3 py-1.5 rounded-lg border border-purple-500/20 transition-colors cursor-pointer">
+                                                     <FileText className="w-3.5 h-3.5" /> Tài liệu đính kèm
+                                                  </a>
+                                               ) : (
+                                                  <div className="flex items-center gap-2 text-xs text-purple-500 bg-purple-500/10 w-fit px-3 py-1.5 rounded-lg border border-purple-500/20">
+                                                     <BookOpen className="w-3.5 h-3.5" /> SCORM: Đã nhận diện gói Web
+                                                  </div>
+                                               )}
+                                               <button onClick={(e) => { e.stopPropagation(); handleRemoveLessonMedia(less.id, "document_url"); }} className="p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors" title="Xóa tài liệu"><Trash2 className="w-3.5 h-3.5" /></button>
+                                            </div>
+                                            {less.document_url.endsWith(".html") && (
+                                               <button onClick={() => setPreviewUrl(less.document_url)} className="flex items-center gap-2 text-xs text-emerald-500 bg-emerald-500/10 hover:bg-emerald-500/15 w-fit px-3 py-1.5 rounded-lg border border-emerald-500/20 transition-colors">
+                                                  <PlayCircle className="w-3.5 h-3.5" /> Chạy thử Preview SCORM
+                                               </button>
+                                            )}
+                                          </div>
+                                       )}
+                                       {less.notes_url && (
+                                          <div className="flex items-center gap-2">
+                                             <a href={less.notes_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-xs text-indigo-500 bg-indigo-500/10 hover:bg-indigo-500/15 w-fit px-3 py-1.5 rounded-lg border border-indigo-500/20 transition-colors cursor-pointer">
+                                                <BookOpen className="w-3.5 h-3.5" /> File giải tay
+                                             </a>
+                                             <button onClick={(e) => { e.stopPropagation(); handleRemoveLessonMedia(less.id, "notes_url"); }} className="p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors" title="Xóa file giải tay"><Trash2 className="w-3.5 h-3.5" /></button>
+                                          </div>
+                                       )}
                                       
                                       {/* Assignments */}
-                                      {less.assignments?.map((a: any) => (
-                                         <div key={`a-${a.id}`} className="flex items-center gap-2 text-xs text-emerald-500 bg-emerald-500/10 w-fit px-3 py-1.5 rounded-lg border border-emerald-500/20">
-                                            <Edit3 className="w-3.5 h-3.5" /> Thực hành: {a.title}
-                                         </div>
-                                      ))}
+                                      {less.assignments?.map((a: any) => {
+                                         if (a.assignment_type === "quiz" || a.quiz_data) {
+                                            return (
+                                               <div key={`a-${a.id}`} className="flex items-center gap-2 text-xs text-orange-600 dark:text-orange-400 bg-orange-500/10 w-fit px-3 py-1.5 rounded-lg border border-orange-500/20 group">
+                                                  <div className="flex items-center gap-2">
+                                                     <Timer className="w-3.5 h-3.5" /> Đề kiểm tra: {a.title}
+                                                  </div>
+                                                  <button onClick={() => { setEditingQuiz(a); setShowQuizModal(true); }} className="p-1 hover:bg-orange-500/20 rounded-md transition-colors" title="Chỉnh sửa"><Pencil className="w-3.5 h-3.5" /></button>
+                                                  <button onClick={(e) => handleRemoveAssignment(e, a.id)} className="p-1 text-red-500 hover:bg-red-500/20 rounded-md transition-colors" title="Xóa"><Trash2 className="w-3.5 h-3.5" /></button>
+                                               </div>
+                                            );
+                                         }
+                                         return (
+                                            <div key={`a-${a.id}`} className="flex items-center gap-2 text-xs text-emerald-500 bg-emerald-500/10 w-fit px-3 py-1.5 rounded-lg border border-emerald-500/20 group">
+                                               <div className="flex items-center gap-2">
+                                                  <Edit3 className="w-3.5 h-3.5" /> Thực hành: {a.title}
+                                               </div>
+                                               <button onClick={(e) => handleRemoveAssignment(e, a.id)} className="p-1 text-red-500 hover:bg-red-500/20 rounded-md transition-colors" title="Xóa"><Trash2 className="w-3.5 h-3.5" /></button>
+                                            </div>
+                                         );
+                                      })}
                                       
                                       {/* Exams */}
                                       {less.exams?.map((e: any) => (
-                                         <div key={`e-${e.id}`} className="flex items-center gap-2 text-xs text-orange-500 bg-orange-500/10 w-fit px-3 py-1.5 rounded-lg border border-orange-500/20">
-                                            <ClipboardList className="w-3.5 h-3.5" /> Tự luyện: {e.title} ({e.duration_minutes} phút)
+                                         <div key={`e-${e.id}`} className="flex items-center gap-2 text-xs text-orange-500 bg-orange-500/10 w-fit px-3 py-1.5 rounded-lg border border-orange-500/20 group">
+                                            <div className="flex items-center gap-2">
+                                               <ClipboardList className="w-3.5 h-3.5" /> Tự luyện: {e.title} ({e.duration_minutes} phút)
+                                            </div>
+                                            <button onClick={(ev) => handleRemoveExam(ev, e.id)} className="p-1 text-red-500 hover:bg-red-500/20 rounded-md transition-colors" title="Xóa"><Trash2 className="w-3.5 h-3.5" /></button>
                                          </div>
                                       ))}
 
-                                      <div className="flex gap-2 pt-2">
+                                      <div className="flex gap-2 pt-2 flex-wrap">
+                                         <label className={`text-xs bg-bg-hover hover:bg-blue-500/10 px-3 py-1.5 rounded-lg transition-colors text-blue-600 dark:text-blue-400 border border-border-card cursor-pointer flex items-center gap-1 ${uploadingLessonId === less.id ? 'opacity-50 pointer-events-none' : ''}`}>
+                                            {uploadingLessonId === less.id ? "+ Đang tải lên..." : "+ Video bài giảng"}
+                                            <input type="file" accept="video/*" className="hidden" onChange={(e) => {
+                                               if (e.target.files && e.target.files[0]) {
+                                                  handleUpdateLessonVideo(less.id, e.target.files[0]);
+                                               }
+                                               e.target.value = '';
+                                            }} />
+                                         </label>
+                                         <label className={`text-xs bg-bg-hover hover:bg-indigo-500/10 px-3 py-1.5 rounded-lg transition-colors text-indigo-600 dark:text-indigo-400 border border-border-card cursor-pointer flex items-center gap-1 ${uploadingLessonId === less.id ? 'opacity-50 pointer-events-none' : ''}`}>
+                                            + File giải tay
+                                            <input type="file" accept=".pdf,.doc,.docx,image/*" className="hidden" onChange={(e) => {
+                                               if (e.target.files && e.target.files[0]) {
+                                                  handleUpdateLessonNotes(less.id, e.target.files[0]);
+                                               }
+                                               e.target.value = '';
+                                            }} />
+                                         </label>
                                          <button 
                                             onClick={() => { setActiveLessonId(less.id); setShowAssignmentModal(true); }}
                                             className="text-xs bg-bg-hover hover:bg-emerald-500/10 px-3 py-1.5 rounded-lg transition-colors text-emerald-600 dark:text-emerald-400 border border-border-card"
                                          >+ Bài tập thực hành</button>
                                          <button 
-                                            onClick={() => { setActiveLessonId(less.id); setShowExamModal(true); }}
+                                            onClick={() => { setActiveLessonId(less.id); setShowQuizModal(true); }}
                                             className="text-xs bg-bg-hover hover:bg-orange-500/10 px-3 py-1.5 rounded-lg transition-colors text-orange-600 dark:text-orange-400 border border-border-card"
-                                         >+ Trắc nghiệm tự luyện</button>
+                                         >+ Đề kiểm tra (AI)</button>
                                       </div>
                                    </div>
                                 </div>
@@ -482,7 +619,7 @@ export default function CourseBuilderPage() {
             <div className="bg-bg-card w-full max-w-md rounded-2xl p-6 border border-border-card shadow-2xl">
                <h3 className="text-xl font-bold mb-4 text-emerald-600 dark:text-emerald-400">Tạo Bài Thực Hành</h3>
                <form onSubmit={handleCreateAssignment} className="space-y-4">
-                  <input type="text" value={assignmentForm.title} onChange={e => setAssignmentForm({...assignmentForm, title: e.target.value})} required placeholder="Tên bài tập" className="w-full bg-bg-hover border border-border-card rounded-xl px-4 py-3 text-sm focus:border-emerald-500 outline-none" />
+                  <input type="text" value={assignmentForm.title} onChange={e => setAssignmentForm({...assignmentForm, title: e.target.value})} placeholder="Tên bài tập (Bắt buộc)" className="w-full bg-bg-hover border border-border-card rounded-xl px-4 py-3 text-sm focus:border-emerald-500 outline-none" />
                   <textarea value={assignmentForm.description} onChange={e => setAssignmentForm({...assignmentForm, description: e.target.value})} placeholder="Mô tả yêu cầu" className="w-full bg-bg-hover border border-border-card rounded-xl px-4 py-3 text-sm focus:border-emerald-500 outline-none h-24 resize-y" />
                   
                   <div>
@@ -526,6 +663,24 @@ export default function CourseBuilderPage() {
       )}
 
       {/* SCORM Preview Modal */}
+      {showQuizModal && (
+         <QuizBuilderModal
+            courses={course ? [course] : []}
+            defaultCourseId={courseId}
+            defaultLessonId={activeLessonId?.toString()}
+            editAssignment={editingQuiz}
+            onClose={() => {
+               setShowQuizModal(false);
+               setEditingQuiz(null);
+            }}
+            onSuccess={() => {
+               setShowQuizModal(false);
+               setEditingQuiz(null);
+               fetchCurriculum();
+            }}
+         />
+      )}
+
       {previewUrl && (
          <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 p-4">
             <div className="bg-bg-card w-[1000px] h-[700px] max-w-full max-h-full rounded-2xl border border-border-card overflow-hidden flex flex-col shadow-2xl">

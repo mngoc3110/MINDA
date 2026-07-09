@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Grid, Users, Settings, LogOut, Sun, Moon, ShieldAlert } from "lucide-react";
+import { Grid, Users, Settings, LogOut, Sun, Moon, ShieldAlert, Trophy, MessageSquareQuote } from "lucide-react";
 import { useTheme } from "@/providers/ThemeProvider";
 
 const NAV_ITEMS = [
   { name: "Tổng quan", href: "/admin", icon: Grid },
   { name: "Người dùng", href: "/admin/users", icon: Users },
+  { name: "Bảng Vinh Danh", href: "/honors", icon: Trophy },
+  { name: "Cảm nhận học sinh", href: "/testimonials", icon: MessageSquareQuote },
   { name: "Hệ thống", href: "/admin/settings", icon: Settings },
 ];
 

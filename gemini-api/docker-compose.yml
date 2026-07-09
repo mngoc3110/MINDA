@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  gemini-api-1:
+    image: sophomores/gemini-web2api:latest
+    container_name: gemini-api-1
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./cookie_1.txt:/app/cookie.txt
+    command: python gemini_web2api.py --cookie-file /app/cookie.txt --port 8081 --host 0.0.0.0
+    restart: unless-stopped
+
+  gemini-api-2:
+    image: sophomores/gemini-web2api:latest
+    container_name: gemini-api-2
+    ports:
+      - "8082:8082"
+    volumes:
+      - ./cookie_2.txt:/app/cookie.txt
+    command: python gemini_web2api.py --cookie-file /app/cookie.txt --port 8082 --host 0.0.0.0
+    restart: unless-stopped

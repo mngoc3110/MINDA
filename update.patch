@@ -1,0 +1,73 @@
+--- student-center/frontend/src/app/(dashboard)/live/[room_id]/page.tsx
++++ student-center/frontend/src/app/(dashboard)/live/[room_id]/page.tsx
+@@ -759,6 +759,27 @@
+   };
+ 
++  // VTuber Stream replacement
++  const handleVtuberStream = (vtuberStream: MediaStream) => {
++    if (!localStream) return;
++    const vtuberTrack = vtuberStream.getVideoTracks()[0];
++    const comboStream = new MediaStream([vtuberTrack, ...localStream.getAudioTracks()]);
++    if (localVideoRef.current) localVideoRef.current.srcObject = comboStream;
++    activeStreamRef.current = comboStream;
++
++    if (peerInstance.current) {
++      const conns = (peerInstance.current as any).connections;
++      for (const id in conns) {
++        conns[id].forEach((c: any) => {
++          if (c.type === "media" && c.peerConnection) {
++            const sender = c.peerConnection.getSenders().find((s: any) => s.track?.kind === "video");
++            if (sender) sender.replaceTrack(vtuberTrack).catch(() => {});
++          }
++        });
++      }
++    }
++  };
++
+   const toggleScreenShare = async () => {
+     if (!localStream) return;
+@@ -825,6 +846,14 @@
+       console.error("Screen share error:", err);
+     }
+   };
++
++  // Khi tắt VTuber, khôi phục lại webcam
++  useEffect(() => {
++    if (!vtuberEnabled && localStream && !isScreenSharing) {
++      if (localVideoRef.current) localVideoRef.current.srcObject = localStream;
++      activeStreamRef.current = localStream;
++      const camTrack = localStream.getVideoTracks()[0];
++      if (peerInstance.current) {
++        const conns = (peerInstance.current as any).connections;
++        for (const id in conns) {
++          conns[id].forEach((c: any) => {
++            if (c.type === "media" && c.peerConnection) {
++              const sender = c.peerConnection.getSenders().find((s: any) => s.track?.kind === "video");
++              if (sender) sender.replaceTrack(camTrack).catch(() => {});
++            }
++          });
++        }
++      }
++    }
++  }, [vtuberEnabled, localStream, isScreenSharing]);
+ 
+   const toggleSelfCamSize = () => {
+@@ -1343,6 +1372,13 @@
+           </button>
+           
+           <button
++            onClick={() => setVtuberEnabled(!vtuberEnabled)}
++            title={vtuberEnabled ? "Tắt Avatar 3D" : "Bật Avatar 3D"}
++            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-lg ${vtuberEnabled ? "bg-purple-500 text-white shadow-[0_0_15px_rgba(168,85,247,0.4)]" : "bg-white/10 hover:bg-white/20 text-white"}`}
++          >
++            <span className="text-xl">🎭</span>
++          </button>
++
++          <button
+             onClick={toggleScreenShare}
+             title={isScreenSharing ? "Dừng chia sẻ" : "Chia sẻ màn hình"}
+@@ -1373,2 +1409,5 @@
+       )}
++
++      {/* Hidden VTuber Renderer */}
++      {vtuberEnabled && <div className="hidden absolute"><VTuberAvatar onStreamReady={handleVtuberStream} /></div>}

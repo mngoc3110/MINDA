@@ -117,6 +117,7 @@ export async function fetchMessagesFromDB(yearbookId) {
           canvasData: msg.canvas_data,
           isPublic: msg.is_public,
           hearts: msg.hearts,
+          date: msg.created_at,
           timestamp: new Date(msg.created_at).getTime(),
           avatar_url: msg.avatar_url || null  // From User table join
         },
@@ -376,6 +377,7 @@ export async function updateMessageInDB(messageId, updates) {
         canvasData: dbMessage.canvas_data,
         isPublic: dbMessage.is_public,
         hearts: dbMessage.hearts,
+        date: dbMessage.created_at,
         timestamp: new Date(dbMessage.created_at).getTime()
       };
       

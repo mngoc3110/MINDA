@@ -35,6 +35,26 @@ def list_exams(course_id: int, db: Session = Depends(get_db), current_user: User
     return db.query(Exam).filter(Exam.course_id == course_id).all()
 
 
+@router.delete("/exams/{exam_id}")
+def delete_exam(
+    exam_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role("teacher", "admin"))
+):
+    """Xóa đề thi (Teacher/Admin)."""
+    exam = db.query(Exam).filter(Exam.id == exam_id).first()
+    if not exam:
+        raise HTTPException(status_code=404, detail="Không tìm thấy đề thi")
+    
+    # Check permissions
+    if current_user.role.value == "teacher" and exam.teacher_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Không có quyền xóa đề thi này")
+        
+    db.delete(exam)
+    db.commit()
+    return {"message": "Đã xóa đề thi"}
+
+
 # ═══════════════ CÂU HỎI ═══════════════
 
 @router.post("/exams/{exam_id}/questions", response_model=QuestionResponse)

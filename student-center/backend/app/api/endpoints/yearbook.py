@@ -2,13 +2,58 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from app.db.database import get_db
-from app.models.yearbook import YearbookMessage
+from app.models.yearbook import YearbookMessage, YearbookGroup
 from app.models.user import User, UserRole
-from app.schemas.yearbook import YearbookMessageCreate, YearbookMessageResponse, YearbookHeartUpdate
+from app.schemas.yearbook import YearbookMessageCreate, YearbookMessageResponse, YearbookHeartUpdate, YearbookGroupCreate, YearbookGroupResponse
 from app.core.security import get_current_user
 import uuid
 
 router = APIRouter()
+
+@router.get("/groups", response_model=List[YearbookGroupResponse])
+def get_yearbook_groups(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if current_user.role not in [UserRole.teacher, UserRole.admin]:
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+    
+    # Giáo viên chỉ thấy sổ của mình, Admin thấy tất cả
+    if current_user.role == UserRole.admin:
+        groups = db.query(YearbookGroup).order_by(YearbookGroup.created_at.desc()).all()
+    else:
+        groups = db.query(YearbookGroup).filter(YearbookGroup.teacher_id == current_user.id).order_by(YearbookGroup.created_at.desc()).all()
+    return groups
+
+@router.post("/groups", response_model=YearbookGroupResponse)
+def create_yearbook_group(
+    group: YearbookGroupCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if current_user.role not in [UserRole.teacher, UserRole.admin]:
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+        
+    new_group = YearbookGroup(
+        id=f"group_{uuid.uuid4().hex[:8]}",
+        title=group.title,
+        description=group.description,
+        teacher_id=current_user.id
+    )
+    db.add(new_group)
+    db.commit()
+    db.refresh(new_group)
+    return new_group
+
+@router.get("/groups/{group_id}", response_model=YearbookGroupResponse)
+def get_yearbook_group(
+    group_id: str,
+    db: Session = Depends(get_db)
+):
+    group = db.query(YearbookGroup).filter(YearbookGroup.id == group_id).first()
+    if not group:
+        raise HTTPException(status_code=404, detail="Group not found")
+    return group
 
 # Dependency to optionally get user if token is provided
 def get_optional_user(token: str = None, db: Session = Depends(get_db)):
