@@ -170,9 +170,25 @@ def teacher_dashboard_tuition(db: Session = Depends(get_db), current_user: User 
     is_graduated_map = {}
     status_map = {}
     for link in db.query(TeacherStudentLink).filter(TeacherStudentLink.teacher_id == current_user.id).all():
-        class_map[link.student_id] = link.class_name or ""
-        is_graduated_map[link.student_id] = link.is_graduated or False
-        status_map[link.student_id] = link.status or "active"
+        student_id = link.student_id
+        if student_id not in class_map:
+            class_map[student_id] = link.class_name or ""
+            is_graduated_map[student_id] = link.is_graduated or False
+            status_map[student_id] = link.status or "active"
+        else:
+            # Ưu tiên lớp đang học (chưa tốt nghiệp) và trạng thái active
+            existing_graduated = is_graduated_map[student_id]
+            existing_status = status_map[student_id]
+            
+            if existing_graduated and not link.is_graduated:
+                class_map[student_id] = link.class_name or ""
+                is_graduated_map[student_id] = link.is_graduated or False
+                status_map[student_id] = link.status or "active"
+            elif existing_graduated == link.is_graduated:
+                if existing_status == "quit" and link.status == "active":
+                    class_map[student_id] = link.class_name or ""
+                    is_graduated_map[student_id] = link.is_graduated or False
+                    status_map[student_id] = link.status or "active"
     
     return [
         {
