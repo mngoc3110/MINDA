@@ -160,7 +160,7 @@ export default function PdfToolsPage() {
         ocrForm.append("fileInput", inputFile);
         ocrForm.append("languages", "vie+eng");
         ocrForm.append("ocrType", "FORCE_OCR");
-        ocrForm.append("ocrRenderType", "PDF");
+        ocrForm.append("ocrRenderType", "sandwich");
         const ocrRes = await fetch(`${STIRLING_API}/misc/ocr-pdf`, { method: "POST", body: ocrForm });
         if (!ocrRes.ok) { const t = await ocrRes.text(); throw new Error(`OCR thất bại: ${t.slice(0, 200)}`); }
         const ocrBlob = await ocrRes.blob();
