@@ -20,7 +20,7 @@ interface PdfTool {
 }
 
 const TOOLS: PdfTool[] = [
-  { id: "pdf-word", name: "PDF → Word", desc: "Chuyển PDF sang DOCX", icon: FileOutput, endpoint: "/convert/pdf/word", accept: ".pdf", color: "from-blue-600 to-cyan-500", group: "Chuyển đổi",
+  { id: "pdf-word", name: "PDF → Word", desc: "Chuyển PDF sang DOCX chỉnh sửa được (tự OCR)", icon: FileOutput, endpoint: "/convert/pdf/word", accept: ".pdf", color: "from-blue-600 to-cyan-500", group: "Chuyển đổi",
     hiddenFields: { outputFormat: "docx" } },
   { id: "pdf-img", name: "PDF → Hình ảnh", desc: "Xuất trang PDF thành PNG/JPG", icon: Image, endpoint: "/convert/pdf/img", accept: ".pdf", color: "from-emerald-600 to-teal-500", group: "Chuyển đổi",
     fields: [{ name: "imageFormat", label: "Định dạng", type: "select", options: [{ value: "png", label: "PNG" }, { value: "jpeg", label: "JPEG" }], default: "png" }],
@@ -152,9 +152,24 @@ export default function PdfToolsPage() {
     if (!activeTool || files.length === 0) return;
     setProcessing(true); setError(""); setDone(false);
     try {
+      let inputFile = files[0];
+
+      // PDF → Word: tự động OCR trước để text có thể chỉnh sửa được
+      if (activeTool.id === "pdf-word") {
+        const ocrForm = new FormData();
+        ocrForm.append("fileInput", inputFile);
+        ocrForm.append("languages", "vie+eng");
+        ocrForm.append("ocrType", "FORCE_OCR");
+        ocrForm.append("ocrRenderType", "PDF");
+        const ocrRes = await fetch(`${STIRLING_API}/misc/ocr-pdf`, { method: "POST", body: ocrForm });
+        if (!ocrRes.ok) { const t = await ocrRes.text(); throw new Error(`OCR thất bại: ${t.slice(0, 200)}`); }
+        const ocrBlob = await ocrRes.blob();
+        inputFile = new File([ocrBlob], inputFile.name, { type: "application/pdf" });
+      }
+
       const formData = new FormData();
       if (activeTool.multiple) files.forEach(f => formData.append("fileInput", f));
-      else formData.append("fileInput", files[0]);
+      else formData.append("fileInput", inputFile);
 
       // For visual split, convert split points to page ranges
       if (activeTool.visualSplit && splitPoints.size > 0) {
@@ -353,7 +368,7 @@ export default function PdfToolsPage() {
                 className={`flex-1 py-4 rounded-2xl font-bold text-white transition-all flex items-center justify-center gap-2 shadow-xl ${
                   files.length === 0 || processing ? "bg-gray-500 cursor-not-allowed opacity-50" : `bg-gradient-to-r ${activeTool.color} hover:opacity-90 hover:-translate-y-0.5`
                 }`}>
-                {processing ? <><Loader2 className="w-5 h-5 animate-spin" /> Đang xử lý...</> : activeTool.visualSplit && splitPoints.size > 0 ? `Tách thành ${splitPoints.size + 1} phần` : "Xử lý ngay"}
+                {processing ? <><Loader2 className="w-5 h-5 animate-spin" /> {activeTool.id === "pdf-word" ? "Đang OCR + chuyển đổi... (có thể mất 1-2 phút)" : "Đang xử lý..."}</> : activeTool.visualSplit && splitPoints.size > 0 ? `Tách thành ${splitPoints.size + 1} phần` : "Xử lý ngay"}
               </button>
             ) : (
               <button onClick={downloadResult}
