@@ -45,19 +45,23 @@ class MathAnimation(Scene):
   );
   
   const [isRendering, setIsRendering] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [renderLogs, setRenderLogs] = useState<string[]>([]);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const handleRender = async () => {
+
+  const handleRender = async (codeToRender?: string) => {
     setIsRendering(true);
     setVideoUrl(null);
     setErrorMsg(null);
+    setRenderLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] Bắt đầu render...`]);
     
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/manim/render`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: pythonCode }),
+        body: JSON.stringify({ code: codeToRender ?? pythonCode }),
       });
       
       if (!response.ok) {
@@ -66,13 +70,45 @@ class MathAnimation(Scene):
       }
       
       const data = await response.json();
+      setRenderLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] ✓ Render hoàn tất! Video đã sẵn sàng.`]);
       setVideoUrl(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}${data.video_url}`);
     } catch (error: any) {
       setErrorMsg(error.message);
+      setRenderLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] ✗ Lỗi: ${error.message}`]);
     } finally {
       setIsRendering(false);
     }
   };
+
+  const handleAIGenerate = async () => {
+    if (!aiPrompt.trim()) return;
+    setIsGenerating(true);
+    setErrorMsg(null);
+    setRenderLogs([`[${new Date().toLocaleTimeString()}] 🤖 Đang gọi AI sinh code Manim...`]);
+    const token = localStorage.getItem("minda_token");
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/manim/generate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+        body: JSON.stringify({ prompt: aiPrompt }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.detail || "AI generate thất bại");
+      }
+      const data = await res.json();
+      const generatedCode = data.code;
+      setPythonCode(generatedCode);
+      setRenderLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] ✓ AI đã sinh code. Đang render video...`]);
+      setIsGenerating(false);
+      await handleRender(generatedCode);
+    } catch (error: any) {
+      setErrorMsg(error.message);
+      setRenderLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] ✗ Lỗi: ${error.message}`]);
+      setIsGenerating(false);
+    }
+  };
+
 
   const editorTheme = theme === "dark" ? "vs-dark" : "light";
 
@@ -152,12 +188,12 @@ class MathAnimation(Scene):
               </div>
 
               <button
-                onClick={handleRender}
-                disabled={isRendering || !aiPrompt.trim()}
+                onClick={handleAIGenerate}
+                disabled={isGenerating || isRendering || !aiPrompt.trim()}
                 className="w-full bg-indigo-500 hover:bg-indigo-600 disabled:opacity-40 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm shadow-indigo-500/20"
               >
-                {isRendering ? <Loader2 className="w-4 h-4 animate-spin" /> : <Wand2 className="w-4 h-4" />}
-                {isRendering ? "Đang tạo video..." : "Tự động tạo Video"}
+                {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : isRendering ? <Loader2 className="w-4 h-4 animate-spin" /> : <Wand2 className="w-4 h-4" />}
+                {isGenerating ? "AI đang sinh code..." : isRendering ? "Đang render video..." : "Tự động tạo Video"}
               </button>
             </div>
           ) : (
@@ -209,7 +245,17 @@ class MathAnimation(Scene):
         <div className="flex-1 p-6 flex flex-col gap-5 overflow-y-auto">
           {/* Video Player */}
           <div className="w-full aspect-video bg-bg-card rounded-2xl border border-border-card overflow-hidden flex items-center justify-center shadow-sm">
-            {isRendering ? (
+            {isGenerating ? (
+              <div className="flex flex-col items-center gap-4 text-text-muted">
+                <div className="relative">
+                  <div className="w-14 h-14 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin" />
+                  <Wand2 className="w-5 h-5 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-indigo-500" />
+                </div>
+                <p className="font-bold text-sm animate-pulse text-text-secondary">AI đang viết code Manim...</p>
+                <p className="text-xs text-text-muted">Gemini đang tạo animation theo yêu cầu của bạn</p>
+              </div>
+            ) : isRendering ? (
+
               <div className="flex flex-col items-center gap-4 text-text-muted">
                 <div className="relative">
                   <div className="w-14 h-14 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin" />
@@ -260,26 +306,21 @@ class MathAnimation(Scene):
             <div className="border-b border-border-card px-4 py-2 flex items-center gap-2 text-xs font-bold text-text-muted">
               <TerminalSquare className="w-3.5 h-3.5" /> Terminal Logs
             </div>
-            <div className="p-4 font-mono text-xs text-emerald-600 dark:text-emerald-400 overflow-y-auto flex-1">
-              {isRendering ? (
-                <>
-                  <p className="text-text-muted">[{new Date().toLocaleTimeString()}] Bắt đầu render...</p>
-                  <p className="text-amber-500">Manim Community v0.19.1</p>
-                  <p className="animate-pulse mt-1">Rendering MathAnimation → 480p15...</p>
-                </>
-              ) : errorMsg ? (
-                <p className="text-red-500">{errorMsg}</p>
-              ) : videoUrl ? (
-                <>
-                  <p className="text-text-muted">[{new Date().toLocaleTimeString()}] Bắt đầu render...</p>
-                  <p className="text-amber-500">Manim Community v0.19.1</p>
-                  <p>Rendering MathAnimation → 480p15...</p>
-                  <p className="text-emerald-500 mt-1">✓ Render hoàn tất! Video đã sẵn sàng.</p>
-                </>
-              ) : (
+            <div className="p-4 font-mono text-xs overflow-y-auto flex-1 space-y-0.5">
+              {renderLogs.length === 0 ? (
                 <p className="text-text-muted">Hệ thống sẵn sàng.</p>
+              ) : (
+                renderLogs.map((log, i) => (
+                  <p key={i} className={
+                    log.includes('✓') ? 'text-emerald-500' :
+                    log.includes('✗') || log.includes('Lỗi') ? 'text-red-500' :
+                    log.includes('🤖') ? 'text-indigo-400' :
+                    'text-amber-500'
+                  }>{log}</p>
+                ))
               )}
             </div>
+
           </div>
         </div>
       </div>

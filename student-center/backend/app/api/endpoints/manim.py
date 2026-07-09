@@ -1,16 +1,67 @@
 import os
+import re
 import subprocess
-import tempfile
 import uuid
-from fastapi import APIRouter, HTTPException, BackgroundTasks
+from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
+from google import genai
+from app.core.config import settings
 
 router = APIRouter()
+
+MODELS_TO_TRY = [
+    "gemini-2.5-flash",
+    "gemini-2.0-flash",
+    "gemini-2.0-flash-lite",
+]
+
+MANIM_SYSTEM_PROMPT = """Bạn là chuyên gia lập trình Manim (Python) cho giáo dục toán học.
+Nhiệm vụ: Viết code Manim Community (v0.18+) hoàn chỉnh, chạy được, để tạo video animation theo mô tả của người dùng.
+
+Quy tắc bắt buộc:
+1. Chỉ trả về code Python thuần túy, KHÔNG có markdown, KHÔNG có ```python, KHÔNG có giải thích.
+2. Class phải kế thừa Scene và tên class phải là MathAnimation.
+3. Dùng tiếng Việt trong comment nếu cần.
+4. Code phải ngắn gọn, rõ ràng, chạy được ngay với lệnh: manim file.py MathAnimation -ql
+5. Ưu tiên dùng các object: MathTex, Tex, Text, Axes, NumberPlane, Arrow, Line, Dot, Circle, Square, Rectangle, Polygon, VGroup, Brace.
+6. Thêm self.wait() ở cuối để video không kết thúc đột ngột.
+"""
+
 
 # Schema
 class ManimCodeRequest(BaseModel):
     code: str
+
+class ManimPromptRequest(BaseModel):
+    prompt: str
+
+@router.post("/generate")
+async def generate_manim_code(request: ManimPromptRequest):
+    """Dùng Gemini AI sinh Manim Python code từ mô tả tự nhiên."""
+    client = genai.Client(api_key=settings.GEMINI_API_KEY)
+    
+    last_error = None
+    for model_id in MODELS_TO_TRY:
+        try:
+            response = client.models.generate_content(
+                model=model_id,
+                contents=request.prompt,
+                config={
+                    "system_instruction": MANIM_SYSTEM_PROMPT,
+                    "temperature": 0.3,
+                }
+            )
+            raw = response.text.strip()
+            # Xoá markdown code blocks nếu có
+            raw = re.sub(r'^```(?:python)?\n?', '', raw)
+            raw = re.sub(r'\n?```$', '', raw)
+            return JSONResponse(content={"code": raw.strip()})
+        except Exception as e:
+            last_error = str(e)
+            continue
+    
+    raise HTTPException(status_code=500, detail=f"AI generate failed: {last_error}")
 
 @router.post("/render")
 async def render_manim(request: ManimCodeRequest):
