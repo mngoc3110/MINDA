@@ -94,6 +94,8 @@ export default function ScheduleModal({
     (initialData.type === "course_session" || initialData.type === "student") && 
     userRole === "student";
 
+  console.log("ScheduleModal Debug Log:", { userRole, isReadOnly, initialData, type: formData.type });
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <div className="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl relative">

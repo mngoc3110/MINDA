@@ -41,6 +41,7 @@ export default function SchedulePage() {
     setLoading(true);
     try {
       const role = localStorage.getItem("minda_role") || "student";
+      console.log("SchedulePage FetchData - Retrieved role from localStorage:", role);
       const token = localStorage.getItem("minda_token");
       setUserRole(role);
 
