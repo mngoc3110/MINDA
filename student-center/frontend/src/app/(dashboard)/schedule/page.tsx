@@ -61,11 +61,17 @@ export default function SchedulePage() {
 
       // Fetch courses for dropdown
       if (role === "teacher" || role === "admin") {
-        const courseRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/courses/teacher/courses`, {
+        const courseRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/courses/`, {
           headers: { "Authorization": `Bearer ${token}` }
         });
         if (courseRes.ok) {
-          setCourses(await courseRes.json());
+          const allCourses = await courseRes.json();
+          const userId = localStorage.getItem("minda_user_id");
+          if (role === "teacher" && userId) {
+            setCourses(allCourses.filter((c: any) => c.teacher_id === parseInt(userId)));
+          } else {
+            setCourses(allCourses);
+          }
         }
 
         const studentRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/profile/students`, {
