@@ -275,7 +275,9 @@ def my_offline_students(db: Session = Depends(get_db), current_user: User = Depe
             "avatar_url": link.student.avatar_url,
             "email": link.student.email,
             "phone": link.student.phone,
-            "class_name": link.class_name or ""
+            "class_name": link.class_name or "",
+            "is_graduated": link.is_graduated or False,
+            "status": link.status or "active"
         }
         for link in links if link.student
     ]

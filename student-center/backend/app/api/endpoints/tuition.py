@@ -165,10 +165,14 @@ def teacher_dashboard_tuition(db: Session = Depends(get_db), current_user: User 
     records = course_records + offline_records
     records.sort(key=lambda r: r.created_at, reverse=True)
     
-    # Build class_name lookup from TeacherStudentLink
+    # Build class_name, is_graduated, status lookup from TeacherStudentLink
     class_map = {}
+    is_graduated_map = {}
+    status_map = {}
     for link in db.query(TeacherStudentLink).filter(TeacherStudentLink.teacher_id == current_user.id).all():
         class_map[link.student_id] = link.class_name or ""
+        is_graduated_map[link.student_id] = link.is_graduated or False
+        status_map[link.student_id] = link.status or "active"
     
     return [
         {
@@ -176,6 +180,8 @@ def teacher_dashboard_tuition(db: Session = Depends(get_db), current_user: User 
             "student_id": r.student_id,
             "student_name": r.student.full_name or f"Học sinh #{r.student_id}",
             "class_name": class_map.get(r.student_id, ""),
+            "is_graduated": is_graduated_map.get(r.student_id, False),
+            "student_status": status_map.get(r.student_id, "active"),
             "course_title": r.course.title if r.course else "Lớp Offline (Tổng hợp)",
             "amount": r.amount,
             "paid_amount": r.paid_amount,

@@ -9,6 +9,8 @@ type TuitionRecord = {
   student_id?: number;
   student_name: string;
   class_name?: string;
+  is_graduated?: boolean;
+  student_status?: string;
   amount: number;
   paid_amount?: number;
   status: string;
@@ -25,6 +27,8 @@ type Student = {
   avatar_url?: string;
   email?: string;
   class_name?: string;
+  is_graduated?: boolean;
+  status?: string;
 };
 
 // ════════════════════════════════
@@ -317,6 +321,11 @@ function TeacherTuitionView() {
           classGroups[cls].push(s);
         });
         const classNames = Object.keys(classGroups).sort((a, b) => a === "Chưa phân lớp" ? 1 : b === "Chưa phân lớp" ? -1 : a.localeCompare(b));
+        
+        // Phân loại lớp đang học và lớp đã tốt nghiệp
+        const activeClassNames = classNames.filter(cls => !classGroups[cls].some(s => s.is_graduated));
+        const graduatedClassNames = classNames.filter(cls => classGroups[cls].some(s => s.is_graduated));
+
         const toggleClass = (cls: string) => {
           setExpandedClasses(prev => {
             const next = new Set(prev);
@@ -324,53 +333,93 @@ function TeacherTuitionView() {
             return next;
           });
         };
+
+        const renderClassList = (names: string[], isGraduatedSection: boolean) => {
+          if (names.length === 0) return null;
+          return (
+            <div className="mt-2">
+              <div className="px-5 py-2.5 bg-bg-hover/30 text-xs font-bold text-text-secondary uppercase tracking-wider flex items-center gap-1.5 border-y border-border-card">
+                {isGraduatedSection ? "🎓 Lớp đã tốt nghiệp / Lưu trữ" : "🏫 Lớp đang theo học"}
+              </div>
+              {names.map(cls => {
+                const students = classGroups[cls];
+                // Sắp xếp học sinh: đang học trước, đã nghỉ học sau
+                const sortedStudents = [...students].sort((a, b) => {
+                  if (a.status === "quit" && b.status !== "quit") return 1;
+                  if (a.status !== "quit" && b.status === "quit") return -1;
+                  return a.full_name.localeCompare(b.full_name);
+                });
+                const isExpanded = expandedClasses.has(cls);
+                const activeCount = students.filter(s => s.status !== "quit").length;
+                const quitCount = students.filter(s => s.status === "quit").length;
+
+                return (
+                  <div key={cls} className="border-b border-border-card last:border-b-0">
+                    <div
+                      className="flex items-center gap-3 px-5 py-3.5 cursor-pointer hover:bg-bg-hover transition-colors"
+                      onClick={() => toggleClass(cls)}
+                    >
+                      {isExpanded
+                        ? <ChevronDown className="w-4 h-4 text-purple-400 shrink-0" />
+                        : <ChevronRight className="w-4 h-4 text-purple-400 shrink-0" />
+                      }
+                      <span className={`text-sm font-bold flex-1 ${isGraduatedSection ? 'text-text-secondary line-through decoration-purple-300' : 'text-text-primary'}`}>
+                        {isGraduatedSection ? `🎓 ${cls} (Tốt nghiệp)` : `🏫 ${cls}`}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] px-2 py-0.5 bg-purple-500/10 text-purple-400 rounded-full border border-purple-500/20 font-bold">
+                          {activeCount} HS đang học
+                        </span>
+                        {quitCount > 0 && (
+                          <span className="text-[10px] px-2 py-0.5 bg-red-500/10 text-red-500 rounded-full border border-red-500/20 font-bold">
+                            {quitCount} HS đã nghỉ
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    {isExpanded && (
+                      <div className="px-5 pb-4 pt-2 flex flex-wrap gap-3">
+                        {sortedStudents.map(student => {
+                          const isQuit = student.status === "quit";
+                          return (
+                            <div key={student.id} className={`flex items-center gap-3 bg-bg-hover px-4 py-3 rounded-2xl border border-border-card transition-all ${isQuit ? 'opacity-50 grayscale bg-red-500/5' : ''}`}>
+                              <div className="w-9 h-9 rounded-full bg-purple-100 overflow-hidden shrink-0">
+                                <img src={student.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(student.full_name)}&background=a855f7&color=fff`} className="w-full h-full object-cover" alt="" />
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-1.5">
+                                  <p className="text-sm font-bold text-text-primary truncate">{student.full_name}</p>
+                                  {isQuit && (
+                                    <span className="text-[9px] px-1.5 py-0.2 bg-red-500/20 text-red-600 rounded font-bold uppercase tracking-wide">Đã nghỉ</span>
+                                  )}
+                                </div>
+                                <p className="text-xs text-text-secondary truncate">{student.email}</p>
+                              </div>
+                              {!isQuit && (
+                                <button onClick={(e) => { e.stopPropagation(); setFormData({...formData, student_id: student.id.toString()}); setShowCreateModal(true); }} className="ml-3 px-3 py-1.5 bg-bg-card hover:bg-purple-600 hover:text-white text-text-secondary text-xs font-semibold rounded-lg border border-border-card hover:border-transparent transition-all shrink-0">
+                                  Tạo phiếu
+                                </button>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          );
+        };
+
         return (
           <div className="mb-8 bg-bg-card rounded-3xl border border-border-card overflow-hidden shadow-sm">
             <div className="p-5 border-b border-border-card flex items-center gap-2">
               <Users className="w-5 h-5 text-purple-400" />
               <h2 className="text-base font-bold text-text-primary">Học sinh của bạn ({new Set(offlineStudents.map(s => s.id)).size} HS)</h2>
             </div>
-            {classNames.map(cls => {
-              const students = classGroups[cls];
-              const isExpanded = expandedClasses.has(cls);
-              return (
-                <div key={cls} className="border-b border-border-card last:border-b-0">
-                  <div
-                    className="flex items-center gap-3 px-5 py-3.5 cursor-pointer hover:bg-bg-hover transition-colors"
-                    onClick={() => toggleClass(cls)}
-                  >
-                    {isExpanded
-                      ? <ChevronDown className="w-4 h-4 text-purple-400 shrink-0" />
-                      : <ChevronRight className="w-4 h-4 text-purple-400 shrink-0" />
-                    }
-                    <span className="text-sm font-bold text-text-primary flex-1">
-                      🎓 {cls}
-                    </span>
-                    <span className="text-[11px] px-2.5 py-0.5 bg-purple-500/10 text-purple-400 rounded-full border border-purple-500/20 font-bold">
-                      {students.length} HS
-                    </span>
-                  </div>
-                  {isExpanded && (
-                    <div className="px-5 pb-4 flex flex-wrap gap-3">
-                      {students.map(student => (
-                        <div key={student.id} className="flex items-center gap-3 bg-bg-hover px-4 py-3 rounded-2xl border border-border-card">
-                          <div className="w-9 h-9 rounded-full bg-purple-100 overflow-hidden">
-                            <img src={student.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(student.full_name)}&background=a855f7&color=fff`} className="w-full h-full object-cover" alt="" />
-                          </div>
-                          <div>
-                            <p className="text-sm font-bold text-text-primary">{student.full_name}</p>
-                            <p className="text-xs text-text-secondary">{student.email}</p>
-                          </div>
-                          <button onClick={(e) => { e.stopPropagation(); setFormData({...formData, student_id: student.id.toString()}); setShowCreateModal(true); }} className="ml-3 px-3 py-1.5 bg-bg-card hover:bg-purple-600 hover:text-white text-text-secondary text-xs font-semibold rounded-lg border border-border-card hover:border-transparent transition-all">
-                            Tạo phiếu
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+            {renderClassList(activeClassNames, false)}
+            {renderClassList(graduatedClassNames, true)}
           </div>
         );
       })()}
@@ -386,6 +435,9 @@ function TeacherTuitionView() {
         });
         const classKeys = Object.keys(classRecords).sort((a, b) => a === "Chưa phân lớp" ? 1 : b === "Chưa phân lớp" ? -1 : a.localeCompare(b));
 
+        const activeClassKeys = classKeys.filter(cls => !classRecords[cls].some(r => r.is_graduated));
+        const graduatedClassKeys = classKeys.filter(cls => classRecords[cls].some(r => r.is_graduated));
+
         if (loading) return (
           <div className="bg-bg-card rounded-3xl border border-border-card p-8 text-center text-text-secondary shadow-sm">Đang tải dữ liệu...</div>
         );
@@ -393,105 +445,139 @@ function TeacherTuitionView() {
           <div className="bg-bg-card rounded-3xl border border-border-card p-8 text-center text-text-secondary shadow-sm">Không có phiếu thu cho tháng này.</div>
         );
 
-        return classKeys.map(cls => {
-          const items = classRecords[cls];
-          const paidCount = items.filter(r => r.status === 'paid').length;
-          const pendingItems = items.filter(r => r.status !== 'paid' && r.status !== 'quit').length;
-          const totalAmount = items.reduce((a, r) => a + r.amount, 0);
-          const paidTotal = items.filter(r => r.status === 'paid').reduce((a, r) => a + (r.paid_amount || r.amount), 0);
-          const isOpen = expandedClasses.has(`tx-${cls}`);
-
+        const renderTransactionClasses = (keys: string[], isGraduated: boolean) => {
+          if (keys.length === 0) return null;
           return (
-            <div key={`tx-${cls}`} className="bg-bg-card rounded-3xl border border-border-card overflow-hidden shadow-sm mb-4">
-              {/* Class header */}
-              <div
-                className="flex items-center gap-3 p-5 cursor-pointer hover:bg-bg-hover transition-colors"
-                onClick={() => {
-                  setExpandedClasses(prev => {
-                    const next = new Set(prev);
-                    next.has(`tx-${cls}`) ? next.delete(`tx-${cls}`) : next.add(`tx-${cls}`);
-                    return next;
-                  });
-                }}
-              >
-                {isOpen
-                  ? <ChevronDown className="w-5 h-5 text-purple-400 shrink-0" />
-                  : <ChevronRight className="w-5 h-5 text-purple-400 shrink-0" />
-                }
-                <span className="text-sm font-bold text-text-primary flex-1">🎓 {cls}</span>
-                <div className="flex items-center gap-3">
-                  <span className="text-[11px] px-2.5 py-0.5 bg-emerald-500/10 text-emerald-600 rounded-full border border-emerald-500/20 font-bold">
-                    ✅ {paidCount} đã đóng
-                  </span>
-                  {pendingItems > 0 && (
-                    <span className="text-[11px] px-2.5 py-0.5 bg-amber-500/10 text-amber-600 rounded-full border border-amber-500/20 font-bold">
-                      ⏳ {pendingItems} chưa đóng
-                    </span>
-                  )}
-                  <span className="text-xs text-text-secondary font-semibold">
-                    {paidTotal.toLocaleString()}₫ / {totalAmount.toLocaleString()}₫
-                  </span>
-                </div>
+            <div className="mb-6">
+              <div className="text-xs font-bold text-text-secondary uppercase tracking-wider mb-3 px-2 flex items-center gap-1.5">
+                <span>{isGraduated ? "🎓 PHIẾU THU LỚP ĐÃ TỐT NGHIỆP / LƯU TRỮ" : "🏫 PHIẾU THU LỚP ĐANG HỌC"}</span>
               </div>
+              {keys.map(cls => {
+                const items = classRecords[cls];
+                // Sắp xếp các dòng giao dịch: đang học trước, đã nghỉ học sau
+                const sortedItems = [...items].sort((a, b) => {
+                  const aQuit = a.student_status === "quit" || a.status === "quit" ? 1 : 0;
+                  const bQuit = b.student_status === "quit" || b.status === "quit" ? 1 : 0;
+                  if (aQuit !== bQuit) return aQuit - bQuit;
+                  return a.student_name.localeCompare(b.student_name);
+                });
+                const paidCount = items.filter(r => r.status === 'paid').length;
+                const pendingItems = items.filter(r => r.status !== 'paid' && r.status !== 'quit').length;
+                const totalAmount = items.reduce((a, r) => a + r.amount, 0);
+                const paidTotal = items.filter(r => r.status === 'paid').reduce((a, r) => a + (r.paid_amount || r.amount), 0);
+                const isOpen = expandedClasses.has(`tx-${cls}`);
 
-              {/* Expanded table */}
-              {isOpen && (
-                <table className="w-full text-left text-sm">
-                  <thead>
-                    <tr className="border-t border-b border-border-card text-text-secondary text-xs uppercase tracking-wider bg-bg-hover/50">
-                      <th className="p-3 pl-6 font-semibold">Học sinh</th>
-                      <th className="p-3 font-semibold">Số tiền</th>
-                      <th className="p-3 font-semibold">Tháng</th>
-                      <th className="p-3 font-semibold">Ngày nộp</th>
-                      <th className="p-3 pr-6 font-semibold text-right">Trạng thái</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {items.map(item => (
-                      <tr key={item.id} className="border-b border-border-card hover:bg-bg-hover transition-colors">
-                        <td className="p-3 pl-6">
-                          <div className="font-semibold text-text-primary mb-0.5">{item.student_name}</div>
-                          <div className="text-xs text-text-secondary">{item.note}</div>
-                        </td>
-                        <td className="p-3 font-bold text-text-primary">{item.amount.toLocaleString()}₫</td>
-                        <td className="p-3 text-text-secondary text-xs">{item.billing_cycle || "-"}</td>
-                        <td className="p-3 text-text-secondary text-xs">{item.paid_at ? new Date(item.paid_at).toLocaleDateString('vi-VN') : "Chưa nộp"}</td>
-                        <td className="p-3 pr-6 text-right">
-                          <div className="flex items-center justify-end gap-1.5">
-                            {item.status === 'paid' ? (
-                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-emerald-500/10 text-emerald-700 border border-emerald-500/20 rounded-full text-xs font-bold">
-                                <CheckCircle2 className="w-3 h-3" /> Đã đóng
-                              </span>
-                            ) : item.status === 'quit' ? (
-                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-bg-hover text-text-muted border border-border-card rounded-full text-xs font-bold">
-                                <Ban className="w-3 h-3" /> Đã nghỉ
-                              </span>
-                            ) : (
-                              <>
-                                <span onClick={() => handleConfirmPayment(item)} className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-amber-500/10 text-amber-700 border border-amber-500/20 rounded-full text-xs font-bold cursor-pointer hover:bg-amber-100 transition-colors">
-                                  <XCircle className="w-3 h-3" /> Xác nhận thu
-                                </span>
-                                <button onClick={() => handleOpenEdit(item)} title="Sửa" className="p-1 text-text-secondary hover:bg-blue-500/10 hover:text-blue-500 rounded-full transition-colors">
-                                  <Pencil className="w-3.5 h-3.5" />
-                                </button>
-                                <button onClick={() => handleConfirmPayment(item, "quit")} title="Nghỉ học" className="p-1 text-text-secondary hover:bg-red-500/10 hover:text-red-500 rounded-full transition-colors">
-                                  <Ban className="w-3.5 h-3.5" />
-                                </button>
-                                <button onClick={() => handleDelete(item)} title="Xóa" className="p-1 text-text-secondary hover:bg-red-500/10 hover:text-red-600 rounded-full transition-colors">
-                                  <Trash2 className="w-3.5 h-3.5" />
-                                </button>
-                              </>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
+                return (
+                  <div key={`tx-${cls}`} className={`bg-bg-card rounded-3xl border border-border-card overflow-hidden shadow-sm mb-4 ${isGraduated ? 'opacity-80' : ''}`}>
+                    {/* Class header */}
+                    <div
+                      className="flex items-center gap-3 p-5 cursor-pointer hover:bg-bg-hover transition-colors"
+                      onClick={() => {
+                        setExpandedClasses(prev => {
+                          const next = new Set(prev);
+                          next.has(`tx-${cls}`) ? next.delete(`tx-${cls}`) : next.add(`tx-${cls}`);
+                          return next;
+                        });
+                      }}
+                    >
+                      {isOpen
+                        ? <ChevronDown className="w-5 h-5 text-purple-400 shrink-0" />
+                        : <ChevronRight className="w-5 h-5 text-purple-400 shrink-0" />
+                      }
+                      <span className={`text-sm font-bold flex-1 ${isGraduated ? 'text-text-secondary line-through decoration-purple-300' : 'text-text-primary'}`}>
+                        {isGraduated ? `🎓 ${cls} (Tốt nghiệp)` : `🏫 ${cls}`}
+                      </span>
+                      <div className="flex items-center gap-3">
+                        <span className="text-[11px] px-2.5 py-0.5 bg-emerald-500/10 text-emerald-600 rounded-full border border-emerald-500/20 font-bold">
+                          ✅ {paidCount} đã đóng
+                        </span>
+                        {pendingItems > 0 && (
+                          <span className="text-[11px] px-2.5 py-0.5 bg-amber-500/10 text-amber-600 rounded-full border border-amber-500/20 font-bold">
+                            ⏳ {pendingItems} chưa đóng
+                          </span>
+                        )}
+                        <span className="text-xs text-text-secondary font-semibold">
+                          {paidTotal.toLocaleString()}₫ / {totalAmount.toLocaleString()}₫
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Expanded table */}
+                    {isOpen && (
+                      <table className="w-full text-left text-sm">
+                        <thead>
+                          <tr className="border-t border-b border-border-card text-text-secondary text-xs uppercase tracking-wider bg-bg-hover/50">
+                            <th className="p-3 pl-6 font-semibold">Học sinh</th>
+                            <th className="p-3 font-semibold">Số tiền</th>
+                            <th className="p-3 font-semibold">Tháng</th>
+                            <th className="p-3 font-semibold">Ngày nộp</th>
+                            <th className="p-3 pr-6 font-semibold text-right">Trạng thái</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {sortedItems.map(item => {
+                            const isQuit = item.student_status === "quit" || item.status === "quit";
+                            return (
+                              <tr key={item.id} className={`border-b border-border-card hover:bg-bg-hover transition-colors ${isQuit ? 'opacity-50 bg-red-500/5' : ''}`}>
+                                <td className="p-3 pl-6">
+                                  <div className="font-semibold text-text-primary mb-0.5 flex items-center gap-1.5">
+                                    {item.student_name}
+                                    {isQuit && (
+                                      <span className="text-[8px] px-1.5 py-0.2 bg-red-500/20 text-red-600 rounded font-bold uppercase tracking-wide">Đã nghỉ</span>
+                                    )}
+                                  </div>
+                                  <div className="text-xs text-text-secondary">{item.note}</div>
+                                </td>
+                                <td className="p-3 font-bold text-text-primary">{item.amount.toLocaleString()}₫</td>
+                                <td className="p-3 text-text-secondary text-xs">{item.billing_cycle || "-"}</td>
+                                <td className="p-3 text-text-secondary text-xs">{item.paid_at ? new Date(item.paid_at).toLocaleDateString('vi-VN') : "Chưa nộp"}</td>
+                                <td className="p-3 pr-6 text-right">
+                                  <div className="flex items-center justify-end gap-1.5">
+                                    {item.status === 'paid' ? (
+                                      <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 text-emerald-700 border border-emerald-500/20 rounded-full text-xs font-bold">
+                                        <CheckCircle2 className="w-3 h-3" /> Đã đóng
+                                      </span>
+                                    ) : item.status === 'quit' ? (
+                                      <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-bg-hover text-text-muted border border-border-card rounded-full text-xs font-bold">
+                                        <Ban className="w-3 h-3" /> Đã nghỉ
+                                      </span>
+                                    ) : (
+                                      <>
+                                        <span onClick={() => handleConfirmPayment(item)} className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-500/10 text-amber-700 border border-amber-500/20 rounded-full text-xs font-bold cursor-pointer hover:bg-amber-100 transition-colors">
+                                          <XCircle className="w-3 h-3" /> Xác nhận thu
+                                        </span>
+                                        <button onClick={() => handleOpenEdit(item)} title="Sửa" className="p-1 text-text-secondary hover:bg-blue-500/10 hover:text-blue-500 rounded-full transition-colors">
+                                          <Pencil className="w-3.5 h-3.5" />
+                                        </button>
+                                        <button onClick={() => handleConfirmPayment(item, "quit")} title="Nghỉ học" className="p-1 text-text-secondary hover:bg-red-500/10 hover:text-red-500 rounded-full transition-colors">
+                                          <Ban className="w-3.5 h-3.5" />
+                                        </button>
+                                        <button onClick={() => handleDelete(item)} title="Xóa" className="p-1 text-text-secondary hover:bg-red-500/10 hover:text-red-650 rounded-full transition-colors">
+                                          <Trash2 className="w-3.5 h-3.5" />
+                                        </button>
+                                      </>
+                                    )}
+                                  </div>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           );
-        });
+        };
+
+        return (
+          <>
+            {renderTransactionClasses(activeClassKeys, false)}
+            {renderTransactionClasses(graduatedClassKeys, true)}
+          </>
+        );
       })()}
 
       {/* Modal */}
