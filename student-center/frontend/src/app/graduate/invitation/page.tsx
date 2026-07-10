@@ -201,6 +201,13 @@ export default function GraduationCard() {
             </div>
 
           </div>
+          <button 
+            className={styles.desktopDownloadBtn} 
+            onClick={handleDownloadPDF}
+            disabled={isDownloading}
+          >
+            {isDownloading ? 'Đang tạo PDF...' : 'Tải thiệp (PDF)'}
+          </button>
         </div>
       )}
 
