@@ -378,15 +378,36 @@
     width: 250px;
     height: 160px;
   }
+  .flapLeft {
+    border-top-width: 80px !important;
+    border-bottom-width: 80px !important;
+    border-left-width: 125px !important;
+  }
+  .flapRight {
+    border-top-width: 80px !important;
+    border-bottom-width: 80px !important;
+    border-right-width: 125px !important;
+  }
+  .flapBottomWrapper {
+    height: 100px !important;
+  }
   .flapBottom {
-    border-top-width: 90px;
+    border-left-width: 125px !important;
+    border-right-width: 125px !important;
+    border-bottom-width: 100px !important;
+  }
+  .flapTopWrapper {
+    height: 110px !important;
   }
   .flapTop {
-    border-top-width: 90px;
+    border-left-width: 125px !important;
+    border-right-width: 125px !important;
+    border-top-width: 110px !important;
   }
   .waxSeal {
     width: 40px; height: 40px;
     font-size: 20px;
+    top: 85px !important;
   }
   .bookContainer.pullingOut {
     transform: translate(-50%, -100%) scale(0.5);
