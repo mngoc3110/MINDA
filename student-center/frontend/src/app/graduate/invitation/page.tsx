@@ -12,6 +12,10 @@ export default function GraduationCard() {
   // Book state: 0 = cover, 1 = pages 2-3, 2 = pages 4-5, 3 = back cover
   const [bookPage, setBookPage] = useState(0);
 
+  // Mobile Gallery state
+  const [mobilePageIndex, setMobilePageIndex] = useState(1);
+  const [isDownloading, setIsDownloading] = useState(false);
+
   const handleNameSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (guestName.trim()) {
@@ -43,6 +47,69 @@ export default function GraduationCard() {
   const flipPrev = (e: React.MouseEvent) => {
     e.stopPropagation();
     setBookPage(p => Math.max(0, p - 1));
+  };
+
+  const handleMobileNext = () => {
+    if (mobilePageIndex < 6) setMobilePageIndex(mobilePageIndex + 1);
+  };
+  const handleMobilePrev = () => {
+    if (mobilePageIndex > 1) setMobilePageIndex(mobilePageIndex - 1);
+  };
+
+  const handleDownloadPDF = async () => {
+    if (isDownloading) return;
+    setIsDownloading(true);
+    try {
+      const { jsPDF } = await import('jspdf');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'px',
+        format: [1240, 1748] // typical A4 ratio for these images
+      });
+
+      for (let i = 1; i <= 6; i++) {
+        if (i > 1) pdf.addPage();
+        
+        const img = new Image();
+        img.src = `/graduate/${i}.png`;
+        await new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = reject;
+        });
+
+        pdf.addImage(img, 'PNG', 0, 0, 1240, 1748);
+        
+        // Add guest name on page 2
+        if (i === 2 && guestName) {
+          pdf.setFont("times", "italic");
+          pdf.setTextColor(219, 39, 119); // pink-600
+          pdf.setFontSize(140);
+          // Angle is counter-clockwise in jsPDF. Positive 3 = rotate(-3deg)
+          pdf.text(guestName, 1240 * 0.26, 1748 * 0.165, { angle: 3 });
+        }
+        // Add QR code on page 6
+        if (i === 6) {
+          try {
+            const qrImg = new Image();
+            qrImg.src = '/graduate/qr.png';
+            await new Promise((resolve, reject) => {
+              qrImg.onload = resolve;
+              qrImg.onerror = reject;
+            });
+            pdf.addImage(qrImg, 'PNG', 1240 * 0.08, 1748 * 0.72, 350, 350);
+          } catch (e) {
+            console.log('No QR code found or failed to load');
+          }
+        }
+      }
+      
+      pdf.save(`Thiep_Moi_${guestName || 'Khach'}.pdf`);
+    } catch (err) {
+      console.error('Failed to generate PDF:', err);
+      alert('Có lỗi xảy ra khi tải thiệp. Vui lòng thử lại.');
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   // Calculate book transform based on state to keep it centered
@@ -117,6 +184,7 @@ export default function GraduationCard() {
               </div>
               <div className={styles.pageBack} onClick={flipPrev}>
                 <img src="/graduate/6.png" alt="Page 6" className={styles.imgPlaceholder} />
+                <img src="/graduate/qr.png" alt="QR" className={styles.qrCodeOverlay} />
               </div>
             </div>
 
@@ -154,25 +222,35 @@ export default function GraduationCard() {
       {/* MOBILE SCROLL VIEW (Only visible on mobile and after envelope opens) */}
       {cardAnimation === 'presented' && (
         <div className={styles.mobileCardGallery}>
-          <div className={styles.mobilePageWrapper}>
-             <img src="/graduate/1.png" alt="Page 1" />
+          <div className={styles.mobilePageWrapper} onClick={handleMobileNext}>
+             <img src={`/graduate/${mobilePageIndex}.png`} alt={`Page ${mobilePageIndex}`} />
+             {mobilePageIndex === 2 && guestName && <div className={styles.mobileGuestName}>{guestName}</div>}
+             {mobilePageIndex === 6 && <img src="/graduate/qr.png" alt="QR" className={styles.mobileQrOverlay} />}
           </div>
-          <div className={styles.mobilePageWrapper}>
-             <img src="/graduate/2.png" alt="Page 2" />
-             {guestName && <div className={styles.mobileGuestName}>{guestName}</div>}
+          <div className={styles.mobileControls}>
+             <button 
+               disabled={mobilePageIndex === 1} 
+               onClick={(e) => { e.stopPropagation(); handleMobilePrev(); }}
+               className={styles.mobileNavBtn}
+             >
+               Trang trước
+             </button>
+             <span className={styles.mobilePageIndicator}>{mobilePageIndex} / 6</span>
+             <button 
+               disabled={mobilePageIndex === 6} 
+               onClick={(e) => { e.stopPropagation(); handleMobileNext(); }}
+               className={styles.mobileNavBtn}
+             >
+               Trang sau
+             </button>
           </div>
-          <div className={styles.mobilePageWrapper}>
-             <img src="/graduate/3.png" alt="Page 3" />
-          </div>
-          <div className={styles.mobilePageWrapper}>
-             <img src="/graduate/4.png" alt="Page 4" />
-          </div>
-          <div className={styles.mobilePageWrapper}>
-             <img src="/graduate/5.png" alt="Page 5" />
-          </div>
-          <div className={styles.mobilePageWrapper}>
-             <img src="/graduate/6.png" alt="Page 6" />
-          </div>
+          <button 
+            className={styles.downloadBtn} 
+            onClick={handleDownloadPDF}
+            disabled={isDownloading}
+          >
+            {isDownloading ? 'Đang tạo PDF...' : 'Tải thiệp (PDF)'}
+          </button>
         </div>
       )}
 
