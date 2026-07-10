@@ -408,8 +408,7 @@
     .downloadBtn:disabled {
       background: #9ca3af;
       cursor: not-allowed;
-    }border-radius: 8px;
-  }
+    }
 
   .mobileGuestName {
     position: absolute;
