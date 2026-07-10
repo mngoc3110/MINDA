@@ -3,17 +3,14 @@ import React, { useState } from 'react';
 import styles from './page.module.css';
 
 export default function GraduationCard() {
-  // 'input' -> 'envelope' -> 'card'
   const [stage, setStage] = useState<'input' | 'envelope' | 'card'>('input');
-  
-  // Envelope animation state
   const [envelopeState, setEnvelopeState] = useState<'closed' | 'opening' | 'opened'>('closed');
-  
   const [guestName, setGuestName] = useState('');
   
-  // 3D Book animation state
   const [cardAnimation, setCardAnimation] = useState<'hidden' | 'pullingOut' | 'presented'>('hidden');
-  const [bookState, setBookState] = useState<'closed' | 'opened'>('closed');
+  
+  // Book state: 0 = cover, 1 = pages 2-3, 2 = pages 4-5, 3 = back cover
+  const [bookPage, setBookPage] = useState(0);
 
   const handleNameSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,20 +25,36 @@ export default function GraduationCard() {
     
     setTimeout(() => {
       setEnvelopeState('opened');
-      setCardAnimation('pullingOut'); // Start pulling the book out
+      setCardAnimation('pullingOut');
       
       setTimeout(() => {
         setStage('card');
-        setCardAnimation('presented'); // Book scales up to the center
-      }, 1200); // Time for the book to slide up out of the envelope
+        setCardAnimation('presented');
+      }, 1200);
       
-    }, 600); // Time for the top flap to open
+    }, 600);
   };
+
+  const flipNext = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setBookPage(p => Math.min(3, p + 1));
+  };
+
+  const flipPrev = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setBookPage(p => Math.max(0, p - 1));
+  };
+
+  // Calculate book transform based on state to keep it centered
+  let bookTransformClass = '';
+  if (bookPage === 0) bookTransformClass = styles.bookClosedFront;
+  else if (bookPage === 3) bookTransformClass = styles.bookClosedBack;
+  else bookTransformClass = styles.bookOpened;
 
   return (
     <div className={styles.container}>
       
-      {/* Import Google Fonts for the elegant typography */}
+      {/* Import Google Fonts */}
       <style dangerouslySetInnerHTML={{__html: `
         @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap');
       `}} />
@@ -68,7 +81,7 @@ export default function GraduationCard() {
         </div>
       )}
 
-      {/* ENVELOPE STAGE (Visible during Stage 2, fades out in Stage 3) */}
+      {/* ENVELOPE STAGE */}
       <div className={`${styles.envelopeStage} ${stage === 'card' ? styles.hide : ''}`} style={{ display: stage === 'input' ? 'none' : 'flex' }}>
         {stage === 'envelope' && <div className={styles.hintText}>Click vào thư để mở</div>}
         
@@ -88,38 +101,39 @@ export default function GraduationCard() {
         </div>
       </div>
 
-      {/* STAGE 3: 3D FLIPPING IMAGE BOOK */}
+      {/* STAGE 3: MULTI-PAGE 3D FLIPPING IMAGE BOOK */}
       {cardAnimation !== 'hidden' && (
         <div className={`${styles.bookContainer} ${styles[cardAnimation]}`}>
-          <div 
-            className={`${styles.book} ${bookState === 'opened' ? styles.opened : ''}`} 
-            onClick={() => setBookState(s => s === 'closed' ? 'opened' : 'closed')}
-          >
+          <div className={`${styles.book} ${bookTransformClass}`}>
             
-            {/* The right side of the open book (Page 3 on front, Page 4 on back) */}
-            <div className={`${styles.page} ${styles.basePage}`}>
-              <div className={styles.pageFront}>
-                {/* Trang 3: Lời Cảm Ơn, Hình Ảnh... */}
-                <img src="/graduate/page3.jpg" alt="Page 3" className={styles.imgPlaceholder} />
+            {/* LEAF 3 (Pages 5 & 6) */}
+            <div className={`${styles.leaf} ${styles.leaf3} ${bookPage >= 3 ? styles.flipped : ''}`}>
+              <div className={styles.pageFront} onClick={flipNext}>
+                <img src="/graduate/5.png" alt="Page 5" className={styles.imgPlaceholder} />
               </div>
-              <div className={styles.pageBack}>
-                {/* Trang 4: Bìa sau */}
-                <img src="/graduate/page4.jpg" alt="Page 4" className={styles.imgPlaceholder} />
+              <div className={styles.pageBack} onClick={flipPrev}>
+                <img src="/graduate/6.png" alt="Page 6" className={styles.imgPlaceholder} />
               </div>
             </div>
 
-            {/* The left side of the open book / Cover (Page 1 on front, Page 2 on back) */}
-            <div className={`${styles.page} ${styles.coverPage}`}>
-              <div className={styles.pageFront}>
-                {/* Trang 1: Bìa trước */}
-                <img src="/graduate/page1.jpg" alt="Page 1" className={styles.imgPlaceholder} />
-                
-                {/* Có thể thêm Tên Khách Mời hiển thị đè lên bìa 1 nếu muốn */}
-                {/* <div className={styles.guestNameOverlay}>Dear {guestName}</div> */}
+            {/* LEAF 2 (Pages 3 & 4) */}
+            <div className={`${styles.leaf} ${styles.leaf2} ${bookPage >= 2 ? styles.flipped : ''}`}>
+              <div className={styles.pageFront} onClick={flipNext}>
+                <img src="/graduate/3.png" alt="Page 3" className={styles.imgPlaceholder} />
               </div>
-              <div className={styles.pageBack}>
-                {/* Trang 2: Thông tin buổi lễ... */}
-                <img src="/graduate/page2.jpg" alt="Page 2" className={styles.imgPlaceholder} />
+              <div className={styles.pageBack} onClick={flipPrev}>
+                <img src="/graduate/4.png" alt="Page 4" className={styles.imgPlaceholder} />
+              </div>
+            </div>
+
+            {/* LEAF 1 (Pages 1 & 2) */}
+            <div className={`${styles.leaf} ${styles.leaf1} ${bookPage >= 1 ? styles.flipped : ''}`}>
+              <div className={styles.pageFront} onClick={flipNext}>
+                <img src="/graduate/1.png" alt="Page 1" className={styles.imgPlaceholder} />
+                <div className={styles.guestNameOverlay}>Dear {guestName}</div>
+              </div>
+              <div className={styles.pageBack} onClick={flipPrev}>
+                <img src="/graduate/2.png" alt="Page 2" className={styles.imgPlaceholder} />
               </div>
             </div>
 
