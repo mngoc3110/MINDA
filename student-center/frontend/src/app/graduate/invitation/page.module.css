@@ -438,11 +438,8 @@
 
   .mobileGuestName {
     position: absolute;
-    font-family: 'Dancing Script', cursive;
-    font-size: 8vw;
-    color: #db2777;
-    top: 15%;
-    left: 20%;
+    top: 20%;
+    left: 23%;
     font-family: 'Dancing Script', cursive;
     color: #db2777; /* pink-600 */
     font-size: 8vw;

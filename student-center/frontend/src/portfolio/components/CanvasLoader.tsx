@@ -12,16 +12,29 @@ export const CanvasLoader = () => {
         flexDirection: "column",
       }}
     >
-      <span className="canvas-loader" />
+      <div style={{
+        width: '40px',
+        height: '40px',
+        border: '4px solid #f3f3f3',
+        borderTop: '4px solid #db2777',
+        borderRadius: '50%',
+        animation: 'spin 1s linear infinite'
+      }} />
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
       <p
         style={{
-          fontSize: 14,
-          color: "#f1f1f1",
+          fontSize: 16,
+          color: "#db2777", // pink-600 to match theme
           fontWeight: 800,
-          marginTop: 40,
+          marginTop: 20,
         }}
       >
-        Loading...
+        Đang tải mô hình 3D... (Có thể mất vài giây)
       </p>
     </Html>
   );

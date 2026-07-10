@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { links, navLinks } from "../constants";
 import { cn } from "../lib/utils";
@@ -6,6 +6,12 @@ import { cn } from "../lib/utils";
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isContactOpen, setIsContactOpen] = useState(false);
+
+  useEffect(() => {
+    const handleOpenContact = () => setIsContactOpen(true);
+    window.addEventListener('open-contact', handleOpenContact);
+    return () => window.removeEventListener('open-contact', handleOpenContact);
+  }, []);
 
   const toggleMenu = () => setIsOpen((prevOpen) => !prevOpen);
 
@@ -78,8 +84,8 @@ export const Navbar = () => {
             <h2 className="text-2xl font-bold mb-6 text-center">Liên hệ</h2>
             <div className="space-y-4">
               <p><strong>Tên:</strong> Minh Ngọc</p>
-              <p><strong>SĐT:</strong> 0123 456 789</p>
-              <p><strong>Email:</strong> ngoc@example.com</p>
+              <p><strong>SĐT:</strong> 0902937006</p>
+              <p><strong>Email:</strong> darber3110@gmail.com</p>
               <p><strong>Website:</strong> <a href="https://minda.io.vn" className="text-blue-500 hover:underline">minda.io.vn</a></p>
             </div>
           </div>

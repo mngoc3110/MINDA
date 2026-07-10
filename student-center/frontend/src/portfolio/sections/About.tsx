@@ -73,7 +73,7 @@ export const About = () => {
                 I&apos;m based in Ho Chi Minh City, Vietnam.
               </p>
 
-              <Button href="#contact" containerClass="w-full mt-10" isBeam>
+              <Button onClick={() => window.dispatchEvent(new Event('open-contact'))} containerClass="w-full mt-10" isBeam>
                 Contact Me
               </Button>
             </div>

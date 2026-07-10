@@ -77,15 +77,30 @@ export default function GraduationCard() {
           img.onerror = reject;
         });
 
-        pdf.addImage(img, 'PNG', 0, 0, 1240, 1748);
-        
         // Add guest name on page 2
         if (i === 2 && guestName) {
-          pdf.setFont("times", "italic");
-          pdf.setTextColor(219, 39, 119); // pink-600
-          pdf.setFontSize(140);
-          // Angle is counter-clockwise in jsPDF. Positive 3 = rotate(-3deg)
-          pdf.text(guestName, 1240 * 0.26, 1748 * 0.165, { angle: 3 });
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0);
+            ctx.font = "bold 130px 'Dancing Script', cursive";
+            ctx.fillStyle = "#db2777"; // pink-600
+            
+            ctx.save();
+            ctx.translate(280, 400); // position near 'Dear' line
+            ctx.rotate(-3 * Math.PI / 180);
+            ctx.fillText(guestName, 0, 0);
+            ctx.restore();
+            
+            const newImgData = canvas.toDataURL('image/png', 1.0);
+            pdf.addImage(newImgData, 'PNG', 0, 0, 1240, 1748);
+          } else {
+            pdf.addImage(img, 'PNG', 0, 0, 1240, 1748);
+          }
+        } else {
+          pdf.addImage(img, 'PNG', 0, 0, 1240, 1748);
         }
       }
       
@@ -196,7 +211,7 @@ export default function GraduationCard() {
               </div>
               <div className={styles.pageBack} onClick={flipPrev}>
                 <img src="/graduate/2.png" alt="Page 2" className={styles.imgPlaceholder} />
-                {guestName && <div className={styles.guestNameOverlay} style={{ top: '16.5%', left: '26%' }}>{guestName}</div>}
+                {guestName && <div className={styles.guestNameOverlay} style={{ top: '20%', left: '23%' }}>{guestName}</div>}
               </div>
             </div>
 
