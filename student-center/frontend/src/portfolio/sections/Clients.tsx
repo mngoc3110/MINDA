@@ -1,6 +1,51 @@
-import { hallOfFame } from "../constants";
+"use client";
+import { useEffect, useState } from "react";
+import { Award } from "lucide-react"; // Fallback icon
+
+interface Honor {
+  id: number;
+  student_name: string;
+  teacher_name: string;
+  title: string;
+  description: string;
+  image_url: string;
+  academic_year: string;
+  university_logo_url: string;
+}
+
+const getDirectImageUrl = (url: string | null) => {
+  if (!url) return "";
+  const driveRegex = /drive\.google\.com\/file\/d\/([^/]+)/;
+  const match = url.match(driveRegex);
+  if (match && match[1]) {
+    return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1000`;
+  }
+  return url;
+};
 
 export const Clients = () => {
+  const [honors, setHonors] = useState<Honor[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/honors/public`)
+      .then(async res => {
+         if (!res.ok) throw new Error("API not ok");
+         return res.json();
+      })
+      .then(data => {
+         if (Array.isArray(data) && data.length > 0) {
+           setHonors(data);
+         }
+      })
+      .catch(err => {
+         console.error("Honors API fetch failed:", err);
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return null; // or a loader if desired
+
   return (
     <section className="c-space my-20 bg-[#faedeb] text-black">
       <div className="flex flex-col items-center justify-center text-center mb-12">
@@ -21,7 +66,7 @@ export const Clients = () => {
           </svg>
         </div>
         <h3 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-orange-600 mb-4 tracking-wider uppercase">
-          BẢNG VINH DANH
+          HALL OF FAME
         </h3>
         <p className="text-gray-600 max-w-2xl mx-auto text-base md:text-lg px-4">
           Học sinh của Minh Ngọc
@@ -29,36 +74,44 @@ export const Clients = () => {
       </div>
 
       <div className="flex flex-wrap justify-center gap-6 overflow-x-auto pb-8">
-        {hallOfFame.map(({ id, name, year, uniName, uniLogo, avatar, teacher }) => (
-          <div key={id} className="bg-[#fcfaf7] border border-gray-100 rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] w-full max-w-[340px] flex flex-col shrink-0">
+        {honors.map((h) => (
+          <div key={h.id} className="bg-[#fcfaf7] border border-gray-100 rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] w-full max-w-[340px] flex flex-col shrink-0">
             <div className="flex items-start gap-4 mb-4">
               <div className="relative">
                 {/* Decorative border placeholder */}
                 <div className="absolute -inset-1 bg-gradient-to-tr from-blue-600 to-cyan-400 rounded-lg blur-[2px] opacity-70"></div>
-                <img src={avatar} alt={name} className="relative w-20 h-20 object-cover rounded-md border-2 border-yellow-400" />
+                {h.image_url ? (
+                   <img src={getDirectImageUrl(h.image_url)} alt={h.student_name} className="relative w-20 h-20 object-cover rounded-md border-2 border-yellow-400" />
+                ) : (
+                   <div className="relative w-20 h-20 bg-gray-100 flex items-center justify-center rounded-md border-2 border-yellow-400">
+                     <Award className="w-8 h-8 text-amber-500/50" />
+                   </div>
+                )}
               </div>
               
               <div className="flex flex-col pt-1">
-                <h4 className="text-xl font-bold text-gray-900 leading-tight">{name}</h4>
-                <p className="text-sm font-semibold text-gray-800 mt-1">Năm học: {year}</p>
+                <h4 className="text-xl font-bold text-gray-900 leading-tight">{h.student_name}</h4>
+                {h.academic_year && <p className="text-sm font-semibold text-gray-800 mt-1">Năm học: {h.academic_year}</p>}
                 
-                <div className="mt-3 w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center bg-white shadow-sm">
-                  <img src={uniLogo} alt="Uni Logo" className="w-6 h-6 object-contain" />
-                </div>
+                {h.university_logo_url && (
+                  <div className="mt-3 w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center bg-white shadow-sm overflow-hidden">
+                    <img src={getDirectImageUrl(h.university_logo_url)} alt="Uni Logo" className="w-6 h-6 object-contain" />
+                  </div>
+                )}
               </div>
             </div>
 
             <div className="mt-2 mb-6">
               <div className="bg-orange-100/80 rounded-lg px-4 py-2.5 w-fit border border-orange-200">
                 <p className="text-orange-500 font-bold text-xs uppercase tracking-wide leading-relaxed">
-                  {uniName}
+                  {h.title}
                 </p>
               </div>
             </div>
 
             <div className="mt-auto pt-5 border-t border-gray-200">
               <p className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">
-                HỌC SINH CỦA: <span className="text-orange-400">{teacher}</span>
+                HỌC SINH CỦA: <span className="text-orange-400">{h.teacher_name}</span>
               </p>
             </div>
           </div>
@@ -72,3 +125,4 @@ export const Clients = () => {
     </section>
   );
 };
+
