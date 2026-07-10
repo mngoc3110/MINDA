@@ -87,20 +87,6 @@ export default function GraduationCard() {
           // Angle is counter-clockwise in jsPDF. Positive 3 = rotate(-3deg)
           pdf.text(guestName, 1240 * 0.26, 1748 * 0.165, { angle: 3 });
         }
-        // Add QR code on page 6
-        if (i === 6) {
-          try {
-            const qrImg = new Image();
-            qrImg.src = '/graduate/qr.png';
-            await new Promise((resolve, reject) => {
-              qrImg.onload = resolve;
-              qrImg.onerror = reject;
-            });
-            pdf.addImage(qrImg, 'PNG', 1240 * 0.08, 1748 * 0.72, 350, 350);
-          } catch (e) {
-            console.log('No QR code found or failed to load');
-          }
-        }
       }
       
       pdf.save(`Thiep_Moi_${guestName || 'Khach'}.pdf`);
@@ -184,7 +170,6 @@ export default function GraduationCard() {
               </div>
               <div className={styles.pageBack} onClick={flipPrev}>
                 <img src="/graduate/6.png" alt="Page 6" className={styles.imgPlaceholder} />
-                <img src="/graduate/qr.png" alt="QR" className={styles.qrCodeOverlay} />
               </div>
             </div>
 
@@ -225,7 +210,6 @@ export default function GraduationCard() {
           <div className={styles.mobilePageWrapper} onClick={handleMobileNext}>
              <img src={`/graduate/${mobilePageIndex}.png`} alt={`Page ${mobilePageIndex}`} />
              {mobilePageIndex === 2 && guestName && <div className={styles.mobileGuestName}>{guestName}</div>}
-             {mobilePageIndex === 6 && <img src="/graduate/qr.png" alt="QR" className={styles.mobileQrOverlay} />}
           </div>
           <div className={styles.mobileControls}>
              <button 
