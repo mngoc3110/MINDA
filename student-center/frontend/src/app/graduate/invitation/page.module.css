@@ -226,10 +226,8 @@
 
 .book {
   position: relative;
-  width: 45vw;
-  max-width: 600px;
-  height: 80vh;
-  max-height: 850px;
+  height: min(80vh, 1.409 * 45vw); /* Fit vertically, but don't exceed half screen width */
+  aspect-ratio: 1240 / 1748; /* Exact image aspect ratio */
   transform-style: preserve-3d;
   transition: transform 1s cubic-bezier(0.645, 0.045, 0.355, 1);
 }
@@ -239,21 +237,23 @@
 }
 
 .bookOpened {
-  transform: translateX(22.5vw);
+  transform: translateX(50%);
 }
 
 .bookClosedBack {
-  transform: translateX(45vw);
+  transform: translateX(100%);
 }
 
 .leaf {
   position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
   transform-style: preserve-3d;
-  transition: transform 1s cubic-bezier(0.645, 0.045, 0.355, 1);
-  transform-origin: left center;
-  cursor: pointer;
+  transition: transform 1.2s cubic-bezier(0.645, 0.045, 0.355, 1);
+  transform-origin: left;
+  container-type: inline-size;
 }
 
 .leaf1 { z-index: 3; }
@@ -266,14 +266,15 @@
 
 .pageFront, .pageBack {
   position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   backface-visibility: hidden;
-  background-color: #fff;
-  border-radius: 4px 12px 12px 4px;
-  overflow: hidden;
-  border: 1px solid rgba(0,0,0,0.1);
-  box-shadow: 2px 5px 15px rgba(0,0,0,0.1);
+  -webkit-backface-visibility: hidden;
+  background: white;
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
+  cursor: pointer;
 }
 
 .pageBack {
@@ -284,38 +285,16 @@
 .imgPlaceholder {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain; /* Prevent any cropping */
   display: block;
 }
 
-/* Decorative spine gradient */
-.pageFront::after {
-  content: '';
-  position: absolute;
-  top: 0; left: 0;
-  width: 30px; height: 100%;
-  background: linear-gradient(to right, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0) 100%);
-  pointer-events: none;
-}
-.pageBack::after {
-  content: '';
-  position: absolute;
-  top: 0; right: 0;
-  width: 30px; height: 100%;
-  background: linear-gradient(to left, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0) 100%);
-  pointer-events: none;
-}
-
-/* Guest Name Overlay for Page 2 */
 .guestNameOverlay {
   position: absolute;
-  top: 25.5%; /* Positioned perfectly on the 'Dear' line */
-  left: 28%;
   font-family: 'Dancing Script', cursive;
-  font-size: 2.8vw; /* Responsive font size */
+  font-size: 8cqi; /* 8% of the leaf width - perfectly scales! */
   color: #db2777; /* Deep pink color to match theme */
   text-shadow: none;
-  z-index: 20;
   text-align: left;
   transform: rotate(-3deg); /* Slight rotation to match handwriting */
 }
@@ -333,9 +312,31 @@
   100% { opacity: 0.6; }
 }
 
+/* MOBILE RESPONSIVE adjustments */
 @media (max-width: 768px) {
-  .bookContainer {
-    transform: translate(-50%, -50%) scale(0.4);
+  .inputBox {
+    padding: 20px 30px;
+  }
+  .inputTitle {
+    font-size: 1.5rem;
+  }
+  .nameInput {
+    padding: 12px;
+    font-size: 1rem;
+  }
+  .envelopeWrapper {
+    width: 250px;
+    height: 160px;
+  }
+  .flapBottom {
+    border-top-width: 90px;
+  }
+  .flapTop {
+    border-top-width: 90px;
+  }
+  .waxSeal {
+    width: 40px; height: 40px;
+    font-size: 20px;
   }
   .bookContainer.pullingOut {
     transform: translate(-50%, -100%) scale(0.5);
@@ -344,15 +345,9 @@
     transform: translate(-50%, -50%) scale(0.9);
   }
   .book {
-    width: 90vw;
-    height: 70vh;
+    height: min(70vh, 1.409 * 90vw);
   }
   .bookClosedFront { transform: translateX(0); }
-  .bookOpened { transform: translateX(45vw); }
-  .bookClosedBack { transform: translateX(90vw); }
-  .guestNameOverlay {
-    font-size: 8vw;
-    top: 26%;
-    left: 28%;
-  }
+  .bookOpened { transform: translateX(50%); }
+  .bookClosedBack { transform: translateX(100%); }
 }
