@@ -73,9 +73,9 @@ export const Clients = () => {
         </p>
       </div>
 
-      <div className="flex flex-wrap justify-center gap-6 overflow-x-auto pb-8">
+      <div className="flex overflow-x-auto gap-6 pb-10 px-4 md:px-10 max-w-6xl mx-auto snap-x snap-mandatory custom-scrollbar">
         {honors.map((h) => (
-          <div key={h.id} className="bg-[#fcfaf7] border border-gray-100 rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] w-full max-w-[340px] flex flex-col shrink-0">
+          <div key={h.id} className="bg-[#fcfaf7] border border-gray-100 rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] w-[300px] md:w-[340px] flex flex-col shrink-0 snap-center">
             <div className="flex items-start gap-4 mb-4">
               <div className="relative">
                 {/* Decorative border placeholder */}
