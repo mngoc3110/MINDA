@@ -91,18 +91,16 @@ export default function GraduationCard() {
       {cardAnimation !== 'hidden' && (
         <div className={`${styles.flatCardContainer} ${styles[cardAnimation]}`}>
           
-          <div className={styles.sash}>
-            <div className={styles.sashText}>Nguyễn Lê Minh Ngọc</div>
-            <div className={styles.sashSubText}>K48 HCMUE</div>
-            <div className={styles.rosette}>🎓</div>
+          <div className={styles.sashContainer}>
+            <img src="/graduate/sash.jpg" alt="Sash" className={styles.sashImage} />
           </div>
 
           <div className={styles.cardLayout}>
             
             <div className={styles.cardHeader}>
               <div className={styles.logos}>
-                <div className={styles.logoPlaceholder}>HCMUE</div>
-                <div className={styles.logoPlaceholder}>IT</div>
+                <img src="/graduate/logo-hcmue.png" alt="HCMUE Logo" className={styles.logoImage} />
+                <img src="/graduate/logo-it.png" alt="IT Logo" className={styles.logoImage} />
               </div>
               <div className={styles.headerText}>
                 TRƯỜNG ĐẠI HỌC SƯ PHẠM<br/>
