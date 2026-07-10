@@ -151,6 +151,31 @@ export default function GraduationCard() {
         </div>
       )}
 
+      {/* MOBILE SCROLL VIEW (Only visible on mobile and after envelope opens) */}
+      {cardAnimation === 'presented' && (
+        <div className={styles.mobileCardGallery}>
+          <div className={styles.mobilePageWrapper}>
+             <img src="/graduate/1.png" alt="Page 1" />
+          </div>
+          <div className={styles.mobilePageWrapper}>
+             <img src="/graduate/2.png" alt="Page 2" />
+             {guestName && <div className={styles.mobileGuestName}>{guestName}</div>}
+          </div>
+          <div className={styles.mobilePageWrapper}>
+             <img src="/graduate/3.png" alt="Page 3" />
+          </div>
+          <div className={styles.mobilePageWrapper}>
+             <img src="/graduate/4.png" alt="Page 4" />
+          </div>
+          <div className={styles.mobilePageWrapper}>
+             <img src="/graduate/5.png" alt="Page 5" />
+          </div>
+          <div className={styles.mobilePageWrapper}>
+             <img src="/graduate/6.png" alt="Page 6" />
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

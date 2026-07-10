@@ -313,7 +313,57 @@
 }
 
 /* MOBILE RESPONSIVE adjustments */
+.mobileCardGallery {
+  display: none;
+}
+
 @media (max-width: 768px) {
+  .bookContainer {
+    display: none !important;
+  }
+  
+  .mobileCardGallery {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    width: 100vw;
+    height: 100vh;
+    overflow-y: auto;
+    padding: 20px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 20;
+    background: inherit;
+    animation: fadeIn 0.5s ease-out;
+  }
+
+  .mobilePageWrapper {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  .mobilePageWrapper img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 8px;
+  }
+
+  .mobileGuestName {
+    position: absolute;
+    font-family: 'Dancing Script', cursive;
+    font-size: 8vw;
+    color: #db2777;
+    top: 16.5%;
+    left: 26%;
+    transform: rotate(-3deg);
+  }
+
   .inputBox {
     padding: 20px 30px;
   }
