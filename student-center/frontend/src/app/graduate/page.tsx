@@ -130,10 +130,10 @@ export default function GraduationCard() {
             <div className={`${styles.leaf} ${styles.leaf1} ${bookPage >= 1 ? styles.flipped : ''}`}>
               <div className={styles.pageFront} onClick={flipNext}>
                 <img src="/graduate/1.png" alt="Page 1" className={styles.imgPlaceholder} />
-                <div className={styles.guestNameOverlay}>Dear {guestName}</div>
               </div>
               <div className={styles.pageBack} onClick={flipPrev}>
                 <img src="/graduate/2.png" alt="Page 2" className={styles.imgPlaceholder} />
+                <div className={styles.guestNameOverlay}>{guestName}</div>
               </div>
             </div>
 

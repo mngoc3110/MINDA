@@ -226,8 +226,10 @@
 
 .book {
   position: relative;
-  width: 400px;
-  height: 560px;
+  width: 45vw;
+  max-width: 600px;
+  height: 80vh;
+  max-height: 850px;
   transform-style: preserve-3d;
   transition: transform 1s cubic-bezier(0.645, 0.045, 0.355, 1);
 }
@@ -237,11 +239,11 @@
 }
 
 .bookOpened {
-  transform: translateX(200px);
+  transform: translateX(22.5vw);
 }
 
 .bookClosedBack {
-  transform: translateX(400px);
+  transform: translateX(45vw);
 }
 
 .leaf {
@@ -304,19 +306,18 @@
   pointer-events: none;
 }
 
-/* Guest Name Overlay for Cover Page (if needed) */
+/* Guest Name Overlay for Page 2 */
 .guestNameOverlay {
   position: absolute;
-  bottom: 20%;
-  left: 50%;
-  transform: translateX(-50%);
+  top: 25.5%; /* Positioned perfectly on the 'Dear' line */
+  left: 28%;
   font-family: 'Dancing Script', cursive;
-  font-size: 2.5rem;
-  color: #fff;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  font-size: 2.8vw; /* Responsive font size */
+  color: #db2777; /* Deep pink color to match theme */
+  text-shadow: none;
   z-index: 20;
-  text-align: center;
-  width: 90%;
+  text-align: left;
+  transform: rotate(-3deg); /* Slight rotation to match handwriting */
 }
 
 
@@ -332,21 +333,26 @@
   100% { opacity: 0.6; }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .bookContainer {
-    transform: translate(-50%, -50%) scale(0.3);
+    transform: translate(-50%, -50%) scale(0.4);
   }
   .bookContainer.pullingOut {
-    transform: translate(-50%, -100%) scale(0.4);
+    transform: translate(-50%, -100%) scale(0.5);
   }
   .bookContainer.presented {
-    transform: translate(-50%, -50%) scale(0.85);
+    transform: translate(-50%, -50%) scale(0.9);
   }
   .book {
-    width: 340px;
-    height: 480px;
+    width: 90vw;
+    height: 70vh;
   }
   .bookClosedFront { transform: translateX(0); }
-  .bookOpened { transform: translateX(170px); }
-  .bookClosedBack { transform: translateX(340px); }
+  .bookOpened { transform: translateX(45vw); }
+  .bookClosedBack { transform: translateX(90vw); }
+  .guestNameOverlay {
+    font-size: 8vw;
+    top: 26%;
+    left: 28%;
+  }
 }
