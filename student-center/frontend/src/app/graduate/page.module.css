@@ -9,78 +9,234 @@
   perspective: 2000px;
 }
 
+/* =========================================
+   STAGE 1: NAME INPUT
+========================================= */
+.inputStage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: fadeIn 1s ease-out;
+}
+
+.inputBox {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  padding: 40px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+}
+
+.inputTitle {
+  color: white;
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+.nameInput {
+  background: rgba(255,255,255,0.9);
+  border: none;
+  padding: 15px 25px;
+  border-radius: 12px;
+  font-size: 1.2rem;
+  width: 300px;
+  outline: none;
+  font-family: inherit;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+  transition: all 0.3s;
+}
+
+.nameInput:focus {
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.5);
+  background: white;
+}
+
+.inputStage .btn {
+  margin-top: 20px;
+  width: 100%;
+}
+
+/* =========================================
+   STAGE 2: ENVELOPE INTRO
+========================================= */
+.envelopeStage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: fadeIn 1s ease-out;
+}
+
+.hintText {
+  color: white;
+  font-size: 1.2rem;
+  margin-bottom: 40px;
+  animation: pulse 2s infinite;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.envelopeWrapper {
+  position: relative;
+  width: 340px;
+  height: 220px;
+  cursor: pointer;
+  perspective: 1000px;
+  transition: transform 0.3s;
+}
+
+.envelopeWrapper:hover {
+  transform: translateY(-5px);
+}
+
+.envelopeBase {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: #d1d5db;
+  border-radius: 4px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+}
+
+.envelopeLetter {
+  position: absolute;
+  top: 10px; left: 15px; right: 15px; bottom: 10px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  transition: transform 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  padding: 20px;
+  text-align: center;
+}
+
+.letterLogo {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+}
+
+.letterText {
+  color: #1e1b4b;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.envelopeWrapper.opening .envelopeLetter,
+.envelopeWrapper.opened .envelopeLetter {
+  /* Delayed so the flap opens first */
+  transition-delay: 0.6s;
+  transform: translateY(-150px) scale(1.05);
+}
+
+/* Envelope Flaps Using SVG for perfect diagonals */
+.envelopeFlaps {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.flapLeft {
+  position: absolute;
+  top: 0; left: 0;
+  width: 0; height: 0;
+  border-top: 110px solid transparent;
+  border-bottom: 110px solid transparent;
+  border-left: 170px solid #f3f4f6;
+}
+
+.flapRight {
+  position: absolute;
+  top: 0; right: 0;
+  width: 0; height: 0;
+  border-top: 110px solid transparent;
+  border-bottom: 110px solid transparent;
+  border-right: 170px solid #f3f4f6;
+}
+
+.flapBottom {
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 0; height: 0;
+  border-left: 170px solid transparent;
+  border-right: 170px solid transparent;
+  border-bottom: 120px solid #e5e7eb;
+}
+
+.flapTop {
+  position: absolute;
+  top: 0; left: 0;
+  width: 0; height: 0;
+  border-left: 170px solid transparent;
+  border-right: 170px solid transparent;
+  border-top: 130px solid #e5e7eb; /* Slightly darker to stand out */
+  transform-origin: top;
+  z-index: 4;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  filter: drop-shadow(0 4px 4px rgba(0,0,0,0.1));
+}
+
+.envelopeWrapper.opening .flapTop,
+.envelopeWrapper.opened .flapTop {
+  transform: rotateX(180deg);
+  z-index: 1; /* Goes behind the letter once open */
+}
+
+
+/* =========================================
+   STAGE 3: 3D CARD
+========================================= */
+.cardStage {
+  animation: zoomIn 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
 .scene {
   position: relative;
   width: 440px;
   height: 600px;
 }
 
-/* Base book element. Centers itself and shifts right when open */
+/* Base book element */
 .book {
   position: absolute;
   width: 100%;
   height: 100%;
   transform-style: preserve-3d;
   transition: transform 1s cubic-bezier(0.645, 0.045, 0.355, 1);
-  /* origin at center so rotating it by 180deg keeps it in place but flipped */
   transform-origin: center center;
 }
 
 /* States */
-.book.closed {
-  transform: translateX(0) rotateY(0);
-}
-
-.book.opened {
-  transform: translateX(50%) rotateY(0);
-}
-
-.book.back {
-  transform: translateX(0) rotateY(-180deg);
-}
+.book.closed { transform: translateX(0) rotateY(0); }
+.book.opened { transform: translateX(50%) rotateY(0); }
+.book.back { transform: translateX(0) rotateY(-180deg); }
 
 /* The two halves of the card */
 .flapPage, .basePage {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: 0; left: 0; width: 100%; height: 100%;
   transform-style: preserve-3d;
 }
-
-/* Base page sits on the right. Doesn't animate its own flap, it just rotates with the whole book */
-.basePage {
-  z-index: 1; /* Below flap */
-}
-
-/* Flap page sits on the right when closed, swings to the left when open */
+.basePage { z-index: 1; }
 .flapPage {
-  z-index: 2; /* Above base */
+  z-index: 2;
   transform-origin: left center;
   transition: transform 1s cubic-bezier(0.645, 0.045, 0.355, 1);
 }
 
-.book.closed .flapPage {
-  transform: rotateY(0deg);
-}
+.book.closed .flapPage { transform: rotateY(0deg); }
+.book.opened .flapPage { transform: rotateY(-180deg); }
+.book.back .flapPage { transform: rotateY(0deg); }
 
-.book.opened .flapPage {
-  transform: rotateY(-180deg);
-}
-
-.book.back .flapPage {
-  transform: rotateY(0deg); /* Keep it closed when viewing back */
-}
-
-
-/* Faces of the pages */
+/* Faces */
 .face {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: 0; left: 0; width: 100%; height: 100%;
   backface-visibility: hidden;
   border-radius: 4px 16px 16px 4px;
   box-shadow: 0 10px 40px rgba(0,0,0,0.6);
@@ -88,38 +244,24 @@
   overflow: hidden;
 }
 
-/* When the flap flips to the left, its border radius should look like the left side of a book. */
-/* But since it's flipped, the right side (which was the left side) becomes the right edge! */
-.flapPage .back {
-  border-radius: 16px 4px 4px 16px;
-}
+.flapPage .back { border-radius: 16px 4px 4px 16px; }
 
 /* Specific faces */
-.basePage .front {
-  /* Page 3: Inside Right */
-  background: #f8fafc;
-}
-
+.basePage .front { background: #f8fafc; }
 .basePage .back {
-  /* Page 4: Back Cover */
   transform: rotateY(180deg);
   background: #0f172a;
   color: white;
-  border-radius: 16px 4px 4px 16px; /* Back cover is on the left when flipped */
+  border-radius: 16px 4px 4px 16px;
 }
-
 .flapPage .front {
-  /* Page 1: Front Cover */
   background: linear-gradient(135deg, #4f46e5, #3b82f6);
   color: white;
 }
-
 .flapPage .back {
-  /* Page 2: Inside Left */
   transform: rotateY(180deg);
   background: #f8fafc;
 }
-
 
 /* Content Styling */
 .content {
@@ -142,28 +284,39 @@
   border-radius: 4px 12px 12px 4px;
 }
 
-.coverDesign h1 {
-  font-size: 2.5rem;
-  font-weight: 800;
+.guestBadge {
+  background: rgba(255,255,255,0.2);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 1rem;
   margin-bottom: 20px;
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255,255,255,0.3);
+  font-weight: 600;
+}
+
+.coverDesign h1 {
+  font-size: 2.2rem;
+  font-weight: 800;
+  margin-bottom: 10px;
   letter-spacing: 2px;
   text-transform: uppercase;
 }
 
 .gradHat {
   font-size: 6rem;
-  margin: 20px 0;
+  margin: 10px 0;
   filter: drop-shadow(0 4px 10px rgba(0,0,0,0.3));
 }
 
 .coverDesign h2 {
-  font-size: 2rem;
+  font-size: 1.8rem;
   font-weight: 600;
   margin-top: auto;
 }
 
 .coverDesign p {
-  font-size: 1.1rem;
+  font-size: 1rem;
   opacity: 0.9;
   margin-top: 8px;
 }
@@ -172,7 +325,7 @@
   font-size: 1.8rem;
   font-weight: bold;
   margin-top: 20px;
-  padding-bottom: 30px;
+  padding-bottom: 20px;
   letter-spacing: 5px;
 }
 
@@ -180,7 +333,7 @@
 .actions {
   display: flex;
   gap: 12px;
-  margin-top: 20px;
+  margin-top: 15px;
 }
 
 .btn {
@@ -205,18 +358,9 @@
   color: white;
   border: 2px solid white;
 }
-
-.btn.outline:hover {
-  background: rgba(255,255,255,0.1);
-}
-
-.btn.dark {
-  background: #1e293b;
-  color: white;
-}
-.btn.dark:hover {
-  background: #334155;
-}
+.btn.outline:hover { background: rgba(255,255,255,0.1); }
+.btn.dark { background: #1e293b; color: white; }
+.btn.dark:hover { background: #334155; }
 
 .thankYouText {
   margin-top: 30px;
@@ -281,10 +425,7 @@
   color: #e2e8f0;
   font-size: 1.1rem;
 }
-
-.addressBox strong {
-  color: #60a5fa;
-}
+.addressBox strong { color: #60a5fa; }
 
 .mapPlaceholder {
   margin-top: 30px;
@@ -311,76 +452,56 @@
   border-bottom-color: rgba(255,255,255,0.2);
 }
 
-/* Spine Shadow Overlay to make it look like a book */
 .spineShadow {
   position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: 40px;
+  top: 0; bottom: 0; left: 0; width: 40px;
   background: linear-gradient(to right, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0) 100%);
   z-index: 10;
   pointer-events: none;
 }
 .flapPage .back .spineShadow {
-  left: auto;
-  right: 0;
+  left: auto; right: 0;
   background: linear-gradient(to left, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0) 100%);
 }
 
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+
+@keyframes zoomIn {
+  0% { opacity: 0; transform: scale(0.8) translateY(100px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
 
 /* For mobile responsiveness */
 @media (max-width: 1000px) {
-  .scene {
-    width: 340px;
-    height: 480px;
-  }
-  
-  .book.opened {
-    transform: translateX(40%) scale(0.85);
-  }
-  
-  .content, .coverDesign {
-    padding: 24px;
-  }
-  
-  .coverDesign h1 {
-    font-size: 2rem;
-  }
-  
-  .gradHat {
-    font-size: 4rem;
-  }
-  
-  .thankYouText {
-    font-size: 1rem;
-  }
-  
-  .title {
-    font-size: 1.6rem;
-  }
-  
-  .addressBox p {
-    font-size: 1rem;
-  }
+  .scene { width: 340px; height: 480px; }
+  .book.opened { transform: translateX(40%) scale(0.85); }
+  .content, .coverDesign { padding: 24px; }
+  .coverDesign h1 { font-size: 1.8rem; }
+  .gradHat { font-size: 4rem; }
+  .thankYouText { font-size: 1rem; }
+  .title { font-size: 1.6rem; }
+  .addressBox p { font-size: 1rem; }
 }
 
 @media (max-width: 600px) {
-  .scene {
-    width: 300px;
-    height: 440px;
-  }
+  .scene { width: 300px; height: 440px; }
+  .book.opened { transform: translateX(45%) scale(0.55); }
+  .content, .coverDesign { padding: 20px; }
+  .btn { padding: 8px 16px; font-size: 0.9rem; }
   
-  .book.opened {
-    transform: translateX(45%) scale(0.55); /* Scale down a lot so both pages fit */
-  }
-  
-  .content, .coverDesign {
-    padding: 20px;
-  }
-  
-  .btn {
-    padding: 8px 16px;
-    font-size: 0.9rem;
-  }
+  .envelopeWrapper { width: 300px; height: 200px; }
+  .flapLeft { border-left-width: 150px; border-top-width: 100px; border-bottom-width: 100px; }
+  .flapRight { border-right-width: 150px; border-top-width: 100px; border-bottom-width: 100px; }
+  .flapBottom { border-left-width: 150px; border-right-width: 150px; border-bottom-width: 110px; }
+  .flapTop { border-left-width: 150px; border-right-width: 150px; border-top-width: 120px; }
 }
