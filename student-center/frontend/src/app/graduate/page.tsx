@@ -11,8 +11,9 @@ export default function GraduationCard() {
   
   const [guestName, setGuestName] = useState('');
   
-  // Flat card animation state
+  // 3D Book animation state
   const [cardAnimation, setCardAnimation] = useState<'hidden' | 'pullingOut' | 'presented'>('hidden');
+  const [bookState, setBookState] = useState<'closed' | 'opened'>('closed');
 
   const handleNameSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,12 +28,12 @@ export default function GraduationCard() {
     
     setTimeout(() => {
       setEnvelopeState('opened');
-      setCardAnimation('pullingOut'); // Start pulling the card out
+      setCardAnimation('pullingOut'); // Start pulling the book out
       
       setTimeout(() => {
         setStage('card');
-        setCardAnimation('presented'); // Card scales up to the center
-      }, 1200); // Time for the card to slide up out of the envelope
+        setCardAnimation('presented'); // Book scales up to the center
+      }, 1200); // Time for the book to slide up out of the envelope
       
     }, 600); // Time for the top flap to open
   };
@@ -87,60 +88,39 @@ export default function GraduationCard() {
         </div>
       </div>
 
-      {/* STAGE 3: FLAT CARD (The HCMUE Layout) */}
+      {/* STAGE 3: 3D FLIPPING IMAGE BOOK */}
       {cardAnimation !== 'hidden' && (
-        <div className={`${styles.flatCardContainer} ${styles[cardAnimation]}`}>
-          
-          <div className={styles.sashContainer}>
-            <img src="/graduate/sash.jpg" alt="Sash" className={styles.sashImage} />
-          </div>
-
-          <div className={styles.cardLayout}>
+        <div className={`${styles.bookContainer} ${styles[cardAnimation]}`}>
+          <div 
+            className={`${styles.book} ${bookState === 'opened' ? styles.opened : ''}`} 
+            onClick={() => setBookState(s => s === 'closed' ? 'opened' : 'closed')}
+          >
             
-            <div className={styles.cardHeader}>
-              <div className={styles.logos}>
-                <img src="/graduate/logo-hcmue.png" alt="HCMUE Logo" className={styles.logoImage} />
-                <img src="/graduate/logo-it.png" alt="IT Logo" className={styles.logoImage} />
+            {/* The right side of the open book (Page 3 on front, Page 4 on back) */}
+            <div className={`${styles.page} ${styles.basePage}`}>
+              <div className={styles.pageFront}>
+                {/* Trang 3: Lời Cảm Ơn, Hình Ảnh... */}
+                <img src="/graduate/page3.jpg" alt="Page 3" className={styles.imgPlaceholder} />
               </div>
-              <div className={styles.headerText}>
-                TRƯỜNG ĐẠI HỌC SƯ PHẠM<br/>
-                THÀNH PHỐ HỒ CHÍ MINH
-              </div>
-            </div>
-
-            <div className={styles.dearSection}>
-              <span>Dear</span>
-              <div className={styles.guestNameLine}>{guestName}</div>
-            </div>
-
-            <div className={styles.eventTitle}>
-              <p>Tới tham dự</p>
-              <h1>LỄ TỐT NGHIỆP</h1>
-              <h2>Minh Ngọc</h2>
-            </div>
-
-            <div className={styles.detailsRow}>
-              <div className={styles.detailBlock}>
-                <div className={styles.detailTitle}>Thứ sáu</div>
-                <div className={styles.detailText}>24.07.2026</div>
-                <div className={styles.detailText}>9:00 - 11:00</div>
-              </div>
-
-              <div className={styles.detailBlock}>
-                <div className={styles.detailTitle}>TẠI</div>
-                <div className={styles.detailText} style={{fontWeight: 'bold'}}>Trường Đại học Sư Phạm</div>
-                <div className={`${styles.detailText} ${styles.italic}`}>
-                  280 An Dương Vương, P. Chợ Quán
-                </div>
+              <div className={styles.pageBack}>
+                {/* Trang 4: Bìa sau */}
+                <img src="/graduate/page4.jpg" alt="Page 4" className={styles.imgPlaceholder} />
               </div>
             </div>
 
-            <div className={styles.message}>
-              Sự hiện diện của mọi người là niềm vinh dự và hạnh phúc nhất của con/em trên chặng đường này.
-            </div>
-
-            <div className={styles.footerLine}>
-              <div className={styles.footerYear}>Niên khóa 2026</div>
+            {/* The left side of the open book / Cover (Page 1 on front, Page 2 on back) */}
+            <div className={`${styles.page} ${styles.coverPage}`}>
+              <div className={styles.pageFront}>
+                {/* Trang 1: Bìa trước */}
+                <img src="/graduate/page1.jpg" alt="Page 1" className={styles.imgPlaceholder} />
+                
+                {/* Có thể thêm Tên Khách Mời hiển thị đè lên bìa 1 nếu muốn */}
+                {/* <div className={styles.guestNameOverlay}>Dear {guestName}</div> */}
+              </div>
+              <div className={styles.pageBack}>
+                {/* Trang 2: Thông tin buổi lễ... */}
+                <img src="/graduate/page2.jpg" alt="Page 2" className={styles.imgPlaceholder} />
+              </div>
             </div>
 
           </div>
