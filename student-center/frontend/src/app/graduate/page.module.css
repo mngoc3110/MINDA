@@ -3,7 +3,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #1e1b4b, #312e81, #0f172a);
+  /* Soft blue background to contrast with the #faedeb envelope (like the image) */
+  background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
   font-family: var(--font-outfit), sans-serif;
   overflow: hidden;
   perspective: 2000px;
@@ -20,43 +21,48 @@
 }
 
 .inputBox {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(250, 237, 235, 0.85); /* #faedeb with opacity */
   backdrop-filter: blur(10px);
   padding: 40px;
   border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.5);
   text-align: center;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
 }
 
 .inputTitle {
-  color: white;
+  color: #334155;
   font-size: 1.8rem;
   margin-bottom: 20px;
   font-weight: 600;
 }
 
 .nameInput {
-  background: rgba(255,255,255,0.9);
-  border: none;
+  background: white;
+  border: 2px solid #e2e8f0;
   padding: 15px 25px;
   border-radius: 12px;
   font-size: 1.2rem;
   width: 300px;
   outline: none;
   font-family: inherit;
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+  color: #1e293b;
   transition: all 0.3s;
 }
 
 .nameInput:focus {
-  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.5);
-  background: white;
+  border-color: #f497a9;
+  box-shadow: 0 0 0 4px rgba(244, 151, 169, 0.2);
 }
 
 .inputStage .btn {
   margin-top: 20px;
   width: 100%;
+  background: #f497a9;
+  color: white;
+}
+.inputStage .btn:hover {
+  background: #e2858e;
 }
 
 /* =========================================
@@ -70,21 +76,24 @@
 }
 
 .hintText {
-  color: white;
+  color: #334155;
   font-size: 1.2rem;
   margin-bottom: 40px;
   animation: pulse 2s infinite;
   letter-spacing: 2px;
   text-transform: uppercase;
+  font-weight: bold;
 }
 
 .envelopeWrapper {
   position: relative;
-  width: 340px;
-  height: 220px;
+  width: 360px;
+  height: 240px;
   cursor: pointer;
   perspective: 1000px;
   transition: transform 0.3s;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+  border-radius: 4px;
 }
 
 .envelopeWrapper:hover {
@@ -94,9 +103,8 @@
 .envelopeBase {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: #d1d5db;
+  background: #eadddb; /* Inside of the envelope */
   border-radius: 4px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
 }
 
 .envelopeLetter {
@@ -104,7 +112,7 @@
   top: 10px; left: 15px; right: 15px; bottom: 10px;
   background: white;
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -113,6 +121,7 @@
   transition: transform 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   padding: 20px;
   text-align: center;
+  border: 1px solid #f1f5f9;
 }
 
 .letterLogo {
@@ -121,70 +130,90 @@
 }
 
 .letterText {
-  color: #1e1b4b;
+  color: #475569;
   font-weight: bold;
   font-size: 1.2rem;
 }
 
 .envelopeWrapper.opening .envelopeLetter,
 .envelopeWrapper.opened .envelopeLetter {
-  /* Delayed so the flap opens first */
   transition-delay: 0.6s;
-  transform: translateY(-150px) scale(1.05);
+  transform: translateY(-160px) scale(1.05);
 }
 
-/* Envelope Flaps Using SVG for perfect diagonals */
+/* Envelope Flaps using SVG clip-path */
 .envelopeFlaps {
   position: absolute;
   top: 0; left: 0; width: 100%; height: 100%;
   z-index: 3;
   pointer-events: none;
+  overflow: visible;
 }
 
 .flapLeft {
   position: absolute;
   top: 0; left: 0;
-  width: 0; height: 0;
-  border-top: 110px solid transparent;
-  border-bottom: 110px solid transparent;
-  border-left: 170px solid #f3f4f6;
+  width: 50%; height: 100%;
+  background: #fdf8f7;
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
 }
 
 .flapRight {
   position: absolute;
   top: 0; right: 0;
-  width: 0; height: 0;
-  border-top: 110px solid transparent;
-  border-bottom: 110px solid transparent;
-  border-right: 170px solid #f3f4f6;
+  width: 50%; height: 100%;
+  background: #fdf8f7;
+  clip-path: polygon(100% 0, 0 50%, 100% 100%);
 }
 
+.flapBottomWrapper {
+  position: absolute;
+  bottom: 0; left: 0; width: 100%; height: 60%;
+  filter: drop-shadow(0 -3px 4px rgba(0,0,0,0.05));
+}
 .flapBottom {
-  position: absolute;
-  bottom: 0; left: 0;
-  width: 0; height: 0;
-  border-left: 170px solid transparent;
-  border-right: 170px solid transparent;
-  border-bottom: 120px solid #e5e7eb;
+  width: 100%; height: 100%;
+  background: #f5e1de;
+  clip-path: polygon(0 100%, 50% 0, 100% 100%);
 }
 
-.flapTop {
+.flapTopWrapper {
   position: absolute;
-  top: 0; left: 0;
-  width: 0; height: 0;
-  border-left: 170px solid transparent;
-  border-right: 170px solid transparent;
-  border-top: 130px solid #e5e7eb; /* Slightly darker to stand out */
+  top: 0; left: 0; width: 100%; height: 65%;
   transform-origin: top;
   z-index: 4;
   transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-  filter: drop-shadow(0 4px 4px rgba(0,0,0,0.1));
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
 }
 
-.envelopeWrapper.opening .flapTop,
-.envelopeWrapper.opened .flapTop {
+.flapTop {
+  width: 100%; height: 100%;
+  background: #faedeb; /* The main requested color */
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
+
+.waxSeal {
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px; height: 50px;
+  background: radial-gradient(circle at 30% 30%, #f9a8d4, #db2777); /* Pink wax seal */
+  border-radius: 50%;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2), inset 0 -2px 6px rgba(0,0,0,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #be185d;
+  color: #fce7f3;
+  font-size: 1.5rem;
+  font-family: serif;
+}
+
+.envelopeWrapper.opening .flapTopWrapper,
+.envelopeWrapper.opened .flapTopWrapper {
   transform: rotateX(180deg);
-  z-index: 1; /* Goes behind the letter once open */
+  z-index: 1; /* Drop behind the letter */
 }
 
 
@@ -247,20 +276,20 @@
 .flapPage .back { border-radius: 16px 4px 4px 16px; }
 
 /* Specific faces */
-.basePage .front { background: #f8fafc; }
+.basePage .front { background: #fdf8f7; }
 .basePage .back {
   transform: rotateY(180deg);
-  background: #0f172a;
+  background: #1e293b;
   color: white;
   border-radius: 16px 4px 4px 16px;
 }
 .flapPage .front {
-  background: linear-gradient(135deg, #4f46e5, #3b82f6);
-  color: white;
+  background: #faedeb; /* Elegant cream/pink theme */
+  color: #334155;
 }
 .flapPage .back {
   transform: rotateY(180deg);
-  background: #f8fafc;
+  background: #fdf8f7;
 }
 
 /* Content Styling */
@@ -269,7 +298,7 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  color: #1e293b;
+  color: #334155;
 }
 
 .coverDesign {
@@ -280,19 +309,20 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  border: 10px solid rgba(255,255,255,0.1);
+  border: 4px double rgba(190, 24, 93, 0.2); /* Elegant double border */
   border-radius: 4px 12px 12px 4px;
 }
 
 .guestBadge {
-  background: rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.6);
   padding: 8px 16px;
   border-radius: 20px;
   font-size: 1rem;
   margin-bottom: 20px;
   backdrop-filter: blur(5px);
-  border: 1px solid rgba(255,255,255,0.3);
+  border: 1px solid rgba(244, 151, 169, 0.5);
   font-weight: 600;
+  color: #be185d;
 }
 
 .coverDesign h1 {
@@ -301,18 +331,20 @@
   margin-bottom: 10px;
   letter-spacing: 2px;
   text-transform: uppercase;
+  color: #be185d;
 }
 
 .gradHat {
-  font-size: 6rem;
+  font-size: 5rem;
   margin: 10px 0;
-  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.3));
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.1));
 }
 
 .coverDesign h2 {
   font-size: 1.8rem;
   font-weight: 600;
   margin-top: auto;
+  color: #1e293b;
 }
 
 .coverDesign p {
@@ -327,6 +359,7 @@
   margin-top: 20px;
   padding-bottom: 20px;
   letter-spacing: 5px;
+  color: #9d174d;
 }
 
 
@@ -341,24 +374,26 @@
   border: none;
   border-radius: 8px;
   background: white;
-  color: #4f46e5;
+  color: #be185d;
   font-weight: bold;
   cursor: pointer;
   transition: all 0.2s;
   font-size: 1rem;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
 }
 
 .btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(255,255,255,0.3);
+  box-shadow: 0 6px 12px rgba(190, 24, 93, 0.2);
 }
 
 .btn.outline {
   background: transparent;
-  color: white;
-  border: 2px solid white;
+  color: #be185d;
+  border: 2px solid #be185d;
+  box-shadow: none;
 }
-.btn.outline:hover { background: rgba(255,255,255,0.1); }
+.btn.outline:hover { background: rgba(190, 24, 93, 0.05); }
 .btn.dark { background: #1e293b; color: white; }
 .btn.dark:hover { background: #334155; }
 
