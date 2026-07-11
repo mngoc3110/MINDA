@@ -31,7 +31,7 @@ export const About = () => {
             <div>
               <p className="grid-headtext">Hi, I&apos;m Minh Ngọc</p>
               <p className="grid-subtext">
-                Math and IT teacher, research assistant at the Faculty of Information Technology, HCMUE, with 4 years of research experience in deep learning and computer vision.
+                Math & IT Teacher and Research Assistant at HCMUE, specializing in Deep Learning and Computer Vision.
               </p>
             </div>
           </div>
@@ -66,11 +66,11 @@ export const About = () => {
 
             <div>
               <p className="grid-headtext">
-                I have worked at the Experimental High School, taught as a private tutor, and worked at the Faculty of Information Technology, HCMUE
+                Based in Ho Chi Minh City, Vietnam
               </p>
 
               <p className="grid-subtext">
-                I&apos;m based in Ho Chi Minh City, Vietnam.
+                I have teaching experience at the Experimental High School, HCMUE, and as a private tutor.
               </p>
 
               <Button onClick={() => window.dispatchEvent(new Event('open-contact'))} containerClass="w-full mt-10" isBeam>
