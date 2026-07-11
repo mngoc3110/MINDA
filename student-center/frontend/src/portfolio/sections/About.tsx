@@ -31,7 +31,7 @@ export const About = () => {
             <div>
               <p className="grid-headtext">Hi, I&apos;m Minh Ngọc</p>
               <p className="grid-subtext">
-                Math and IT teacher, research assitant of HCMUE - faculty of information technology, spend 4 year research about deeplearning - computer vision.
+                Math and IT teacher, research assistant at the Faculty of Information Technology, HCMUE, with 4 years of research experience in deep learning and computer vision.
               </p>
             </div>
           </div>
@@ -66,7 +66,7 @@ export const About = () => {
 
             <div>
               <p className="grid-headtext">
-                I have work for experiment highschool and teaching at home, FIT of HCMUE
+                I have worked at the Experimental High School, taught as a private tutor, and worked at the Faculty of Information Technology, HCMUE
               </p>
 
               <p className="grid-subtext">

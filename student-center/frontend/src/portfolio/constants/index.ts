@@ -91,9 +91,9 @@ export const myProjects = [
   },
   {
     title: "LiveDoc - Real-Time Google Docs Clone",
-    desc: "LiveDoc is a powerful collaborative app that elevates the capabilities of real-time document editing. As an enhanced version of Google Docs, It supports millions of collaborators simultaneously, ensuring that every change is captured instantly and accurately.",
+    desc: "LiveDoc is a powerful collaborative app that elevates the capabilities of real-time document editing. As an enhanced version of Google Docs, it supports millions of collaborators simultaneously, ensuring that every change is captured instantly and accurately.",
     subdesc:
-      "With LiveDoc, users can experience the future of collaboration, where multiple contributors work together in real time without any lag, by using Next.js and Liveblocks newest features.",
+      "With LiveDoc, users can experience the future of collaboration, where multiple contributors work together in real time without any lag, by using Next.js and Liveblocks' newest features.",
     href: "https://www.example.com",
     texture: "/textures/project/project2.mp4",
     logo: "/assets/project-logo2.png",
@@ -130,7 +130,7 @@ export const myProjects = [
     title: "CarePulse - Health Management System",
     desc: "An innovative healthcare platform designed to streamline essential medical processes. It simplifies patient registration, appointment scheduling, and medical record management, providing a seamless experience for both healthcare providers and patients.",
     subdesc:
-      "With a focus on efficiency, CarePulse integrantes complex forms and SMS notifications, by using Next.js, Appwrite, Twillio and Sentry that enhance operational workflows.",
+      "With a focus on efficiency, CarePulse integrates complex forms and SMS notifications, by using Next.js, Appwrite, Twilio and Sentry that enhance operational workflows.",
     href: "https://www.example.com",
     texture: "/textures/project/project3.mp4",
     logo: "/assets/project-logo3.png",
@@ -248,7 +248,7 @@ export const workExperiences = [
     pos: "Lead Web Developer",
     duration: "2022 - Present",
     title:
-      "Framer serves as my go-to tool for creating interactive prototypes. I use it to bring designs to  life, allowing stakeholders to experience the user flow and interactions before development.",
+      "Framer serves as my go-to tool for creating interactive prototypes. I use it to bring designs to life, allowing stakeholders to experience the user flow and interactions before development.",
     icon: "/assets/framer.svg",
     animation: "victory",
   },
@@ -258,7 +258,7 @@ export const workExperiences = [
     pos: "Web Developer",
     duration: "2020 - 2022",
     title:
-      "Figma is my collaborative design platform of choice. I utilize it to work seamlessly with team members and clients, facilitating real-time feedback and design iterations. Its cloud-based.",
+      "Figma is my collaborative design platform of choice. I utilize it to work seamlessly with team members and clients, facilitating real-time feedback and design iterations. It is cloud-based.",
     icon: "/assets/figma.svg",
     animation: "clapping",
   },
@@ -268,7 +268,7 @@ export const workExperiences = [
     pos: "Junior Web Developer",
     duration: "2019 - 2020",
     title:
-      "Notion helps me keep my projects organized. I use it for project management, task tracking, and as a central hub for documentation, ensuring that everything from design notes to.",
+      "Notion helps me keep my projects organized. I use it for project management, task tracking, and as a central hub for documentation, ensuring that everything from design notes to project plans is accessible.",
     icon: "/assets/notion.svg",
     animation: "salute",
   },

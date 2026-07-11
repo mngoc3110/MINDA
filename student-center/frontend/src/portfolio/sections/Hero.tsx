@@ -28,7 +28,7 @@ export const Hero = () => {
         </p>
 
         <p className="hero_tag text-gray_gradient">
-          math &amp; IT teacher, AI researcher
+          Math &amp; IT Teacher, AI Researcher
         </p>
       </div>
 
