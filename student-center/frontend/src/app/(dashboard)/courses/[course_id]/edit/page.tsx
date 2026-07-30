@@ -519,7 +519,8 @@ export default function CourseBuilderPage() {
                 className="px-8 py-3 bg-pink-600 hover:bg-pink-500 text-white rounded-xl text-sm font-bold transition-all shadow-lg"
               >Bắt đầu tạo Chương đầu tiên</button>
            </div>
-        ) : curriculum.map((chap, chapIndex) => (
+        ) : (
+           curriculum.map((chap, chapIndex) => (
            <div key={chap.id} className="bg-bg-card rounded-2xl border border-border-card overflow-hidden shadow-sm">
               {/* Chapter Header */}
               <div className="p-5 flex items-center justify-between hover:bg-bg-hover cursor-pointer transition-colors"
@@ -764,8 +765,8 @@ export default function CourseBuilderPage() {
                     </div>
                  </div>
               ))
-            )}
-         </div>
+           )}
+        </div>
       )}
 
       {/* Quiz Builder Modal */}
