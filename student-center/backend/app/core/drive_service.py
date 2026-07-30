@@ -1,10 +1,7 @@
 import os
-from google.oauth2 import service_account
-from googleapiclient.discovery import build
-from googleapiclient.http import MediaFileUpload
-from fastapi import UploadFile
-import aiofiles
+import shutil
 import uuid
+import aiofiles
 
 # Scope cần thiết để upload, lấy link và chỉnh quyền
 SCOPES = ['https://www.googleapis.com/auth/drive']
@@ -87,9 +84,8 @@ async def upload_file(file: UploadFile, user: User) -> str:
     temp_path = os.path.join(temp_dir, safe_filename)
 
     try:
-        async with aiofiles.open(temp_path, 'wb') as out_file:
-            content = await file.read()
-            await out_file.write(content)
+        with open(temp_path, 'wb') as buffer:
+            shutil.copyfileobj(file.file, buffer)
 
         file_metadata = {
             'name': file.filename,
