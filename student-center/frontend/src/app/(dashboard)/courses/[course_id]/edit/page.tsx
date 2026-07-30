@@ -418,6 +418,12 @@ export default function CourseBuilderPage() {
         </div>
         <div className="flex items-center gap-3">
           <button 
+            onClick={() => router.push(`/assignments`)}
+            className="flex items-center gap-2 px-4 py-2.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-xl text-sm font-semibold transition-all border border-emerald-500/20"
+          >
+            <ClipboardList className="w-4 h-4" /> Bảng Chấm Bài Nộp
+          </button>
+          <button 
             onClick={() => router.push(`/courses/${courseId}`)}
             className="flex items-center gap-2 px-5 py-2.5 bg-bg-hover hover:bg-indigo-600/10 text-t-secondary hover:text-indigo-500 rounded-xl text-sm font-semibold transition-all border border-border-card"
           >
