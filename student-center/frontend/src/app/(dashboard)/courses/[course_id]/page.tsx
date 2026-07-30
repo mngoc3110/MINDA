@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { 
    BookOpen, PlayCircle, Loader2, CheckCircle2, ChevronLeft, 
    FileText, ClipboardList, PenTool, LayoutTemplate, Send, Clock, HelpCircle, Timer, AlertCircle,
-   Pencil, Check, X
+   Pencil, Check, X, Plus, Trash2, Upload
 } from "lucide-react";
 
 interface Lesson {
@@ -65,7 +65,8 @@ export default function CoursePlayerPage() {
   const [submittingAss, setSubmittingAss] = useState(false);
   const [assContent, setAssContent] = useState("");
   const [uploadingAssFile, setUploadingAssFile] = useState(false);
-  const [assFileUrl, setAssFileUrl] = useState("");
+  const [assFileUrls, setAssFileUrls] = useState<string[]>([]);
+  const [uploadAssProgress, setUploadAssProgress] = useState<number>(0);
   const [submittedIds, setSubmittedIds] = useState<Record<number, boolean>>({});
   const [completedLessons, setCompletedLessons] = useState<Record<number, boolean>>({});
 
@@ -181,32 +182,69 @@ export default function CoursePlayerPage() {
     }
   };
 
-  const handleUploadAssFile = async (file: File) => {
+  const handleUploadAssFiles = async (files: FileList | File[]) => {
     setUploadingAssFile(true);
-    const formData = new FormData();
-    formData.append("file", file);
-    
-    try {
-      const token = localStorage.getItem("minda_token");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/files/upload`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setUploadingAssFile(false);
-        return data.file_url;
+    setUploadAssProgress(0);
+    const fileArray = Array.from(files);
+    const uploadedUrls: string[] = [];
+
+    const token = localStorage.getItem("minda_token");
+
+    for (let i = 0; i < fileArray.length; i++) {
+      const file = fileArray[i];
+      const formData = new FormData();
+      formData.append("file", file);
+      
+      try {
+        const res = await new Promise<string | null>((resolve) => {
+          const xhr = new XMLHttpRequest();
+          const isVideo = file.type.startsWith("video/") || /\.(mp4|webm|mov|avi|mkv|m4v)$/i.test(file.name);
+          const endpoint = isVideo 
+            ? `${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/files/upload-video` 
+            : `${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/files/upload`;
+
+          xhr.upload.onprogress = (event) => {
+            if (event.lengthComputable) {
+              const filePercent = (event.loaded / event.total);
+              const overallPercent = Math.round(((i + filePercent) / fileArray.length) * 100);
+              setUploadAssProgress(overallPercent);
+            }
+          };
+
+          xhr.onload = () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              try {
+                const data = JSON.parse(xhr.responseText);
+                resolve(data.file_url || null);
+              } catch { resolve(null); }
+            } else resolve(null);
+          };
+
+          xhr.onerror = () => resolve(null);
+
+          xhr.open("POST", endpoint, true);
+          if (token) xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+          xhr.send(formData);
+        });
+
+        if (res) uploadedUrls.push(res);
+      } catch (e) {
+        console.error("Lỗi upload file:", e);
       }
-    } catch (e) {
-      console.error(e);
+    }
+
+    if (uploadedUrls.length > 0) {
+      setAssFileUrls(prev => [...prev, ...uploadedUrls]);
     }
     setUploadingAssFile(false);
-    return null;
+    setUploadAssProgress(0);
   };
 
   const handleSubmitAssignment = async (assignmentId: number) => {
-    if (!assContent.trim() && !assFileUrl) return alert("Vui lòng nhập nội dung bài làm hoặc tải lên file bài làm!");
+    const combinedFileUrl = assFileUrls.join(",");
+    if (!assContent.trim() && combinedFileUrl.length === 0) {
+      return alert("Vui lòng nhập nội dung bài làm hoặc tải lên ít nhất 1 tệp/ảnh bài làm!");
+    }
     setSubmittingAss(true);
     try {
       const token = localStorage.getItem("minda_token");
@@ -218,7 +256,7 @@ export default function CoursePlayerPage() {
         },
         body: JSON.stringify({
             content: assContent,
-            file_url: assFileUrl
+            file_url: combinedFileUrl
         })
       });
       
@@ -226,7 +264,7 @@ export default function CoursePlayerPage() {
         alert("Nộp bài thành công!");
         setSubmittedIds(prev => ({ ...prev, [assignmentId]: true }));
         setAssContent("");
-        setAssFileUrl("");
+        setAssFileUrls([]);
       } else {
         const error = await res.json();
         alert(error.detail || "Lỗi khi nộp bài");
@@ -634,26 +672,80 @@ export default function CoursePlayerPage() {
                                     onChange={(e) => setAssContent(e.target.value)}
                                  ></textarea>
                                  <div className="bg-bg-hover border border-border-card rounded-xl p-4 flex flex-col gap-3">
-                                   <label className="text-sm font-bold text-t-primary flex items-center gap-2">
-                                     <FileText className="w-4 h-4 text-amber-500" /> Tải lên bài làm (Ảnh/PDF)
-                                   </label>
-                                   <input 
-                                     type="file" 
-                                     accept="image/*,.pdf"
-                                     onChange={async (e) => {
-                                        if (e.target.files && e.target.files[0]) {
-                                           const url = await handleUploadAssFile(e.target.files[0]);
-                                           if (url) setAssFileUrl(url);
-                                        }
-                                     }}
-                                     className="text-sm w-full file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-amber-500/10 file:text-amber-500 hover:file:bg-amber-500/20 file:transition-colors cursor-pointer text-t-secondary"
-                                   />
-                                   {uploadingAssFile && <p className="text-xs text-amber-500 animate-pulse">Đang tải lên, vui lòng đợi...</p>}
-                                   {assFileUrl && (
-                                     <div className="flex items-center gap-2 text-emerald-500 text-sm font-bold bg-emerald-500/10 px-3 py-2 rounded-lg w-fit">
-                                       <CheckCircle2 className="w-4 h-4" /> Đã đính kèm file thành công
-                                     </div>
-                                   )}
+                                    <div className="flex justify-between items-center">
+                                      <label className="text-sm font-bold text-t-primary flex items-center gap-2">
+                                        <FileText className="w-4 h-4 text-amber-500" /> Tải lên bài làm (Cho phép chọn nhiều ảnh/PDF)
+                                      </label>
+                                      <span className="text-xs text-t-secondary font-medium">Đã đính kèm: {assFileUrls.length} tệp</span>
+                                    </div>
+
+                                    {/* File Input Label */}
+                                    <label className={`cursor-pointer bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30 rounded-xl px-4 py-3 flex items-center justify-center gap-2 text-sm font-bold transition-all w-full ${uploadingAssFile ? 'opacity-50 pointer-events-none' : ''}`}>
+                                      <Plus className="w-4 h-4" /> {assFileUrls.length > 0 ? "+ Chọn thêm ảnh / tệp bài làm" : "Chọn các ảnh / tệp bài làm (Có thể chọn nhiều tệp)"}
+                                      <input 
+                                        type="file" 
+                                        accept="image/*,.pdf,.doc,.docx,.zip"
+                                        multiple
+                                        disabled={uploadingAssFile}
+                                        onChange={(e) => {
+                                           if (e.target.files && e.target.files.length > 0) {
+                                              handleUploadAssFiles(e.target.files);
+                                              e.target.value = '';
+                                           }
+                                        }}
+                                        className="hidden"
+                                      />
+                                    </label>
+
+                                    {/* Upload Progress */}
+                                    {uploadingAssFile && (
+                                      <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl space-y-1.5 animate-pulse">
+                                         <div className="flex justify-between text-xs font-bold text-amber-600 dark:text-amber-400">
+                                            <span>Đang tải tệp lên hệ thống...</span>
+                                            <span>{uploadAssProgress}%</span>
+                                         </div>
+                                         <div className="w-full bg-bg-hover h-2 rounded-full overflow-hidden">
+                                            <div className="bg-amber-500 h-full rounded-full transition-all duration-200" style={{ width: `${uploadAssProgress}%` }} />
+                                         </div>
+                                      </div>
+                                    )}
+
+                                    {/* List of uploaded files */}
+                                    {assFileUrls.length > 0 && (
+                                       <div className="space-y-2 mt-2">
+                                          <p className="text-xs font-bold text-t-secondary">Danh sách ảnh / file bài làm đã đính kèm:</p>
+                                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                             {assFileUrls.map((url, idx) => {
+                                                const isImg = url.match(/\.(jpeg|jpg|gif|png|webp)/i) != null || url.includes("drive.google.com");
+                                                return (
+                                                   <div key={idx} className="flex items-center justify-between gap-2 p-2.5 bg-bg-card border border-border-card rounded-xl text-xs group">
+                                                      <div className="flex items-center gap-2 min-w-0">
+                                                         {isImg ? (
+                                                            <img src={url} alt={`Bài làm ${idx + 1}`} className="w-8 h-8 rounded-lg object-cover border border-border-card shrink-0" />
+                                                         ) : (
+                                                            <FileText className="w-4 h-4 text-indigo-500 shrink-0" />
+                                                         )}
+                                                         <span className="truncate text-t-primary font-medium">Tệp bài làm #{idx + 1}</span>
+                                                      </div>
+                                                      <div className="flex items-center gap-1 shrink-0">
+                                                         <a href={url} target="_blank" rel="noopener noreferrer" className="p-1 text-t-secondary hover:text-indigo-500 transition-colors" title="Xem file">
+                                                            <PlayCircle className="w-3.5 h-3.5" />
+                                                         </a>
+                                                         <button 
+                                                            type="button"
+                                                            onClick={() => setAssFileUrls(prev => prev.filter((_, i) => i !== idx))} 
+                                                            className="p-1 text-t-secondary hover:text-red-500 transition-colors"
+                                                            title="Xóa tệp này"
+                                                         >
+                                                            <Trash2 className="w-3.5 h-3.5" />
+                                                         </button>
+                                                      </div>
+                                                   </div>
+                                                );
+                                             })}
+                                          </div>
+                                       </div>
+                                    )}
                                  </div>
                                  <div className="flex justify-end">
                                     <button 

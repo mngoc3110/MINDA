@@ -163,21 +163,31 @@ export default function SubmissionModal({ submission, quizData, assignment, onCl
                    </div>
                  )}
                  {submission.file_url ? (
-                   <div className="mt-2">
-                      <p className="text-sm font-semibold mb-2">File đính kèm:</p>
-                      {submission.file_url.match(/\.(jpeg|jpg|gif|png)$/) != null ? (
-                        <a href={submission.file_url} target="_blank" rel="noopener noreferrer">
-                          <img src={submission.file_url} alt="Submission" className="max-w-full rounded-xl border border-border-card hover:opacity-90 transition-opacity cursor-pointer" />
-                        </a>
-                      ) : (
-                        <a href={submission.file_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-500/10 text-indigo-400 rounded-xl font-medium border border-indigo-500/20 hover:bg-indigo-500/20">
-                          Tải xuống / Xem file
-                        </a>
-                      )}
-                   </div>
-                 ) : (
-                   !submission.content && <p className="text-text-muted italic">Học sinh không nhập nội dung nào.</p>
-                 )}
+                    <div className="mt-2 space-y-3">
+                       <p className="text-sm font-semibold mb-2 text-t-primary">File / Ảnh bài làm đính kèm ({submission.file_url.split(',').filter(Boolean).length}):</p>
+                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          {submission.file_url.split(',').filter(Boolean).map((url: string, index: number) => {
+                             const cleanUrl = url.trim();
+                             const isImg = cleanUrl.match(/\.(jpeg|jpg|gif|png|webp)/i) != null || cleanUrl.includes("drive.google.com");
+                             return (
+                                <div key={index} className="bg-bg-card p-2.5 border border-border-card rounded-xl space-y-2">
+                                   {isImg ? (
+                                      <a href={cleanUrl} target="_blank" rel="noopener noreferrer">
+                                         <img src={cleanUrl} alt={`Tệp bài làm #${index + 1}`} className="max-h-52 w-full object-contain rounded-lg hover:opacity-90 transition-opacity cursor-pointer border border-border-card bg-black/5" />
+                                      </a>
+                                   ) : (
+                                      <a href={cleanUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-3 py-2 bg-indigo-500/10 text-indigo-400 rounded-lg text-xs font-bold border border-indigo-500/20 hover:bg-indigo-500/20 w-full justify-center">
+                                         📄 Tải / Xem file bài làm #{index + 1}
+                                      </a>
+                                   )}
+                                </div>
+                             );
+                          })}
+                       </div>
+                    </div>
+                  ) : (
+                    !submission.content && <p className="text-text-muted italic">Học sinh không nhập nội dung nào.</p>
+                  )}
               </div>
               {/* Grading Sidebar */}
               <div className="w-full lg:w-[350px] p-6 bg-bg-main shrink-0 flex flex-col gap-4">
