@@ -763,6 +763,25 @@ export default function CourseBuilderPage() {
                        </button>
                     </div>
                  </div>
+              ))}
+           </div>
+        )}
+      </div>
+      )}
+
+      {/* Quiz Builder Modal */}
+      {showQuizModal && (
+         <QuizBuilderModal
+            courses={course ? [course] : []}
+            defaultCourseId={courseId}
+            defaultLessonId={activeLessonId?.toString()}
+            editAssignment={editingQuiz}
+            onClose={() => {
+               setShowQuizModal(false);
+               setEditingQuiz(null);
+            }}
+            onSuccess={() => {
+               setShowQuizModal(false);
                setEditingQuiz(null);
                fetchCurriculum();
             }}
