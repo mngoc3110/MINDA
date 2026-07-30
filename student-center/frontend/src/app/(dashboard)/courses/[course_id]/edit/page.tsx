@@ -160,8 +160,11 @@ export default function CourseBuilderPage() {
     });
 
     const isScorm = file.name.toLowerCase().endsWith(".zip");
+    const isVideo = file.type.startsWith("video/") || /\.(mp4|webm|mov|avi|mkv|m4v)$/i.test(file.name);
     const endpoint = isScorm 
         ? `${apiBase}/api/files/upload_scorm` 
+        : isVideo
+        ? `${apiBase}/api/files/upload-video`
         : `${apiBase}/api/files/upload`;
 
     return new Promise((resolve) => {

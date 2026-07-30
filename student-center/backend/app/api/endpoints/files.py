@@ -188,13 +188,13 @@ async def upload_scorm_package(
 @router.post("/upload-video")
 async def upload_video(
     file: UploadFile = File(...),
-    current_user: User = Depends(require_role("teacher", "admin"))
+    current_user: User = Depends(get_current_user)
 ):
     """API lưu trữ video bài giảng trực tiếp vào máy chủ cục bộ."""
-    valid_extensions = ["mp4", "webm", "ogg", "mov", "avi"]
+    valid_extensions = ["mp4", "webm", "ogg", "mov", "avi", "mkv", "m4v"]
     ext = file.filename.split('.')[-1].lower() if '.' in file.filename else ''
     if ext not in valid_extensions:
-        raise HTTPException(status_code=400, detail="Định dạng không hỗ trợ. Hãy chọn tệp Video (MP4, WebM...).")
+        raise HTTPException(status_code=400, detail="Định dạng không hỗ trợ. Hãy chọn tệp Video (MP4, WebM, MOV...).")
         
     unique_id = str(uuid.uuid4())
     save_dir = os.path.join("static", "videos")
@@ -206,4 +206,5 @@ async def upload_video(
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
         
-    return {"video_url": f"/static/videos/{safe_name}", "filename": safe_name}
+    file_url = f"/static/videos/{safe_name}"
+    return {"file_url": file_url, "video_url": file_url, "filename": safe_name}
