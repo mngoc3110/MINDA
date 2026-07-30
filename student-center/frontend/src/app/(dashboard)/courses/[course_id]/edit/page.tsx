@@ -763,10 +763,9 @@ export default function CourseBuilderPage() {
                        </button>
                     </div>
                  </div>
-              ))}
-           </div>
-        )}
-      </div>
+              ))
+            )}
+         </div>
       )}
 
       {/* Quiz Builder Modal */}
