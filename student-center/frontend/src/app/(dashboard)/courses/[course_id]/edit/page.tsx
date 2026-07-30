@@ -771,24 +771,381 @@ export default function CourseBuilderPage() {
   </div>
 )}
 
-      {/* Quiz Builder Modal */}
-      {showQuizModal && (
-         <QuizBuilderModal
-            courses={course ? [course] : []}
-            defaultCourseId={courseId}
-            defaultLessonId={activeLessonId?.toString()}
-            editAssignment={editingQuiz}
-            onClose={() => {
-               setShowQuizModal(false);
-               setEditingQuiz(null);
-            }}
-            onSuccess={() => {
-               setShowQuizModal(false);
-               setEditingQuiz(null);
-               fetchCurriculum();
-            }}
-         />
+      {/* TAB 2: STUDENT PROGRESS ANALYTICS */}
+      {activeTab === "analytics" && (
+        <div className="max-w-5xl mx-auto space-y-6 font-outfit">
+          {/* Summary Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="bg-bg-card p-5 rounded-2xl border border-border-card shadow-sm">
+              <p className="text-xs text-t-secondary font-medium mb-1">Tổng Số Học Viên Ghi Danh</p>
+              <h3 className="text-2xl font-black text-indigo-500">{analyticsData?.total_students || 0} Học sinh</h3>
+            </div>
+            <div className="bg-bg-card p-5 rounded-2xl border border-border-card shadow-sm">
+              <p className="text-xs text-t-secondary font-medium mb-1">Tổng Số Bài Giảng Trong Khóa</p>
+              <h3 className="text-2xl font-black text-pink-500">{analyticsData?.total_lessons || 0} Bài học</h3>
+            </div>
+            <div className="bg-bg-card p-5 rounded-2xl border border-border-card shadow-sm">
+              <p className="text-xs text-t-secondary font-medium mb-1">Bài Tập Chưa Chấm Điểm</p>
+              <h3 className="text-2xl font-black text-amber-500">
+                {analyticsData?.students?.reduce((acc: number, s: any) => acc + (s.pending_grading_count || 0), 0) || 0} Bài nộp
+              </h3>
+            </div>
+          </div>
+
+          {/* Student Progress Table */}
+          <div className="bg-bg-card rounded-2xl border border-border-card overflow-hidden shadow-sm">
+            <div className="p-5 border-b border-border-card flex justify-between items-center bg-bg-hover/50">
+               <div>
+                  <h3 className="font-bold text-lg text-t-primary">Theo Dõi Tiến Độ Học Sinh (% Hoàn Thành)</h3>
+                  <p className="text-xs text-t-secondary">Quan sát số bài đã học và tiến độ của từng học sinh trong khóa học này.</p>
+               </div>
+               <button onClick={fetchStudentAnalytics} className="text-xs font-semibold text-indigo-500 hover:text-indigo-400 bg-indigo-500/10 px-3 py-1.5 rounded-lg border border-indigo-500/20">
+                  Làm mới dữ liệu 🔄
+               </button>
+            </div>
+
+            {loadingAnalytics ? (
+               <div className="p-12 text-center text-t-secondary flex items-center justify-center gap-2">
+                  <Loader2 className="w-5 h-5 animate-spin text-indigo-500" /> Đang thống kê tiến độ học viên...
+               </div>
+            ) : !analyticsData || analyticsData.students?.length === 0 ? (
+               <div className="p-12 text-center text-t-secondary">Khóa học này chưa có học sinh ghi danh.</div>
+            ) : (
+               <div className="divide-y divide-border-card">
+                  {analyticsData.students.map((student: any) => (
+                     <div key={student.student_id} className="p-4 md:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-bg-hover/40 transition-colors">
+                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                           <div className="w-10 h-10 rounded-full bg-indigo-500/20 text-indigo-500 font-bold flex items-center justify-center shrink-0 overflow-hidden border border-indigo-500/30">
+                              {student.avatar ? (
+                                 <img src={student.avatar} alt={student.full_name} className="w-full h-full object-cover" />
+                              ) : (
+                                 student.full_name.charAt(0).toUpperCase()
+                              )}
+                           </div>
+                           <div className="min-w-0">
+                              <h4 className="font-bold text-sm text-t-primary truncate">{student.full_name}</h4>
+                              <p className="text-xs text-t-secondary truncate">{student.email}</p>
+                           </div>
+                        </div>
+
+                        {/* Progress Bar Column */}
+                        <div className="w-full md:w-72 space-y-1.5 shrink-0">
+                           <div className="flex justify-between items-center text-xs font-semibold">
+                              <span className="text-t-secondary">Tiến độ bài học:</span>
+                              <span className="text-indigo-600 dark:text-indigo-400 font-bold">
+                                 {student.completed_lessons} / {student.total_lessons} bài ({student.progress_percent}%)
+                              </span>
+                           </div>
+                           <div className="w-full bg-bg-hover h-3 rounded-full overflow-hidden border border-border-card p-0.5">
+                              <div 
+                                 className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 h-full rounded-full transition-all duration-500"
+                                 style={{ width: `${student.progress_percent}%` }}
+                              />
+                           </div>
+                        </div>
+
+                        {/* Submissions Stats & View Button */}
+                        <div className="flex items-center gap-3 shrink-0">
+                           <span className="text-xs font-medium px-3 py-1.5 rounded-xl bg-bg-hover border border-border-card text-t-secondary">
+                              {student.submissions_count} Bài nộp
+                              {student.pending_grading_count > 0 && (
+                                 <span className="ml-1 text-amber-500 font-bold">({student.pending_grading_count} chờ chấm)</span>
+                              )}
+                           </span>
+                           <button
+                              onClick={() => setSelectedStudentSubmissions(student)}
+                              className="px-4 py-2 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 rounded-xl text-xs font-bold transition-colors border border-indigo-500/20 flex items-center gap-1"
+                           >
+                              👁️ Xem Chi Tiết Bài Nộp
+                           </button>
+                        </div>
+                     </div>
+                  ))}
+               </div>
+            )}
+          </div>
+        </div>
       )}
+
+      {/* TAB 3: COURSE ASSIGNMENT SUBMISSIONS & GRADING */}
+      {activeTab === "submissions" && (
+        <div className="max-w-5xl mx-auto space-y-6 font-outfit">
+           <div className="bg-bg-card rounded-2xl border border-border-card overflow-hidden shadow-sm p-6">
+              <div className="flex justify-between items-center mb-6">
+                 <div>
+                    <h3 className="font-bold text-lg text-emerald-600 dark:text-emerald-400">Danh Sách Bài Làm Học Sinh Trong Khóa Học</h3>
+                    <p className="text-xs text-t-secondary">Tất cả bài tập thực hành & trắc nghiệm mà học sinh đã nộp cho khóa học này.</p>
+                 </div>
+                 <button onClick={fetchStudentAnalytics} className="text-xs font-semibold text-emerald-500 hover:text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-lg border border-emerald-500/20">
+                    Tải lại danh sách 🔄
+                 </button>
+              </div>
+
+              {loadingAnalytics ? (
+                 <div className="p-12 text-center text-t-secondary flex items-center justify-center gap-2">
+                    <Loader2 className="w-5 h-5 animate-spin text-emerald-500" /> Đang tải bài làm...
+                 </div>
+              ) : !analyticsData || analyticsData.students?.every((s: any) => s.submissions_count === 0) ? (
+                 <div className="p-12 text-center text-t-secondary border border-dashed border-border-card rounded-2xl">
+                    Chưa có học sinh nào nộp bài tập trong khóa học này.
+                 </div>
+              ) : (
+                 <div className="space-y-3">
+                    {analyticsData.students.flatMap((s: any) => 
+                       s.submissions.map((sub: any) => ({ ...sub, student_name: s.full_name, student_email: s.email, student_avatar: s.avatar }))
+                    ).map((sub: any) => (
+                       <div key={sub.id} className="p-4 bg-bg-hover/40 border border-border-card rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-4 hover:border-emerald-500/30 transition-all">
+                          <div className="space-y-1">
+                             <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-bold text-sm text-t-primary">{sub.student_name}</span>
+                                <span className="text-xs bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold px-2.5 py-0.5 rounded-md border border-emerald-500/20">
+                                   {sub.assignment_title}
+                                </span>
+                             </div>
+                             <p className="text-xs text-t-secondary">
+                                Ngày nộp: {new Date(sub.submitted_at).toLocaleString("vi-VN")}
+                             </p>
+                          </div>
+
+                          <div className="flex items-center gap-3">
+                             {sub.score == null ? (
+                                <span className="px-3 py-1 text-xs font-bold rounded-full bg-amber-500/10 text-amber-500 border border-amber-500/20">Chưa chấm</span>
+                             ) : (
+                                <span className="px-3 py-1 text-xs font-bold rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">{sub.score} điểm</span>
+                             )}
+                             <button
+                                onClick={() => setGradingSubmission(sub)}
+                                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-1"
+                             >
+                                📝 Chấm Điểm / Xem File
+                             </button>
+                          </div>
+                       </div>
+                    ))}
+                 </div>
+              )}
+           </div>
+        </div>
+      )}
+
+      {/* --- MODALS --- */}
+      {showChapterModal && (
+         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+            <div className="bg-bg-card w-full max-w-sm rounded-2xl p-6 border border-border-card shadow-2xl">
+               <h3 className="text-xl font-bold mb-4">Tạo Chương Mới</h3>
+               <form onSubmit={handleCreateChapter}>
+                  <input type="text" value={chapterTitle} onChange={e => setChapterTitle(e.target.value)} required placeholder="Tên chương (VD: Chương 1: Nhập môn)" className="w-full bg-bg-hover border border-border-card rounded-xl px-4 py-3 mb-4 text-sm focus:border-pink-500 outline-none" />
+                  <div className="flex justify-end gap-2">
+                     <button type="button" onClick={()=>setShowChapterModal(false)} className="px-4 py-2 text-sm text-t-secondary hover:text-t-primary transition-colors">Hủy</button>
+                     <button type="submit" className="px-5 py-2 bg-pink-600 hover:bg-pink-500 rounded-xl text-sm font-bold text-white">Lưu Chương</button>
+                  </div>
+               </form>
+            </div>
+         </div>
+      )}
+
+      {showLessonModal && (
+         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+            <div className="bg-bg-card w-full max-w-md rounded-2xl p-6 border border-border-card shadow-2xl">
+               <h3 className="text-xl font-bold mb-4">Thêm Bài học</h3>
+               <form onSubmit={handleCreateLesson} className="space-y-4">
+                  <input type="text" value={lessonForm.title} onChange={e => setLessonForm({...lessonForm, title: e.target.value})} required placeholder="Tên bài học" className="w-full bg-bg-hover border border-border-card rounded-xl px-4 py-3 text-sm focus:border-indigo-500 outline-none" />
+                  
+                  <div>
+                    <label className="block text-xs text-t-secondary mb-1">Tải lên Video (tự động lấy link)</label>
+                    <input type="file" accept="video/*" onChange={async (e) => {
+                       if (e.target.files && e.target.files[0]) {
+                          const url = await handleFileUpload(e.target.files[0], null, "Video bài học mới");
+                          if (url) setLessonForm({...lessonForm, video_url: url});
+                       }
+                    }} className="w-full bg-bg-hover border border-border-card rounded-xl px-4 py-2 text-sm" />
+                    {uploadState && !uploadState.lessonId && (
+                       <div className="mt-2 p-2.5 bg-indigo-500/10 border border-indigo-500/30 rounded-xl space-y-1">
+                          <div className="flex justify-between text-xs font-semibold text-indigo-600 dark:text-indigo-400">
+                             <span className="truncate max-w-[200px]">{uploadState.fileName}</span>
+                             <span>{uploadState.percent}%</span>
+                          </div>
+                          <div className="w-full bg-bg-hover h-2 rounded-full overflow-hidden">
+                             <div className="bg-indigo-500 h-full rounded-full transition-all duration-200" style={{ width: `${uploadState.percent}%` }} />
+                          </div>
+                          <div className="flex justify-between text-[10px] text-t-secondary">
+                             <span>{formatBytes(uploadState.loaded)} / {formatBytes(uploadState.fileSize)}</span>
+                             <span>{uploadState.status === 'completed' ? 'Hoàn tất ✓' : uploadState.status === 'processing' ? 'Đang xử lý...' : 'Đang tải lên...'}</span>
+                          </div>
+                       </div>
+                    )}
+                    <input type="url" value={lessonForm.video_url} onChange={e => setLessonForm({...lessonForm, video_url: e.target.value})} placeholder="Hoặc dán Link Video" className="w-full bg-transparent border-b border-border-card mt-2 py-2 text-sm focus:border-indigo-500 outline-none text-t-secondary" />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs text-t-secondary mb-1">Tài liệu Bài giảng / Gói SCORM (.zip, PDF...)</label>
+                    <input type="file" onChange={async (e) => {
+                       if (e.target.files && e.target.files[0]) {
+                          const url = await handleFileUpload(e.target.files[0], null, "Tài liệu bài học");
+                          if (url) setLessonForm({...lessonForm, document_url: url});
+                       }
+                    }} className="w-full bg-bg-hover border border-border-card rounded-xl px-4 py-2 text-sm" />
+                    {lessonForm.document_url && <p className="text-xs text-emerald-500 mt-1">Đã đính kèm tài liệu!</p>}
+                  </div>
+
+                  <div className="flex justify-end gap-2 pt-2">
+                     <button type="button" onClick={()=>setShowLessonModal(false)} className="px-4 py-2 text-sm text-t-secondary hover:text-t-primary" disabled={uploadingMedia}>Hủy</button>
+                     <button type="submit" disabled={uploadingMedia} className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 rounded-xl text-sm font-bold text-white">Thêm Bài học</button>
+                  </div>
+               </form>
+            </div>
+         </div>
+      )}
+
+      {showAssignmentModal && (
+         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+            <div className="bg-bg-card w-full max-w-md rounded-2xl p-6 border border-border-card shadow-2xl">
+               <h3 className="text-xl font-bold mb-4 text-emerald-600 dark:text-emerald-400">Tạo Bài Thực Hành</h3>
+               <form onSubmit={handleCreateAssignment} className="space-y-4">
+                  <input type="text" value={assignmentForm.title} onChange={e => setAssignmentForm({...assignmentForm, title: e.target.value})} placeholder="Tên bài tập (Bắt buộc)" className="w-full bg-bg-hover border border-border-card rounded-xl px-4 py-3 text-sm focus:border-emerald-500 outline-none" />
+                  <textarea value={assignmentForm.description} onChange={e => setAssignmentForm({...assignmentForm, description: e.target.value})} placeholder="Mô tả yêu cầu" className="w-full bg-bg-hover border border-border-card rounded-xl px-4 py-3 text-sm focus:border-emerald-500 outline-none h-24 resize-y" />
+                  
+                  <div>
+                    <label className="block text-xs text-t-secondary mb-1">Đính kèm File Bài tập</label>
+                    <input type="file" onChange={async (e) => {
+                       if (e.target.files && e.target.files[0]) {
+                          const url = await handleFileUpload(e.target.files[0]);
+                          if (url) setAssignmentForm({...assignmentForm, attachment_url: url});
+                       }
+                    }} className="w-full bg-bg-hover border border-border-card rounded-xl px-4 py-2 text-sm" />
+                    {uploadingMedia && <p className="text-xs text-emerald-500 mt-1">Đang tải lên...</p>}
+                    {assignmentForm.attachment_url && !uploadingMedia && <p className="text-xs text-emerald-500 mt-1">Đã đính kèm file!</p>}
+                  </div>
+
+                  <div className="flex justify-end gap-2 pt-2">
+                     <button type="button" onClick={()=>setShowAssignmentModal(false)} className="px-4 py-2 text-sm text-t-secondary hover:text-t-primary" disabled={uploadingMedia}>Hủy</button>
+                     <button type="submit" disabled={uploadingMedia} className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 rounded-xl text-sm font-bold text-white">Thêm Bài Thực Hành</button>
+                  </div>
+               </form>
+            </div>
+         </div>
+      )}
+
+      {showExamModal && (
+         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+            <div className="bg-bg-card w-full max-w-md rounded-2xl p-6 border border-border-card shadow-2xl">
+               <h3 className="text-xl font-bold mb-4 text-orange-600 dark:text-orange-400">Tạo Trắc Nghiệm Tự Luyện</h3>
+               <form onSubmit={handleCreateExam} className="space-y-4">
+                  <input type="text" value={examForm.title} onChange={e => setExamForm({...examForm, title: e.target.value})} required placeholder="Tiêu đề bài trắc nghiệm" className="w-full bg-bg-hover border border-border-card rounded-xl px-4 py-3 text-sm focus:border-orange-500 outline-none" />
+                  <div>
+                     <label className="block text-xs text-t-secondary mb-1">Thời gian làm bài (Phút)</label>
+                     <input type="number" value={examForm.duration_minutes} onChange={e => setExamForm({...examForm, duration_minutes: parseInt(e.target.value)})} required className="w-full bg-bg-hover border border-border-card rounded-xl px-4 py-3 text-sm focus:border-orange-500 outline-none" />
+                  </div>
+                  <div className="flex justify-end gap-2 pt-2">
+                     <button type="button" onClick={()=>setShowExamModal(false)} className="px-4 py-2 text-sm text-t-secondary hover:text-t-primary">Hủy</button>
+                     <button type="submit" className="px-5 py-2 bg-orange-600 hover:bg-orange-500 rounded-xl text-sm font-bold text-white">Thêm Trắc Nghiệm</button>
+                  </div>
+               </form>
+            </div>
+         </div>
+      )}
+
+       {/* Video URL / Google Drive Link Modal */}
+       {showVideoUrlModal && (
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+             <div className="bg-bg-card w-full max-w-md rounded-2xl p-6 border border-border-card shadow-2xl">
+                <h3 className="text-xl font-bold mb-2 text-purple-600 dark:text-purple-400">Dán Link Video / Google Drive</h3>
+                <p className="text-xs text-t-secondary mb-4">Dán đường dẫn Google Drive, YouTube hoặc link video MP4 để phát trực tiếp trong bài học này.</p>
+                <form onSubmit={handleSaveVideoUrl} className="space-y-4">
+                   <div>
+                      <label className="block text-xs font-semibold text-t-secondary mb-1">Đường dẫn Video (URL)</label>
+                      <input
+                         type="url"
+                         value={videoUrlInput}
+                         onChange={e => setVideoUrlInput(e.target.value)}
+                         required
+                         placeholder="https://drive.google.com/file/d/.../view"
+                         className="w-full bg-bg-hover border border-border-card rounded-xl px-4 py-3 text-sm focus:border-purple-500 outline-none text-t-primary"
+                      />
+                   </div>
+                   <div className="flex justify-end gap-2 pt-2">
+                      <button type="button" onClick={() => setShowVideoUrlModal(false)} className="px-4 py-2 text-sm text-t-secondary hover:text-t-primary">Hủy</button>
+                      <button type="submit" className="px-5 py-2 bg-purple-600 hover:bg-purple-500 rounded-xl text-sm font-bold text-white">Lưu Link Video</button>
+                   </div>
+                </form>
+             </div>
+          </div>
+       )}
+
+       {/* SCORM Preview Modal */}
+       {showQuizModal && (
+          <QuizBuilderModal
+             courses={course ? [course] : []}
+             defaultCourseId={courseId}
+             defaultLessonId={activeLessonId?.toString()}
+             editAssignment={editingQuiz}
+             onClose={() => {
+                setShowQuizModal(false);
+                setEditingQuiz(null);
+             }}
+             onSuccess={() => {
+                setShowQuizModal(false);
+                setEditingQuiz(null);
+                fetchCurriculum();
+             }}
+          />
+       )}
+
+       {/* Grading Modal */}
+       {gradingSubmission && (
+          <SubmissionModal
+             submission={gradingSubmission}
+             quizData={null}
+             assignment={{ assignment_type: "file_upload" }}
+             onClose={() => {
+                setGradingSubmission(null);
+                fetchStudentAnalytics();
+             }}
+          />
+       )}
+
+       {/* Student Submissions Drawer/Modal */}
+       {selectedStudentSubmissions && (
+          <div className="fixed inset-0 z-[180] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 font-outfit">
+             <div className="bg-bg-card w-full max-w-2xl rounded-2xl border border-border-card shadow-2xl p-6 max-h-[85vh] flex flex-col">
+                <div className="flex justify-between items-center pb-4 border-b border-border-card mb-4">
+                   <div>
+                      <h3 className="font-bold text-lg text-indigo-500">Bài Làm Của: {selectedStudentSubmissions.full_name}</h3>
+                      <p className="text-xs text-t-secondary">Tiến độ bài học: {selectedStudentSubmissions.completed_lessons}/{selectedStudentSubmissions.total_lessons} bài ({selectedStudentSubmissions.progress_percent}%)</p>
+                   </div>
+                   <button onClick={() => setSelectedStudentSubmissions(null)} className="p-2 hover:bg-bg-hover rounded-xl text-t-secondary"><X className="w-5 h-5"/></button>
+                </div>
+                
+                <div className="flex-1 overflow-y-auto space-y-3 pr-1">
+                   {selectedStudentSubmissions.submissions.length === 0 ? (
+                      <p className="text-center py-8 text-t-secondary text-sm">Học sinh chưa nộp bài tập nào trong khóa học này.</p>
+                   ) : (
+                      selectedStudentSubmissions.submissions.map((sub: any) => (
+                         <div key={sub.id} className="p-4 bg-bg-hover/50 border border-border-card rounded-xl flex items-center justify-between gap-3">
+                            <div>
+                               <h4 className="font-bold text-sm text-t-primary">{sub.assignment_title}</h4>
+                               <p className="text-xs text-t-secondary">Nộp lúc: {new Date(sub.submitted_at).toLocaleString("vi-VN")}</p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                               {sub.score == null ? (
+                                  <span className="px-2.5 py-0.5 text-xs font-bold rounded-full bg-amber-500/10 text-amber-500 border border-amber-500/20">Chưa chấm</span>
+                               ) : (
+                                  <span className="px-2.5 py-0.5 text-xs font-bold rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">{sub.score}đ</span>
+                               )}
+                               <button
+                                  onClick={() => setGradingSubmission(sub)}
+                                  className="px-3 py-1.5 bg-indigo-600 text-white rounded-lg text-xs font-bold hover:bg-indigo-500"
+                               >
+                                  Chấm bài
+                               </button>
+                            </div>
+                         </div>
+                      ))
+                   )}
+                </div>
+             </div>
+          </div>
+       )}
 
       {previewUrl && (
          <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 p-4">
