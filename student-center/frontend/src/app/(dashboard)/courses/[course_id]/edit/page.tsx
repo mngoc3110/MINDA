@@ -54,6 +54,10 @@ export default function CourseBuilderPage() {
   const [showQuizModal, setShowQuizModal] = useState(false);
   const [uploadingLessonId, setUploadingLessonId] = useState<number | null>(null);
 
+  const [showVideoUrlModal, setShowVideoUrlModal] = useState(false);
+  const [videoUrlInput, setVideoUrlInput] = useState("");
+  const [activeVideoLessonId, setActiveVideoLessonId] = useState<number | null>(null);
+
   const [uploadingMedia, setUploadingMedia] = useState(false);
   const [uploadState, setUploadState] = useState<UploadState | null>(null);
   
@@ -251,6 +255,22 @@ export default function CourseBuilderPage() {
       }
     }
     setUploadingLessonId(null);
+  };
+
+  const handleSaveVideoUrl = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!activeVideoLessonId || !videoUrlInput.trim()) return;
+    const res = await fetch(`${apiBase}/api/courses/lessons/${activeVideoLessonId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
+      body: JSON.stringify({ video_url: videoUrlInput.trim() })
+    });
+    if (res.ok) {
+      setShowVideoUrlModal(false);
+      setVideoUrlInput("");
+      setActiveVideoLessonId(null);
+      fetchCurriculum();
+    }
   };
 
   const handleRemoveLessonMedia = async (lessonId: number, field: "video_url" | "document_url" | "notes_url") => {
@@ -616,8 +636,18 @@ export default function CourseBuilderPage() {
                                       )}
 
                                       <div className="flex gap-2 pt-2 flex-wrap">
+                                         <button 
+                                            onClick={() => {
+                                               setActiveVideoLessonId(less.id);
+                                               setVideoUrlInput(less.video_url || "");
+                                               setShowVideoUrlModal(true);
+                                            }}
+                                            className="text-xs bg-bg-hover hover:bg-purple-500/10 px-3 py-1.5 rounded-lg transition-colors text-purple-600 dark:text-purple-400 border border-border-card flex items-center gap-1"
+                                         >
+                                            🔗 Dán Link Drive / Video
+                                         </button>
                                          <label className={`text-xs bg-bg-hover hover:bg-blue-500/10 px-3 py-1.5 rounded-lg transition-colors text-blue-600 dark:text-blue-400 border border-border-card cursor-pointer flex items-center gap-1 ${uploadingLessonId === less.id ? 'opacity-50 pointer-events-none' : ''}`}>
-                                            {uploadingLessonId === less.id ? "+ Đang tải lên..." : "+ Video bài giảng"}
+                                            {uploadingLessonId === less.id ? "+ Đang tải lên..." : "+ Tải video từ máy"}
                                             <input type="file" accept="video/*" className="hidden" onChange={(e) => {
                                                if (e.target.files && e.target.files[0]) {
                                                   handleUpdateLessonVideo(less.id, less.title, e.target.files[0]);
@@ -778,6 +808,33 @@ export default function CourseBuilderPage() {
             </div>
          </div>
       )}
+
+       {/* Video URL / Google Drive Link Modal */}
+       {showVideoUrlModal && (
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+             <div className="bg-bg-card w-full max-w-md rounded-2xl p-6 border border-border-card shadow-2xl">
+                <h3 className="text-xl font-bold mb-2 text-purple-600 dark:text-purple-400">Dán Link Video / Google Drive</h3>
+                <p className="text-xs text-t-secondary mb-4">Dán đường dẫn Google Drive, YouTube hoặc link video MP4 để phát trực tiếp trong bài học này.</p>
+                <form onSubmit={handleSaveVideoUrl} className="space-y-4">
+                   <div>
+                      <label className="block text-xs font-semibold text-t-secondary mb-1">Đường dẫn Video (URL)</label>
+                      <input
+                         type="url"
+                         value={videoUrlInput}
+                         onChange={e => setVideoUrlInput(e.target.value)}
+                         required
+                         placeholder="https://drive.google.com/file/d/.../view"
+                         className="w-full bg-bg-hover border border-border-card rounded-xl px-4 py-3 text-sm focus:border-purple-500 outline-none text-t-primary"
+                      />
+                   </div>
+                   <div className="flex justify-end gap-2 pt-2">
+                      <button type="button" onClick={() => setShowVideoUrlModal(false)} className="px-4 py-2 text-sm text-t-secondary hover:text-t-primary">Hủy</button>
+                      <button type="submit" className="px-5 py-2 bg-purple-600 hover:bg-purple-500 rounded-xl text-sm font-bold text-white">Lưu Link Video</button>
+                   </div>
+                </form>
+             </div>
+          </div>
+       )}
 
       {/* SCORM Preview Modal */}
       {showQuizModal && (

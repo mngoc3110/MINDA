@@ -322,15 +322,13 @@ export default function CoursePlayerPage() {
     
     // YouTube
     if (url.includes("youtube.com/watch?v=")) videoId = url.split("v=")[1].split("&")[0];
-    else if (url.includes("youtu.be/")) videoId = url.split("youtu.be/")[1];
+    else if (url.includes("youtu.be/")) videoId = url.split("youtu.be/")[1].split("?")[0];
     if (videoId) return `https://www.youtube.com/embed/${videoId}?autoplay=0&rel=0`;
 
-    // Google Drive
-    if (url.includes("drive.google.com/file/d/")) {
-       const match = url.match(/\/d\/(.*?)\//);
-       if (match && match[1]) {
-           return `https://drive.google.com/file/d/${match[1]}/preview`;
-       }
+    // Google Drive (support /d/FILE_ID/view, open?id=FILE_ID, uc?id=FILE_ID)
+    const driveMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
+    if (driveMatch && driveMatch[1]) {
+       return `https://drive.google.com/file/d/${driveMatch[1]}/preview`;
     }
     
     return url;
