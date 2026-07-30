@@ -429,3 +429,111 @@ def approve_enrollment(
     db.commit()
     db.refresh(enrollment)
     return {"message": "Đã cập nhật trạng thái học sinh", "status": enrollment.status.value}
+
+
+@router.get("/{course_id}/student-analytics")
+def get_course_student_analytics(
+    course_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role("teacher", "admin")),
+):
+    """
+    Trả về danh sách học sinh tham gia khóa học kèm:
+    - % Tiến độ hoàn thành các bài học trong khóa
+    - Số bài đã học / Tổng số bài
+    - Danh sách các bài nộp (thực hành, trắc nghiệm) của học sinh cho khóa học này
+    """
+    from app.models.assignment import Assignment, AssignmentSubmission
+
+    course = db.query(Course).filter(Course.id == course_id).first()
+    if not course or (course.teacher_id != current_user.id and current_user.role != "admin"):
+        raise HTTPException(status_code=403, detail="Không có quyền truy cập")
+
+    # Lấy tất cả lesson_id của khóa học này
+    lessons = (
+        db.query(Lesson)
+        .join(CourseChapter, Lesson.chapter_id == CourseChapter.id)
+        .filter(CourseChapter.course_id == course_id)
+        .all()
+    )
+    lesson_ids = [l.id for l in lessons]
+    total_lessons = len(lesson_ids)
+
+    # Lấy tất cả assignment_id của khóa học này
+    assignments = (
+        db.query(Assignment)
+        .filter(Assignment.course_id == course_id)
+        .all()
+    )
+    assignment_map = {a.id: a.title for a in assignments}
+    assignment_ids = list(assignment_map.keys())
+
+    # Lấy danh sách học sinh ghi danh
+    enrollments = db.query(Enrollment).filter(Enrollment.course_id == course_id).all()
+    
+    student_results = []
+    for e in enrollments:
+        student = e.student
+        if not student:
+            continue
+        
+        # Đếm số bài đã hoàn thành
+        completed_count = 0
+        if total_lessons > 0:
+            completed_count = db.query(LessonProgress).filter(
+                LessonProgress.student_id == student.id,
+                LessonProgress.lesson_id.in_(lesson_ids),
+                LessonProgress.completed == True
+            ).count()
+
+        pct = round((completed_count / total_lessons) * 100) if total_lessons > 0 else 0
+        if pct > 100:
+            pct = 100
+
+        # Lấy bài nộp của học sinh trong khóa này
+        submissions = []
+        if assignment_ids:
+            subs = db.query(AssignmentSubmission).filter(
+                AssignmentSubmission.student_id == student.id,
+                AssignmentSubmission.assignment_id.in_(assignment_ids)
+            ).order_by(AssignmentSubmission.submitted_at.desc()).all()
+
+            for s in subs:
+                submissions.append({
+                    "id": s.id,
+                    "assignment_id": s.assignment_id,
+                    "assignment_title": assignment_map.get(s.assignment_id, "Bài tập"),
+                    "content": s.content,
+                    "file_url": s.file_url,
+                    "score": s.score,
+                    "feedback": s.feedback,
+                    "quiz_answers": s.quiz_answers,
+                    "submitted_at": s.submitted_at.isoformat() if s.submitted_at else None,
+                    "graded_at": s.graded_at.isoformat() if s.graded_at else None
+                })
+
+        student_results.append({
+            "student_id": student.id,
+            "full_name": student.full_name,
+            "email": student.email,
+            "avatar": getattr(student, "avatar", None),
+            "enrolled_at": e.enrolled_at.isoformat() if e.enrolled_at else None,
+            "status": e.status.value if hasattr(e.status, "value") else str(e.status),
+            "total_lessons": total_lessons,
+            "completed_lessons": completed_count,
+            "progress_percent": pct,
+            "submissions_count": len(submissions),
+            "pending_grading_count": len([s for s in submissions if s["score"] is None]),
+            "submissions": submissions
+        })
+
+    # Sort theo % tiến độ giảm dần
+    student_results.sort(key=lambda x: x["progress_percent"], reverse=True)
+
+    return {
+        "course_id": course_id,
+        "course_title": course.title,
+        "total_lessons": total_lessons,
+        "total_students": len(student_results),
+        "students": student_results
+    }

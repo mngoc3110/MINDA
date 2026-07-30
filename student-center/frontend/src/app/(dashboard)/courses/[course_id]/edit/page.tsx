@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { BookOpen, Plus, Video, Edit3, ClipboardList, Trash2, ArrowLeft, ChevronDown, ChevronUp, PlayCircle, X, Pencil, Check, GripVertical, FileText, Timer, Upload, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
+import { BookOpen, Plus, Video, Edit3, ClipboardList, Trash2, ArrowLeft, ChevronDown, ChevronUp, PlayCircle, X, Pencil, Check, GripVertical, FileText, Timer, Upload, Loader2, CheckCircle2, AlertCircle, BarChart2 } from "lucide-react";
 import QuizBuilderModal from "@/app/(dashboard)/assignments/QuizBuilderModal";
+import SubmissionModal from "@/app/(dashboard)/assignments/SubmissionModal";
 
 interface UploadState {
   active: boolean;
@@ -60,6 +61,30 @@ export default function CourseBuilderPage() {
 
   const [uploadingMedia, setUploadingMedia] = useState(false);
   const [uploadState, setUploadState] = useState<UploadState | null>(null);
+  
+  // Analytics and Submissions Tabs State
+  const [activeTab, setActiveTab] = useState<"curriculum" | "analytics" | "submissions">("curriculum");
+  const [analyticsData, setAnalyticsData] = useState<any>(null);
+  const [loadingAnalytics, setLoadingAnalytics] = useState(false);
+  const [selectedStudentSubmissions, setSelectedStudentSubmissions] = useState<any | null>(null);
+  const [gradingSubmission, setGradingSubmission] = useState<any | null>(null);
+
+  const fetchStudentAnalytics = async () => {
+    setLoadingAnalytics(true);
+    try {
+      const res = await fetch(`${apiBase}/api/courses/${courseId}/student-analytics`, {
+        headers: { Authorization: `Bearer ${getToken()}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setAnalyticsData(data);
+      }
+    } catch(e) {
+      console.error(e);
+    } finally {
+      setLoadingAnalytics(false);
+    }
+  };
   
   // SCORM Preview Modal
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -435,10 +460,55 @@ export default function CourseBuilderPage() {
           >
             <Plus className="w-4 h-4" /> Thêm Chương Mới
           </button>
-        </div>
       </div>
 
-      {/* CURRICULUM TREE */}
+      {/* NAVIGATION TABS */}
+      <div className="flex items-center gap-2 mb-8 border-b border-border-card pb-3 overflow-x-auto">
+        <button
+           onClick={() => setActiveTab("curriculum")}
+           className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
+              activeTab === "curriculum"
+                 ? "bg-pink-600 text-white shadow-lg shadow-pink-500/20"
+                 : "bg-bg-card text-t-secondary hover:bg-bg-hover hover:text-t-primary border border-border-card"
+           }`}
+        >
+           <BookOpen className="w-4 h-4" /> 1. Giáo Án & Bài Học
+        </button>
+        <button
+           onClick={() => {
+              setActiveTab("analytics");
+              fetchStudentAnalytics();
+           }}
+           className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
+              activeTab === "analytics"
+                 ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/20"
+                 : "bg-bg-card text-t-secondary hover:bg-bg-hover hover:text-t-primary border border-border-card"
+           }`}
+        >
+           <BarChart2 className="w-4 h-4" /> 2. Tiến Độ Học Sinh (% Bài Đã Học)
+        </button>
+        <button
+           onClick={() => {
+              setActiveTab("submissions");
+              fetchStudentAnalytics();
+           }}
+           className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
+              activeTab === "submissions"
+                 ? "bg-emerald-600 text-white shadow-lg shadow-emerald-500/20"
+                 : "bg-bg-card text-t-secondary hover:bg-bg-hover hover:text-t-primary border border-border-card"
+           }`}
+        >
+           <ClipboardList className="w-4 h-4" /> 3. Bài Làm & Chấm Điểm
+           {analyticsData && analyticsData.students?.reduce((acc: number, s: any) => acc + (s.pending_grading_count || 0), 0) > 0 && (
+              <span className="bg-amber-500 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full ml-1 animate-pulse">
+                 {analyticsData.students.reduce((acc: number, s: any) => acc + (s.pending_grading_count || 0), 0)} mới
+              </span>
+           )}
+        </button>
+      </div>
+
+      {/* TAB 1: CURRICULUM TREE */}
+      {activeTab === "curriculum" && (
       <div className="max-w-4xl mx-auto space-y-5">
         {curriculum.length === 0 ? (
            <div className="text-center p-16 bg-bg-card border border-dashed border-border-card rounded-3xl">
@@ -693,168 +763,6 @@ export default function CourseBuilderPage() {
                        </button>
                     </div>
                  </div>
-              )}
-           </div>
-        ))}
-      </div>
-
-      {/* --- MODALS --- */}
-      {showChapterModal && (
-         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-            <div className="bg-bg-card w-full max-w-sm rounded-2xl p-6 border border-border-card shadow-2xl">
-               <h3 className="text-xl font-bold mb-4">Tạo Chương Mới</h3>
-               <form onSubmit={handleCreateChapter}>
-                  <input type="text" value={chapterTitle} onChange={e => setChapterTitle(e.target.value)} required placeholder="Tên chương (VD: Chương 1: Nhập môn)" className="w-full bg-bg-hover border border-border-card rounded-xl px-4 py-3 mb-4 text-sm focus:border-pink-500 outline-none" />
-                  <div className="flex justify-end gap-2">
-                     <button type="button" onClick={()=>setShowChapterModal(false)} className="px-4 py-2 text-sm text-t-secondary hover:text-t-primary transition-colors">Hủy</button>
-                     <button type="submit" className="px-5 py-2 bg-pink-600 hover:bg-pink-500 rounded-xl text-sm font-bold text-white">Lưu Chương</button>
-                  </div>
-               </form>
-            </div>
-         </div>
-      )}
-
-      {showLessonModal && (
-         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-            <div className="bg-bg-card w-full max-w-md rounded-2xl p-6 border border-border-card shadow-2xl">
-               <h3 className="text-xl font-bold mb-4">Thêm Bài học</h3>
-               <form onSubmit={handleCreateLesson} className="space-y-4">
-                  <input type="text" value={lessonForm.title} onChange={e => setLessonForm({...lessonForm, title: e.target.value})} required placeholder="Tên bài học" className="w-full bg-bg-hover border border-border-card rounded-xl px-4 py-3 text-sm focus:border-indigo-500 outline-none" />
-                  
-                  <div>
-                    <label className="block text-xs text-t-secondary mb-1">Tải lên Video (tự động lấy link)</label>
-                    <input type="file" accept="video/*" onChange={async (e) => {
-                       if (e.target.files && e.target.files[0]) {
-                          const url = await handleFileUpload(e.target.files[0], null, "Video bài học mới");
-                          if (url) setLessonForm({...lessonForm, video_url: url});
-                       }
-                    }} className="w-full bg-bg-hover border border-border-card rounded-xl px-4 py-2 text-sm" />
-                    {uploadState && !uploadState.lessonId && (
-                       <div className="mt-2 p-2.5 bg-indigo-500/10 border border-indigo-500/30 rounded-xl space-y-1">
-                          <div className="flex justify-between text-xs font-semibold text-indigo-600 dark:text-indigo-400">
-                             <span className="truncate max-w-[200px]">{uploadState.fileName}</span>
-                             <span>{uploadState.percent}%</span>
-                          </div>
-                          <div className="w-full bg-bg-hover h-2 rounded-full overflow-hidden">
-                             <div className="bg-indigo-500 h-full rounded-full transition-all duration-200" style={{ width: `${uploadState.percent}%` }} />
-                          </div>
-                          <div className="flex justify-between text-[10px] text-t-secondary">
-                             <span>{formatBytes(uploadState.loaded)} / {formatBytes(uploadState.fileSize)}</span>
-                             <span>{uploadState.status === 'completed' ? 'Hoàn tất ✓' : uploadState.status === 'processing' ? 'Đang xử lý...' : 'Đang tải lên...'}</span>
-                          </div>
-                       </div>
-                    )}
-                    <input type="url" value={lessonForm.video_url} onChange={e => setLessonForm({...lessonForm, video_url: e.target.value})} placeholder="Hoặc dán Link Video" className="w-full bg-transparent border-b border-border-card mt-2 py-2 text-sm focus:border-indigo-500 outline-none text-t-secondary" />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs text-t-secondary mb-1">Tài liệu Bài giảng / Gói SCORM (.zip, PDF...)</label>
-                    <input type="file" onChange={async (e) => {
-                       if (e.target.files && e.target.files[0]) {
-                          const url = await handleFileUpload(e.target.files[0], null, "Tài liệu bài học");
-                          if (url) setLessonForm({...lessonForm, document_url: url});
-                       }
-                    }} className="w-full bg-bg-hover border border-border-card rounded-xl px-4 py-2 text-sm" />
-                    {lessonForm.document_url && <p className="text-xs text-emerald-500 mt-1">Đã đính kèm tài liệu!</p>}
-                  </div>
-
-                  <div className="flex justify-end gap-2 pt-2">
-                     <button type="button" onClick={()=>setShowLessonModal(false)} className="px-4 py-2 text-sm text-t-secondary hover:text-t-primary" disabled={uploadingMedia}>Hủy</button>
-                     <button type="submit" disabled={uploadingMedia} className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 rounded-xl text-sm font-bold text-white">Thêm Bài học</button>
-                  </div>
-               </form>
-            </div>
-         </div>
-      )}
-
-      {showAssignmentModal && (
-         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-            <div className="bg-bg-card w-full max-w-md rounded-2xl p-6 border border-border-card shadow-2xl">
-               <h3 className="text-xl font-bold mb-4 text-emerald-600 dark:text-emerald-400">Tạo Bài Thực Hành</h3>
-               <form onSubmit={handleCreateAssignment} className="space-y-4">
-                  <input type="text" value={assignmentForm.title} onChange={e => setAssignmentForm({...assignmentForm, title: e.target.value})} placeholder="Tên bài tập (Bắt buộc)" className="w-full bg-bg-hover border border-border-card rounded-xl px-4 py-3 text-sm focus:border-emerald-500 outline-none" />
-                  <textarea value={assignmentForm.description} onChange={e => setAssignmentForm({...assignmentForm, description: e.target.value})} placeholder="Mô tả yêu cầu" className="w-full bg-bg-hover border border-border-card rounded-xl px-4 py-3 text-sm focus:border-emerald-500 outline-none h-24 resize-y" />
-                  
-                  <div>
-                    <label className="block text-xs text-t-secondary mb-1">Đính kèm File Bài tập</label>
-                    <input type="file" onChange={async (e) => {
-                       if (e.target.files && e.target.files[0]) {
-                          const url = await handleFileUpload(e.target.files[0]);
-                          if (url) setAssignmentForm({...assignmentForm, attachment_url: url});
-                       }
-                    }} className="w-full bg-bg-hover border border-border-card rounded-xl px-4 py-2 text-sm" />
-                    {uploadingMedia && <p className="text-xs text-emerald-500 mt-1">Đang tải lên...</p>}
-                    {assignmentForm.attachment_url && !uploadingMedia && <p className="text-xs text-emerald-500 mt-1">Đã đính kèm file!</p>}
-                  </div>
-
-                  <div className="flex justify-end gap-2 pt-2">
-                     <button type="button" onClick={()=>setShowAssignmentModal(false)} className="px-4 py-2 text-sm text-t-secondary hover:text-t-primary" disabled={uploadingMedia}>Hủy</button>
-                     <button type="submit" disabled={uploadingMedia} className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 rounded-xl text-sm font-bold text-white">Thêm Bài Thực Hành</button>
-                  </div>
-               </form>
-            </div>
-         </div>
-      )}
-
-      {showExamModal && (
-         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-            <div className="bg-bg-card w-full max-w-md rounded-2xl p-6 border border-border-card shadow-2xl">
-               <h3 className="text-xl font-bold mb-4 text-orange-600 dark:text-orange-400">Tạo Trắc Nghiệm Tự Luyện</h3>
-               <form onSubmit={handleCreateExam} className="space-y-4">
-                  <input type="text" value={examForm.title} onChange={e => setExamForm({...examForm, title: e.target.value})} required placeholder="Tiêu đề bài trắc nghiệm" className="w-full bg-bg-hover border border-border-card rounded-xl px-4 py-3 text-sm focus:border-orange-500 outline-none" />
-                  <div>
-                     <label className="block text-xs text-t-secondary mb-1">Thời gian làm bài (Phút)</label>
-                     <input type="number" value={examForm.duration_minutes} onChange={e => setExamForm({...examForm, duration_minutes: parseInt(e.target.value)})} required className="w-full bg-bg-hover border border-border-card rounded-xl px-4 py-3 text-sm focus:border-orange-500 outline-none" />
-                  </div>
-                  <div className="flex justify-end gap-2 pt-2">
-                     <button type="button" onClick={()=>setShowExamModal(false)} className="px-4 py-2 text-sm text-t-secondary hover:text-t-primary">Hủy</button>
-                     <button type="submit" className="px-5 py-2 bg-orange-600 hover:bg-orange-500 rounded-xl text-sm font-bold text-white">Thêm Trắc Nghiệm</button>
-                  </div>
-               </form>
-            </div>
-         </div>
-      )}
-
-       {/* Video URL / Google Drive Link Modal */}
-       {showVideoUrlModal && (
-          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-             <div className="bg-bg-card w-full max-w-md rounded-2xl p-6 border border-border-card shadow-2xl">
-                <h3 className="text-xl font-bold mb-2 text-purple-600 dark:text-purple-400">Dán Link Video / Google Drive</h3>
-                <p className="text-xs text-t-secondary mb-4">Dán đường dẫn Google Drive, YouTube hoặc link video MP4 để phát trực tiếp trong bài học này.</p>
-                <form onSubmit={handleSaveVideoUrl} className="space-y-4">
-                   <div>
-                      <label className="block text-xs font-semibold text-t-secondary mb-1">Đường dẫn Video (URL)</label>
-                      <input
-                         type="url"
-                         value={videoUrlInput}
-                         onChange={e => setVideoUrlInput(e.target.value)}
-                         required
-                         placeholder="https://drive.google.com/file/d/.../view"
-                         className="w-full bg-bg-hover border border-border-card rounded-xl px-4 py-3 text-sm focus:border-purple-500 outline-none text-t-primary"
-                      />
-                   </div>
-                   <div className="flex justify-end gap-2 pt-2">
-                      <button type="button" onClick={() => setShowVideoUrlModal(false)} className="px-4 py-2 text-sm text-t-secondary hover:text-t-primary">Hủy</button>
-                      <button type="submit" className="px-5 py-2 bg-purple-600 hover:bg-purple-500 rounded-xl text-sm font-bold text-white">Lưu Link Video</button>
-                   </div>
-                </form>
-             </div>
-          </div>
-       )}
-
-      {/* SCORM Preview Modal */}
-      {showQuizModal && (
-         <QuizBuilderModal
-            courses={course ? [course] : []}
-            defaultCourseId={courseId}
-            defaultLessonId={activeLessonId?.toString()}
-            editAssignment={editingQuiz}
-            onClose={() => {
-               setShowQuizModal(false);
-               setEditingQuiz(null);
-            }}
-            onSuccess={() => {
-               setShowQuizModal(false);
                setEditingQuiz(null);
                fetchCurriculum();
             }}
