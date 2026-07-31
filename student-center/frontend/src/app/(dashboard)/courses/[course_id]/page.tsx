@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { 
-   BookOpen, PlayCircle, Loader2, CheckCircle2, ChevronLeft, 
+   BookOpen, PlayCircle, Loader2, CheckCircle2, ChevronLeft, ChevronRight, Menu, 
    FileText, ClipboardList, PenTool, LayoutTemplate, Send, Clock, HelpCircle, Timer, AlertCircle,
    Pencil, Check, X, Plus, Trash2, Upload
 } from "lucide-react";
@@ -56,6 +56,9 @@ export default function CoursePlayerPage() {
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Mobile sidebar drawer state
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   // Thriving state for UI switching 
   const [activeType, setActiveType] = useState<ContentType>("lesson");
@@ -391,11 +394,107 @@ export default function CoursePlayerPage() {
   const activeAssignment = activeType === "assignment" ? assignments.find(a => a.id === activeItemId) : null;
   const activeExam = activeType === "exam" ? exams.find(e => e.id === activeItemId) : null;
 
+  const currentLessonIndex = lessons.findIndex(l => l.id === activeItemId);
+
+  const renderCurriculumList = () => (
+    <div className="p-4 flex-1 flex flex-col gap-6">
+       {chapters.length === 0 && <p className="text-sm text-t-secondary/60 italic text-center">Chưa có nội dung</p>}
+       {chapters.map(chap => (
+          <div key={chap.id} className="flex flex-col gap-2">
+             <h3 className="text-xs sm:text-sm font-black text-t-primary uppercase tracking-widest mb-1 px-2 border-b border-border-card pb-2">
+                {chap.title}
+             </h3>
+             <div className="flex flex-col gap-3">
+                {chap.lessons?.map((less: any) => {
+                   const isLessActive = activeType === "lesson" && activeItemId === less.id;
+                   const isCompleted = completedLessons[less.id];
+                   return (
+                      <div key={less.id} className="flex flex-col gap-1 pl-2 border-l-2 border-indigo-500/20 ml-2">
+                         <div 
+                           onClick={() => { 
+                              setActiveType("lesson"); 
+                              setActiveItemId(less.id); 
+                              setIsMobileSidebarOpen(false); 
+                           }}
+                           className={`p-2.5 rounded-xl cursor-pointer transition-all duration-300 flex items-start gap-3 group ${isLessActive ? 'bg-indigo-600/10 text-indigo-500 font-bold' : 'hover:bg-bg-hover text-t-primary'}`}
+                         >
+                            <div className="mt-0.5 shrink-0">
+                               {isCompleted ? (
+                                  <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                               ) : (
+                                  <PlayCircle className={`w-4 h-4 ${isLessActive ? 'text-indigo-500' : 'text-slate-500 group-hover:text-slate-400'}`} />
+                               )}
+                            </div>
+                            <span className="text-xs sm:text-sm leading-tight flex-1">{less.title}</span>
+                         </div>
+                         
+                         {/* Assignments for this lesson */}
+                         {less.assignments?.map((ass: any) => {
+                            if (ass.assignment_type === "quiz" || ass.quiz_data) {
+                               return (
+                                  <div 
+                                    key={`ass-${ass.id}`}
+                                    onClick={() => {
+                                       setIsMobileSidebarOpen(false);
+                                       router.push(`/practice/${ass.id}`);
+                                    }}
+                                    className={`ml-7 p-2 rounded-lg cursor-pointer transition-all duration-300 flex items-center gap-2 group hover:bg-orange-500/10 text-t-secondary hover:text-orange-500`}
+                                  >
+                                     <Timer className="w-3.5 h-3.5" />
+                                     <span className="text-xs font-medium">Đề kiểm tra: {ass.title}</span>
+                                  </div>
+                               );
+                            }
+
+                            const isAssActive = activeType === "assignment" && activeItemId === ass.id;
+                            const isSubmitted = submittedIds[ass.id];
+                            return (
+                               <div 
+                                 key={`ass-${ass.id}`}
+                                 onClick={() => { 
+                                    setActiveType("assignment"); 
+                                    setActiveItemId(ass.id); 
+                                    setIsMobileSidebarOpen(false); 
+                                 }}
+                                 className={`ml-7 p-2 rounded-lg cursor-pointer transition-all duration-300 flex items-center gap-2 group ${isAssActive ? 'bg-amber-500/10 text-amber-500 font-bold' : 'hover:bg-bg-hover text-t-secondary'}`}
+                               >
+                                  {isSubmitted ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> : <PenTool className="w-3.5 h-3.5" />}
+                                  <span className="text-xs font-medium">Thực hành: {ass.title}</span>
+                               </div>
+                            );
+                         })}
+
+                         {/* Exams for this lesson */}
+                         {less.exams?.map((exam: any) => {
+                            const isExamActive = activeType === "exam" && activeItemId === exam.id;
+                            return (
+                               <div 
+                                 key={`exam-${exam.id}`}
+                                 onClick={() => {
+                                    selectExamSwitch(exam.id);
+                                    setIsMobileSidebarOpen(false);
+                                 }}
+                                 className={`ml-7 p-2 rounded-lg cursor-pointer transition-all duration-300 flex items-center gap-2 group ${isExamActive ? 'bg-rose-500/10 text-rose-500 font-bold' : 'hover:bg-bg-hover text-t-secondary'}`}
+                               >
+                                  <Timer className="w-3.5 h-3.5" />
+                                  <span className="text-xs font-medium truncate">Tự luyện: {exam.title} ({exam.duration_minutes}P)</span>
+                               </div>
+                            );
+                         })}
+                      </div>
+                   );
+                })}
+             </div>
+          </div>
+       ))}
+    </div>
+  );
+
   return (
-    <div className="min-h-[calc(100vh-60px)] h-full bg-bg-main text-t-primary flex flex-col md:flex-row overflow-hidden font-outfit">
+    <div className="min-h-[calc(100vh-60px)] h-full bg-bg-main text-t-primary flex flex-col md:flex-row overflow-hidden font-outfit relative">
        
-       {/* ─── SIDEBAR MỤC LỤC ─── */}
-       <aside className="w-full md:w-80 lg:w-96 bg-bg-card border-b md:border-b-0 md:border-r border-border-card shrink-0 flex flex-col h-auto md:h-[calc(100vh-60px)] shadow-lg overflow-y-auto z-20">
+       {/* ─── DESKTOP SIDEBAR MỤC LỤC ─── */}
+       <aside className="hidden md:flex w-80 lg:w-96 bg-bg-card border-r border-border-card shrink-0 flex-col h-[calc(100vh-60px)] shadow-lg overflow-y-auto z-20">
           <div className="sticky top-0 bg-bg-card/95 backdrop-blur z-10 p-5 border-b border-border-card">
               <button onClick={() => router.push('/courses')} className="text-t-secondary hover:text-indigo-500 transition-colors flex items-center gap-2 mb-3 text-sm font-bold w-max">
                  <ChevronLeft className="w-4 h-4" /> Bảng điều khiển
@@ -448,10 +547,10 @@ export default function CoursePlayerPage() {
                 </div>
               ) : (
                 <div className="flex items-center gap-2 group/title">
-                  <h1 className="text-lg md:text-xl font-black leading-tight bg-clip-text text-transparent bg-linear-to-br from-indigo-400 to-purple-600">{course.title}</h1>
-                  {currentUserId === course.teacher_id && (
+                  <h1 className="text-lg md:text-xl font-black leading-tight bg-clip-text text-transparent bg-linear-to-br from-indigo-400 to-purple-600">{course?.title}</h1>
+                  {currentUserId === course?.teacher_id && (
                     <button
-                      onClick={() => { setNewTitle(course.title); setEditingTitle(true); }}
+                      onClick={() => { setNewTitle(course?.title || ""); setEditingTitle(true); }}
                       className="p-1 text-t-secondary opacity-0 group-hover/title:opacity-100 hover:text-indigo-400 transition-all shrink-0"
                       title="Sửa tên khoá học"
                     >
@@ -465,100 +564,78 @@ export default function CoursePlayerPage() {
               </div>
           </div>
 
-          <div className="p-4 flex-1 flex flex-col gap-6">
-             {chapters.length === 0 && <p className="text-sm text-t-secondary/60 italic text-center">Chưa có nội dung</p>}
-             {chapters.map(chap => (
-                <div key={chap.id} className="flex flex-col gap-2">
-                   <h3 className="text-sm font-black text-t-primary uppercase tracking-widest mb-1 px-2 border-b border-border-card pb-2">
-                      {chap.title}
-                   </h3>
-                   <div className="flex flex-col gap-3">
-                      {chap.lessons?.map((less: any, idx: number) => {
-                         const isLessActive = activeType === "lesson" && activeItemId === less.id;
-                         const isCompleted = completedLessons[less.id];
-                         return (
-                            <div key={less.id} className="flex flex-col gap-1 pl-2 border-l-2 border-indigo-500/20 ml-2">
-                               <div 
-                                 onClick={() => { setActiveType("lesson"); setActiveItemId(less.id); }}
-                                 className={`p-2 rounded-xl cursor-pointer transition-all duration-300 flex items-start gap-3 group ${isLessActive ? 'bg-indigo-600/10 text-indigo-500' : 'hover:bg-bg-hover text-t-primary'}`}
-                               >
-                                  <div className="mt-0.5 shrink-0">
-                                     {isCompleted ? (
-                                        <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                                     ) : (
-                                        <PlayCircle className={`w-4 h-4 ${isLessActive ? 'text-indigo-500' : 'text-slate-500 group-hover:text-slate-400'}`} />
-                                     )}
-                                  </div>
-                                  <span className="font-bold text-sm leading-tight flex-1">{less.title}</span>
-                               </div>
-                               
-                               {/* Assignments for this lesson */}
-                               {less.assignments?.map((ass: any) => {
-                                  if (ass.assignment_type === "quiz" || ass.quiz_data) {
-                                     return (
-                                        <div 
-                                          key={`ass-${ass.id}`}
-                                          onClick={() => router.push(`/practice/${ass.id}`)}
-                                          className={`ml-7 p-2 rounded-lg cursor-pointer transition-all duration-300 flex items-center gap-2 group hover:bg-orange-500/10 text-t-secondary hover:text-orange-500`}
-                                        >
-                                           <Timer className="w-3.5 h-3.5" />
-                                           <span className="text-xs font-medium">Đề kiểm tra: {ass.title}</span>
-                                        </div>
-                                     );
-                                  }
-
-                                  const isAssActive = activeType === "assignment" && activeItemId === ass.id;
-                                  const isSubmitted = submittedIds[ass.id];
-                                  return (
-                                     <div 
-                                       key={`ass-${ass.id}`}
-                                       onClick={() => { setActiveType("assignment"); setActiveItemId(ass.id); }}
-                                       className={`ml-7 p-2 rounded-lg cursor-pointer transition-all duration-300 flex items-center gap-2 group ${isAssActive ? 'bg-amber-500/10 text-amber-500' : 'hover:bg-bg-hover text-t-secondary'}`}
-                                     >
-                                        {isSubmitted ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> : <PenTool className="w-3.5 h-3.5" />}
-                                        <span className="text-xs font-medium">Thực hành: {ass.title}</span>
-                                     </div>
-                                  );
-                               })}
-
-                               {/* Exams for this lesson */}
-                               {less.exams?.map((exam: any) => {
-                                  const isExamActive = activeType === "exam" && activeItemId === exam.id;
-                                  return (
-                                     <div 
-                                       key={`exam-${exam.id}`}
-                                       onClick={() => selectExamSwitch(exam.id)}
-                                       className={`ml-7 p-2 rounded-lg cursor-pointer transition-all duration-300 flex items-center gap-2 group ${isExamActive ? 'bg-rose-500/10 text-rose-500' : 'hover:bg-bg-hover text-t-secondary'}`}
-                                     >
-                                        <Timer className="w-3.5 h-3.5" />
-                                        <span className="text-xs font-medium truncate">Tự luyện: {exam.title} ({exam.duration_minutes}P)</span>
-                                     </div>
-                                  );
-                               })}
-                            </div>
-                         );
-                      })}
-                   </div>
-                </div>
-             ))}
-          </div>
+          {renderCurriculumList()}
        </aside>
 
+       {/* ─── MOBILE SIDEBAR DRAWER OVERLAY ─── */}
+       {isMobileSidebarOpen && (
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm md:hidden flex justify-start animate-in fade-in duration-200">
+             <aside className="w-[85%] max-w-xs bg-bg-card h-full flex flex-col shadow-2xl overflow-y-auto animate-in slide-in-from-left duration-300">
+                <div className="p-4 border-b border-border-card flex items-center justify-between sticky top-0 bg-bg-card/95 backdrop-blur z-10">
+                   <div className="flex items-center gap-2 min-w-0">
+                      <BookOpen className="w-5 h-5 text-indigo-500 shrink-0" />
+                      <h2 className="font-bold text-sm text-t-primary truncate">{course?.title || "Mục Lục Khóa Học"}</h2>
+                   </div>
+                   <button onClick={() => setIsMobileSidebarOpen(false)} className="p-1.5 hover:bg-bg-hover rounded-xl text-t-secondary transition-colors">
+                      <X className="w-5 h-5" />
+                   </button>
+                </div>
+
+                <div className="p-3 border-b border-border-card bg-bg-hover/50">
+                   <div className="flex justify-between text-xs font-semibold text-t-secondary mb-1">
+                      <span>Tiến độ học tập:</span>
+                      <span className="text-emerald-500 font-bold">
+                         {Object.keys(completedLessons).length}/{lessons.length} bài ({lessons.length > 0 ? Math.round((Object.keys(completedLessons).length / lessons.length) * 100) : 0}%)
+                      </span>
+                   </div>
+                   <div className="w-full bg-border-card h-2 rounded-full overflow-hidden">
+                      <div className="bg-emerald-500 h-full rounded-full transition-all duration-500" style={{ width: `${lessons.length > 0 ? (Object.keys(completedLessons).length / lessons.length) * 100 : 0}%` }}></div>
+                   </div>
+                </div>
+
+                {renderCurriculumList()}
+             </aside>
+          </div>
+       )}
+
        {/* ─── MAIN CONTENT VIEWPORT ─── */}
-       <main className="flex-1 bg-bg-main relative flex flex-col h-auto md:h-[calc(100vh-60px)] overflow-y-auto">
+       <main className="flex-1 bg-bg-main relative flex flex-col h-auto md:h-[calc(100vh-60px)] overflow-y-auto w-full">
+          
+          {/* MOBILE STICKY NAVBAR */}
+          <div className="md:hidden flex items-center justify-between p-3 bg-bg-card border-b border-border-card sticky top-0 z-30 shadow-sm gap-2">
+             <button onClick={() => router.push('/courses')} className="p-1.5 hover:bg-bg-hover rounded-xl text-t-secondary transition-colors shrink-0">
+                <ChevronLeft className="w-5 h-5" />
+             </button>
+             <div className="min-w-0 flex-1 text-center">
+                <p className="text-[10px] text-t-secondary uppercase tracking-wider font-bold truncate">{course?.title}</p>
+                <h2 className="font-bold text-xs sm:text-sm truncate text-indigo-500">
+                   {activeLesson?.title || activeAssignment?.title || activeExam?.title || "Chọn bài học"}
+                </h2>
+             </div>
+             <button 
+                onClick={() => setIsMobileSidebarOpen(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 font-bold text-xs rounded-xl border border-indigo-500/20 shrink-0 transition-colors"
+             >
+                <Menu className="w-4 h-4" /> Mục Lục
+             </button>
+          </div>
+
           {(!activeLesson && !activeAssignment && !activeExam) ? (
-             <div className="m-auto flex flex-col items-center justify-center text-center p-10 opacity-60">
-                 <LayoutTemplate className="w-20 h-20 text-t-secondary mb-4" />
-                 <h2 className="text-xl font-bold">Hãy chọn Bài học hoặc Bài tập từ Cột bên</h2>
+             <div className="m-auto flex flex-col items-center justify-center text-center p-8 opacity-60">
+                 <LayoutTemplate className="w-16 h-16 text-t-secondary mb-4" />
+                 <h2 className="text-lg font-bold mb-2">Hãy chọn Bài học hoặc Bài tập từ Mục lục</h2>
+                 <button onClick={() => setIsMobileSidebarOpen(true)} className="md:hidden px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-xl mt-2">
+                    Mở Danh Sách Bài Học
+                 </button>
              </div>
           ) : (
-             <div className="w-full max-w-5xl mx-auto p-4 md:p-8">
+             <div className="w-full max-w-5xl mx-auto p-3 sm:p-5 md:p-8">
                  
                  {/* VIEW: VIDEO LESSON */}
                  {activeType === "lesson" && activeLesson && (
                     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                        {activeLesson.video_url && (
-                          <div className="w-full aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10 mb-6 group relative">
+                          <div className="w-full aspect-video bg-black rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10 mb-4 sm:mb-6 group relative">
                              <iframe 
                                 src={getEmbedUrl(activeLesson.video_url)} 
                                 className="w-full h-full border-0" 
@@ -569,7 +646,7 @@ export default function CoursePlayerPage() {
                        )}
 
                        {activeLesson.document_url && activeLesson.document_url.endsWith(".html") && (
-                          <div className="w-full h-[600px] bg-white rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10 mb-6 group relative">
+                          <div className="w-full h-[50vh] sm:h-[600px] bg-white rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10 mb-4 sm:mb-6 group relative">
                              <iframe 
                                 src={activeLesson.document_url} 
                                 className="w-full h-full border-0" 
@@ -578,33 +655,74 @@ export default function CoursePlayerPage() {
                           </div>
                        )}
 
-                       <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 bg-bg-card p-6 md:p-8 rounded-2xl border border-border-card shadow-sm">
-                          <div className="flex-1 flex flex-col items-start gap-4">
+                       <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 sm:gap-6 bg-bg-card p-5 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl border border-border-card shadow-sm">
+                          <div className="flex-1 flex flex-col items-start gap-4 min-w-0">
                              <div>
-                                <h2 className="text-2xl md:text-3xl font-black mb-4">{activeLesson.title}</h2>
-                                <p className="text-t-secondary leading-relaxed whitespace-pre-wrap">{activeLesson.description || "Bài giảng chưa có mô tả chi tiết."}</p>
+                                <h2 className="text-xl sm:text-2xl md:text-3xl font-black mb-3">{activeLesson.title}</h2>
+                                <p className="text-t-secondary text-sm md:text-base leading-relaxed whitespace-pre-wrap">{activeLesson.description || "Bài giảng chưa có mô tả chi tiết."}</p>
                              </div>
-                             {activeLesson.document_url && !activeLesson.document_url.endsWith(".html") && (
-                                <a href={activeLesson.document_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-5 py-2.5 bg-purple-600/10 hover:bg-purple-600/20 text-purple-400 border border-purple-500/20 rounded-xl text-sm font-bold transition-all shadow-lg shadow-purple-500/10 w-fit">
-                                   <BookOpen className="w-4 h-4" /> Tải xuống Tài Liệu Bài Giảng đính kèm
-                                </a>
-                             )}
-                             {activeLesson.notes_url && (
-                                <a href={activeLesson.notes_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 border border-indigo-500/20 rounded-xl text-sm font-bold transition-all shadow-lg shadow-indigo-500/10 w-fit ml-2">
-                                   <BookOpen className="w-4 h-4" /> Tải xuống File Giải Tay
-                                </a>
-                             )}
+                             
+                             <div className="flex flex-wrap gap-2 pt-1 w-full">
+                                {activeLesson.document_url && !activeLesson.document_url.endsWith(".html") && (
+                                   <a href={activeLesson.document_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2.5 bg-purple-600/10 hover:bg-purple-600/20 text-purple-400 border border-purple-500/20 rounded-xl text-xs sm:text-sm font-bold transition-all shadow-sm">
+                                      <BookOpen className="w-4 h-4" /> Tải Tài Liệu Bài Giảng
+                                   </a>
+                                )}
+                                {activeLesson.notes_url && (
+                                   <a href={activeLesson.notes_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 border border-indigo-500/20 rounded-xl text-xs sm:text-sm font-bold transition-all shadow-sm">
+                                      <BookOpen className="w-4 h-4" /> Tải File Giải Tay
+                                   </a>
+                                )}
+                             </div>
                           </div>
-                          <div className="shrink-0 flex items-center justify-center">
+                          
+                          <div className="shrink-0 flex items-center justify-center pt-2 md:pt-0">
                              <button 
                                onClick={() => handleMarkLessonComplete(activeLesson.id)}
                                disabled={completedLessons[activeLesson.id]}
-                               className={`px-8 py-3 rounded-full font-bold shadow-lg transition-all flex items-center gap-2 ${completedLessons[activeLesson.id] ? 'bg-emerald-500/20 text-emerald-500 border border-emerald-500/50 cursor-default' : 'bg-indigo-600 hover:bg-indigo-500 text-white hover:scale-105'}`}
+                               className={`w-full sm:w-auto px-6 sm:px-8 py-3 rounded-full font-bold shadow-lg transition-all flex items-center justify-center gap-2 text-xs sm:text-sm ${completedLessons[activeLesson.id] ? 'bg-emerald-500/20 text-emerald-500 border border-emerald-500/50 cursor-default' : 'bg-indigo-600 hover:bg-indigo-500 text-white hover:scale-105'}`}
                              >
-                                <CheckCircle2 className="w-5 h-5" /> 
+                                <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5" /> 
                                 {completedLessons[activeLesson.id] ? "Đã Hoàn Thành" : "Đánh Dấu Hoàn Thành"}
                              </button>
                           </div>
+                       </div>
+
+                       {/* PREVIOUS / NEXT LESSON NAVIGATION */}
+                       <div className="flex items-center justify-between gap-3 mt-6 pt-6 border-t border-border-card">
+                          <button
+                             disabled={currentLessonIndex <= 0}
+                             onClick={() => {
+                                if (currentLessonIndex > 0) {
+                                   const prevLess = lessons[currentLessonIndex - 1];
+                                   setActiveType("lesson");
+                                   setActiveItemId(prevLess.id);
+                                   window.scrollTo({ top: 0, behavior: 'smooth' });
+                                }
+                             }}
+                             className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-border-card bg-bg-card hover:bg-bg-hover disabled:opacity-30 text-xs sm:text-sm font-bold transition-all text-t-primary shadow-sm"
+                          >
+                             <ChevronLeft className="w-4 h-4" /> Bài trước
+                          </button>
+                          
+                          <span className="text-xs font-semibold text-t-secondary hidden sm:inline">
+                             Bài {currentLessonIndex + 1} / {lessons.length}
+                          </span>
+
+                          <button
+                             disabled={currentLessonIndex < 0 || currentLessonIndex >= lessons.length - 1}
+                             onClick={() => {
+                                if (currentLessonIndex >= 0 && currentLessonIndex < lessons.length - 1) {
+                                   const nextLess = lessons[currentLessonIndex + 1];
+                                   setActiveType("lesson");
+                                   setActiveItemId(nextLess.id);
+                                   window.scrollTo({ top: 0, behavior: 'smooth' });
+                                }
+                             }}
+                             className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-30 text-white text-xs sm:text-sm font-bold transition-all shadow-md"
+                          >
+                             Bài tiếp theo <ChevronRight className="w-4 h-4" />
+                          </button>
                        </div>
                     </div>
                  )}
