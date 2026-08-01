@@ -442,6 +442,7 @@ def list_submissions(
 
 
 @router.put("/submissions/{submission_id}/grade", response_model=SubmissionResponse)
+@router.put("/assignments/submissions/{submission_id}/grade", response_model=SubmissionResponse)
 def grade_submission(
     submission_id: int,
     data: GradeSubmission,
@@ -465,6 +466,7 @@ class AIGradeResponse(BaseModel):
     feedback: str
 
 @router.post("/submissions/{submission_id}/ai-grade", response_model=AIGradeResponse)
+@router.post("/assignments/submissions/{submission_id}/ai-grade", response_model=AIGradeResponse)
 def ai_grade_submission(
     submission_id: int,
     db: Session = Depends(get_db),

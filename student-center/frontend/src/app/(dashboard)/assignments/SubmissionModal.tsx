@@ -33,17 +33,25 @@ export default function SubmissionModal({ submission, quizData, assignment, onCl
     try {
       const token = localStorage.getItem("minda_token");
       const parsedScore = score === "" ? 0 : parseFloat(score);
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/assignments/submissions/${submission.id}/grade`, {
-        method: "PUT",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          score: isNaN(parsedScore) ? 0 : parsedScore,
-          feedback: feedback
-        })
+      const payload = JSON.stringify({
+        score: isNaN(parsedScore) ? 0 : parsedScore,
+        feedback: feedback
       });
+
+      let res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/assignments/submissions/${submission.id}/grade`, {
+        method: "PUT",
+        headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+        body: payload
+      });
+
+      if (res.status === 404) {
+        res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/submissions/${submission.id}/grade`, {
+          method: "PUT",
+          headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+          body: payload
+        });
+      }
+
       if (res.ok) {
         alert("Lưu điểm và nhận xét thành công!");
         onClose();
@@ -63,16 +71,22 @@ export default function SubmissionModal({ submission, quizData, assignment, onCl
     setAiGrading(true);
     try {
       const token = localStorage.getItem("minda_token");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/assignments/submissions/${submission.id}/ai-grade`, {
+      let res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/assignments/submissions/${submission.id}/ai-grade`, {
         method: "POST",
         headers: { "Authorization": `Bearer ${token}` }
       });
+      if (res.status === 404) {
+        res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/submissions/${submission.id}/ai-grade`, {
+          method: "POST",
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+      }
       if (res.ok) {
         const data = await res.json();
         setScore(String(data.score));
         setFeedback(data.feedback);
       } else {
-        const err = await res.json();
+        const err = await res.json().catch(() => ({}));
         alert(err.detail || "Lỗi khi gọi AI chấm điểm");
       }
     } catch (e) {
