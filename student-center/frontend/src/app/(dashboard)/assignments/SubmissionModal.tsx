@@ -32,6 +32,7 @@ export default function SubmissionModal({ submission, quizData, assignment, onCl
     setSaving(true);
     try {
       const token = localStorage.getItem("minda_token");
+      const parsedScore = score === "" ? 0 : parseFloat(score);
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/assignments/submissions/${submission.id}/grade`, {
         method: "PUT",
         headers: {
@@ -39,19 +40,20 @@ export default function SubmissionModal({ submission, quizData, assignment, onCl
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          score: score === "" ? 0 : parseFloat(score),
+          score: isNaN(parsedScore) ? 0 : parsedScore,
           feedback: feedback
         })
       });
       if (res.ok) {
-        alert("Lưu điểm thành công!");
+        alert("Lưu điểm và nhận xét thành công!");
         onClose();
       } else {
-        alert("Có lỗi khi lưu điểm");
+        const err = await res.json().catch(() => ({}));
+        alert(err.detail || "Có lỗi khi lưu điểm");
       }
     } catch (e) {
       console.error(e);
-      alert("Lỗi mạng");
+      alert("Lỗi kết nối mạng");
     } finally {
       setSaving(false);
     }

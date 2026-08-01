@@ -137,7 +137,7 @@ class SubmissionResponse(BaseModel):
         from_attributes = True
 
 class GradeSubmission(BaseModel):
-    score: int
+    score: Optional[float] = None
     feedback: Optional[str] = None
 
 
