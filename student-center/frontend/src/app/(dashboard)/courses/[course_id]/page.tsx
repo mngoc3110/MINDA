@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { 
    BookOpen, PlayCircle, Loader2, CheckCircle2, ChevronLeft, ChevronRight, Menu, 
    FileText, ClipboardList, PenTool, LayoutTemplate, Send, Clock, HelpCircle, Timer, AlertCircle,
-   Pencil, Check, X, Plus, Trash2, Upload
+   Pencil, Check, X, Plus, Trash2, Upload, Sparkles, Trophy
 } from "lucide-react";
 
 interface Lesson {
@@ -24,6 +24,7 @@ interface Assignment {
   description: string;
   due_date: string;
   max_score: number;
+  attachment_url?: string;
 }
 
 interface CourseData {
@@ -71,6 +72,7 @@ export default function CoursePlayerPage() {
   const [assFileUrls, setAssFileUrls] = useState<string[]>([]);
   const [uploadAssProgress, setUploadAssProgress] = useState<number>(0);
   const [submittedIds, setSubmittedIds] = useState<Record<number, boolean>>({});
+  const [studentSubmissions, setStudentSubmissions] = useState<Record<number, any>>({});
   const [completedLessons, setCompletedLessons] = useState<Record<number, boolean>>({});
 
   // Exam States
@@ -118,14 +120,29 @@ export default function CoursePlayerPage() {
 
       const urls = [
         `${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/courses/${course_id}`,
-        `${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/courses/${course_id}/curriculum`
+        `${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/courses/${course_id}/curriculum`,
+        `${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/assignments/student/my-submissions`
       ];
 
-      const [courseRes, curRes] = await Promise.all(
+      const [courseRes, curRes, subRes] = await Promise.all(
          urls.map(url => fetch(url, { headers }).catch(() => null))
       );
 
       if (courseRes && courseRes.ok) setCourse(await courseRes.json());
+      
+      if (subRes && subRes.ok) {
+         const subsData = await subRes.json();
+         const subMap: Record<number, any> = {};
+         const subIds: Record<number, boolean> = {};
+         if (Array.isArray(subsData)) {
+            subsData.forEach((s: any) => {
+               subMap[s.assignment_id] = s;
+               subIds[s.assignment_id] = true;
+            });
+         }
+         setStudentSubmissions(subMap);
+         setSubmittedIds(subIds);
+      }
       
       if (curRes && curRes.ok) {
          const curData = await curRes.json();
@@ -268,6 +285,7 @@ export default function CoursePlayerPage() {
         setSubmittedIds(prev => ({ ...prev, [assignmentId]: true }));
         setAssContent("");
         setAssFileUrls([]);
+        fetchCourseCurriculum();
       } else {
         const error = await res.json();
         alert(error.detail || "Lỗi khi nộp bài");
@@ -446,22 +464,42 @@ export default function CoursePlayerPage() {
                                );
                             }
 
-                            const isAssActive = activeType === "assignment" && activeItemId === ass.id;
-                            const isSubmitted = submittedIds[ass.id];
-                            return (
-                               <div 
-                                 key={`ass-${ass.id}`}
-                                 onClick={() => { 
-                                    setActiveType("assignment"); 
-                                    setActiveItemId(ass.id); 
-                                    setIsMobileSidebarOpen(false); 
-                                 }}
-                                 className={`ml-7 p-2 rounded-lg cursor-pointer transition-all duration-300 flex items-center gap-2 group ${isAssActive ? 'bg-amber-500/10 text-amber-500 font-bold' : 'hover:bg-bg-hover text-t-secondary'}`}
-                               >
-                                  {isSubmitted ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> : <PenTool className="w-3.5 h-3.5" />}
-                                  <span className="text-xs font-medium">Thực hành: {ass.title}</span>
-                               </div>
-                            );
+                             const isAssActive = activeType === "assignment" && activeItemId === ass.id;
+                             const sub = studentSubmissions[ass.id];
+                             const isSubmitted = !!sub || submittedIds[ass.id];
+                             const isGraded = sub && sub.score !== null && sub.score !== undefined;
+
+                             return (
+                                <div 
+                                  key={`ass-${ass.id}`}
+                                  onClick={() => { 
+                                     setActiveType("assignment"); 
+                                     setActiveItemId(ass.id); 
+                                     setIsMobileSidebarOpen(false); 
+                                  }}
+                                  className={`ml-7 p-2 rounded-lg cursor-pointer transition-all duration-300 flex items-center justify-between gap-2 group ${isAssActive ? 'bg-amber-500/10 text-amber-500 font-bold' : 'hover:bg-bg-hover text-t-secondary'}`}
+                                >
+                                   <div className="flex items-center gap-2 min-w-0">
+                                      {isGraded ? (
+                                         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                                      ) : isSubmitted ? (
+                                         <Clock className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                                      ) : (
+                                         <PenTool className="w-3.5 h-3.5 shrink-0" />
+                                      )}
+                                      <span className="text-xs font-medium truncate">Thực hành: {ass.title}</span>
+                                   </div>
+                                   {isGraded ? (
+                                      <span className="text-[10px] font-bold bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 px-1.5 py-0.5 rounded shrink-0">
+                                         {sub.score}/{ass.max_score || 10}đ
+                                      </span>
+                                   ) : isSubmitted ? (
+                                      <span className="text-[10px] font-bold bg-amber-500/20 text-amber-600 dark:text-amber-400 px-1.5 py-0.5 rounded shrink-0">
+                                         Đã nộp
+                                      </span>
+                                   ) : null}
+                                </div>
+                             );
                          })}
 
                          {/* Exams for this lesson */}
@@ -770,116 +808,271 @@ export default function CoursePlayerPage() {
                              )}
                           </div>
 
-                          <h3 className="font-bold text-lg mb-3 flex items-center gap-2 text-t-secondary"><PenTool className="w-5 h-5"/> Bài Làm Của Bạn</h3>
-                          {submittedIds[activeAssignment.id] ? (
-                              <div className="bg-emerald-500/10 border-l-4 border-emerald-500 p-6 rounded-lg flex items-center gap-4">
-                                  <div className="w-12 h-12 bg-emerald-500 rounded-full flex items-center justify-center shrink-0">
-                                     <CheckCircle2 className="w-6 h-6 text-white" />
-                                  </div>
-                                  <div>
-                                     <h4 className="font-bold text-emerald-500 text-lg">Đã nộp bài thành công!</h4>
-                                     <p className="text-t-secondary text-sm">Giáo viên sẽ xem xét và chấm điểm cho bạn bằng hệ thống. Hãy theo dõi bảng điểm nhé!</p>
-                                  </div>
-                              </div>
-                          ) : (
-                              <div className="flex flex-col gap-4">
-                                 <textarea 
-                                    className="w-full bg-bg-main border border-border-card rounded-xl p-4 min-h-[150px] outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50 transition-all font-medium resize-y"
-                                    placeholder="Nhập câu trả lời hoặc dán đường dẫn file Drive của bạn vào đây..."
-                                    value={assContent}
-                                    onChange={(e) => setAssContent(e.target.value)}
-                                 ></textarea>
-                                 <div className="bg-bg-hover border border-border-card rounded-xl p-4 flex flex-col gap-3">
-                                    <div className="flex justify-between items-center">
-                                      <label className="text-sm font-bold text-t-primary flex items-center gap-2">
-                                        <FileText className="w-4 h-4 text-amber-500" /> Tải lên bài làm (Cho phép chọn nhiều ảnh/PDF)
-                                      </label>
-                                      <span className="text-xs text-t-secondary font-medium">Đã đính kèm: {assFileUrls.length} tệp</span>
-                                    </div>
+                          <h3 className="font-bold text-lg mb-3 flex items-center gap-2 text-t-secondary"><PenTool className="w-5 h-5"/> Trạng Thái & Bài Làm Của Bạn</h3>
+                           {(() => {
+                               const sub = studentSubmissions[activeAssignment.id];
+                               const isSubmitted = !!sub || submittedIds[activeAssignment.id];
+                               if (!isSubmitted) return null;
 
-                                    {/* File Input Label */}
-                                    <label className={`cursor-pointer bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30 rounded-xl px-4 py-3 flex items-center justify-center gap-2 text-sm font-bold transition-all w-full ${uploadingAssFile ? 'opacity-50 pointer-events-none' : ''}`}>
-                                      <Plus className="w-4 h-4" /> {assFileUrls.length > 0 ? "+ Chọn thêm ảnh / tệp bài làm" : "Chọn các ảnh / tệp bài làm (Có thể chọn nhiều tệp)"}
-                                      <input 
-                                        type="file" 
-                                        accept="image/*,.pdf,.doc,.docx,.zip"
-                                        multiple
-                                        disabled={uploadingAssFile}
-                                        onChange={(e) => {
-                                           if (e.target.files && e.target.files.length > 0) {
-                                              handleUploadAssFiles(e.target.files);
-                                              e.target.value = '';
-                                           }
+                               if (sub && sub.score !== null && sub.score !== undefined) {
+                                  return (
+                                     <div className="space-y-6">
+                                        {/* GRADED BANNER */}
+                                        <div className="bg-emerald-500/10 border border-emerald-500/30 p-5 sm:p-6 rounded-2xl space-y-4">
+                                           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-emerald-500/20 pb-4">
+                                              <div className="flex items-center gap-3">
+                                                 <div className="w-12 h-12 bg-emerald-500 rounded-2xl flex items-center justify-center shrink-0 shadow-lg shadow-emerald-500/20">
+                                                    <CheckCircle2 className="w-6 h-6 text-white" />
+                                                 </div>
+                                                 <div>
+                                                    <div className="flex items-center gap-2 flex-wrap">
+                                                       <span className="font-black text-emerald-500 text-lg sm:text-xl">ĐÃ ĐƯỢC CHẤM ĐIỂM</span>
+                                                       <span className="text-xs bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold px-2.5 py-0.5 rounded-full">Hoàn thành</span>
+                                                    </div>
+                                                    <p className="text-t-secondary text-xs mt-0.5">Bài làm đã được giáo viên đánh giá và chấm điểm.</p>
+                                                 </div>
+                                              </div>
+                                              
+                                              {/* SCORE BADGE */}
+                                              <div className="bg-bg-card border border-emerald-500/30 px-6 py-3 rounded-2xl text-center shrink-0 shadow-sm">
+                                                 <p className="text-[10px] uppercase font-black tracking-wider text-t-secondary">Điểm Đạt Được</p>
+                                                 <p className="text-3xl font-black text-emerald-500">
+                                                    {sub.score} <span className="text-sm text-t-secondary font-bold">/ {sub.max_score || activeAssignment.max_score || 10} đ</span>
+                                                 </p>
+                                              </div>
+                                           </div>
+
+                                           {/* TEACHER FEEDBACK */}
+                                           {sub.feedback ? (
+                                              <div className="bg-bg-card border border-border-card p-4 rounded-xl space-y-2">
+                                                 <p className="text-xs font-black text-indigo-500 uppercase tracking-wider flex items-center gap-1.5">
+                                                    <Sparkles className="w-4 h-4 text-indigo-500" /> Nhận xét từ Giáo Viên (Feedback):
+                                                 </p>
+                                                 <p className="text-t-primary text-sm leading-relaxed whitespace-pre-wrap font-medium pl-1">
+                                                    "{sub.feedback}"
+                                                 </p>
+                                              </div>
+                                           ) : (
+                                              <p className="text-xs text-t-secondary italic">Giáo viên chưa để lại nhận xét chi tiết.</p>
+                                           )}
+                                        </div>
+
+                                        {/* SUBMITTED CONTENT & FILES */}
+                                        <div className="bg-bg-hover border border-border-card p-5 rounded-2xl space-y-3">
+                                           <h4 className="font-bold text-sm text-t-primary flex items-center justify-between">
+                                              <span>Nội dung bài nộp của bạn:</span>
+                                              {sub.submitted_at && <span className="text-xs font-normal text-t-secondary">Nộp lúc: {new Date(sub.submitted_at).toLocaleString("vi-VN")}</span>}
+                                           </h4>
+                                           {sub.content && (
+                                              <div className="bg-bg-card border border-border-card p-4 rounded-xl text-sm text-t-primary whitespace-pre-wrap">
+                                                 {sub.content}
+                                              </div>
+                                           )}
+                                           {sub.file_url && (
+                                              <div className="space-y-2 pt-2">
+                                                 <p className="text-xs font-bold text-t-secondary">Tệp / Ảnh bài làm đính kèm ({sub.file_url.split(',').filter(Boolean).length}):</p>
+                                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                                    {sub.file_url.split(',').filter(Boolean).map((url: string, idx: number) => {
+                                                       const isImg = url.match(/\.(jpeg|jpg|gif|png|webp)/i) != null || url.includes("drive.google.com");
+                                                       return (
+                                                          <div key={idx} className="bg-bg-card p-2.5 border border-border-card rounded-xl flex items-center gap-2">
+                                                             {isImg ? (
+                                                                <img src={url} alt={`Bài làm #${idx + 1}`} className="w-10 h-10 object-cover rounded-lg border border-border-card shrink-0" />
+                                                             ) : (
+                                                                <FileText className="w-5 h-5 text-indigo-500 shrink-0" />
+                                                             )}
+                                                             <a href={url} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-indigo-500 hover:underline truncate flex-1">
+                                                                📄 Xem / Tải tệp bài làm #{idx + 1}
+                                                             </a>
+                                                          </div>
+                                                       );
+                                                    })}
+                                                 </div>
+                                              </div>
+                                           )}
+                                        </div>
+
+                                        {/* RESUBMIT BUTTON */}
+                                        <button 
+                                           onClick={() => {
+                                              setSubmittedIds(prev => ({ ...prev, [activeAssignment.id]: false }));
+                                              setStudentSubmissions(prev => {
+                                                 const next = { ...prev };
+                                                 delete next[activeAssignment.id];
+                                                 return next;
+                                              });
+                                           }}
+                                           className="px-4 py-2 bg-bg-hover hover:bg-bg-card border border-border-card text-t-secondary hover:text-indigo-500 rounded-xl text-xs font-bold transition-all flex items-center gap-2"
+                                        >
+                                           <Upload className="w-4 h-4" /> Nộp lại bài làm khác
+                                        </button>
+                                     </div>
+                                  );
+                               }
+
+                               return (
+                                  <div className="space-y-6">
+                                     <div className="bg-amber-500/10 border border-amber-500/30 p-5 sm:p-6 rounded-2xl flex items-center gap-4">
+                                        <div className="w-12 h-12 bg-amber-500 rounded-2xl flex items-center justify-center shrink-0 shadow-lg shadow-amber-500/20">
+                                           <Clock className="w-6 h-6 text-white" />
+                                        </div>
+                                        <div>
+                                           <h4 className="font-bold text-amber-600 dark:text-amber-400 text-lg">Đã nộp bài - Đang chờ giáo viên chấm điểm</h4>
+                                           <p className="text-t-secondary text-xs sm:text-sm mt-0.5">Bài làm của bạn đã được gửi tới giáo viên. Điểm số và lời nhận xét sẽ tự động cập nhật ở đây ngay khi giáo viên chấm xong!</p>
+                                        </div>
+                                     </div>
+
+                                     {/* SUBMITTED CONTENT & FILES */}
+                                     {sub && (
+                                        <div className="bg-bg-hover border border-border-card p-5 rounded-2xl space-y-3">
+                                           <h4 className="font-bold text-sm text-t-primary flex items-center justify-between">
+                                              <span>Nội dung bài nộp của bạn:</span>
+                                              {sub.submitted_at && <span className="text-xs font-normal text-t-secondary">Nộp lúc: {new Date(sub.submitted_at).toLocaleString("vi-VN")}</span>}
+                                           </h4>
+                                           {sub.content && (
+                                              <div className="bg-bg-card border border-border-card p-4 rounded-xl text-sm text-t-primary whitespace-pre-wrap">
+                                                 {sub.content}
+                                              </div>
+                                           )}
+                                           {sub.file_url && (
+                                              <div className="space-y-2 pt-2">
+                                                 <p className="text-xs font-bold text-t-secondary">Tệp / Ảnh bài làm đính kèm ({sub.file_url.split(',').filter(Boolean).length}):</p>
+                                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                                    {sub.file_url.split(',').filter(Boolean).map((url: string, idx: number) => {
+                                                       const isImg = url.match(/\.(jpeg|jpg|gif|png|webp)/i) != null || url.includes("drive.google.com");
+                                                       return (
+                                                          <div key={idx} className="bg-bg-card p-2.5 border border-border-card rounded-xl flex items-center gap-2">
+                                                             {isImg ? (
+                                                                <img src={url} alt={`Bài làm #${idx + 1}`} className="w-10 h-10 object-cover rounded-lg border border-border-card shrink-0" />
+                                                             ) : (
+                                                                <FileText className="w-5 h-5 text-indigo-500 shrink-0" />
+                                                             )}
+                                                             <a href={url} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-indigo-500 hover:underline truncate flex-1">
+                                                                📄 Xem / Tải tệp bài làm #{idx + 1}
+                                                             </a>
+                                                          </div>
+                                                       );
+                                                    })}
+                                                 </div>
+                                              </div>
+                                           )}
+                                        </div>
+                                     )}
+
+                                     <button 
+                                        onClick={() => {
+                                           setSubmittedIds(prev => ({ ...prev, [activeAssignment.id]: false }));
+                                           setStudentSubmissions(prev => {
+                                              const next = { ...prev };
+                                              delete next[activeAssignment.id];
+                                              return next;
+                                           });
                                         }}
-                                        className="hidden"
-                                      />
-                                    </label>
+                                        className="px-4 py-2 bg-bg-hover hover:bg-bg-card border border-border-card text-t-secondary hover:text-indigo-500 rounded-xl text-xs font-bold transition-all flex items-center gap-2"
+                                     >
+                                        <Upload className="w-4 h-4" /> Nộp lại bài làm khác
+                                     </button>
+                                  </div>
+                               );
+                           })() || (
+                               <div className="flex flex-col gap-4">
+                                  <textarea 
+                                     className="w-full bg-bg-main border border-border-card rounded-xl p-4 min-h-[150px] outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50 transition-all font-medium resize-y"
+                                     placeholder="Nhập câu trả lời hoặc dán đường dẫn file Drive của bạn vào đây..."
+                                     value={assContent}
+                                     onChange={(e) => setAssContent(e.target.value)}
+                                  ></textarea>
+                                  <div className="bg-bg-hover border border-border-card rounded-xl p-4 flex flex-col gap-3">
+                                     <div className="flex justify-between items-center">
+                                       <label className="text-sm font-bold text-t-primary flex items-center gap-2">
+                                         <FileText className="w-4 h-4 text-amber-500" /> Tải lên bài làm (Cho phép chọn nhiều ảnh/PDF)
+                                       </label>
+                                       <span className="text-xs text-t-secondary font-medium">Đã đính kèm: {assFileUrls.length} tệp</span>
+                                     </div>
 
-                                    {/* Upload Progress */}
-                                    {uploadingAssFile && (
-                                      <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl space-y-1.5 animate-pulse">
-                                         <div className="flex justify-between text-xs font-bold text-amber-600 dark:text-amber-400">
-                                            <span>Đang tải tệp lên hệ thống...</span>
-                                            <span>{uploadAssProgress}%</span>
-                                         </div>
-                                         <div className="w-full bg-bg-hover h-2 rounded-full overflow-hidden">
-                                            <div className="bg-amber-500 h-full rounded-full transition-all duration-200" style={{ width: `${uploadAssProgress}%` }} />
-                                         </div>
-                                      </div>
-                                    )}
+                                     {/* File Input Label */}
+                                     <label className={`cursor-pointer bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30 rounded-xl px-4 py-3 flex items-center justify-center gap-2 text-sm font-bold transition-all w-full ${uploadingAssFile ? 'opacity-50 pointer-events-none' : ''}`}>
+                                       <Plus className="w-4 h-4" /> {assFileUrls.length > 0 ? "+ Chọn thêm ảnh / tệp bài làm" : "Chọn các ảnh / tệp bài làm (Có thể chọn nhiều tệp)"}
+                                       <input 
+                                         type="file" 
+                                         accept="image/*,.pdf,.doc,.docx,.zip"
+                                         multiple
+                                         disabled={uploadingAssFile}
+                                         onChange={(e) => {
+                                            if (e.target.files && e.target.files.length > 0) {
+                                               handleUploadAssFiles(e.target.files);
+                                               e.target.value = '';
+                                            }
+                                         }}
+                                         className="hidden"
+                                       />
+                                     </label>
 
-                                    {/* List of uploaded files */}
-                                    {assFileUrls.length > 0 && (
-                                       <div className="space-y-2 mt-2">
-                                          <p className="text-xs font-bold text-t-secondary">Danh sách ảnh / file bài làm đã đính kèm:</p>
-                                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                                             {assFileUrls.map((url, idx) => {
-                                                const isImg = url.match(/\.(jpeg|jpg|gif|png|webp)/i) != null || url.includes("drive.google.com");
-                                                return (
-                                                   <div key={idx} className="flex items-center justify-between gap-2 p-2.5 bg-bg-card border border-border-card rounded-xl text-xs group">
-                                                      <div className="flex items-center gap-2 min-w-0">
-                                                         {isImg ? (
-                                                            <img src={url} alt={`Bài làm ${idx + 1}`} className="w-8 h-8 rounded-lg object-cover border border-border-card shrink-0" />
-                                                         ) : (
-                                                            <FileText className="w-4 h-4 text-indigo-500 shrink-0" />
-                                                         )}
-                                                         <span className="truncate text-t-primary font-medium">Tệp bài làm #{idx + 1}</span>
-                                                      </div>
-                                                      <div className="flex items-center gap-1 shrink-0">
-                                                         <a href={url} target="_blank" rel="noopener noreferrer" className="p-1 text-t-secondary hover:text-indigo-500 transition-colors" title="Xem file">
-                                                            <PlayCircle className="w-3.5 h-3.5" />
-                                                         </a>
-                                                         <button 
-                                                            type="button"
-                                                            onClick={() => setAssFileUrls(prev => prev.filter((_, i) => i !== idx))} 
-                                                            className="p-1 text-t-secondary hover:text-red-500 transition-colors"
-                                                            title="Xóa tệp này"
-                                                         >
-                                                            <Trash2 className="w-3.5 h-3.5" />
-                                                         </button>
-                                                      </div>
-                                                   </div>
-                                                );
-                                             })}
+                                     {/* Upload Progress */}
+                                     {uploadingAssFile && (
+                                       <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl space-y-1.5 animate-pulse">
+                                          <div className="flex justify-between text-xs font-bold text-amber-600 dark:text-amber-400">
+                                             <span>Đang tải tệp lên hệ thống...</span>
+                                             <span>{uploadAssProgress}%</span>
+                                          </div>
+                                          <div className="w-full bg-bg-hover h-2 rounded-full overflow-hidden">
+                                             <div className="bg-amber-500 h-full rounded-full transition-all duration-200" style={{ width: `${uploadAssProgress}%` }} />
                                           </div>
                                        </div>
-                                    )}
-                                 </div>
-                                 <div className="flex justify-end">
-                                    <button 
-                                      onClick={() => handleSubmitAssignment(activeAssignment.id)}
-                                      disabled={submittingAss || uploadingAssFile}
-                                      className="bg-amber-500 hover:bg-amber-400 text-white font-black px-8 py-3 rounded-full flex items-center gap-2 shadow-lg hover:shadow-amber-500/30 transition-all disabled:opacity-50"
-                                    >
-                                       {submittingAss ? <Loader2 className="w-5 h-5 animate-spin"/> : <Send className="w-5 h-5"/> }
-                                       NỘP BÀI NGAY
-                                    </button>
-                                 </div>
-                              </div>
-                          )}
-                       </div>
-                    </div>
-                 )}
+                                     )}
+
+                                     {/* List of uploaded files */}
+                                     {assFileUrls.length > 0 && (
+                                        <div className="space-y-2 mt-2">
+                                           <p className="text-xs font-bold text-t-secondary">Danh sách ảnh / file bài làm đã đính kèm:</p>
+                                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                              {assFileUrls.map((url, idx) => {
+                                                 const isImg = url.match(/\.(jpeg|jpg|gif|png|webp)/i) != null || url.includes("drive.google.com");
+                                                 return (
+                                                    <div key={idx} className="flex items-center justify-between gap-2 p-2.5 bg-bg-card border border-border-card rounded-xl text-xs group">
+                                                       <div className="flex items-center gap-2 min-w-0">
+                                                          {isImg ? (
+                                                             <img src={url} alt={`Bài làm ${idx + 1}`} className="w-8 h-8 rounded-lg object-cover border border-border-card shrink-0" />
+                                                          ) : (
+                                                             <FileText className="w-4 h-4 text-indigo-500 shrink-0" />
+                                                          )}
+                                                          <span className="truncate text-t-primary font-medium">Tệp bài làm #{idx + 1}</span>
+                                                       </div>
+                                                       <div className="flex items-center gap-1 shrink-0">
+                                                          <a href={url} target="_blank" rel="noopener noreferrer" className="p-1 text-t-secondary hover:text-indigo-500 transition-colors" title="Xem file">
+                                                             <PlayCircle className="w-3.5 h-3.5" />
+                                                          </a>
+                                                          <button 
+                                                             type="button"
+                                                             onClick={() => setAssFileUrls(prev => prev.filter((_, i) => i !== idx))} 
+                                                             className="p-1 text-t-secondary hover:text-red-500 transition-colors"
+                                                             title="Xóa tệp này"
+                                                          >
+                                                             <Trash2 className="w-3.5 h-3.5" />
+                                                          </button>
+                                                       </div>
+                                                    </div>
+                                                 );
+                                              })}
+                                           </div>
+                                        </div>
+                                     )}
+                                  </div>
+                                  <div className="flex justify-end">
+                                     <button 
+                                       onClick={() => handleSubmitAssignment(activeAssignment.id)}
+                                       disabled={submittingAss || uploadingAssFile}
+                                       className="bg-amber-500 hover:bg-amber-400 text-white font-black px-8 py-3 rounded-full flex items-center gap-2 shadow-lg hover:shadow-amber-500/30 transition-all disabled:opacity-50"
+                                     >
+                                        {submittingAss ? <Loader2 className="w-5 h-5 animate-spin"/> : <Send className="w-5 h-5"/> }
+                                        NỘP BÀI NGAY
+                                     </button>
+                                  </div>
+                               </div>
+                           )}
+                        </div>
+                     </div>
+                  )}
 
                  {/* VIEW: EXAM QUIZ */}
                  {activeType === "exam" && activeExam && (
@@ -988,12 +1181,5 @@ export default function CoursePlayerPage() {
           )}
        </main>
     </div>
-  );
-}
-
-// Temporary internal component for Trophy icon mapping absent from lucid import
-function Trophy(props: any) {
-  return (
-    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
   );
 }

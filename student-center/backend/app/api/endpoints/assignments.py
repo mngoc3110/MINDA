@@ -653,7 +653,11 @@ def get_all_my_submissions(db: Session = Depends(get_db), current_user: User = D
             "assignment_title": sub.assignment.title if sub.assignment else "Bài tập",
             "max_score": sub.assignment.max_score if sub.assignment else 10,
             "score": sub.score,
-            "submitted_at": sub.submitted_at.isoformat()
+            "feedback": sub.feedback,
+            "content": sub.content,
+            "file_url": sub.file_url,
+            "submitted_at": sub.submitted_at.isoformat(),
+            "graded_at": sub.graded_at.isoformat() if sub.graded_at else None
         }
         for sub in unique_subs.values()
     ]
