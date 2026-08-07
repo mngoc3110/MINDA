@@ -94,6 +94,22 @@ export default function TeacherCVView({ teacherId, enableGoBack = true }: Teache
         ? `${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/profile/teachers/${teacherId}/cv?cv_id=${targetCvId}`
         : `${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/profile/teachers/${teacherId}/cv`;
       const res = await fetch(url);
+
+      let currentId = localStorage.getItem("minda_user_id");
+      if (!currentId) {
+        const token = localStorage.getItem("minda_token");
+        if (token) {
+          try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            if (payload.sub) {
+              currentId = payload.sub.toString();
+              localStorage.setItem("minda_user_id", currentId);
+            }
+          } catch (e) {}
+        }
+      }
+      const isMe = !teacherId || (currentId && parseInt(currentId) === parseInt(teacherId.toString()));
+
       if (res.ok) {
         const data = await res.json();
         
@@ -126,27 +142,26 @@ export default function TeacherCVView({ teacherId, enableGoBack = true }: Teache
         setProfile(formattedData);
         setEditForm(JSON.parse(JSON.stringify(formattedData)));
         setAllCvs(data.all_cvs || []);
-        
-        // Check ownership
-        const currentId = localStorage.getItem("minda_user_id");
-        if (currentId && parseInt(currentId) === parseInt(teacherId.toString())) {
-          setIsOwner(true);
-        }
-      } else if (res.status === 404) {
-        // Chưa có CV → tạo template mặc định và vào edit mode ngay
-        const currentId = localStorage.getItem("minda_user_id");
-        const isMe = currentId && parseInt(currentId) === parseInt(teacherId.toString());
+        if (isMe) setIsOwner(true);
+      } else {
         if (isMe) {
           const def = defaultProfile();
           setProfile(def);
           setEditForm(JSON.parse(JSON.stringify(def)));
           setIsOwner(true);
-          setIsEditing(true); // Vào chế độ chỉnh sửa ngay
+          setIsEditing(true);
         }
-        // Nếu xem CV người khác mà chưa có → giữ null (profile chưa tạo)
       }
     } catch (e) {
       console.error(e);
+      let currentId = localStorage.getItem("minda_user_id");
+      const isMe = !teacherId || (currentId && parseInt(currentId) === parseInt(teacherId.toString()));
+      if (isMe) {
+        const def = defaultProfile();
+        setProfile(def);
+        setEditForm(JSON.parse(JSON.stringify(def)));
+        setIsOwner(true);
+      }
     } finally {
       setLoading(false);
     }

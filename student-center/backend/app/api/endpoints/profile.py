@@ -658,13 +658,8 @@ class CVProfileUpdate(BaseModel):
 def get_teacher_cv(teacher_id: int, cv_id: Optional[int] = None, db: Session = Depends(get_db)):
     from app.models.user import TeacherProfile, User
     teacher = db.query(User).filter(User.id == teacher_id).first()
-    is_teacher = getattr(teacher, "role", None) in ["teacher", "admin"] or getattr(teacher, "secondary_role", None) == "teacher"
-    if not is_teacher and hasattr(getattr(teacher, "role", None), "value"):
-        role_val = teacher.role.value
-        is_teacher = role_val in ["teacher", "admin"]
-
-    if not teacher or not is_teacher:
-        raise HTTPException(status_code=404, detail="Giáo viên không tồn tại")
+    if not teacher:
+        raise HTTPException(status_code=404, detail="Người dùng không tồn tại")
         
     all_profiles = db.query(TeacherProfile).filter(TeacherProfile.user_id == teacher_id).order_by(TeacherProfile.id.asc()).all()
     
