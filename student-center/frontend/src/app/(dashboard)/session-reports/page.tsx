@@ -944,6 +944,7 @@ export default function SessionReportsPage() {
               {parentLinks.length === 0 && (
                 <p className="text-sm text-text-secondary text-center py-6">Chưa có link nào được tạo</p>
               )}
+            </div>
           </div>
         </div>
       )}
