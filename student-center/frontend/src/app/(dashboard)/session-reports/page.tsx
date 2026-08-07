@@ -462,7 +462,7 @@ export default function SessionReportsPage() {
               {/* Stats bar */}
               <div className="grid grid-cols-4 gap-3 mb-6">
                 {Object.entries(STATUS_CONFIG).map(([k, v]) => {
-                  const count = attendanceRecords.filter((r) => r.status === k).length;
+                  const count = roomStudents.filter((s) => getStudentAttendance(s.id)?.status === k).length;
                   return (
                     <div key={k} className="p-3 rounded-xl border border-border-card bg-bg-card text-center">
                       <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-bold border ${v.color}`}>
