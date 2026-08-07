@@ -23,6 +23,8 @@ class SubmissionCreate(BaseModel):
 def get_code_problems(
     track: Optional[str] = None,
     difficulty: Optional[str] = None,
+    subject: Optional[str] = None,
+    chapter: Optional[str] = None,
     db: Session = Depends(get_db)
 ):
     """Lấy danh sách bài tập lập trình."""
@@ -35,6 +37,10 @@ def get_code_problems(
         query = query.filter(CodeProblem.track == track)
     if difficulty and difficulty != "all":
         query = query.filter(CodeProblem.difficulty == difficulty)
+    if subject and subject != "all":
+        query = query.filter(CodeProblem.subject == subject)
+    if chapter and chapter != "all":
+        query = query.filter(CodeProblem.chapter == chapter)
 
     problems = query.order_by(CodeProblem.rating.asc()).all()
 
@@ -46,6 +52,8 @@ def get_code_problems(
             "difficulty": p.difficulty,
             "rating": p.rating,
             "track": p.track,
+            "subject": p.subject,
+            "chapter": p.chapter,
             "tags": p.tags or [],
             "solved": p.solved_count,
             "source": p.source,

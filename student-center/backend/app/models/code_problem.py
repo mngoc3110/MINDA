@@ -12,7 +12,9 @@ class CodeProblem(Base):
     description = Column(Text, nullable=False) # Markdown / LaTeX statement
     difficulty = Column(String, default="easy") # easy, medium, hard
     rating = Column(Integer, default=800) # Elo rating (800 - 2400+)
-    track = Column(String, default="basic") # basic, cs, competitive, advanced
+    track = Column(String, default="basic") # basic, cs, competitive, advanced, ptit, thcs, thpt
+    subject = Column(String, nullable=True) # "Lập trình cơ bản", "Lập trình nâng cao", "OOP", "Giải thuật", "Lý thuyết đồ thị"
+    chapter = Column(String, nullable=True) # "Nhập / Xuất", "Vòng lặp", "Mảng", "Quy hoạch động"
     tags = Column(JSON, default=list) # ["Mảng", "Sắp xếp", "C++"]
     constraints = Column(JSON, default=list) # ["-10^9 <= a, b <= 10^9"]
     examples = Column(JSON, default=list) # [{"input": "...", "output": "...", "explanation": "..."}]

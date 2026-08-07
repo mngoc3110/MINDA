@@ -43,7 +43,49 @@ const DIFF_LABELS: Record<string, string> = {
   easy: "Dễ", medium: "Trung bình", hard: "Khó",
 };
 
-// ── Components ───────────────────────────────────────────────────────────────
+// ── Subjects & Chapters Mapping (UpCoder & Standard Curriculum) ──────────────
+
+const SUBJECTS_CHAPTERS: Record<string, string[]> = {
+  "Lập trình cơ bản": [
+    "1. Nhập / Xuất",
+    "2. Lệnh rẽ nhánh",
+    "3. Vòng lặp",
+    "4. Hàm",
+    "5. Mảng",
+    "6. Cấu trúc"
+  ],
+  "Lập trình nâng cao": [
+    "1. Quá tải toán tử",
+    "2. Khuôn hình [template]",
+    "3. Con trỏ",
+    "4. Nhập xuất file",
+    "5. STL: vector",
+    "6. STL: stack, queue",
+    "7. Đệ quy",
+    "8. Đệ quy quay lui",
+    "9. Xử lý chuỗi"
+  ],
+  "Lập trình hướng đối tượng": [
+    "1. Object and Class",
+    "2. friend & quá tải toán tử",
+    "3. Khuôn hình [template]",
+    "4. Kế thừa",
+    "5. Đa hình"
+  ],
+  "Phân tích thiết kế giải thuật": [
+    "1. Chia để trị",
+    "2. Đệ quy",
+    "3. Đệ quy quay lui",
+    "4. Quy hoạch động",
+    "5. Giải thuật tham lam"
+  ],
+  "Lý thuyết đồ thị": [
+    "1. chương 1_ltdt",
+    "2. Duyệt theo chiều rộng",
+    "3. Duyệt theo chiều sâu",
+    "4. Tìm đường đi ngắn nhất"
+  ]
+};
 
 function EloRankBadge({ elo = 0 }: { elo?: number }) {
   const rank = CODER_RANKS.find(r => elo >= r.min && (r.max === null || elo <= r.max))
@@ -83,7 +125,12 @@ function ProblemRow({ p, idx }: { p: any; idx: number }) {
             <p className="font-semibold text-sm text-text-primary group-hover:text-indigo-300 transition-colors truncate">
               {p.title}
             </p>
-            {p.source && (
+            {p.subject && (
+              <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 shrink-0">
+                {p.subject} {p.chapter ? `· ${p.chapter}` : ''}
+              </span>
+            )}
+            {p.source && !p.subject && (
               <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-white/8 text-indigo-300 border border-white/10 shrink-0">
                 {p.source}
               </span>
@@ -136,6 +183,8 @@ export default function CodePage() {
   const [loading, setLoading] = useState(true);
   const [track, setTrack] = useState("all");
   const [diff, setDiff] = useState<"all" | "easy" | "medium" | "hard">("all");
+  const [selectedSubject, setSelectedSubject] = useState("all");
+  const [selectedChapter, setSelectedChapter] = useState("all");
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 15;
@@ -169,10 +218,24 @@ export default function CodePage() {
     setCurrentPage(1);
   };
 
-  const filtered = problems.filter(p =>
-    (track === "all" || p.track === track || (track === "ptit" && p.source?.includes("PTIT"))) &&
-    (diff === "all" || p.difficulty === diff)
-  );
+  const handleSubjectChange = (s: string) => {
+    setSelectedSubject(s);
+    setSelectedChapter("all");
+    setCurrentPage(1);
+  };
+
+  const handleChapterChange = (c: string) => {
+    setSelectedChapter(c);
+    setCurrentPage(1);
+  };
+
+  const filtered = problems.filter(p => {
+    const matchTrack = (track === "all" || p.track === track || (track === "ptit" && p.source?.includes("PTIT")));
+    const matchDiff = (diff === "all" || p.difficulty === diff);
+    const matchSubject = (selectedSubject === "all" || p.subject === selectedSubject);
+    const matchChapter = (selectedChapter === "all" || (p.chapter && p.chapter.includes(selectedChapter.replace(/^[0-9.]+\s*/, ''))));
+    return matchTrack && matchDiff && matchSubject && matchChapter;
+  });
 
   const totalPages = Math.ceil(filtered.length / itemsPerPage) || 1;
   const paginatedProblems = filtered.slice(
@@ -198,7 +261,7 @@ export default function CodePage() {
             </div>
             <div>
               <h1 className="text-3xl font-black tracking-tight">MINDA Code</h1>
-              <p className="text-text-muted text-xs">Phân chia phân khúc đề: Tin Học THPT · C++ PTIT · Chuyên Tin (VOI) · LeetCode</p>
+              <p className="text-text-muted text-xs">Phân chia môn học & chương mục: Lập trình cơ bản · Lập trình nâng cao · OOP · Giải thuật · Đồ thị</p>
             </div>
           </div>
 
@@ -215,6 +278,56 @@ export default function CodePage() {
               <Trophy className="w-3.5 h-3.5" /> Xem bảng rank
             </Link>
           </div>
+        </motion.div>
+
+        {/* ── Subject & Chapter Filter Dropdowns (UpCoder Style) ──── */}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 mb-6 flex flex-col md:flex-row items-stretch md:items-center gap-4"
+        >
+          {/* Select Môn Học */}
+          <div className="flex-1">
+            <label className="text-xs text-text-muted font-bold block mb-1.5 uppercase tracking-wider">Lựa chọn môn học:</label>
+            <select
+              value={selectedSubject}
+              onChange={e => handleSubjectChange(e.target.value)}
+              className="w-full px-3.5 py-2 rounded-xl bg-white/8 border border-white/12 text-sm text-text-primary focus:outline-none focus:border-indigo-500 transition-colors"
+            >
+              <option value="all" className="bg-neutral-900 text-white">-- Tất cả môn học --</option>
+              {Object.keys(SUBJECTS_CHAPTERS).map(s => (
+                <option key={s} value={s} className="bg-neutral-900 text-white">{s}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Select Chương - Mục */}
+          <div className="flex-1">
+            <label className="text-xs text-text-muted font-bold block mb-1.5 uppercase tracking-wider">Chương - mục:</label>
+            <select
+              value={selectedChapter}
+              onChange={e => handleChapterChange(e.target.value)}
+              disabled={selectedSubject === "all"}
+              className="w-full px-3.5 py-2 rounded-xl bg-white/8 border border-white/12 text-sm text-text-primary focus:outline-none focus:border-indigo-500 disabled:opacity-40 transition-colors"
+            >
+              <option value="all" className="bg-neutral-900 text-white">
+                {selectedSubject === "all" ? "Mời bạn chọn môn học trước" : "-- Tất cả chương --"}
+              </option>
+              {selectedSubject !== "all" && SUBJECTS_CHAPTERS[selectedSubject]?.map(c => (
+                <option key={c} value={c} className="bg-neutral-900 text-white">{c}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Reset Filters button */}
+          {(selectedSubject !== "all" || selectedChapter !== "all") && (
+            <button
+              onClick={() => { setSelectedSubject("all"); setSelectedChapter("all"); setCurrentPage(1); }}
+              className="self-end md:self-auto px-4 py-2 rounded-xl bg-white/8 border border-white/12 text-xs font-semibold hover:bg-white/12 transition-colors flex items-center gap-1.5"
+            >
+              <RefreshCw className="w-3.5 h-3.5" /> Reset
+            </button>
+          )}
         </motion.div>
 
         {/* ── Track quick-access cards ──────────────────────────── */}

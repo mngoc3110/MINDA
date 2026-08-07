@@ -289,6 +289,47 @@ def sync_github_repos(db: Session):
                         if slug in added_slugs:
                             continue
                             
+                        # Smart subject & chapter classification
+                        path_upper = path.upper()
+                        raw_upper = raw_name.upper()
+                        subject = "Lập trình cơ bản"
+                        chapter = "Nhập / Xuất"
+
+                        if "OOP" in path_upper or "CLASS" in path_upper or "FRIEND" in path_upper:
+                            subject = "Lập trình hướng đối tượng"
+                            chapter = "Object and Class" if "CLASS" in path_upper else "Kế thừa"
+                        elif "GRAPH" in path_upper or "BFS" in path_upper or "DFS" in path_upper or "DIJKSTRA" in path_upper or "LTDT" in path_upper:
+                            subject = "Lý thuyết đồ thị"
+                            if "BFS" in path_upper: chapter = "Duyệt theo chiều rộng"
+                            elif "DFS" in path_upper: chapter = "Duyệt theo chiều sâu"
+                            elif "DIJKSTRA" in path_upper or "SHORT" in path_upper: chapter = "Tìm đường đi ngắn nhất"
+                            else: chapter = "chương 1_ltdt"
+                        elif "DP" in path_upper or "DYNAMIC" in path_upper or "GREEDY" in path_upper or "DIVIDE" in path_upper:
+                            subject = "Phân tích thiết kế giải thuật"
+                            if "DP" in path_upper: chapter = "Quy hoạch động"
+                            elif "GREEDY" in path_upper: chapter = "Giải thuật tham lam"
+                            elif "DIVIDE" in path_upper: chapter = "Chia để trị"
+                            else: chapter = "Đệ quy quay lui"
+                        elif "STL" in path_upper or "VECTOR" in path_upper or "STACK" in path_upper or "QUEUE" in path_upper or "POINTER" in path_upper or "CON_TRO" in path_upper or "FILE" in path_upper:
+                            subject = "Lập trình nâng cao"
+                            if "VECTOR" in path_upper: chapter = "STL: vector"
+                            elif "STACK" in path_upper or "QUEUE" in path_upper: chapter = "STL: stack, queue"
+                            elif "FILE" in path_upper: chapter = "Nhập xuất file"
+                            elif "POINTER" in path_upper or "CON_TRO" in path_upper: chapter = "Con trỏ"
+                            else: chapter = "Xử lý chuỗi"
+                        elif "ARRAY" in path_upper or "MANG" in path_upper or "MATRIX" in path_upper:
+                            subject = "Lập trình cơ bản"
+                            chapter = "Mảng"
+                        elif "LOOP" in path_upper or "WHILE" in path_upper or "FOR" in path_upper:
+                            subject = "Lập trình cơ bản"
+                            chapter = "Vòng lặp"
+                        elif "IF" in path_upper or "BRANCH" in path_upper:
+                            subject = "Lập trình cơ bản"
+                            chapter = "Lệnh rẽ nhánh"
+                        elif "FUNC" in path_upper or "HAM" in path_upper:
+                            subject = "Lập trình cơ bản"
+                            chapter = "Hàm"
+
                         existing = db.query(CodeProblem).filter(CodeProblem.slug == slug).first()
                         if not existing:
                             added_slugs.add(slug)
@@ -296,10 +337,12 @@ def sync_github_repos(db: Session):
                                 slug=slug,
                                 title=f"PTIT: {clean_title} ({raw_name.split()[0] if ' ' in raw_name else 'C++'})",
                                 description=f"Bài tập C++ từ bộ đề PTIT & Giáo trình lập trình: **{clean_title}**.\n\n*Yêu cầu*: Đọc kỹ đề bài và cài đặt thuật toán tối ưu nhất.",
-                                difficulty="medium" if "DP" in path or "GRAPH" in path else "easy",
-                                rating=1000 if "DP" in path else 850,
+                                difficulty="medium" if subject in ["Phân tích thiết kế giải thuật", "Lý thuyết đồ thị"] else "easy",
+                                rating=1200 if subject == "Phân tích thiết kế giải thuật" else 900,
                                 track="ptit",
-                                tags=["C++ PTIT", "Lập trình C++", "Học viện PTIT"],
+                                subject=subject,
+                                chapter=chapter,
+                                tags=["C++ PTIT", subject, chapter],
                                 constraints=["Thời gian chạy <= 1s", "Bộ nhớ <= 256MB"],
                                 examples=[{"input": "Xem mô tả", "output": "Kết quả chuẩn"}],
                                 hints=["Xem cấu trúc bài giải C++ chuẩn."],
@@ -314,6 +357,11 @@ def sync_github_repos(db: Session):
                             crawled_count += 1
                             if crawled_count % 50 == 0:
                                 db.commit()
+                        else:
+                            # Update subject and chapter if missing
+                            if not existing.subject:
+                                existing.subject = subject
+                                existing.chapter = chapter
         except Exception as e:
             print(f"[Problem Importer] Error fetching repo {url}: {e}")
             
