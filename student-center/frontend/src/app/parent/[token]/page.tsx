@@ -58,20 +58,36 @@ export default function ParentPortalPage() {
     const fetchInfo = async () => {
       try {
         const res = await fetch(`${API}/api/parent/${token}/info`);
+        let data: any = null;
+        try {
+          data = await res.json();
+        } catch {
+          // Response body was not JSON
+        }
+
         if (!res.ok) {
-          const err = await res.json();
-          setErrorMsg(err.detail || "Link không hợp lệ");
+          const detail = data?.detail;
+          const fallback = res.status === 404
+            ? "Link không hợp lệ hoặc đã bị thu hồi. Vui lòng liên hệ giáo viên để nhận link mới."
+            : res.status === 410
+            ? "Link đã hết hạn. Vui lòng liên hệ giáo viên để nhận link mới."
+            : "Link không khả dụng";
+          setErrorMsg(detail || fallback);
           setStep("error");
           return;
         }
-        setLinkInfo(await res.json());
+
+        setLinkInfo(data);
         setStep("pin-entry");
-      } catch {
-        setErrorMsg("Không thể kết nối tới máy chủ");
+      } catch (err) {
+        console.error("Parent fetch info error:", err);
+        setErrorMsg("Không thể kết nối tới máy chủ. Vui lòng kiểm tra lại mạng.");
         setStep("error");
       }
     };
-    fetchInfo();
+    if (token) {
+      fetchInfo();
+    }
   }, [token]);
 
   const handlePinChange = (idx: number, val: string) => {
