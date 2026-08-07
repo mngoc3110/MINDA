@@ -15,82 +15,7 @@ import MathText from "@/components/MathText";
 // Monaco must be loaded client-side only
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), { ssr: false });
 
-// ── Problem database (mirrors /code/page.tsx — will be API-driven later) ────
-
-const PROBLEMS: Record<string, any> = {
-  "hello-world": {
-    id: "hello-world", title: "Hello, World!", difficulty: "easy", rating: 800,
-    tags: ["I/O cơ bản"],
-    statement: `In ra màn hình dòng chữ **Hello, World!** (không có dấu cách thừa, xuống dòng sau khi in).`,
-    constraints: ["Không có input", "Output: Hello, World!"],
-    examples: [
-      { input: "(không có)", output: "Hello, World!", explanation: "In đúng chuỗi yêu cầu." }
-    ],
-    hints: ["Dùng print() trong Python, printf trong C++, System.out.println trong Java."],
-    starterCode: {
-      python: '# Viết code Python ở đây\n\n',
-      cpp: '#include <iostream>\nusing namespace std;\n\nint main() {\n    // Viết code ở đây\n    return 0;\n}',
-      javascript: '// Viết code JavaScript ở đây\n',
-      java: 'import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        // Viết code ở đây\n    }\n}',
-    }
-  },
-  "sum-two": {
-    id: "sum-two", title: "Tổng Hai Số", difficulty: "easy", rating: 850,
-    tags: ["Toán", "I/O"],
-    statement: `Cho hai số nguyên $a$ và $b$ trên cùng một dòng, cách nhau bởi dấu cách.\n\nIn ra giá trị $a + b$.`,
-    constraints: ["$-10^9 \\leq a, b \\leq 10^9$", "1 dòng input gồm 2 số nguyên"],
-    examples: [
-      { input: "3 5", output: "8", explanation: "3 + 5 = 8" },
-      { input: "-1 7", output: "6", explanation: "-1 + 7 = 6" }
-    ],
-    hints: ["Đọc 2 số nguyên từ stdin.", "Cộng chúng lại và in ra."],
-    starterCode: {
-      python: '# Viết code Python ở đây\n\n',
-      cpp: '#include <iostream>\nusing namespace std;\n\nint main() {\n    // Viết code ở đây\n    return 0;\n}',
-      javascript: '// Viết code JavaScript ở đây\n',
-      java: 'import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        // Viết code ở đây\n    }\n}',
-    }
-  },
-  "fibo": {
-    id: "fibo", title: "Số Fibonacci thứ N", difficulty: "medium", rating: 1100,
-    tags: ["DP", "Đệ quy"],
-    statement: `Cho số nguyên $N$. Hãy tính số Fibonacci thứ $N$.\n\nDãy Fibonacci: $F(1) = 1, F(2) = 1, F(n) = F(n-1) + F(n-2)$ với $n \\geq 3$.`,
-    constraints: ["$1 \\leq N \\leq 10^6$", "Kết quả có thể rất lớn, in theo modulo $10^9 + 7$"],
-    examples: [
-      { input: "6", output: "8", explanation: "F(1)=1, F(2)=1, F(3)=2, F(4)=3, F(5)=5, F(6)=8" },
-      { input: "1", output: "1", explanation: "F(1) = 1" }
-    ],
-    hints: ["Đệ quy thông thường sẽ bị TLE với N lớn.", "Dùng DP bottom-up với mảng 1D hoặc 2 biến."],
-    starterCode: {
-      python: '# Viết code Python ở đây\n\n',
-      cpp: '#include <iostream>\nusing namespace std;\n\nint main() {\n    // Viết code ở đây\n    return 0;\n}',
-      javascript: '// Viết code JavaScript ở đây\n',
-      java: 'import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        // Viết code ở đây\n    }\n}',
-    }
-  },
-};
-
-// Fill remaining problems with a generic template
-const GENERIC = (id: string, title: string) => ({
-  id, title, difficulty: "medium", rating: 1200,
-  tags: ["Thuật toán"],
-  statement: `Đây là bài toán **${title}**.\n\nNội dung bài toán đang được cập nhật. Hãy đọc đề từ tài liệu đính kèm.`,
-  constraints: ["Đang cập nhật"],
-  examples: [{ input: "...", output: "...", explanation: "Xem đề bài." }],
-  hints: [],
-  starterCode: {
-    python: '# Viết code Python ở đây\n\n',
-    cpp: '#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n    // Code ở đây\n    return 0;\n}',
-    javascript: '// Viết code JS ở đây\n',
-    java: 'public class Main {\n    public static void main(String[] args) {\n        // Code ở đây\n    }\n}',
-  }
-});
-
-["prime-sieve","sort-basics","binary-search","dp-knapsack","graph-bfs","segment-tree","lca"].forEach(id => {
-  if (!PROBLEMS[id]) PROBLEMS[id] = GENERIC(id, id.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase()));
-});
-
-// ── Constants ────────────────────────────────────────────────────────────────
+const API = process.env.NEXT_PUBLIC_API_URL || "https://minda.io.vn";
 
 const LANGS = [
   { key: "python",     label: "Python 3",   monacoLang: "python" },
@@ -117,56 +42,92 @@ interface RunResult {
   error?: string;
 }
 
-// ── Mock judge (replace with real API later) ─────────────────────────────────
-
-async function mockJudge(code: string, lang: LangKey, problem: any): Promise<RunResult> {
-  // Simulate network latency
-  await new Promise(r => setTimeout(r, 1200 + Math.random() * 800));
-  // Basic check: non-empty code
-  if (!code.trim() || code.trim().split("\n").length < 2) {
-    return { verdict: "CE", error: "Code trống hoặc có lỗi cú pháp." };
-  }
-  // Mock: 70% AC, 20% WA, 10% TLE for demo
-  const roll = Math.random();
-  if (roll < 0.70) {
-    return { verdict: "AC", time: `${(Math.random() * 50 + 10).toFixed(0)}ms`, memory: `${(Math.random() * 5 + 2).toFixed(1)}MB` };
-  } else if (roll < 0.90) {
-    return { verdict: "WA", output: "7", expected: problem.examples[0]?.output ?? "8", time: `${(Math.random() * 30 + 5).toFixed(0)}ms` };
-  } else {
-    return { verdict: "TLE", time: ">2000ms" };
-  }
-}
-
-// ── Page ─────────────────────────────────────────────────────────────────────
-
 export default function CodeProblemPage() {
-  const { id } = useParams<{ id: string }>();
-  const problem = PROBLEMS[id] ?? GENERIC(id, id);
+  const params = useParams();
+  const rawId = params?.id ? (Array.isArray(params.id) ? params.id[0] : params.id) : "";
 
+  const [problem, setProblem] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const [lang, setLang] = useState<LangKey>("python");
-  const [code, setCode] = useState(problem.starterCode["python"]);
+  const [code, setCode] = useState("");
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState<RunResult | null>(null);
   const [activeTab, setActiveTab] = useState<"problem" | "output">("problem");
   const [showHint, setShowHint] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  // When language changes, reset code to starter
+  useEffect(() => {
+    if (!rawId) return;
+    const fetchProblemDetail = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(`${API}/api/problems/${rawId}`);
+        if (res.ok) {
+          const data = await res.json();
+          setProblem(data);
+          const starter = data.starter_code?.[lang] || "# Viết code Python ở đây\n\n";
+          setCode(starter);
+        } else {
+          // Fallback
+          setProblem({
+            id: rawId,
+            title: `Bài tập: ${rawId}`,
+            statement: "Chi tiết bài tập đang được tải...",
+            difficulty: "easy",
+            rating: 800,
+            examples: [],
+            hints: []
+          });
+          setCode("# Viết code Python ở đây\n\n");
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProblemDetail();
+  }, [rawId]);
+
   const handleLangChange = (l: LangKey) => {
     setLang(l);
-    setCode(problem.starterCode[l] ?? "");
+    if (problem?.starter_code?.[l]) {
+      setCode(problem.starter_code[l]);
+    } else {
+      setCode(l === "cpp" ? "#include <iostream>\nusing namespace std;\n\nint main() {\n    return 0;\n}" : "# Viết code ở đây\n");
+    }
     setResult(null);
   };
 
   const handleRun = async (submit = false) => {
+    if (!problem?.id) return;
     setRunning(true);
     setActiveTab("output");
     setResult(null);
     if (submit) setSubmitted(false);
-    const res = await mockJudge(code, lang, problem);
-    setResult(res);
-    setRunning(false);
-    if (submit && res.verdict === "AC") setSubmitted(true);
+
+    try {
+      const token = localStorage.getItem("minda_token");
+      const res = await fetch(`${API}/api/problems/${problem.id}/submit`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ language: lang, code })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setResult(data);
+        if (submit && data.verdict === "AC") setSubmitted(true);
+      } else {
+        setResult({ verdict: "CE", error: "Lỗi kết nối tới hệ thống chấm bài." });
+      }
+    } catch (e: any) {
+      setResult({ verdict: "CE", error: e.message || "Lỗi mạng" });
+    } finally {
+      setRunning(false);
+    }
   };
 
   const verdictStyle: Record<string, string> = {
@@ -179,6 +140,15 @@ export default function CodeProblemPage() {
 
   const monacoLang = LANGS.find(l => l.key === lang)?.monacoLang ?? "python";
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-bg-main flex flex-col items-center justify-center text-text-primary">
+        <Loader2 className="w-8 h-8 text-indigo-400 animate-spin mb-3" />
+        <p className="text-sm text-text-muted">Đang tải chi tiết bài tập...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-bg-main text-text-primary flex flex-col" style={{ maxHeight: "100vh", overflow: "hidden" }}>
 
@@ -188,12 +158,12 @@ export default function CodeProblemPage() {
           <ArrowLeft className="w-4 h-4" />
         </Link>
         <div className="flex items-center gap-2 flex-1 min-w-0">
-          <h1 className="font-bold text-sm truncate text-text-primary">{problem.title}</h1>
-          <span className={`text-[10px] px-2 py-0.5 rounded-full border font-bold shrink-0 ${DIFF_STYLE[problem.difficulty]}`}>
-            {DIFF_LABEL[problem.difficulty]}
+          <h1 className="font-bold text-sm truncate text-text-primary">{problem?.title}</h1>
+          <span className={`text-[10px] px-2 py-0.5 rounded-full border font-bold shrink-0 ${DIFF_STYLE[problem?.difficulty || "easy"]}`}>
+            {DIFF_LABEL[problem?.difficulty || "easy"]}
           </span>
           <span className="text-[10px] px-2 py-0.5 rounded-full border border-white/10 bg-white/5 text-text-muted font-mono shrink-0">
-            {problem.rating} Elo
+            {problem?.rating || 800} Elo
           </span>
         </div>
         {submitted && (
@@ -235,12 +205,12 @@ export default function CodeProblemPage() {
                   <div>
                     <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest mb-2">Đề bài</p>
                     <div className="text-sm text-text-secondary leading-relaxed">
-                      <MathText>{problem.statement}</MathText>
+                      <MathText>{problem?.statement || problem?.description}</MathText>
                     </div>
                   </div>
 
                   {/* Constraints */}
-                  {problem.constraints?.length > 0 && (
+                  {problem?.constraints?.length > 0 && (
                     <div>
                       <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest mb-2">Ràng buộc</p>
                       <ul className="flex flex-col gap-1">
@@ -255,33 +225,35 @@ export default function CodeProblemPage() {
                   )}
 
                   {/* Examples */}
-                  <div>
-                    <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest mb-2">Ví dụ</p>
-                    <div className="flex flex-col gap-3">
-                      {problem.examples?.map((ex: any, i: number) => (
-                        <div key={i} className="rounded-xl border border-white/8 bg-white/[0.02] overflow-hidden">
-                          <div className="grid grid-cols-2 divide-x divide-white/8">
-                            <div className="p-3">
-                              <p className="text-[9px] font-bold text-text-muted uppercase mb-1.5">Input</p>
-                              <pre className="text-xs text-text-primary font-mono">{ex.input}</pre>
+                  {problem?.examples?.length > 0 && (
+                    <div>
+                      <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest mb-2">Ví dụ</p>
+                      <div className="flex flex-col gap-3">
+                        {problem.examples.map((ex: any, i: number) => (
+                          <div key={i} className="rounded-xl border border-white/8 bg-white/[0.02] overflow-hidden">
+                            <div className="grid grid-cols-2 divide-x divide-white/8">
+                              <div className="p-3">
+                                <p className="text-[9px] font-bold text-text-muted uppercase mb-1.5">Input</p>
+                                <pre className="text-xs text-text-primary font-mono">{ex.input}</pre>
+                              </div>
+                              <div className="p-3">
+                                <p className="text-[9px] font-bold text-text-muted uppercase mb-1.5">Output</p>
+                                <pre className="text-xs text-emerald-300 font-mono">{ex.output}</pre>
+                              </div>
                             </div>
-                            <div className="p-3">
-                              <p className="text-[9px] font-bold text-text-muted uppercase mb-1.5">Output</p>
-                              <pre className="text-xs text-emerald-300 font-mono">{ex.output}</pre>
-                            </div>
+                            {ex.explanation && (
+                              <div className="px-3 py-2 border-t border-white/8 text-[11px] text-text-muted">
+                                💡 {ex.explanation}
+                              </div>
+                            )}
                           </div>
-                          {ex.explanation && (
-                            <div className="px-3 py-2 border-t border-white/8 text-[11px] text-text-muted">
-                              💡 {ex.explanation}
-                            </div>
-                          )}
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                   {/* Hints */}
-                  {problem.hints?.length > 0 && (
+                  {problem?.hints?.length > 0 && (
                     <div>
                       <button onClick={() => setShowHint(v => !v)} className="flex items-center gap-2 text-xs text-amber-400 hover:text-amber-300 transition-colors">
                         <Zap className="w-3.5 h-3.5" />
@@ -301,7 +273,7 @@ export default function CodeProblemPage() {
 
                   {/* Tags */}
                   <div className="flex flex-wrap gap-1.5">
-                    {problem.tags?.map((t: string) => (
+                    {problem?.tags?.map((t: string) => (
                       <span key={t} className="text-[10px] px-2 py-0.5 rounded-full bg-white/6 border border-white/8 text-text-muted">{t}</span>
                     ))}
                   </div>
@@ -399,7 +371,7 @@ export default function CodeProblemPage() {
 
             {/* Reset */}
             <button
-              onClick={() => { setCode(problem.starterCode[lang] ?? ""); setResult(null); }}
+              onClick={() => { setCode(problem?.starter_code?.[lang] || ""); setResult(null); }}
               className="p-1.5 rounded-lg text-text-muted hover:text-text-secondary hover:bg-white/8 transition-colors"
               title="Reset về starter code"
             >
