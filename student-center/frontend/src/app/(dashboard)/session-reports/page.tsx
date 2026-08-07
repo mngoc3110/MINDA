@@ -203,12 +203,11 @@ export default function SessionReportsPage() {
       const data = JSON.parse(e.data);
       if (data.type === "student_arrived") {
         setAttendanceRecords((prev) => {
-          const idx = prev.findIndex((r) => r.student_id === data.student_id);
-          if (idx >= 0) { const n = [...prev]; n[idx] = data; return n; }
-          return [...prev, data];
+          const filtered = prev.filter((r) => Number(r.student_id) !== Number(data.student_id));
+          return [...filtered, data];
         });
       } else if (data.type === "attendance_reset") {
-        setAttendanceRecords((prev) => prev.filter((r) => r.student_id !== data.student_id));
+        setAttendanceRecords((prev) => prev.filter((r) => Number(r.student_id) !== Number(data.student_id)));
       }
     };
     wsRef.current = ws;
@@ -223,14 +222,15 @@ export default function SessionReportsPage() {
   const undoCheckin = async (studentId: number) => {
     if (!selectedSchedule) return;
     setCheckingIn(studentId);
+
+    // Optimistic update: phản hồi tức thì 0ms trên màn hình
+    setAttendanceRecords((prev) => prev.filter((r) => Number(r.student_id) !== Number(studentId)));
+
     try {
-      const res = await fetch(`${API}/api/attendance/reset?schedule_id=${selectedSchedule.id}&student_id=${studentId}`, {
+      await fetch(`${API}/api/attendance/reset?schedule_id=${selectedSchedule.id}&student_id=${studentId}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${getToken()}` },
       });
-      if (res.ok) {
-        setAttendanceRecords((prev) => prev.filter((r) => r.student_id !== studentId));
-      }
     } catch (error) {
       console.error(error);
     } finally {
@@ -241,24 +241,43 @@ export default function SessionReportsPage() {
   const manualCheckin = async (studentId: number, status: "present" | "late" | "excused" | "absent") => {
     if (!selectedSchedule) return;
     setCheckingIn(studentId);
-    const res = await fetch(`${API}/api/attendance/manual-checkin`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${getToken()}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ schedule_id: selectedSchedule.id, student_id: studentId, status }),
+
+    // Optimistic update: đổi trạng thái tức thì 0ms trên giao diện
+    const tempRecord: AttendanceRecord = {
+      id: Date.now(),
+      student_id: studentId,
+      student_name: "",
+      status: status,
+      method: "manual",
+      checkin_time: new Date().toISOString()
+    };
+    setAttendanceRecords((prev) => {
+      const filtered = prev.filter((r) => Number(r.student_id) !== Number(studentId));
+      return [...filtered, tempRecord];
     });
-    if (res.ok) {
-      const { record } = await res.json();
-      setAttendanceRecords((prev) => {
-        const idx = prev.findIndex((r) => r.student_id === studentId);
-        if (idx >= 0) { const n = [...prev]; n[idx] = record; return n; }
-        return [...prev, record];
+
+    try {
+      const res = await fetch(`${API}/api/attendance/manual-checkin`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${getToken()}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ schedule_id: selectedSchedule.id, student_id: studentId, status }),
       });
+      if (res.ok) {
+        const { record } = await res.json();
+        setAttendanceRecords((prev) => {
+          const filtered = prev.filter((r) => Number(r.student_id) !== Number(studentId));
+          return [...filtered, record];
+        });
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setCheckingIn(null);
     }
-    setCheckingIn(null);
   };
 
   const getStudentAttendance = (studentId: number) =>
-    attendanceRecords.find((r) => r.student_id === studentId);
+    attendanceRecords.find((r) => Number(r.student_id) === Number(studentId));
 
   // ── Session Report ──────────────────────────────────────────────────────────
   const loadReportsForSchedule = async (schedule: ScheduleItem) => {
