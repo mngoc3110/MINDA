@@ -263,6 +263,7 @@ def sync_github_repos(db: Session):
     ]
     
     crawled_count = 0
+    added_slugs = set()
     headers = {"User-Agent": "MINDA-Bot/1.0"}
     
     for url in api_urls:
@@ -279,10 +280,18 @@ def sync_github_repos(db: Session):
                         if not clean_title:
                             clean_title = raw_name
                             
-                        slug = "ptit-" + re.sub(r'[^a-z0-9]+', '-', raw_name.lower()).strip('-')
+                        slug_base = "ptit-" + re.sub(r'[^a-z0-9]+', '-', raw_name.lower()).strip('-')
+                        if not slug_base or slug_base == "ptit-":
+                            continue
+                        slug = slug_base
                         
+                        # Handle duplicate slugs by appending index
+                        if slug in added_slugs:
+                            continue
+                            
                         existing = db.query(CodeProblem).filter(CodeProblem.slug == slug).first()
                         if not existing:
+                            added_slugs.add(slug)
                             prob = CodeProblem(
                                 slug=slug,
                                 title=f"PTIT: {clean_title} ({raw_name.split()[0] if ' ' in raw_name else 'C++'})",
@@ -303,6 +312,8 @@ def sync_github_repos(db: Session):
                             )
                             db.add(prob)
                             crawled_count += 1
+                            if crawled_count % 50 == 0:
+                                db.commit()
         except Exception as e:
             print(f"[Problem Importer] Error fetching repo {url}: {e}")
             
