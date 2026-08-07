@@ -202,11 +202,19 @@ def update_schedule(
     if not db_schedule:
         raise HTTPException(status_code=404, detail="Sự kiện không tồn tại.")
         
-    # Check permission
-    if db_schedule.user_id != current_user.id and current_user.role != UserRole.admin:
-        raise HTTPException(status_code=403, detail="Không có quyền chỉnh sửa.")
+    # Check permission: Người tạo, giáo viên dạy lớp đó, hoặc admin
+    is_creator = db_schedule.user_id == current_user.id
+    is_course_teacher = False
+    if db_schedule.course_id:
+        course = db.query(Course).filter(Course.id == db_schedule.course_id, Course.teacher_id == current_user.id).first()
+        if course:
+            is_course_teacher = True
+
+    if not is_creator and not is_course_teacher and current_user.role != UserRole.admin:
+        raise HTTPException(status_code=403, detail="Bạn không có quyền chỉnh sửa sự kiện này.")
 
     update_data = schedule_in.dict(exclude_unset=True)
+    update_data.pop("student_ids", None)
     
     # Validation of course_session / student type on update
     new_type = update_data.get("type", db_schedule.type)

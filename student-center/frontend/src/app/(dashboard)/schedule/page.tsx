@@ -103,9 +103,10 @@ export default function SchedulePage() {
   const handleSaveEvent = async (data: any) => {
     try {
       const token = localStorage.getItem("minda_token");
+      let res;
       if (selectedEvent && selectedEvent.id) {
         // Update
-        await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/schedules/${selectedEvent.id}`, {
+        res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/schedules/${selectedEvent.id}`, {
           method: "PUT",
           headers: { 
             "Authorization": `Bearer ${token}`,
@@ -115,7 +116,7 @@ export default function SchedulePage() {
         });
       } else {
         // Create
-        await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/schedules/`, {
+        res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/schedules/`, {
           method: "POST",
           headers: { 
             "Authorization": `Bearer ${token}`,
@@ -124,10 +125,17 @@ export default function SchedulePage() {
           body: JSON.stringify(data)
         });
       }
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ detail: "Lỗi lưu dữ liệu" }));
+        alert(err.detail || "Không thể lưu sự kiện. Vui lòng kiểm tra lại!");
+        return;
+      }
+
       setIsModalOpen(false);
       fetchData();
     } catch (error) {
-      alert("Đã có lỗi xảy ra. Vui lòng kiểm tra lại quyền của bạn.");
+      alert("Đã có lỗi xảy ra khi gửi dữ liệu.");
       console.error(error);
     }
   };

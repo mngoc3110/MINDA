@@ -27,6 +27,7 @@ class ScheduleItemUpdate(BaseModel):
     type: Optional[ScheduleType] = None
     course_id: Optional[int] = None
     student_id: Optional[int] = None
+    student_ids: Optional[List[int]] = None
     location: Optional[str] = None
     color: Optional[str] = None
     is_recurring: Optional[bool] = False
