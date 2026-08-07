@@ -137,6 +137,9 @@ export default function CodePage() {
   const [track, setTrack] = useState("all");
   const [diff, setDiff] = useState<"all" | "easy" | "medium" | "hard">("all");
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 15;
+
   const fetchProblems = async () => {
     setLoading(true);
     try {
@@ -155,9 +158,26 @@ export default function CodePage() {
     fetchProblems();
   }, []);
 
+  // Reset to page 1 whenever filters change
+  const handleTrackChange = (t: string) => {
+    setTrack(t);
+    setCurrentPage(1);
+  };
+
+  const handleDiffChange = (d: "all" | "easy" | "medium" | "hard") => {
+    setDiff(d);
+    setCurrentPage(1);
+  };
+
   const filtered = problems.filter(p =>
     (track === "all" || p.track === track || (track === "ptit" && p.source?.includes("PTIT"))) &&
     (diff === "all" || p.difficulty === diff)
+  );
+
+  const totalPages = Math.ceil(filtered.length / itemsPerPage) || 1;
+  const paginatedProblems = filtered.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
   );
 
   const solvedCount = problems.filter(p => p.accepted).length;
@@ -207,7 +227,7 @@ export default function CodePage() {
           {TRACKS.filter(t => t.id !== "all").map((c) => (
             <button
               key={c.id}
-              onClick={() => setTrack(c.id)}
+              onClick={() => handleTrackChange(c.id)}
               className={`text-left p-3.5 rounded-2xl border transition-all ${track === c.id ? "border-indigo-500 bg-indigo-500/10 shadow-lg shadow-indigo-500/10" : "border-white/8 hover:border-white/16 bg-white/[0.02] hover:bg-white/[0.04]"}`}
             >
               <span className="text-lg block mb-1.5">{c.icon}</span>
@@ -229,7 +249,7 @@ export default function CodePage() {
             {TRACKS.map(t => (
               <button
                 key={t.id}
-                onClick={() => setTrack(t.id)}
+                onClick={() => handleTrackChange(t.id)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${track === t.id ? "bg-white/12 text-text-primary" : "text-text-muted hover:text-text-secondary"}`}
               >
                 {t.icon} {t.label}
@@ -242,7 +262,7 @@ export default function CodePage() {
             {(["all", "easy", "medium", "hard"] as const).map(d => (
               <button
                 key={d}
-                onClick={() => setDiff(d)}
+                onClick={() => handleDiffChange(d)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border ${
                   diff === d
                     ? d === "all" ? "bg-white/12 border-white/20 text-text-primary"
@@ -268,7 +288,7 @@ export default function CodePage() {
         ) : (
           <div className="flex flex-col gap-2">
             <AnimatePresence mode="popLayout">
-              {filtered.length === 0 ? (
+              {paginatedProblems.length === 0 ? (
                 <motion.div
                   key="empty"
                   initial={{ opacity: 0 }}
@@ -279,9 +299,42 @@ export default function CodePage() {
                   <p className="text-sm">Không tìm thấy bài tập thuộc phân khúc này</p>
                 </motion.div>
               ) : (
-                filtered.map((p, i) => <ProblemRow key={p.id || i} p={p} idx={i} />)
+                paginatedProblems.map((p, i) => <ProblemRow key={p.id || i} p={p} idx={i} />)
               )}
             </AnimatePresence>
+
+            {/* ── Pagination Controls ── */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between mt-6 px-2 py-3 border-t border-white/8">
+                <p className="text-xs text-text-muted">
+                  Hiển thị <span className="font-semibold text-text-primary">{(currentPage - 1) * itemsPerPage + 1}</span> - <span className="font-semibold text-text-primary">{Math.min(currentPage * itemsPerPage, filtered.length)}</span> trên <span className="font-semibold text-text-primary">{filtered.length}</span> bài
+                </p>
+
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    className="px-3 py-1.5 rounded-lg border border-white/10 text-xs font-semibold hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                  >
+                    Trang trước
+                  </button>
+
+                  <div className="flex items-center gap-1 px-2">
+                    <span className="text-xs font-bold text-indigo-400 font-mono">{currentPage}</span>
+                    <span className="text-xs text-text-muted">/</span>
+                    <span className="text-xs font-mono text-text-muted">{totalPages}</span>
+                  </div>
+
+                  <button
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                    className="px-3 py-1.5 rounded-lg border border-white/10 text-xs font-semibold hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                  >
+                    Trang sau
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
