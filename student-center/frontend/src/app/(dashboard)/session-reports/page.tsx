@@ -84,6 +84,7 @@ export default function SessionReportsPage() {
   const [reportSchedule, setReportSchedule] = useState<ScheduleItem | null>(null);
   const [sessionReports, setSessionReports] = useState<Record<number, SessionReport>>({});
   const [savingReport, setSavingReport] = useState<number | null>(null);
+  const [expandedStudentIds, setExpandedStudentIds] = useState<Record<number, boolean>>({});
 
   // Weekly/Monthly
   const [reportMode, setReportMode] = useState<"weekly" | "monthly">("weekly");
@@ -118,7 +119,7 @@ export default function SessionReportsPage() {
     const token = getToken();
     const res = await fetch(`${API}/api/schedules/${editModalSchedule.id}`, {
       method: "PUT",
-      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      headers: { Authorization: `Bearer ${getToken()}`, "Content-Type": "application/json" },
       body: JSON.stringify(data)
     });
 
@@ -127,7 +128,7 @@ export default function SessionReportsPage() {
       if (extraStudentIds.length > 0) {
         await fetch(`${API}/api/schedules/`, {
           method: "POST",
-          headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+          headers: { Authorization: `Bearer ${getToken()}`, "Content-Type": "application/json" },
           body: JSON.stringify({ ...data, student_ids: extraStudentIds })
         });
       }
@@ -137,7 +138,7 @@ export default function SessionReportsPage() {
     const targetId = selectedSchedule?.id || reportSchedule?.id || editModalSchedule.id;
     if (targetId) {
       const stuRes = await fetch(`${API}/api/schedules/${targetId}/students`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${getToken()}` }
       });
       if (stuRes.ok) setRoomStudents(await stuRes.json());
     }
@@ -280,20 +281,25 @@ export default function SessionReportsPage() {
     attendanceRecords.find((r) => Number(r.student_id) === Number(studentId));
 
   // ── Session Report ──────────────────────────────────────────────────────────
-  const loadReportsForSchedule = async (schedule: ScheduleItem) => {
+  const loadReportsForSchedule = async (schedule: ScheduleItem | null) => {
+    if (!schedule || !schedule.id) return;
     setReportSchedule(schedule);
     const headers = { Authorization: `Bearer ${getToken()}` };
-    const [repRes, stuRes] = await Promise.all([
-      fetch(`${API}/api/reports/session/schedule/${schedule.id}`, { headers }),
-      fetch(`${API}/api/schedules/${schedule.id}/students`, { headers }),
-    ]);
-    if (repRes.ok) {
-      const data = await repRes.json();
-      const map: Record<number, SessionReport> = {};
-      data.forEach((r: SessionReport) => { map[r.student_id] = r; });
-      setSessionReports(map);
+    try {
+      const [repRes, stuRes] = await Promise.all([
+        fetch(`${API}/api/reports/session/schedule/${schedule.id}`, { headers }),
+        fetch(`${API}/api/schedules/${schedule.id}/students`, { headers }),
+      ]);
+      if (repRes.ok) {
+        const data = await repRes.json();
+        const map: Record<number, SessionReport> = {};
+        data.forEach((r: SessionReport) => { map[r.student_id] = r; });
+        setSessionReports(map);
+      }
+      if (stuRes.ok) setRoomStudents(await stuRes.json());
+    } catch (err) {
+      console.error(err);
     }
-    if (stuRes.ok) setMyStudents(await stuRes.json());
   };
 
   const saveSessionReport = async (studentId: number) => {
@@ -594,7 +600,16 @@ export default function SessionReportsPage() {
               </div>
 
               <div className="mt-6 flex gap-3">
-                <button onClick={() => { closeLiveRoom(); setTab("session"); loadReportsForSchedule(selectedSchedule); }}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const targetSchedule = selectedSchedule;
+                    closeLiveRoom();
+                    setTab("session");
+                    if (targetSchedule) {
+                      loadReportsForSchedule(targetSchedule);
+                    }
+                  }}
                   className="flex-1 py-3 rounded-2xl bg-rose-500 text-white font-bold hover:bg-rose-600 transition text-center"
                 >
                   Kết thúc & Viết báo cáo →
@@ -612,17 +627,17 @@ export default function SessionReportsPage() {
             <div>
               <h2 className="text-lg font-bold text-text-primary mb-4">Chọn buổi học để viết báo cáo</h2>
               <div className="space-y-2 max-h-[500px] overflow-y-auto">
-                {pastSchedules.map((s) => (
+                {schedules.map((s) => (
                   <button key={s.id} onClick={() => loadReportsForSchedule(s)}
-                    className="w-full text-left p-4 rounded-2xl border border-border-card hover:bg-bg-hover hover:border-rose-500/20 transition-all group"
+                    className="w-full flex items-center justify-between p-4 rounded-2xl border border-border-card bg-bg-card hover:bg-bg-hover transition group text-left"
                   >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-bold text-text-primary">{s.title}</p>
-                        <p className="text-sm text-text-secondary">{new Date(s.start_time).toLocaleDateString("vi-VN", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}</p>
-                      </div>
-                      <ChevronRight className="w-5 h-5 text-text-secondary group-hover:text-rose-500 transition-colors" />
+                    <div>
+                      <p className="font-bold text-text-primary">{s.title}</p>
+                      <p className="text-xs text-text-secondary mt-0.5">
+                        {new Date(s.start_time).toLocaleString("vi-VN")}
+                      </p>
                     </div>
+                    <ChevronRight className="w-5 h-5 text-text-secondary group-hover:text-rose-500 transition-colors" />
                   </button>
                 ))}
               </div>
@@ -633,23 +648,31 @@ export default function SessionReportsPage() {
                 <button onClick={() => setReportSchedule(null)} className="p-2 rounded-xl hover:bg-bg-hover">
                   <ChevronLeft className="w-5 h-5" />
                 </button>
-                <div>
+                <div className="flex-1">
                   <h2 className="text-xl font-black text-text-primary">{reportSchedule.title}</h2>
                   <p className="text-text-secondary text-sm">{new Date(reportSchedule.start_time).toLocaleDateString("vi-VN", { weekday: "long", day: "2-digit", month: "2-digit", year: "numeric" })}</p>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => { setEditModalSchedule(reportSchedule); setIsEditModalOpen(true); }}
+                  className="px-3.5 py-2 rounded-xl bg-blue-500/10 text-blue-400 hover:bg-blue-500 hover:text-white transition text-xs font-bold flex items-center gap-1.5 border border-blue-500/20 shadow-sm"
+                >
+                  ✏️ Sửa danh sách học sinh
+                </button>
               </div>
 
               <div className="space-y-4">
                 {roomStudents.map((student) => {
                   const report = sessionReports[student.id] || {};
-                  const [expanded, setExpanded] = useState(false);
+                  const isExpanded = !!expandedStudentIds[student.id];
+                  const toggleExpanded = () => setExpandedStudentIds((prev) => ({ ...prev, [student.id]: !prev[student.id] }));
                   return (
-                    <div key={student.id} className="border border-border-card rounded-2xl overflow-hidden">
-                      <button onClick={() => setExpanded(!expanded)}
+                    <div key={student.id} className="border border-border-card rounded-2xl overflow-hidden bg-bg-card">
+                      <button onClick={toggleExpanded}
                         className="w-full flex items-center gap-4 p-4 hover:bg-bg-hover transition"
                       >
                         <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-400 to-purple-600 flex items-center justify-center text-white font-bold text-sm shrink-0">
-                          {student.full_name.split(" ").pop()?.charAt(0)}
+                          {student.full_name.split(" ").pop()?.charAt(0) || "?"}
                         </div>
                         <div className="flex-1 text-left">
                           <p className="font-semibold text-text-primary">{student.full_name}</p>
@@ -659,10 +682,10 @@ export default function SessionReportsPage() {
                             <p className="text-xs text-text-secondary">Chưa viết báo cáo</p>
                           )}
                         </div>
-                        {expanded ? <ChevronUp className="w-4 h-4 text-text-secondary" /> : <ChevronDown className="w-4 h-4 text-text-secondary" />}
+                        {isExpanded ? <ChevronUp className="w-4 h-4 text-text-secondary" /> : <ChevronDown className="w-4 h-4 text-text-secondary" />}
                       </button>
 
-                      {expanded && (
+                      {isExpanded && (
                         <div className="px-4 pb-4 border-t border-border-card space-y-4 pt-4">
                           <div>
                             <label className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-2 block">Nhận xét</label>
