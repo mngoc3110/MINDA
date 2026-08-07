@@ -21,7 +21,7 @@ const LANG_COLORS: Record<string, { bg: string; border: string; label: string }>
 /** Renders a fenced code block segment as a styled <pre> */
 function CodeBlock({ lang, code }: { lang: string; code: string }) {
   const scheme = LANG_COLORS[lang.toLowerCase()] ?? LANG_COLORS.default;
-  const label = LANG_COLORS[lang.toLowerCase()]?.label ?? lang.toUpperCase() || "Code";
+  const label = (LANG_COLORS[lang.toLowerCase()]?.label ?? lang.toUpperCase()) || "Code";
   return (
     <span
       style={{
