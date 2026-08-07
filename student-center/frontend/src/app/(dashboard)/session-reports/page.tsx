@@ -132,11 +132,15 @@ export default function SessionReportsPage() {
   // ── WebSocket for live attendance ──────────────────────────────────────────
   const openLiveRoom = async (schedule: ScheduleItem) => {
     setSelectedSchedule(schedule);
-    // Load existing attendance
-    const res = await fetch(`${API}/api/attendance/schedule/${schedule.id}`, {
-      headers: { Authorization: `Bearer ${getToken()}` },
-    });
-    if (res.ok) setAttendanceRecords(await res.json());
+    const headers = { Authorization: `Bearer ${getToken()}` };
+    
+    // Load existing attendance and schedule-specific students
+    const [attRes, stuRes] = await Promise.all([
+      fetch(`${API}/api/attendance/schedule/${schedule.id}`, { headers }),
+      fetch(`${API}/api/schedules/${schedule.id}/students`, { headers }),
+    ]);
+    if (attRes.ok) setAttendanceRecords(await attRes.json());
+    if (stuRes.ok) setMyStudents(await stuRes.json());
 
     // Connect WebSocket
     const wsUrl = `${API.replace("https://", "wss://").replace("http://", "ws://")}/api/attendance/ws/${schedule.id}?token=${getToken()}`;
@@ -187,15 +191,18 @@ export default function SessionReportsPage() {
   // ── Session Report ──────────────────────────────────────────────────────────
   const loadReportsForSchedule = async (schedule: ScheduleItem) => {
     setReportSchedule(schedule);
-    const res = await fetch(`${API}/api/reports/session/schedule/${schedule.id}`, {
-      headers: { Authorization: `Bearer ${getToken()}` },
-    });
-    if (res.ok) {
-      const data = await res.json();
+    const headers = { Authorization: `Bearer ${getToken()}` };
+    const [repRes, stuRes] = await Promise.all([
+      fetch(`${API}/api/reports/session/schedule/${schedule.id}`, { headers }),
+      fetch(`${API}/api/schedules/${schedule.id}/students`, { headers }),
+    ]);
+    if (repRes.ok) {
+      const data = await repRes.json();
       const map: Record<number, SessionReport> = {};
       data.forEach((r: SessionReport) => { map[r.student_id] = r; });
       setSessionReports(map);
     }
+    if (stuRes.ok) setMyStudents(await stuRes.json());
   };
 
   const saveSessionReport = async (studentId: number) => {

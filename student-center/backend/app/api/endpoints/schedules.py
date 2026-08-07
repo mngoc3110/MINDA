@@ -262,3 +262,70 @@ def delete_schedule(
     db.delete(db_schedule)
     db.commit()
     return {"message": "Đã xoá sự kiện thành công."}
+
+
+@router.get("/{schedule_id}/students")
+def get_schedule_students(
+    schedule_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Lấy danh sách học sinh thuộc lớp học / buổi học cụ thể này"""
+    schedule = db.query(ScheduleItem).filter(ScheduleItem.id == schedule_id).first()
+    if not schedule:
+        raise HTTPException(status_code=404, detail="Không tìm thấy lịch học")
+
+    # 1. Nếu là lịch học 1-1 (student_id cụ thể)
+    if schedule.student_id:
+        student = db.query(User).filter(User.id == schedule.student_id).first()
+        if student:
+            return [{
+                "id": student.id,
+                "full_name": student.full_name,
+                "avatar_url": student.avatar_url,
+                "email": student.email,
+            }]
+
+    # 2. Nếu là lịch học theo lớp (course_id cụ thể)
+    if schedule.course_id:
+        enrollments = db.query(Enrollment).filter(
+            Enrollment.course_id == schedule.course_id,
+            Enrollment.status == EnrollmentStatus.active,
+        ).all()
+        student_ids = [e.student_id for e in enrollments]
+        if student_ids:
+            students = db.query(User).filter(User.id.in_(student_ids)).all()
+            return [{
+                "id": s.id,
+                "full_name": s.full_name,
+                "avatar_url": s.avatar_url,
+                "email": s.email,
+            } for s in students]
+
+    # 3. Fallback: Lấy tất cả học sinh đã ghi danh vào các lớp của GV này
+    taught_courses = db.query(Course.id).filter(Course.teacher_id == current_user.id).all()
+    course_ids = [c[0] for c in taught_courses]
+    if course_ids:
+        enrollments = db.query(Enrollment).filter(
+            Enrollment.course_id.in_(course_ids),
+            Enrollment.status == EnrollmentStatus.active,
+        ).all()
+        student_ids = list(set(e.student_id for e in enrollments))
+        if student_ids:
+            students = db.query(User).filter(User.id.in_(student_ids)).all()
+            return [{
+                "id": s.id,
+                "full_name": s.full_name,
+                "avatar_url": s.avatar_url,
+                "email": s.email,
+            } for s in students]
+
+    # 4. Fallback cuối: tất cả học sinh
+    students = db.query(User).filter(User.role == UserRole.student).all()
+    return [{
+        "id": s.id,
+        "full_name": s.full_name,
+        "avatar_url": s.avatar_url,
+        "email": s.email,
+    } for s in students]
+
