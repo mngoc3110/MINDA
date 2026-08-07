@@ -1,8 +1,11 @@
 import requests
 import re
 import json
+import importlib
+import app.models
 from app.db.database import engine
-from sqlalchemy import text
+from app.models.code_problem import CodeProblem
+from sqlalchemy.orm import Session
 
 def run_bulk_upload():
     url = "https://api.github.com/repos/MahiPonii/Tai_Lieu_cpp/git/trees/main?recursive=1"
@@ -13,7 +16,8 @@ def run_bulk_upload():
 
     print(f"Found {len(cpp_files)} total C++ problem files in MahiPonii repo...")
 
-    with engine.connect() as conn:
+    db = Session(bind=engine)
+    try:
         added = 0
         for idx, path in enumerate(cpp_files):
             raw_name = path.split("/")[-1].replace(".cpp", "").replace(".c", "")
@@ -27,7 +31,7 @@ def run_bulk_upload():
                 continue
 
             # Check existing
-            exists = conn.execute(text("SELECT id FROM code_problems WHERE slug = :s;"), {"s": slug}).fetchone()
+            exists = db.query(CodeProblem).filter(CodeProblem.slug == slug).first()
             if exists:
                 continue
 
@@ -82,24 +86,40 @@ Viết chương trình C++/Python nhận dữ liệu đầu vào và thực hi�
 #### Dữ liệu ra (Output):
 - Với mỗi bộ test, in ra kết quả bài toán trên một dòng tương ứng."""
 
-            tags = json.dumps(["C++ PTIT", "MahiPonii"])
-            constraints = json.dumps(["Thời gian <= 1.0s", "Bộ nhớ <= 256MB"])
-            examples = json.dumps([{"input": "2\n5\n10", "output": "15\n55", "explanation": "Mẫu bài test"}])
-            hints = json.dumps(["Tối ưu thuật toán"])
-            starter_code = json.dumps({"cpp": "#include <iostream>\nusing namespace std;\nint main() { return 0; }"})
-            test_cases = json.dumps([{"input": "2\n5\n10", "output": "15\n55", "is_hidden": False}])
+            tags_list = ["C++ PTIT", "MahiPonii"]
+            constraints_list = ["Thời gian <= 1.0s", "Bộ nhớ <= 256MB"]
+            examples_list = [{"input": "2\n5\n10", "output": "15\n55", "explanation": "Mẫu bài test"}]
+            hints_list = ["Tối ưu thuật toán"]
+            starter_code_dict = {"cpp": "#include <iostream>\nusing namespace std;\nint main() { return 0; }"}
+            test_cases_list = [{"input": "2\n5\n10", "output": "15\n55", "is_hidden": False}]
 
-            conn.execute(text("""
-                INSERT INTO code_problems (slug, title, description, difficulty, rating, track, subject, chapter, tags, constraints, examples, hints, starter_code, test_cases, source, solved_count)
-                VALUES (:slug, :title, :desc, 'easy', 900, 'ptit', :subj, :chap, :tags::json, :constraints::json, :examples::json, :hints::json, :starter_code::json, :test_cases::json, 'MahiPonii Repository GitHub', 0);
-            """), {
-                'slug': slug, 'title': f'PTIT: {words_spaced}', 'desc': full_desc, 'subj': subject, 'chap': chapter,
-                'tags': tags, 'constraints': constraints, 'examples': examples, 'hints': hints, 'starter_code': starter_code, 'test_cases': test_cases
-            })
+            prob = CodeProblem(
+                slug=slug,
+                title=f"PTIT: {words_spaced}",
+                description=full_desc,
+                difficulty="easy",
+                rating=900,
+                track="ptit",
+                subject=subject,
+                chapter=chapter,
+                tags=tags_list,
+                constraints=constraints_list,
+                examples=examples_list,
+                hints=hints_list,
+                starter_code=starter_code_dict,
+                test_cases=test_cases_list,
+                source="MahiPonii Repository GitHub",
+                solved_count=0
+            )
+            db.add(prob)
             added += 1
+            if added % 50 == 0:
+                db.commit()
 
-        conn.commit()
+        db.commit()
         print(f"SUCCESSFULLY UPLOADED {added} NEW PROBLEMS TO MINDA DB!")
+    finally:
+        db.close()
 
 if __name__ == "__main__":
     run_bulk_upload()
