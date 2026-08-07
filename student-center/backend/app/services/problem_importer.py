@@ -309,59 +309,64 @@ def sync_github_repos(db: Session):
                             "Lý thuyết đồ thị": ["1. chương 1_ltdt", "2. Duyệt theo chiều rộng", "3. Duyệt theo chiều sâu", "4. Tìm đường đi ngắn nhất"]
                         }
 
-                        if "OOP" in path_upper or "CLASS" in path_upper or "FRIEND" in path_upper or "KE_THUA" in path_upper:
+                        # Strict PTIT prefix & keyword-based semantic classification
+                        ptit_match = re.search(r'CPP(0[1-8])', path_upper)
+                        ptit_code = ptit_match.group(1) if ptit_match else None
+
+                        if ptit_code == "01":
+                            if any(k in path_upper or k in raw_upper for k in ["TONG", "SUM", "NHAP", "XUAT", "HELLO"]):
+                                subject, chapter = "Lập trình cơ bản", "1. Nhập / Xuất"
+                            elif any(k in path_upper or k in raw_upper for k in ["IF", "RE_NHANH", "CHIA_HET", "SO_SANH", "MAX", "MIN"]):
+                                subject, chapter = "Lập trình cơ bản", "2. Lệnh rẽ nhánh"
+                            elif any(k in path_upper or k in raw_upper for k in ["FUNC", "HAM", "GCD", "LCM", "UCLN", "BCNN"]):
+                                subject, chapter = "Lập trình cơ bản", "4. Hàm"
+                            else:
+                                subject, chapter = "Lập trình cơ bản", "3. Vòng lặp"
+                        elif ptit_code == "02":
+                            subject, chapter = "Lập trình cơ bản", "5. Mảng"
+                        elif ptit_code == "03":
+                            subject, chapter = "Lập trình nâng cao", "9. Xử lý chuỗi"
+                        elif ptit_code == "04":
+                            if "BINARY" in path_upper or "NHI_PHAN" in path_upper or "SEARCH" in path_upper:
+                                subject, chapter = "Phân tích thiết kế giải thuật", "1. Chia để trị"
+                            else:
+                                subject, chapter = "Phân tích thiết kế giải thuật", "5. Giải thuật tham lam"
+                        elif ptit_code == "05":
+                            subject, chapter = "Lập trình cơ bản", "6. Cấu trúc"
+                        elif ptit_code == "06":
                             subject = "Lập trình hướng đối tượng"
-                            if "CLASS" in path_upper: chapter = "1. Object and Class"
-                            elif "FRIEND" in path_upper or "TOAN_TU" in path_upper: chapter = "2. friend & quá tải toán tử"
-                            elif "TEMPLATE" in path_upper: chapter = "3. Khuôn hình [template]"
-                            elif "INHERIT" in path_upper or "THUA" in path_upper: chapter = "4. Kế thừa"
-                            else: chapter = "5. Đa hình"
-                        elif "GRAPH" in path_upper or "BFS" in path_upper or "DFS" in path_upper or "DIJKSTRA" in path_upper or "LTDT" in path_upper:
-                            subject = "Lý thuyết đồ thị"
-                            if "BFS" in path_upper or "CHIEU_RONG" in path_upper: chapter = "2. Duyệt theo chiều rộng"
-                            elif "DFS" in path_upper or "CHIEU_SAU" in path_upper: chapter = "3. Duyệt theo chiều sâu"
-                            elif "DIJKSTRA" in path_upper or "SHORT" in path_upper or "NGAN_NHAT" in path_upper: chapter = "4. Tìm đường đi ngắn nhất"
-                            else: chapter = "1. chương 1_ltdt"
-                        elif "DP" in path_upper or "DYNAMIC" in path_upper or "GREEDY" in path_upper or "DIVIDE" in path_upper or "QUAY_LUI" in path_upper:
+                            if "FRIEND" in path_upper or "TOAN_TU" in path_upper: chapter = "2. friend & quá tải toán tử"
+                            elif "THUA" in path_upper or "INHERIT" in path_upper: chapter = "4. Kế thừa"
+                            elif "DA_HINH" in path_upper: chapter = "5. Đa hình"
+                            else: chapter = "1. Object and Class"
+                        elif ptit_code == "07":
                             subject = "Phân tích thiết kế giải thuật"
-                            if "DIVIDE" in path_upper or "CHIA" in path_upper: chapter = "1. Chia để trị"
+                            if "DP" in path_upper or "DYNAMIC" in path_upper or "CUM" in path_upper or "LIS" in path_upper: chapter = "4. Quy hoạch động"
                             elif "DE_QUY" in path_upper: chapter = "2. Đệ quy"
-                            elif "BACKTRACK" in path_upper or "QUAY_LUI" in path_upper: chapter = "3. Đệ quy quay lui"
-                            elif "DP" in path_upper or "DYNAMIC" in path_upper: chapter = "4. Quy hoạch động"
-                            else: chapter = "5. Giải thuật tham lam"
-                        elif "STL" in path_upper or "VECTOR" in path_upper or "STACK" in path_upper or "QUEUE" in path_upper or "POINTER" in path_upper or "CON_TRO" in path_upper or "FILE" in path_upper or "STRING" in path_upper or "CHUOIS" in path_upper:
+                            else: chapter = "3. Đệ quy quay lui"
+                        elif ptit_code == "08":
                             subject = "Lập trình nâng cao"
-                            if "TOAN_TU" in path_upper: chapter = "1. Quá tải toán tử"
-                            elif "TEMPLATE" in path_upper: chapter = "2. Khuôn hình [template]"
-                            elif "POINTER" in path_upper or "CON_TRO" in path_upper: chapter = "3. Con trỏ"
-                            elif "FILE" in path_upper: chapter = "4. Nhập xuất file"
+                            if "FILE" in path_upper: chapter = "4. Nhập xuất file"
                             elif "VECTOR" in path_upper: chapter = "5. STL: vector"
                             elif "STACK" in path_upper or "QUEUE" in path_upper: chapter = "6. STL: stack, queue"
-                            elif "BACKTRACK" in path_upper: chapter = "8. Đệ quy quay lui"
-                            elif "STRING" in path_upper or "CHAU" in path_upper or "STR" in path_upper: chapter = "9. Xử lý chuỗi"
-                            else: chapter = "7. Đệ quy"
-                        elif "ARRAY" in path_upper or "MANG" in path_upper or "MATRIX" in path_upper:
-                            subject = "Lập trình cơ bản"
-                            chapter = "5. Mảng"
-                        elif "LOOP" in path_upper or "WHILE" in path_upper or "FOR" in path_upper:
-                            subject = "Lập trình cơ bản"
-                            chapter = "3. Vòng lặp"
-                        elif "IF" in path_upper or "BRANCH" in path_upper or "DIEU_KIEN" in path_upper:
-                            subject = "Lập trình cơ bản"
-                            chapter = "2. Lệnh rẽ nhánh"
-                        elif "FUNC" in path_upper or "HAM" in path_upper:
-                            subject = "Lập trình cơ bản"
-                            chapter = "4. Hàm"
-                        elif "STRUCT" in path_upper or "CAU_TRUC" in path_upper:
-                            subject = "Lập trình cơ bản"
-                            chapter = "6. Cấu trúc"
+                            elif "CON_TRO" in path_upper or "POINTER" in path_upper: chapter = "3. Con trỏ"
+                            else: chapter = "1. Quá tải toán tử"
+                        elif "GRAPH" in path_upper or "BFS" in path_upper or "DFS" in path_upper or "DIJKSTRA" in path_upper or "LTDT" in path_upper:
+                            subject = "Lý thuyết đồ thị"
+                            if "BFS" in path_upper: chapter = "2. Duyệt theo chiều rộng"
+                            elif "DFS" in path_upper: chapter = "3. Duyệt theo chiều sâu"
+                            elif "DIJKSTRA" in path_upper or "SHORT" in path_upper: chapter = "4. Tìm đường đi ngắn nhất"
+                            else: chapter = "1. chương 1_ltdt"
+                        elif "CLASS" in path_upper or "OOP" in path_upper:
+                            subject, chapter = "Lập trình hướng đối tượng", "1. Object and Class"
+                        elif "DP" in path_upper or "DYNAMIC" in path_upper:
+                            subject, chapter = "Phân tích thiết kế giải thuật", "4. Quy hoạch động"
+                        elif "STRING" in path_upper or "XAU" in path_upper:
+                            subject, chapter = "Lập trình nâng cao", "9. Xử lý chuỗi"
+                        elif "ARRAY" in path_upper or "MANG" in path_upper:
+                            subject, chapter = "Lập trình cơ bản", "5. Mảng"
                         else:
-                            # Balanced hashing distribution across subjects & chapters
-                            hash_val = sum(ord(c) for c in raw_name)
-                            subj_idx = hash_val % len(subjects_list)
-                            subject = subjects_list[subj_idx]
-                            chap_list = chapters_map[subject]
-                            chapter = chap_list[hash_val % len(chap_list)]
+                            subject, chapter = "Lập trình cơ bản", "3. Vòng lặp"
 
                         # Build rich detailed problem statement from title & chapter
                         words_spaced = re.sub(r'([a-z])([A-Z])', r'\1 \2', clean_title).replace('_', ' ')
