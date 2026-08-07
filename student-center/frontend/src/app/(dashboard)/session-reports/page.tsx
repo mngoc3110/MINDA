@@ -302,16 +302,46 @@ export default function SessionReportsPage() {
     }
   };
 
+  const [savedSuccessStudentId, setSavedSuccessStudentId] = useState<number | null>(null);
+
   const saveSessionReport = async (studentId: number) => {
     if (!reportSchedule) return;
     setSavingReport(studentId);
-    const report = sessionReports[studentId] || {};
-    await fetch(`${API}/api/reports/session`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${getToken()}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ schedule_id: reportSchedule.id, student_id: studentId, ...report }),
-    });
-    setSavingReport(null);
+    try {
+      const report = sessionReports[studentId] || {};
+      const payload = {
+        schedule_id: reportSchedule.id,
+        student_id: studentId,
+        content: report.content || "",
+        behavior_score: report.behavior_score || null,
+        progress_score: report.progress_score || null,
+        homework_status: report.homework_status || null,
+        strengths: report.strengths || "",
+        weaknesses: report.weaknesses || "",
+        is_visible_to_parent: report.is_visible_to_parent !== false,
+      };
+
+      const res = await fetch(`${API}/api/reports/session`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${getToken()}`, "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        const savedData = await res.json();
+        setSessionReports((prev) => ({ ...prev, [studentId]: savedData }));
+        setSavedSuccessStudentId(studentId);
+        setTimeout(() => setSavedSuccessStudentId(null), 3000);
+      } else {
+        const errorData = await res.json();
+        alert(`Lỗi khi lưu báo cáo: ${errorData.detail || "Vui lòng thử lại"}`);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Lỗi kết nối khi lưu báo cáo!");
+    } finally {
+      setSavingReport(null);
+    }
   };
 
   const updateReport = (studentId: number, field: string, value: any) => {
@@ -746,10 +776,20 @@ export default function SessionReportsPage() {
                             </label>
                             <button onClick={() => saveSessionReport(student.id)}
                               disabled={savingReport === student.id}
-                              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-rose-500 text-white text-sm font-bold hover:bg-rose-600 transition disabled:opacity-50"
+                              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition ${
+                                savedSuccessStudentId === student.id
+                                  ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/30"
+                                  : "bg-rose-500 text-white hover:bg-rose-600 shadow-lg shadow-rose-500/20"
+                              } disabled:opacity-50`}
                             >
-                              {savingReport === student.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
-                              Lưu báo cáo
+                              {savingReport === student.id ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : savedSuccessStudentId === student.id ? (
+                                <CheckCircle2 className="w-4 h-4" />
+                              ) : (
+                                <Check className="w-4 h-4" />
+                              )}
+                              {savedSuccessStudentId === student.id ? "Đã lưu thành công!" : "Lưu báo cáo"}
                             </button>
                           </div>
                         </div>
