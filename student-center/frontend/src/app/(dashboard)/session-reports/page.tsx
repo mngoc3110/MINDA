@@ -117,7 +117,17 @@ export default function SessionReportsPage() {
       ]);
       if (schRes.ok) {
         const data = await schRes.json();
-        setSchedules(data.sort((a: any, b: any) => new Date(b.start_time).getTime() - new Date(a.start_time).getTime()));
+        const sortedData = data.sort((a: any, b: any) => new Date(b.start_time).getTime() - new Date(a.start_time).getTime());
+        const uniqueSchedules: ScheduleItem[] = [];
+        const seenKeys = new Set<string>();
+        for (const sch of sortedData) {
+          const key = `${sch.title}_${new Date(sch.start_time).getTime()}_${new Date(sch.end_time).getTime()}`;
+          if (!seenKeys.has(key)) {
+            seenKeys.add(key);
+            uniqueSchedules.push(sch);
+          }
+        }
+        setSchedules(uniqueSchedules);
       }
       if (stuRes.ok) setMyStudents(await stuRes.json());
       if (devRes.ok) setDevices(await devRes.json());

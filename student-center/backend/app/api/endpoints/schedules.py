@@ -303,57 +303,48 @@ def get_schedule_students(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Lấy danh sách học sinh thuộc lớp học / buổi học cụ thể này"""
+    """Lấy tất cả học sinh thuộc khung giờ học này (gộp các sự kiện cùng giờ & tiêu đề)"""
     schedule = db.query(ScheduleItem).filter(ScheduleItem.id == schedule_id).first()
     if not schedule:
         raise HTTPException(status_code=404, detail="Không tìm thấy lịch học")
 
-    # 1. Nếu là lịch học 1-1 (student_id cụ thể)
-    if schedule.student_id:
-        student = db.query(User).filter(User.id == schedule.student_id).first()
-        if student:
-            return [{
-                "id": student.id,
-                "full_name": student.full_name,
-                "avatar_url": student.avatar_url,
-                "email": student.email,
-            }]
+    # 1. Tìm tất cả các sự kiện cùng khung giờ + tiêu đề do giáo viên này tạo
+    matching_schedules = db.query(ScheduleItem).filter(
+        ScheduleItem.user_id == current_user.id,
+        ScheduleItem.title == schedule.title,
+        ScheduleItem.start_time == schedule.start_time,
+        ScheduleItem.end_time == schedule.end_time
+    ).all()
 
-    # 2. Nếu là lịch học theo lớp (course_id cụ thể)
-    if schedule.course_id:
-        enrollments = db.query(Enrollment).filter(
-            Enrollment.course_id == schedule.course_id,
-            Enrollment.status == EnrollmentStatus.active,
-        ).all()
-        student_ids = [e.student_id for e in enrollments]
-        if student_ids:
-            students = db.query(User).filter(User.id.in_(student_ids)).all()
-            return [{
-                "id": s.id,
-                "full_name": s.full_name,
-                "avatar_url": s.avatar_url,
-                "email": s.email,
-            } for s in students]
+    student_ids = set()
+    course_ids = set()
 
-    # 3. Fallback: Lấy tất cả học sinh đã ghi danh vào các lớp của GV này
-    taught_courses = db.query(Course.id).filter(Course.teacher_id == current_user.id).all()
-    course_ids = [c[0] for c in taught_courses]
+    for s in matching_schedules:
+        if s.student_id:
+            student_ids.add(s.student_id)
+        if s.course_id:
+            course_ids.add(s.course_id)
+
+    # 2. Nếu có course_id, lấy thêm học sinh đã đăng ký trong các lớp đó
     if course_ids:
         enrollments = db.query(Enrollment).filter(
-            Enrollment.course_id.in_(course_ids),
+            Enrollment.course_id.in_(list(course_ids)),
             Enrollment.status == EnrollmentStatus.active,
         ).all()
-        student_ids = list(set(e.student_id for e in enrollments))
-        if student_ids:
-            students = db.query(User).filter(User.id.in_(student_ids)).all()
-            return [{
-                "id": s.id,
-                "full_name": s.full_name,
-                "avatar_url": s.avatar_url,
-                "email": s.email,
-            } for s in students]
+        for e in enrollments:
+            student_ids.add(e.student_id)
 
-    # 4. Fallback cuối: tất cả học sinh
+    # 3. Trả về danh sách tất cả học sinh khớp
+    if student_ids:
+        students = db.query(User).filter(User.id.in_(list(student_ids))).all()
+        return [{
+            "id": s.id,
+            "full_name": s.full_name,
+            "avatar_url": s.avatar_url,
+            "email": s.email,
+        } for s in students]
+
+    # Fallback cuối: tất cả học sinh
     students = db.query(User).filter(User.role == UserRole.student).all()
     return [{
         "id": s.id,

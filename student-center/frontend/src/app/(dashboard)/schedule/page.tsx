@@ -51,11 +51,19 @@ export default function SchedulePage() {
       });
       if (res.ok) {
         const data = await res.json();
-        const formattedEvents = data.map((item: any) => ({
-          ...item,
-          start: new Date(item.start_time),
-          end: new Date(item.end_time),
-        }));
+        const formattedEvents: any[] = [];
+        const seenKeys = new Set<string>();
+        for (const item of data) {
+          const key = `${item.title}_${new Date(item.start_time).getTime()}_${new Date(item.end_time).getTime()}`;
+          if (!seenKeys.has(key)) {
+            seenKeys.add(key);
+            formattedEvents.push({
+              ...item,
+              start: new Date(item.start_time),
+              end: new Date(item.end_time),
+            });
+          }
+        }
         setEvents(formattedEvents);
       }
 
