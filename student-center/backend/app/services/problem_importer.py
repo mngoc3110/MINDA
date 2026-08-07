@@ -1,6 +1,7 @@
 """
 Importer Service: Crawls and parses programming problemsets from GitHub repos (PTIT C++),
 LeetCode APIs, VNOI/CSES, UpCoder & ucode format into MINDA PostgreSQL database.
+Includes specific tracks for THCS & THPT Chuyên Tin.
 """
 import re
 import json
@@ -8,15 +9,118 @@ import requests
 from sqlalchemy.orm import Session
 from app.models.code_problem import CodeProblem
 
-# 1. Repos GitHub C++ PTIT & Chuyên Tin
-GITHUB_REPOS = [
-    "https://api.github.com/repos/huyinit/Cplusplus-PTIT/contents",
-    "https://api.github.com/repos/yalza/CPP_code.ptit/contents",
-    "https://api.github.com/repos/MahiPonii/Tai_Lieu_cpp/contents"
-]
-
-# Preset curated problems from CSES / VNOI / LeetCode / UpCoder
 CURATED_PROBLEMS = [
+    # --- TIN HỌC TRẺ / CHUYÊN TIN THCS ---
+    {
+        "slug": "thcs-tong-chu-so",
+        "title": "THCS 01: Tính Tổng Các Chữ Số",
+        "description": "Cho một số nguyên dương $N$. Hãy tính tổng các chữ số của $N$.\n\n*Ví dụ*: Với $N = 1234$, tổng là $1 + 2 + 3 + 4 = 10$.",
+        "difficulty": "easy",
+        "rating": 800,
+        "track": "thcs",
+        "tags": ["Chuyên Tin THCS", "Vòng lặp", "Xử lý số"],
+        "constraints": ["$1 \\leq N \\leq 10^{18}$"],
+        "examples": [{"input": "1234", "output": "10", "explanation": "1 + 2 + 3 + 4 = 10"}],
+        "hints": ["Dùng vòng lặp chia lấy dư cho 10 (% 10 và // 10) hoặc xử lý chuỗi."],
+        "starter_code": {
+            "python": "# Viết code Python ở đây\n\n",
+            "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    // Viết code ở đây\n    return 0;\n}"
+        },
+        "test_cases": [
+            {"input": "1234", "output": "10\n", "is_hidden": False},
+            {"input": "999999999", "output": "81\n", "is_hidden": True}
+        ],
+        "source": "Đề Thi Chuyên Tin THCS"
+    },
+    {
+        "slug": "thcs-dem-uoc",
+        "title": "THCS 02: Đếm Số Ước Nguyên Dương",
+        "description": "Cho số nguyên dương $N$. Hãy đếm xem $N$ có bao nhiêu ước số nguyên dương.\n\n*Ví dụ*: Với $N = 12$, các ước là $\{1, 2, 3, 4, 6, 12\} \\rightarrow$ có 6 ước.",
+        "difficulty": "easy",
+        "rating": 900,
+        "track": "thcs",
+        "tags": ["Chuyên Tin THCS", "Số học", "Vòng lặp"],
+        "constraints": ["$1 \\leq N \\leq 10^9$"],
+        "examples": [{"input": "12", "output": "6", "explanation": "Các ước là 1, 2, 3, 4, 6, 12."}],
+        "hints": ["Chỉ cần duyệt từ 1 đến sqrt(N) để đạt $O(\\sqrt{N})$."],
+        "starter_code": {
+            "python": "# Viết code Python ở đây\n\n",
+            "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    // Viết code ở đây\n    return 0;\n}"
+        },
+        "test_cases": [
+            {"input": "12", "output": "6\n", "is_hidden": False},
+            {"input": "100", "output": "9\n", "is_hidden": True}
+        ],
+        "source": "Đề Thi Chuyên Tin THCS"
+    },
+    {
+        "slug": "thcs-xau-doi-xung",
+        "title": "THCS 03: Kiểm Tra Xâu Đối Xúng (Palindrome)",
+        "description": "Cho một xâu kí tự $S$ gồm các chữ cái tiếng Anh viết thường.\n\nHãy kiểm tra xem xâu $S$ có phải là xâu đối xứng hay không. In ra `YES` nếu đúng, ngược lại in `NO`.",
+        "difficulty": "easy",
+        "rating": 850,
+        "track": "thcs",
+        "tags": ["Chuyên Tin THCS", "Xâu ký tự"],
+        "constraints": ["Độ dài xâu $S \\leq 1000$"],
+        "examples": [
+            {"input": "radar", "output": "YES", "explanation": "Đọc xuôi hay ngược đều là radar."},
+            {"input": "minda", "output": "NO", "explanation": "Đọc ngược là adnim."}
+        ],
+        "hints": ["So sánh ký tự đầu và cuối tiến dần vào giữa."],
+        "starter_code": {
+            "python": "# Viết code Python ở đây\n\n",
+            "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    // Viết code ở đây\n    return 0;\n}"
+        },
+        "test_cases": [
+            {"input": "radar", "output": "YES\n", "is_hidden": False},
+            {"input": "minda", "output": "NO\n", "is_hidden": False}
+        ],
+        "source": "Đề Thi Chuyên Tin THCS"
+    },
+
+    # --- CHUYÊN TIN THPT & HỌC SINH GIỎI QUỐC GIA (VOI) ---
+    {
+        "slug": "thpt-day-con-tang-dai-nhat",
+        "title": "THPT 01: Dãy Con Tăng Dài Nhất (LIS)",
+        "description": "Cho mảng $A$ gồm $N$ số nguyên.\n\nHãy tìm độ dài của dãy con tăng dài nhất (không nhất thiết liên tiếp).\n\n*Ví dụ*: Mảng $[10, 9, 2, 5, 3, 7, 101, 18]$ có dãy con tăng dài nhất là $[2, 3, 7, 101] \\rightarrow$ độ dài 4.",
+        "difficulty": "medium",
+        "rating": 1350,
+        "track": "thpt",
+        "tags": ["Chuyên Tin THPT", "Quy hoạch động", "Binary Search"],
+        "constraints": ["$1 \\leq N \\leq 10^5$", "$-10^9 \\leq A_i \\leq 10^9$"],
+        "examples": [{"input": "8\n10 9 2 5 3 7 101 18", "output": "4", "explanation": "Dãy con [2, 3, 7, 101] độ dài 4."}],
+        "hints": ["Dùng Quy hoạch động kết hợp Tìm kiếm nhị phân $O(N \\log N)$."],
+        "starter_code": {
+            "python": "# Viết code Python ở đây\n\n",
+            "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    // Viết code ở đây\n    return 0;\n}"
+        },
+        "test_cases": [
+            {"input": "8\n10 9 2 5 3 7 101 18", "output": "4\n", "is_hidden": False}
+        ],
+        "source": "HSG THPT / VOI"
+    },
+    {
+        "slug": "thpt-do-thi-duong-di-ngan-nhat",
+        "title": "THPT 02: Đường Đi Ngắn Nhất (Dijkstra)",
+        "description": "Cho đồ thị có hướng gồm $N$ đỉnh và $M$ cạnh có trọng số không âm.\n\nHãy tìm độ dài đường đi ngắn nhất từ đỉnh 1 đến tất cả các đỉnh còn lại từ $1$ đến $N$.\nNếu không thể đến đỉnh $i$, in ra `-1`.",
+        "difficulty": "hard",
+        "rating": 1500,
+        "track": "thpt",
+        "tags": ["Chuyên Tin THPT", "Đồ thị", "Dijkstra"],
+        "constraints": ["$1 \\leq N, M \\leq 10^5$", "Trọng số $W_i \\geq 0$"],
+        "examples": [{"input": "3 3\n1 2 5\n2 3 3\n1 3 10", "output": "0 5 8", "explanation": "Khoảng cách từ 1->1: 0, 1->2: 5, 1->3: 1->2->3 (5+3=8)."}],
+        "hints": ["Dùng hàng đợi ưu tiên std::priority_queue (Min Heap)."],
+        "starter_code": {
+            "python": "# Viết code Python ở đây\n\n",
+            "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    // Viết code ở đây\n    return 0;\n}"
+        },
+        "test_cases": [
+            {"input": "3 3\n1 2 5\n2 3 3\n1 3 10", "output": "0 5 8\n", "is_hidden": False}
+        ],
+        "source": "Đề Thi Học Sinh Giỏi THPT"
+    },
+
+    # --- CLASSIC PRESETS ---
     {
         "slug": "hello-world",
         "title": "Hello, World!",
@@ -30,9 +134,7 @@ CURATED_PROBLEMS = [
         "hints": ["Dùng print() trong Python, cout trong C++."],
         "starter_code": {
             "python": "# Viết code Python ở đây\n\n",
-            "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    // Viết code ở đây\n    return 0;\n}",
-            "javascript": "// Viết code JavaScript ở đây\n",
-            "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        // Viết code ở đây\n    }\n}"
+            "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    // Viết code ở đây\n    return 0;\n}"
         },
         "test_cases": [{"input": "", "output": "Hello, World!\n", "is_hidden": False}],
         "source": "MINDA Classic"
@@ -53,14 +155,11 @@ CURATED_PROBLEMS = [
         "hints": ["Nhập 2 số từ stdin.", "Cộng chúng lại và in ra."],
         "starter_code": {
             "python": "# Viết code Python ở đây\n\n",
-            "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    // Viết code ở đây\n    return 0;\n}",
-            "javascript": "// Viết code JavaScript ở đây\n",
-            "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        // Viết code ở đây\n    }\n}"
+            "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    // Viết code ở đây\n    return 0;\n}"
         },
         "test_cases": [
             {"input": "3 5", "output": "8\n", "is_hidden": False},
-            {"input": "-1 7", "output": "6\n", "is_hidden": False},
-            {"input": "1000000000 2000000000", "output": "3000000000\n", "is_hidden": True}
+            {"input": "-1 7", "output": "6\n", "is_hidden": False}
         ],
         "source": "PTIT C++ (CPP0101)"
     },
@@ -80,8 +179,7 @@ CURATED_PROBLEMS = [
             "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    // Viết code ở đây\n    return 0;\n}"
         },
         "test_cases": [
-            {"input": "6", "output": "8\n", "is_hidden": False},
-            {"input": "50", "output": "586268941\n", "is_hidden": True}
+            {"input": "6", "output": "8\n", "is_hidden": False}
         ],
         "source": "PTIT C++ (CPP0105)"
     },
@@ -101,8 +199,7 @@ CURATED_PROBLEMS = [
             "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    // Viết code ở đây\n    return 0;\n}"
         },
         "test_cases": [
-            {"input": "10", "output": "2 3 5 7\n", "is_hidden": False},
-            {"input": "20", "output": "2 3 5 7 11 13 17 19\n", "is_hidden": True}
+            {"input": "10", "output": "2 3 5 7\n", "is_hidden": False}
         ],
         "source": "VNOI / PTIT"
     },
@@ -122,10 +219,9 @@ CURATED_PROBLEMS = [
             "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    // Viết code ở đây\n    return 0;\n}"
         },
         "test_cases": [
-            {"input": "5 3\n1 2 3 4 5", "output": "3\n", "is_hidden": False},
-            {"input": "5 6\n1 2 3 4 5", "output": "-1\n", "is_hidden": True}
+            {"input": "5 3\n1 2 3 4 5", "output": "3\n", "is_hidden": False}
         ],
-        "source": "CSES / LeetCode Binary Search"
+        "source": "CSES / LeetCode"
     },
     {
         "slug": "dp-knapsack",

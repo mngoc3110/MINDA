@@ -9,7 +9,7 @@ from pydantic import BaseModel
 from app.db.database import get_db
 from app.models.code_problem import CodeProblem, CodeSubmission
 from app.models.user import User
-from app.api.endpoints.auth import get_current_user, get_current_user_optional
+from app.core.security import get_current_user
 from app.services.problem_importer import seed_code_problems
 
 router = APIRouter()
