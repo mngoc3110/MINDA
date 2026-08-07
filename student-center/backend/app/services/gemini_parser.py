@@ -12,7 +12,7 @@ from google.genai import types
 from app.services.gemini_key_manager import get_next_gemini_key
 
 PROMPT = """
-You are an expert Math Teacher in Vietnam. I am giving you an exam paper.
+You are an expert Teacher in Vietnam. I am giving you an exam paper which may belong to any subject: Math (Toán), Physics (Vật Lý), Chemistry (Hóa Học), Biology (Sinh Học), Literature (Ngữ Văn), History (Lịch Sử), Geography (Địa Lý), English (Tiếng Anh), Informatics/Computer Science (Tin Học), or Civic Education (Kinh Tế Pháp Luật).
 1. Parse the structure of the exam (Trắc nghiệm, Đúng/Sai, Trả lời ngắn).
 2. Extract the content of questions and options exactly. DO NOT solve them or provide explanations.
 3. Output raw JSON ONLY with no markdown formatting. The format MUST BE:
@@ -68,7 +68,8 @@ You are an expert Math Teacher in Vietnam. I am giving you an exam paper.
 - Use LaTeX notation for math: $x^2$, $\\frac{a}{b}$, $\\sqrt{x}$
 - For data tables (frequency tables, statistics tables, measurement tables), convert them to LaTeX array format INSIDE the question text using display math. Format: $$\\begin{array}{|l|c|c|c|} \\hline \\text{Header1} & \\text{Header2} & \\text{Header3} \\\\ \\hline \\text{Data1} & 5 & 10 \\\\ \\hline \\end{array}$$ Use \\text{} for Vietnamese text cells. Use \\hline for horizontal rules. Use | in the column spec for vertical rules.
 - For complex drawings, TikZ diagrams, coordinate graphs, or variation tables (bảng biến thiên), replace with "[Hình vẽ - Vui lòng xem ảnh đính kèm]".
-- DO NOT output ANY markdown. Just the raw JSON object.
+- CRITICAL FOR INFORMATICS/CS EXAMS: If a question contains source code (HTML, CSS, JavaScript, Python, C, C++, Java, Pascal, SQL, Assembly, or any programming language), you MUST wrap the code in a fenced code block using triple backticks with the language name. Example: ```html\\n<html>...</html>\\n``` or ```python\\nx = 1\\nprint(x)\\n```. Never leave raw HTML tags or code snippets unwrapped — always use fenced code blocks.
+- DO NOT output ANY markdown wrapping the JSON itself. Just the raw JSON object.
 """
 
 MODELS_TO_TRY = [
