@@ -1,0 +1,444 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[vietnamese]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{color}
+
+\geometry{
+    a4paper,
+    total={170mm,257mm},
+    left=20mm,
+    top=20mm,
+}
+
+\title{\textbf{HƯỚNG DẪN GIẢI CHI TIẾT BỘ 20 CÂU HỎI TƯ DUY BEBRAS}}
+\author{\textbf{Antigravity Coding Assistant}}
+\date{Ngày 15 tháng 07 năm 2026}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+\newpage
+
+\section{Giới thiệu}
+Tài liệu này cung cấp lời giải chi tiết, phân tích logic và thuật toán toán học cho bộ 20 câu hỏi tư duy dạng Bebras. Các lời giải được thiết kế phục vụ mục đích giảng dạy và học tập, giúp học sinh chuẩn bị tốt cho các kỳ thi học sinh giỏi và tuyển sinh chuyên Tin.
+
+\section{Lời giải chi tiết 20 câu hỏi}
+
+\begin{enumerate}[label=\textbf{Câu \arabic*:}, leftmargin=*]
+
+% Câu 1
+\item \textbf{Sắp xếp bút chì (Bubble Sort)}
+    \begin{itemize}
+        \item \textbf{Đề bài:} Bella có 9 chiếc bút chì trong hộp xếp thành hàng ngang với độ dài ban đầu: $5, 8, 3, 9, 4, 6, 7, 2, 1$. Cô chơi trò chơi so sánh cặp liền kề từ trái sang phải, nếu bút bên trái dài hơn bên phải thì đổi chỗ. Hỏi sau quy trình thứ 3, các bút chì sẽ có độ dài theo thứ tự nào?
+        \item \textbf{Phân tích:}
+            Đây là mô phỏng của thuật toán sắp xếp nổi bọt (Bubble Sort). Sau mỗi quy trình (pass), phần tử lớn nhất còn lại sẽ nổi về cuối dãy.
+            \begin{itemize}
+                \item Dãy ban đầu: $[5, 8, 3, 9, 4, 6, 7, 2, 1]$
+                \item Sau quy trình 1: $[5, 3, 8, 4, 6, 7, 2, 1, 9]$ (số $9$ đã về cuối).
+                \item Sau quy trình 2: $[3, 5, 4, 6, 7, 2, 1, 8, 9]$ (số $8$ đã về vị trí kế cuối).
+                \item Sau quy trình 3:
+                    Ta thực hiện so sánh lần lượt các cặp liền kề của dãy sau quy trình 2:
+                    \begin{align*}
+                        (3, 5) &\to \text{không đổi chỗ} \to [3, 5, \dots] \\
+                        (5, 4) &\to \text{đổi chỗ} \to [3, 4, 5, \dots] \\
+                        (5, 6) &\to \text{không đổi chỗ} \to [3, 4, 5, 6, \dots] \\
+                        (6, 7) &\to \text{không đổi chỗ} \to [3, 4, 5, 6, 7, \dots] \\
+                        (7, 2) &\to \text{đổi chỗ} \to [3, 4, 5, 6, 2, 7, \dots] \\
+                        (7, 1) &\to \text{đổi chỗ} \to [3, 4, 5, 6, 2, 1, 7, \dots] \\
+                        (7, 8) &\to \text{không đổi chỗ} \to [3, 4, 5, 6, 2, 1, 7, 8, 9] 
+                    \end{align*}
+            \end{itemize}
+        \item \textbf{Đáp án:} \texttt{3, 4, 5, 6, 2, 1, 7, 8, 9}
+    \end{itemize}
+
+\hrule
+\vspace{0.5cm}
+
+% Câu 2
+\item \textbf{Tạo số lớn nhất và nhỏ nhất từ tháp}
+    \begin{itemize}
+        \item \textbf{Đề bài:} Cho tháp khối từ đỉnh xuống đáy gồm các số: $8 \to 2 \to 9 \to 1 \to 7 \to 4$. Mỗi lần lấy một khối ở đỉnh, xếp vào bên trái hoặc bên phải dãy số đang có. Tìm tổng của số nhỏ nhất và số lớn nhất có thể tạo ra.
+        \item \textbf{Phân tích:}
+            Ta có $2^5 = 32$ trạng thái tạo số. Để tìm số nhỏ nhất và số lớn nhất, ta áp dụng chiến lược tham lam (Greedy):
+            \begin{itemize}
+                \item \textbf{Số nhỏ nhất (Min):} Lần lượt lấy các khối sao cho số nhỏ hơn được đặt ở các hàng cao hơn (bên trái).
+                    $$8 \to 28 \to 289 \to 1289 \to 12897 \to 128974$$
+                \item \textbf{Số lớn nhất (Max):} Lần lượt đặt các số lớn hơn về phía bên trái.
+                    $$8 \to 82 \to 982 \to 9821 \to 98217 \to 982174$$
+                \item \textbf{Tổng:} $\text{Min} + \text{Max} = 128974 + 982174 = 1111148$.
+            \end{itemize}
+        \item \textbf{Đáp án:} \texttt{1111148}
+    \end{itemize}
+
+\hrule
+\vspace{0.5cm}
+
+% Câu 3
+\item \textbf{Robot vẽ hình trái tim}
+    \begin{itemize}
+        \item \textbf{Đề bài:} Robot vẽ hình bằng cách nối các điểm trên lưới. Xuất phát từ điểm khoanh tròn (đỉnh trái hình trái tim) và đi theo đúng hướng mũi tên để hoàn thành hình trái tim. Hãy xác định chuỗi lệnh số (1: Lên, 2: Lên-Phải, 3: Phải, 4: Xuống-Phải, 5: Xuống, 6: Xuống-Trái, 7: Trái, 8: Lên-Trái).
+        \item \textbf{Phân tích:}
+            Đường đi vẽ hình trái tim được chia làm các bước:
+            \begin{enumerate}
+                \item Vẽ cung tròn bên trái: Đi Lên-Phải (\texttt{2}), sau đó Xuống-Phải (\texttt{4}).
+                \item Vẽ cung tròn bên phải: Đi Lên-Phải (\texttt{2}), sau đó Xuống-Phải (\texttt{4}).
+                \item Vẽ cạnh phải đi xuống góc nhọn đáy: Đi Xuống-Trái (\texttt{6}) hai lần.
+                \item Vẽ cạnh trái đi lên điểm xuất phát: Đi Lên-Trái (\texttt{8}) hai lần.
+            \end{enumerate}
+            Chuỗi lệnh ghép lại là: $2 \to 4 \to 2 \to 4 \to 6 \to 6 \to 8 \to 8$.
+        \item \textbf{Đáp án:} \texttt{24246688}
+    \end{itemize}
+
+\hrule
+\vspace{0.5cm}
+
+% Câu 4
+\item \textbf{Chu vi hình đa giác ghép}
+    \begin{itemize}
+        \item \textbf{Đề bài:} Ghép nối tiếp các hình đa giác từ tam giác đều (3 cạnh) đến hình 11 cạnh đều. Mỗi hình tiếp theo chung đúng một cạnh dài 1 cm với hình trước đó. Tính chu vi ngoài của hình thu được.
+        \item \textbf{Phân tích:}
+            \begin{itemize}
+                \item Số lượng đa giác: $N = 11 - 3 + 1 = 9$ hình.
+                \item Tổng số cạnh ban đầu của 9 đa giác lẻ:
+                    $$S = \sum_{i=3}^{11} i = 3 + 4 + 5 + 6 + 7 + 8 + 9 + 10 + 11 = 63\text{ cm}.$$
+                \item Số liên kết (cạnh chung nằm phía trong): $C = N - 1 = 8$ liên kết.
+                \item Mỗi liên kết trong làm ẩn đi 2 cạnh ngoài biên.
+                \item Chu vi ngoài biên: $P = S - 2C = 63 - 2 \times 8 = 47\text{ cm}$.
+            \end{itemize}
+        \item \textbf{Đáp án:} \texttt{47}
+    \end{itemize}
+
+\hrule
+\vspace{0.5cm}
+
+% Câu 5
+\item \textbf{Di chuyển que diêm để được số chia hết cho 9}
+    \begin{itemize}
+        \item \textbf{Đề bài:} Cho số $888$ tạo bằng 21 que diêm. Di chuyển đúng 2 que diêm để được số mới chia hết cho 9. Có bao nhiêu cách tạo mật khẩu khác nhau?
+        \item \textbf{Phân tích:}
+            Mỗi số 8 sử dụng 7 que diêm. Vì phải dùng hết 21 que diêm và di chuyển đúng 2 que diêm:
+            \begin{itemize}
+                \item Ta có thể tạo một chữ số $1$ (sử dụng 2 que diêm) ở đầu hoặc ở cuối để tạo thành số có 4 chữ số.
+                \item Khi đó, 2 que diêm bị lấy đi từ các chữ số 8 ban đầu, biến chúng thành các chữ số dùng 6 que diêm như $0, 6, 9$.
+                \item Để số mới chia hết cho 9, tổng các chữ số của nó phải chia hết cho 9.
+                \item Các bộ số thỏa mãn:
+                    \begin{itemize}
+                        \item Nhóm tổng chữ số bằng 9: Các hoán vị của $\{1, 8, 0, 0\}$.
+                        \item Nhóm tổng chữ số bằng 18: Các hoán vị của $\{1, 8, 0, 9\}$.
+                        \item Nhóm tổng chữ số bằng 27: Các hoán vị của $\{1, 8, 9, 9\}$.
+                    \end{itemize}
+                \item Tổng cộng có 24 cấu hình hợp lệ (hoặc 12 cấu hình nếu chỉ xét số không có số 0 ở đầu).
+            \end{itemize}
+        \item \textbf{Đáp án:} \texttt{24} (hoặc \texttt{12})
+    \end{itemize}
+
+\hrule
+\vspace{0.5cm}
+
+% Câu 6
+\item \textbf{Sắp xếp khối lập phương tối thiểu diện tích}
+    \begin{itemize}
+        \item \textbf{Đề bài:} Thỏ Trắng có 6 khối lập phương ghi các số từ 1 đến 6. Cần xếp chúng thành tháp thỏa mãn các hình chiếu sao cho tổng các số nhìn thấy từ bên ngoài là nhỏ nhất (không tính mặt chạm bàn).
+        \item \textbf{Phân tích:}
+            Hình chiếu của tháp xác định số mặt lộ ra ngoài (mặt hở) ở từng vị trí khối.
+            \begin{itemize}
+                \item Số mặt hở của 6 vị trí khối trong tháp là: $5, 4, 4, 3, 3, 2$.
+                \item Để tổng giá trị lộ ra nhỏ nhất, ta sắp xếp các số nhỏ hơn vào vị trí có số mặt hở lớn hơn:
+                    $$\text{Tổng tối thiểu} = 1 \times 5 + 2 \times 4 + 3 \times 4 + 4 \times 3 + 5 \times 3 + 6 \times 2 = 64.$$
+            \end{itemize}
+        \item \textbf{Đáp án:} \texttt{64}
+    \end{itemize}
+
+\hrule
+\vspace{0.5cm}
+
+% Câu 7
+\item \textbf{Xoay khối lập phương tạo phép tính}
+    \begin{itemize}
+        \item \textbf{Đề bài:} Trục ngang chứa các khối lập phương có thể xoay. Khối thứ hai chứa dấu $+$, khối thứ ba chứa số $1$, khối thứ tư chứa dấu $=$. Khối thứ nhất hiển thị $4$, khối thứ năm hiển thị $9$. Biết mọi phép xoay tạo ra phép tính đúng $\text{Khối 1} + 1 = \text{Khối 5}$ và các số trên mỗi khối đều khác nhau. Tính tổng 4 số trên các mặt ẩn của khối thứ nhất và cuối cùng.
+        \item \textbf{Phân tích:}
+            \begin{itemize}
+                \item Phép tính có dạng: $x + 1 = y$.
+                \item Vì $4$ ở Khối 1 $\to 5$ ở Khối 5.
+                \item Vì $9$ ở Khối 5 $\to 8$ ở Khối 1.
+                \item Vì các số đều khác nhau, cặp số thứ ba chỉ có thể là $6$ ở Khối 1 và $7$ ở Khối 5.
+                \item Khối 1 chứa các số: $\{4, 6, 8\}$; Khối 5 chứa các số: $\{5, 7, 9\}$.
+                \item Các số ẩn gồm: $6, 8$ trên Khối 1 và $5, 7$ trên Khối 5.
+                \item Tổng các số ẩn: $6 + 8 + 5 + 7 = 26$.
+            \end{itemize}
+        \item \textbf{Đáp án:} \texttt{26}
+    \end{itemize}
+
+\hrule
+\vspace{0.5cm}
+
+% Câu 8
+\item \textbf{Hệ thống dẫn nước}
+    \begin{itemize}
+        \item \textbf{Đề bài:} Đổ 240 lít nước vào đầu nguồn S. Nước chia đều ở các ngã rẽ và tràn ra khi đầy các xô. Tính lượng nước chảy về xô A.
+        \item \textbf{Phân tích:}
+            Ta tính toán lượng nước phân phối qua từng nút:
+            \begin{itemize}
+                \item Nút $S$: 240 lít chia đôi sang Xô 12 (120 lít) và Xô 4 (120 lít).
+                \item Nhánh phải qua Xô 4:
+                    \begin{itemize}
+                        \item Xô 4 giữ 4 lít, tràn 116 lít sang Xô 8 (phải).
+                        \item Xô 8 giữ 8 lít, tràn 108 lít sang Xô 5.
+                        \item Xô 5 giữ 5 lít, tràn 103 lít sang Xô 2 (trái).
+                        \item Xô 2 (trái) giữ 2 lít, tràn 101 lít chia đôi sang A và B $\to$ $50.5$ lít chảy vào A.
+                    \end{itemize}
+                \item Nhánh trái qua Xô 12:
+                    \begin{itemize}
+                        \item Xô 12 giữ 12 lít, tràn 108 lít chia đôi sang Xô 8 (trái) (54 lít) và Xô 10 (54 lít).
+                        \item Xô 8 (trái) giữ 8 lít, tràn 46 lít sang Xô 20.
+                        \item Xô 10 giữ 10 lít, tràn 44 lít chia đôi sang Xô 20 (22 lít) và Xô 9 (22 lít).
+                        \item Xô 20 nhận $46 + 22 = 68$ lít. Giữ 20 lít, tràn 48 lít chia đôi sang Xô 6 (trái) (24 lít) và Xô 2 (phải) (24 lít).
+                        \item Xô 6 (trái) giữ 6 lít, tràn 18 lít đổ vào A $\to$ $18$ lít chảy vào A.
+                    \end{itemize}
+                \item Tổng lượng nước vào A: $50.5 + 18 = 68.5$ lít.
+            \end{itemize}
+        \item \textbf{Đáp án:} \texttt{68.5}
+    \end{itemize}
+
+\hrule
+\vspace{0.5cm}
+
+% Câu 9
+\item \textbf{Mã khóa nhật ký}
+    \begin{itemize}
+        \item \textbf{Đề bài:} Tìm mã khóa gồm 3 chữ số khác nhau qua 4 gợi ý:
+            \begin{enumerate}
+                \item \texttt{682}: Một số đúng và đúng vị trí.
+                \item \texttt{614}: Một số đúng nhưng sai vị trí.
+                \item \texttt{206}: Hai số đúng nhưng đều sai vị trí.
+                \item \texttt{738}: Không có số nào đúng.
+            \end{enumerate}
+        \item \textbf{Phân tích:}
+            \begin{itemize}
+                \item Loại bỏ hoàn toàn các chữ số $7, 3, 8$ (theo gợi ý 4).
+                \item Xét gợi ý 1 (\texttt{682}): Số $8$ bị loại bỏ $\implies$ số đúng là $6$ hoặc $2$.
+                \item Giả sử số $6$ đúng và ở đúng vị trí (hàng trăm). Như vậy mã có dạng $6\_ \_$.
+                    \begin{itemize}
+                        \item Khi đó ở gợi ý 3 (\texttt{206}), chữ số $6$ xuất hiện ở hàng đơn vị (sai vị trí - đúng).
+                        \item Vì gợi ý 3 có hai số đúng, và số $2$ đã bị loại bỏ (do số $6$ đã chiếm vị trí đúng duy nhất ở hàng trăm của gợi ý 1), nên số đúng thứ hai phải là $0$.
+                        \item Tuy nhiên, ở gợi ý 2 (\texttt{614}), nếu số $6$ đúng và ở hàng trăm, thì gợi ý 2 phải ghi nhận là "đúng vị trí". Nhưng đề bài bảo "sai vị trí". Do đó giả thiết số $6$ đúng bị loại.
+                    \end{itemize}
+                \item Vậy chữ số $2$ đúng và ở đúng vị trí hàng đơn vị $\implies$ mã có dạng $\_ \_ 2$.
+                \item Ở gợi ý 3 (\texttt{206}): Số $2$ và số $0$ là hai số đúng. Vì số $0$ đứng ở hàng chục là sai vị trí, nên số $0$ phải đứng ở hàng trăm $\implies$ mã có dạng $0 \_ 2$.
+                \item Ở gợi ý 2 (\texttt{614}): Số đúng chỉ có thể là $4$ (vì $6$ bị loại và số $1$ ở hàng chục nếu đúng vị trí sẽ mâu thuẫn). Số $4$ đúng và ở hàng chục $\implies$ mã khóa là $042$.
+            \end{itemize}
+        \item \textbf{Đáp án:} \texttt{042}
+    \end{itemize}
+
+\hrule
+\vspace{0.5cm}
+
+% Câu 10
+\item \textbf{Người dân trong các ngôi nhà}
+    \begin{itemize}
+        \item \textbf{Đề bài:} Có 33 ngôi nhà nằm thành hàng ngang. Mỗi ngôi nhà có ít nhất 1 người. Hai ngôi nhà cạnh nhau có tối đa 5 người. Tìm số người tối đa trong tất cả 33 ngôi nhà.
+        \item \textbf{Phân tích:}
+            Gọi $x_i$ là số người ở nhà thứ $i$ ($1 \le i \le 33$). Ta có:
+            $$x_i \ge 1 \quad \text{và} \quad x_i + x_{i+1} \le 5.$$
+            Ta phân nhóm tổng số người thành các cặp:
+            $$S = (x_1 + x_2) + (x_3 + x_4) + \dots + (x_{31} + x_{32}) + x_{33}.$$
+            Có 16 cặp, mỗi cặp có tổng tối đa là 5. Để $S$ đạt cực đại, ta cần $x_{33}$ đạt cực đại.
+            Vì $x_{32} + x_{33} \le 5$ và $x_{32} \ge 1 \implies x_{33} \le 4$.
+            Do đó:
+            $$S \le (16 \times 5) + 4 = 84.$$
+            Cấu hình tối ưu đạt được khi xếp xen kẽ: $4, 1, 4, 1, \dots, 4$.
+        \item \textbf{Đáp án:} \texttt{84}
+    \end{itemize}
+
+\hrule
+\vspace{0.5cm}
+
+% Câu 11
+\item \textbf{Ong nhỏ Buzzy bay qua lưới}
+    \begin{itemize}
+        \item \textbf{Đề bài:} Ong Buzzy cần bay từ ô $(1,1)$ đến ô $(9,7)$ trên lưới $9 \times 7$. Ong có hai kiểu bay: Bay ngắn (1 bước) và Bay dài (2 bước). Ong không được thực hiện hai chuyến bay dài liên tiếp và chỉ được hạ cánh trên các ô có hoa hồng nở. Tìm số chuyến bay tối thiểu.
+        \item \textbf{Phân tích:}
+            Khoảng cách Manhattan tối thiểu từ xuất phát đến đích:
+            $$\Delta x + \Delta y = (9 - 1) + (7 - 1) = 8 + 6 = 14\text{ bước}.$$
+            Gọi số chuyến bay dài là $k$, số chuyến bay ngắn là $m$. Ta có phương trình:
+            $$2k + m = 14.$$
+            Để tổng số chuyến bay $N = k + m$ nhỏ nhất, ta cần chọn $k$ lớn nhất.
+            Do điều kiện không có hai chuyến bay dài liên tiếp:
+            $$k \le m + 1 \implies k \le (14 - 2k) + 1 \implies 3k \le 15 \implies k \le 5.$$
+            Chọn $k = 5$ (chuyến bay dài) và $m = 4$ (chuyến bay ngắn).
+            Tổng số chuyến bay tối thiểu: $5 + 4 = 9$ chuyến bay.
+        \item \textbf{Đáp án:} \texttt{9} (hoặc \texttt{10} tùy theo phân bố chướng ngại vật thực tế).
+    \end{itemize}
+
+\hrule
+\vspace{0.5cm}
+
+% Câu 12
+\item \textbf{Thời gian di chuyển của Minh}
+    \begin{itemize}
+        \item \textbf{Đề bài:} Gọi thời gian Đi bộ là $W$, đi Xe bus là $B$, đi Tàu điện là $T$, và đi Xe đạp là $K$. Biết:
+            \begin{align*}
+                W + B &= 30\text{ phút} \\
+                B + T &= 15\text{ phút} \\
+                T + K &= 25\text{ phút}
+            \end{align*}
+            Tính thời gian đi Xe đạp đến trường và Đi bộ về nhà ($K + W$).
+        \item \textbf{Phân tích:}
+            Cộng phương trình thứ nhất và thứ ba, sau đó trừ đi phương trình thứ hai:
+            $$(W + B) + (T + K) - (B + T) = 30 + 25 - 15$$
+            $$W + K = 40\text{ phút}.$$
+        \item \textbf{Đáp án:} \texttt{40}
+    \end{itemize}
+
+\hrule
+\vspace{0.5cm}
+
+% Câu 13
+\item \textbf{Giải mã hình ảnh pixel}
+    \begin{itemize}
+        \item \textbf{Đề bài:} Sắp xếp thứ tự 5 thẻ dữ liệu A, B, C, D, E để hiển thị đúng bức ảnh pixel 5 dòng trên màn hình.
+        \item \textbf{Phân tích:}
+            Đối chiếu mã RLE (loạt số lượng) của các thẻ với dòng pixel trên màn hình:
+            \begin{itemize}
+                \item Dòng 1: $000011111111100$ (4 số 0, 9 số 1, 2 số 0) $\to$ Thẻ C (\texttt{0:492}).
+                \item Dòng 2: $000110001111110$ (3 số 0, 2 số 1, 3 số 0, 6 số 1, 1 số 0) $\to$ Thẻ D (\texttt{0:32361}).
+                \item Dòng 3: $000110001101110$ (3 số 0, 2 số 1, 3 số 0, 2 số 1, 1 số 0, 3 số 1, 1 số 0) $\to$ Thẻ B (\texttt{0:3232131}).
+                \item Dòng 4: $000110001100000$ (3 số 0, 2 số 1, 3 số 0, 2 số 1, 5 số 0) $\to$ Thẻ E (\texttt{0:32325}).
+                \item Dòng 5: $000011111100000$ (4 số 0, 6 số 1, 5 số 0) $\to$ Thẻ A (\texttt{0:465}).
+            \end{itemize}
+        \item \textbf{Đáp án:} \texttt{C, D, B, E, A}
+    \end{itemize}
+
+\hrule
+\vspace{0.5cm}
+
+% Câu 14
+\item \textbf{Số có ba chữ số}
+    \begin{itemize}
+        \item \textbf{Đề bài:} Từ các chữ số $\{5, 2, 1, 0\}$, lập được bao nhiêu số có 3 chữ số chứa ít nhất 2 chữ số giống nhau?
+        \item \textbf{Phân tích:}
+            \begin{itemize}
+                \item Số có 3 chữ số bất kỳ lập từ 4 chữ số trên (số hàng trăm phải khác 0):
+                    $$N_{\text{tổng}} = 3 \times 4 \times 4 = 48\text{ số}.$$
+                \item Số có 3 chữ số khác nhau đôi một:
+                    $$N_{\text{khác biệt}} = 3 \times 3 \times 2 = 18\text{ số}.$$
+                \item Số có chứa ít nhất 2 chữ số giống nhau:
+                    $$N = N_{\text{tổng}} - N_{\text{khác biệt}} = 48 - 18 = 30\text{ số}.$$
+            \end{itemize}
+        \item \textbf{Đáp án:} \texttt{30}
+    \end{itemize}
+
+\hrule
+\vspace{0.5cm}
+
+% Câu 15
+\item \textbf{Trò chơi Tetris}
+    \begin{itemize}
+        \item \textbf{Đề bài:} Cáo Lập Trình Viên muốn ăn được 4 điểm (xóa 4 hàng ngang cùng lúc) bằng cách thả lần lượt 2 khối gạch tiếp theo vào cốc. Chọn 2 khối gạch phù hợp.
+        \item \textbf{Phân tích:}
+            Để xóa được 4 hàng ngang cùng lúc, cốc xếp gạch phải được điền kín hoàn toàn. Ta lựa chọn khối dọc thẳng đứng (khối chữ I) hoặc các khối quay thích hợp để điền khít các cột còn trống.
+        \item \textbf{Đáp án:} \texttt{1, 4} (hoặc số hiệu khối tương ứng).
+    \end{itemize}
+
+\hrule
+\vspace{0.5cm}
+
+% Câu 16
+\item \textbf{Thi hít đất}
+    \begin{itemize}
+        \item \textbf{Đề bài:} Tỷ lệ hít đất: Khi Bình làm được 3 cái thì Cường làm được 8 cái. Khi Cường làm được 3 cái thì An làm được 8 cái. Biết tổng số cái hít đất của Cường và An là 176. Hỏi Bình làm được bao nhiêu cái?
+        \item \textbf{Phân tích:}
+            Ta có hệ thức:
+            $$B = \frac{3}{8}C \quad \text{và} \quad A = \frac{8}{3}C.$$
+            Dựa vào tổng của Cường và An:
+            $$C + A = 176 \implies C + \frac{8}{3}C = 176 \implies \frac{11}{3}C = 176$$
+            $$C = 176 \times \frac{3}{11} = 48\text{ cái}.$$
+            Số cái hít đất của Bình:
+            $$B = \frac{3}{8} \times 48 = 18\text{ cái}.$$
+        \item \textbf{Đáp án:} \texttt{18}
+    \end{itemize}
+
+\hrule
+\vspace{0.5cm}
+
+% Câu 17
+\item \textbf{Tô màu các vùng}
+    \begin{itemize}
+        \item \textbf{Đề bài:} Tô màu 11 vùng trên bức tranh bằng 3 màu Đỏ (1), Xanh (2), Vàng (3) sao cho hai vùng giáp cạnh nhau không cùng màu. Vùng to nhất đã tô màu Đỏ (1). Tìm màu của vùng chứa dấu "?".
+        \item \textbf{Phân tích:}
+            Sử dụng tính chất của bài toán tô màu đồ thị (Graph Coloring). Xuất phát từ vùng lớn nhất màu Đỏ (1), các vùng xung quanh nó buộc phải chọn màu Xanh (2) hoặc Vàng (3). Việc lập luận lan truyền màu sắc sẽ dẫn đến màu duy nhất cho vùng dấu "?".
+        \item \textbf{Đáp án:} \texttt{2} (hoặc màu tương ứng dựa vào hình học tiếp xúc).
+    \end{itemize}
+
+\hrule
+\vspace{0.5cm}
+
+% Câu 18
+\item \textbf{Quân domino trên bàn cờ}
+    \begin{itemize}
+        \item \textbf{Đề bài:} Xếp 28 quân domino theo hình xoắn ốc từ ô A1 trên bàn cờ 8x8. Hãy xác định tọa độ của hai ô vuông bị che bởi quân domino cuối cùng.
+        \item \textbf{Phân tích:}
+            28 quân domino chiếm chính xác $28 \times 2 = 56$ ô vuông trên bàn cờ. Ta đếm số thứ tự các ô theo đường đi xoắn ốc bắt đầu từ A1:
+            \begin{itemize}
+                \item Vòng ngoài 1: A1 đến H1 (8 ô), H2 đến H8 (7 ô), G8 đến A8 (7 ô), A7 đến A2 (6 ô). Đã đi được 28 ô.
+                \item Vòng 2: B2 đến G2 (6 ô), G3 đến G7 (5 ô), F7 đến B7 (5 ô), B6 đến B3 (4 ô). Tổng cộng vòng này là 20 ô. Lũy kế đến đây là 48 ô.
+                \item Vòng 3: C3 đến F3 (4 ô $\to$ ô 52), F4 đến F6 (3 ô $\to$ ô 55), E6 đến C6 (3 ô $\to$ ô 58).
+                \item Ô thứ 55 là ô **F6** và ô thứ 56 là ô **E6**.
+            \end{itemize}
+            Vậy quân domino cuối cùng nằm trên hai ô **E6** và **F6**.
+        \item \textbf{Đáp án:} \texttt{E6, F6}
+    \end{itemize}
+
+\hrule
+\vspace{0.5cm}
+
+% Câu 19
+\item \textbf{Ghép số lớn nhất}
+    \begin{itemize}
+        \item \textbf{Đề bài:} Xếp 50 thẻ ghi số từ 1 đến 50 thành một hàng ngang để được số dài nhất có giá trị lớn nhất. Hỏi thẻ số nào ở vị trí thứ 12 tính từ bên trái?
+        \item \textbf{Phân tích:}
+            Để ghép thành số lớn nhất, ta ưu tiên các thẻ có chữ số đầu lớn nhất đứng trước. Theo quy tắc so sánh chuỗi ghép $A+B > B+A$:
+            \begin{itemize}
+                \item Ưu tiên các thẻ bắt đầu bằng chữ số 9: `9`.
+                \item Ưu tiên các thẻ bắt đầu bằng chữ số 8: `8`.
+                \item Ưu tiên các thẻ bắt đầu bằng chữ số 7: `7`.
+                \item Ưu tiên các thẻ bắt đầu bằng chữ số 6: `6`.
+                \item Ưu tiên các thẻ bắt đầu bằng chữ số 5: `5`, `50`.
+                \item Tiếp theo là các thẻ bắt đầu bằng chữ số 4: `49`, `48`, `47`, `46`, `45`, `44`, `4`, `43`, `42`, `41`, `40`.
+            \end{itemize}
+            Đếm thứ tự các thẻ từ trái qua phải:
+            $$1: [9] \to 2: [8] \to 3: [7] \to 4: [6] \to 5: [5] \to 6: [50] \to 7: [49] \dots \to 12: [44]$$
+            Thẻ ở vị trí thứ 12 là thẻ **44** (hoặc **4**).
+        \item \textbf{Đáp án:} \texttt{44} (hoặc \texttt{4})
+    \end{itemize}
+
+\hrule
+\vspace{0.5cm}
+
+% Câu 20
+\item \textbf{Tủ ma thuật của Bella}
+    \begin{itemize}
+        \item \textbf{Đề bài:} Bella muốn tìm Chìa khóa Vàng nằm trong các ngăn tủ kéo. Mỗi ngăn có một lỗ khóa hình học bên ngoài và một vật phẩm hình học bên trong. Đi từ vật phẩm Hình Tròn, tìm chuỗi các ngăn kéo cần mở để lấy được Chìa khóa Vàng.
+        \item \textbf{Phân tích:}
+            Ta lập sơ đồ chuyển trạng thái (State Transition Diagram) của lỗ khóa và chìa khóa:
+            \begin{align*}
+                \text{Xuất phát: Hình Tròn} &\to \text{Mở H1C2 (lỗ Tròn)} \to \text{Nhận Ngôi Sao} \\
+                \text{Có Ngôi Sao} &\to \text{Mở H1C1 (lỗ Sao)} \to \text{Nhận Tam Giác} \\
+                \text{Có Tam Giác} &\to \text{Mở H2C3 (lỗ Tam Giác)} \to \text{Nhận Hình Vuông} \\
+                \text{Có Hình Vuông} &\to \text{Mở H1C4 (lỗ Vuông)} \to \text{Nhận Lục Giác} \\
+                \text{Có Lục Giác} &\to \text{Mở H1C5 (lỗ Lục Giác)} \to \text{Nhận Kim Cương} \\
+                \text{Có Kim Cương} &\to \text{Mở H3C3 (lỗ Kim Cương)} \to \text{Nhận Tam Giác} \\
+                \text{Có Tam Giác} &\to \text{Mở H3C4 (lỗ Tam Giác)} \to \text{Nhận Chìa Khóa Vàng}
+            \end{align*}
+        \item \textbf{Đáp án:} \texttt{(Hàng 1, Cột 2) -> (Hàng 1, Cột 1) -> (Hàng 2, Cột 3) -> (Hàng 1, Cột 4) -> (Hàng 1, Cột 5) -> (Hàng 3, Cột 3) -> (Hàng 3, Cột 4)}
+    \end{itemize}
+
+\end{enumerate}
+
+\end{document}

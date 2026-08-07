@@ -17,7 +17,8 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     password: str
     phone: Optional[str] = None
-    role: Optional[str] = "student"  # student / teacher / admin
+    role: Optional[str] = "student"  # student / teacher / parent / admin
+    subject: Optional[str] = None   # Môn học (dành cho giáo viên)
 
     @field_validator("password")
     def validate_password(cls, v):
@@ -34,6 +35,7 @@ class UserResponse(UserBase):
     phone: Optional[str] = None
     role: str
     secondary_role: Optional[str] = None  # badge đặc biệt: tester, admin, v.v.
+    subject: Optional[str] = None
     is_active: bool
     exp_points: int
     current_rank: str

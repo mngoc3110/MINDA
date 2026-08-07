@@ -198,7 +198,8 @@ def list_teachers(db: Session = Depends(get_db)):
             "id": t.id,
             "full_name": t.full_name,
             "avatar_url": t.avatar_url,
-            "email": t.email
+            "email": t.email,
+            "subject": t.subject or "",
         }
         for t in teachers
     ]
@@ -582,7 +583,12 @@ import json
 from pydantic import BaseModel
 from typing import List, Optional
 
+class CVProfileCreate(BaseModel):
+    title: Optional[str] = "Hồ sơ mới"
+    cv_title: Optional[str] = "GIA SƯ MINDA"
+
 class CVProfileUpdate(BaseModel):
+    title: Optional[str] = None
     cv_title: str
     cv_competencies: str
     cv_soft_skills: str
@@ -603,12 +609,10 @@ class CVProfileUpdate(BaseModel):
     full_name: Optional[str] = None
 
 @router.get("/teachers/{teacher_id}/cv")
-def get_teacher_cv(teacher_id: int, db: Session = Depends(get_db)):
+def get_teacher_cv(teacher_id: int, cv_id: Optional[int] = None, db: Session = Depends(get_db)):
     from app.models.user import TeacherProfile, User
     teacher = db.query(User).filter(User.id == teacher_id).first()
-    # Check if user is either a teacher or an admin
     is_teacher = getattr(teacher, "role", None) in ["teacher", "admin"] or getattr(teacher, "secondary_role", None) == "teacher"
-    # Also handle the case where teacher.role might be an Enum
     if not is_teacher and hasattr(getattr(teacher, "role", None), "value"):
         role_val = teacher.role.value
         is_teacher = role_val in ["teacher", "admin"]
@@ -616,17 +620,28 @@ def get_teacher_cv(teacher_id: int, db: Session = Depends(get_db)):
     if not teacher or not is_teacher:
         raise HTTPException(status_code=404, detail="Giáo viên không tồn tại")
         
-    profile = db.query(TeacherProfile).filter(TeacherProfile.user_id == teacher_id).first()
+    all_profiles = db.query(TeacherProfile).filter(TeacherProfile.user_id == teacher_id).order_by(TeacherProfile.id.asc()).all()
     
     # Nếu chưa có profile trong DB, tạo một profile rỗng mặc định
-    if not profile:
-        profile = TeacherProfile(user_id=teacher_id)
+    if not all_profiles:
+        profile = TeacherProfile(user_id=teacher_id, title="Hồ sơ chính", is_primary=True)
         db.add(profile)
         db.commit()
         db.refresh(profile)
+        all_profiles = [profile]
+
+    if cv_id:
+        profile = next((p for p in all_profiles if p.id == cv_id), None)
+        if not profile:
+            profile = all_profiles[0]
+    else:
+        profile = next((p for p in all_profiles if p.is_primary), all_profiles[0])
         
     return {
         "id": teacher.id,
+        "cv_id": profile.id,
+        "title": profile.title or "Hồ sơ giảng dạy",
+        "is_primary": profile.is_primary,
         "full_name": teacher.full_name,
         "avatar_url": teacher.avatar_url,
         "email": teacher.email,
@@ -645,18 +660,63 @@ def get_teacher_cv(teacher_id: int, db: Session = Depends(get_db)):
         "cv_custom_sections": profile.cv_custom_sections,
         "social_linkedin": profile.social_linkedin,
         "social_facebook": profile.social_facebook,
-        "social_website": profile.social_website
+        "social_website": profile.social_website,
+        "all_cvs": [
+            {
+                "id": p.id,
+                "title": p.title or f"Hồ sơ #{p.id}",
+                "cv_title": p.cv_title,
+                "is_primary": p.is_primary,
+            }
+            for p in all_profiles
+        ]
     }
 
-@router.put("/teachers/cv")
-def update_my_cv(data: CVProfileUpdate, db: Session = Depends(get_db), current_user: User = Depends(require_role("teacher", "admin"))):
+@router.post("/teachers/cv/create")
+def create_new_cv(
+    data: Optional[CVProfileCreate] = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role("teacher", "admin"))
+):
+    """Bổ sung thêm 1 hồ sơ CV mới cho giáo viên"""
     from app.models.user import TeacherProfile
-    profile = db.query(TeacherProfile).filter(TeacherProfile.user_id == current_user.id).first()
+    count = db.query(TeacherProfile).filter(TeacherProfile.user_id == current_user.id).count()
+    title = data.title if (data and data.title) else f"Hồ sơ bổ sung #{count + 1}"
+    cv_title = data.cv_title if (data and data.cv_title) else "GIA SƯ MINDA"
+
+    new_profile = TeacherProfile(
+        user_id=current_user.id,
+        title=title,
+        cv_title=cv_title,
+        is_primary=(count == 0),
+    )
+    db.add(new_profile)
+    db.commit()
+    db.refresh(new_profile)
+    return {"message": "Đã bổ sung hồ sơ CV mới", "cv_id": new_profile.id, "title": new_profile.title}
+
+@router.put("/teachers/cv/{cv_id}")
+def update_specific_cv(
+    cv_id: int,
+    data: CVProfileUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role("teacher", "admin"))
+):
+    """Cập nhật 1 hồ sơ CV cụ thể"""
+    from app.models.user import TeacherProfile
+    profile = db.query(TeacherProfile).filter(
+        TeacherProfile.id == cv_id,
+        TeacherProfile.user_id == current_user.id
+    ).first()
     
     if not profile:
-        profile = TeacherProfile(user_id=current_user.id)
-        db.add(profile)
+        # Fallback query: nếu chưa chỉ định cv_id đúng
+        profile = db.query(TeacherProfile).filter(TeacherProfile.user_id == current_user.id).first()
+        if not profile:
+            profile = TeacherProfile(user_id=current_user.id)
+            db.add(profile)
     
+    if data.title: profile.title = data.title
     profile.cv_title = data.cv_title
     profile.cv_competencies = data.cv_competencies
     profile.cv_soft_skills = data.cv_soft_skills
@@ -675,12 +735,74 @@ def update_my_cv(data: CVProfileUpdate, db: Session = Depends(get_db), current_u
     profile.social_facebook = data.social_facebook
     profile.social_website = data.social_website
     
-    if data.phone:
-        current_user.phone = data.phone
-    if data.email:
-        current_user.email = data.email
-    if data.full_name:
-        current_user.full_name = data.full_name
+    if data.phone: current_user.phone = data.phone
+    if data.email: current_user.email = data.email
+    if data.full_name: current_user.full_name = data.full_name
         
     db.commit()
-    return {"message": "CV updated successfully"}
+    return {"message": "Đã cập nhật hồ sơ CV thành công", "cv_id": profile.id}
+
+@router.put("/teachers/cv")
+def update_my_cv(data: CVProfileUpdate, db: Session = Depends(get_db), current_user: User = Depends(require_role("teacher", "admin"))):
+    """Legacy update endpoint (cập nhật hồ sơ chính hoặc hồ sơ đầu tiên)"""
+    from app.models.user import TeacherProfile
+    profile = db.query(TeacherProfile).filter(TeacherProfile.user_id == current_user.id, TeacherProfile.is_primary == True).first()
+    if not profile:
+        profile = db.query(TeacherProfile).filter(TeacherProfile.user_id == current_user.id).first()
+    if not profile:
+        profile = TeacherProfile(user_id=current_user.id)
+        db.add(profile)
+    return update_specific_cv(profile.id, data, db, current_user)
+
+@router.post("/teachers/cv/{cv_id}/set-primary")
+def set_primary_cv(
+    cv_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role("teacher", "admin"))
+):
+    """Đặt 1 hồ sơ CV làm CV chính (mặc định hiển thị công khai)"""
+    from app.models.user import TeacherProfile
+    profiles = db.query(TeacherProfile).filter(TeacherProfile.user_id == current_user.id).all()
+    found = False
+    for p in profiles:
+        if p.id == cv_id:
+            p.is_primary = True
+            found = True
+        else:
+            p.is_primary = False
+    if not found:
+        raise HTTPException(status_code=404, detail="Không tìm thấy hồ sơ CV")
+    db.commit()
+    return {"message": "Đã đặt hồ sơ này làm CV chính"}
+
+@router.delete("/teachers/cv/{cv_id}")
+def delete_cv(
+    cv_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role("teacher", "admin"))
+):
+    """Xoá 1 hồ sơ CV bổ sung"""
+    from app.models.user import TeacherProfile
+    count = db.query(TeacherProfile).filter(TeacherProfile.user_id == current_user.id).count()
+    if count <= 1:
+        raise HTTPException(status_code=400, detail="Không thể xoá hồ sơ duy nhất. Bạn phải giữ ít nhất 1 hồ sơ CV.")
+
+    profile = db.query(TeacherProfile).filter(
+        TeacherProfile.id == cv_id,
+        TeacherProfile.user_id == current_user.id
+    ).first()
+    if not profile:
+        raise HTTPException(status_code=404, detail="Không tìm thấy hồ sơ CV")
+
+    was_primary = profile.is_primary
+    db.delete(profile)
+    db.commit()
+
+    if was_primary:
+        next_p = db.query(TeacherProfile).filter(TeacherProfile.user_id == current_user.id).first()
+        if next_p:
+            next_p.is_primary = True
+            db.commit()
+
+    return {"message": "Đã xoá hồ sơ CV thành công"}
+

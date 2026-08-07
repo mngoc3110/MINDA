@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Users, Shield, GraduationCap, Lock, Unlock, Search, Clock, CheckCircle } from "lucide-react";
+import { Users, Shield, GraduationCap, Lock, Unlock, Search, Clock, CheckCircle, BookOpen } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function AdminUsersPage() {
@@ -87,6 +87,19 @@ export default function AdminUsersPage() {
     }
   };
 
+  const updateSubject = async (userId: number, subject: string) => {
+    try {
+      const token = localStorage.getItem("minda_token");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/admin/users/${userId}/subject?subject=${encodeURIComponent(subject)}`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) fetchUsers();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const filteredUsers = users.filter(u => {
     const matchesSearch = u.full_name?.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase());
     const matchesRole = roleFilter === "all" || u.role === roleFilter;
@@ -134,6 +147,7 @@ export default function AdminUsersPage() {
                 <th className="px-6 py-4">Họ và Tên</th>
                 <th className="px-6 py-4">Email</th>
                 <th className="px-6 py-4">Vai trò (Role)</th>
+                <th className="px-6 py-4">Môn học</th>
                 <th className="px-6 py-4">Trạng thái</th>
                 <th className="px-6 py-4 text-right">Thao tác</th>
               </tr>
@@ -167,6 +181,21 @@ export default function AdminUsersPage() {
                       {user.role === 'admin' && <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-red-400/10 text-red-400 text-xs font-bold border border-red-400/20"><Shield className="w-3 h-3"/> Admin</span>}
                       {user.role === 'teacher' && <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-400/10 text-blue-400 text-xs font-bold border border-blue-400/20"><GraduationCap className="w-3 h-3"/> Teacher</span>}
                       {user.role === 'student' && <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-green-400/10 text-green-400 text-xs font-bold border border-green-400/20"><Users className="w-3 h-3"/> Student</span>}
+                      {user.role === 'parent' && <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-purple-400/10 text-purple-400 text-xs font-bold border border-purple-400/20"><Users className="w-3 h-3"/> Parent</span>}
+                    </td>
+                    <td className="px-6 py-4">
+                      {user.role === 'teacher' ? (
+                        <select
+                          value={user.subject || ""}
+                          onChange={e => updateSubject(user.id, e.target.value)}
+                          className="px-2 py-1 text-xs bg-bg-hover border border-border-card rounded-lg outline-none text-text-primary"
+                        >
+                          <option value="">-- Chưa chọn --</option>
+                          {["Toán","Vật Lý","Hóa Học","Sinh Học","Tiếng Anh","Tin Học","Ngữ Văn","Lịch Sử","Địa Lý","Kinh Tế & Pháp Luật","Khác"].map(s => (
+                            <option key={s} value={s} className="bg-bg-card">{s}</option>
+                          ))}
+                        </select>
+                      ) : <span className="text-text-muted text-xs">—</span>}
                     </td>
                     <td className="px-6 py-4">
                       {user.is_active ? (

@@ -15,6 +15,7 @@ export default function TeacherCVView({ teacherId, enableGoBack = true }: Teache
   const router = useRouter();
   
   const [profile, setProfile] = useState<any>(null);
+  const [allCvs, setAllCvs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
   const [isEditing, setIsEditing] = useState(false);
@@ -65,6 +66,7 @@ export default function TeacherCVView({ teacherId, enableGoBack = true }: Teache
   };
 
   const defaultProfile = () => ({
+    title: "Hồ sơ chính",
     full_name: localStorage.getItem("minda_user_name") || "Họ và Tên",
     cv_title: "GIA SƯ TOÁN - TIN",
     phone: "",
@@ -86,9 +88,12 @@ export default function TeacherCVView({ teacherId, enableGoBack = true }: Teache
     cv_custom_sections: [],
   });
 
-  const fetchProfile = async () => {
+  const fetchProfile = async (targetCvId?: number) => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/profile/teachers/${teacherId}/cv`);
+      const url = targetCvId
+        ? `${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/profile/teachers/${teacherId}/cv?cv_id=${targetCvId}`
+        : `${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/profile/teachers/${teacherId}/cv`;
+      const res = await fetch(url);
       if (res.ok) {
         const data = await res.json();
         
@@ -103,6 +108,7 @@ export default function TeacherCVView({ teacherId, enableGoBack = true }: Teache
         
         const formattedData = {
           ...data,
+          title: data.title || "Hồ sơ giảng dạy",
           cv_title: data.cv_title || "GIA SƯ TOÁN - TIN",
           cv_competencies: safeParse(data.cv_competencies),
           cv_soft_skills: safeParse(data.cv_soft_skills),
@@ -119,6 +125,7 @@ export default function TeacherCVView({ teacherId, enableGoBack = true }: Teache
         
         setProfile(formattedData);
         setEditForm(JSON.parse(JSON.stringify(formattedData)));
+        setAllCvs(data.all_cvs || []);
         
         // Check ownership
         const currentId = localStorage.getItem("minda_user_id");
@@ -142,6 +149,65 @@ export default function TeacherCVView({ teacherId, enableGoBack = true }: Teache
       console.error(e);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleCreateNewCv = async () => {
+    const name = prompt("Nhập tên hồ sơ CV mới bổ sung (VD: CV Gia sư Lý, CV Lập trình Python):");
+    if (!name) return;
+    const token = localStorage.getItem("minda_token");
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/profile/teachers/cv/create`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ title: name })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        fetchProfile(data.cv_id);
+      }
+    } catch {
+      alert("Không thể bổ sung CV mới");
+    }
+  };
+
+  const handleSetPrimaryCv = async () => {
+    if (!profile?.cv_id) return;
+    const token = localStorage.getItem("minda_token");
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/profile/teachers/cv/${profile.cv_id}/set-primary`, {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (res.ok) {
+        alert("Đã đặt hồ sơ này làm CV chính mặc định!");
+        fetchProfile(profile.cv_id);
+      }
+    } catch {
+      alert("Lỗi khi đặt CV chính");
+    }
+  };
+
+  const handleDeleteCv = async () => {
+    if (!profile?.cv_id) return;
+    if (!confirm(`Bạn có chắc chắn muốn xoá hồ sơ "${profile.title}" không?`)) return;
+    const token = localStorage.getItem("minda_token");
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/profile/teachers/cv/${profile.cv_id}`, {
+        method: "DELETE",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (res.ok) {
+        fetchProfile();
+      } else {
+        const err = await res.json();
+        alert(err.detail || "Không thể xoá hồ sơ");
+      }
+    } catch {
+      alert("Lỗi kết nối khi xoá");
     }
   };
 
@@ -181,6 +247,7 @@ export default function TeacherCVView({ teacherId, enableGoBack = true }: Teache
       const token = localStorage.getItem("minda_token");
       
       const payload = {
+        title: editForm.title,
         cv_title: editForm.cv_title,
         cv_competencies: JSON.stringify(editForm.cv_competencies),
         cv_soft_skills: JSON.stringify(editForm.cv_soft_skills),
@@ -201,7 +268,11 @@ export default function TeacherCVView({ teacherId, enableGoBack = true }: Teache
         full_name: editForm.full_name,
       };
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/profile/teachers/cv`, {
+      const targetUrl = editForm.cv_id
+        ? `${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/profile/teachers/cv/${editForm.cv_id}`
+        : `${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/profile/teachers/cv`;
+
+      const res = await fetch(targetUrl, {
         method: "PUT",
         headers: {
           "Authorization": `Bearer ${token}`,

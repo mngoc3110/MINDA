@@ -112,3 +112,20 @@ def reject_teacher(
     db.delete(user)
     db.commit()
     return {"message": f"Đã từ chối và xóa tài khoản: {user.email}"}
+
+
+@router.put("/users/{user_id}/subject")
+def update_teacher_subject(
+    user_id: int,
+    subject: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role("admin")),
+):
+    """Cập nhật môn học giảng dạy của Giáo viên (Admin only)."""
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Người dùng không tồn tại")
+    user.subject = subject
+    db.commit()
+    return {"message": f"Đã cập nhật môn học cho {user.full_name}: {subject}"}
+

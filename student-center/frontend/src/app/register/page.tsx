@@ -1,9 +1,16 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { BrainCircuit, Mail, Lock, User, ArrowRight } from "lucide-react";
+import { BrainCircuit, Mail, Lock, User, ArrowRight, ChevronDown } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+
+const SUBJECTS = [
+  "Toán", "Vật Lý", "Hóa Học", "Sinh Học",
+  "Tiếng Anh", "Tin Học", "Ngữ Văn", "Lịch Sử",
+  "Địa Lý", "Kinh Tế & Pháp Luật", "Khác",
+];
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -12,6 +19,7 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [phone, setPhone] = useState("");
   const [role, setRole] = useState("student");
+  const [subject, setSubject] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -21,7 +29,7 @@ export default function RegisterPage() {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, full_name: name, role, phone }),
+        body: JSON.stringify({ email, password, full_name: name, role, phone, subject: role === "teacher" ? subject : undefined }),
       });
       
       if (res.ok) {
@@ -36,7 +44,6 @@ export default function RegisterPage() {
         }
       } else {
         const err = await res.json();
-        // err.detail có thể là string hoặc array object từ Pydantic validation
         let errMsg = "Đăng ký thất bại.";
         if (typeof err.detail === "string") {
           errMsg = err.detail;
@@ -188,12 +195,33 @@ export default function RegisterPage() {
                 </button>
               </div>
 
+              {/* Subject selector for teachers */}
+              {role === "teacher" && (
+                <div className="space-y-2 pt-1">
+                  <label className="text-sm font-medium text-text-secondary">Môn học bạn giảng dạy</label>
+                  <div className="relative">
+                    <select
+                      value={subject}
+                      onChange={(e) => setSubject(e.target.value)}
+                      required
+                      className="w-full pl-4 pr-10 py-3 bg-transparent border border-border-card rounded-xl focus:outline-none focus:border-pink-500/50 focus:bg-bg-main transition-colors text-text-primary appearance-none"
+                    >
+                      <option value="" disabled>-- Chọn môn học --</option>
+                      {SUBJECTS.map((s) => (
+                        <option key={s} value={s} className="bg-bg-card text-text-primary">{s}</option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary pointer-events-none" />
+                  </div>
+                </div>
+              )}
+
               {/* Cảnh báo chờ phê duyệt */}
               {role === "teacher" && (
                 <div className="flex items-start gap-2.5 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs">
                   <span className="text-base mt-0.5">&#9888;&#65039;</span>
                   <span>
-                    <strong>Yêu cầu phê duyệt:</strong> Tài khoản Giáo viên sẽ được xém xét bởi Admin trước khi có thể đăng nhập vào hệ thống.
+                    <strong>Yêu cầu phê duyệt:</strong> Tài khoản Giáo viên sẽ được xem xét bởi Admin trước khi có thể đăng nhập vào hệ thống.
                   </span>
                 </div>
               )}

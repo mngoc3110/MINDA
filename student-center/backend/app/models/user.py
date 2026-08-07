@@ -22,6 +22,7 @@ class User(Base):
     phone = Column(String, nullable=True)
     role = Column(SAEnum(UserRole), default=UserRole.student, nullable=False)
     secondary_role = Column(String, nullable=True)  # "teacher", "admin", etc. — vai trò phụ thứ hai
+    subject = Column(String, nullable=True)  # Môn học giảng dạy (dành cho giáo viên): "Toán", "Lý", "Hóa", v.v.
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     password_changed_at = Column(DateTime, nullable=True)  # Giới hạn đổi mật khẩu 30 ngày/lần
