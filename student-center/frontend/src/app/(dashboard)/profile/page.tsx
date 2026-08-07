@@ -529,7 +529,7 @@ export default function ProfilePage() {
               </div>
 
               {/* Teacher Subjects Panel */}
-              {role === "teacher" && (
+              {(role === "teacher" || role === "admin" || secondaryRole === "teacher") && (
                 <div className="bg-bg-card rounded-xl p-4 shadow-sm">
                   <div className="flex items-center justify-between mb-3">
                     <h2 className="font-bold text-lg text-text-primary">📚 Môn học giảng dạy</h2>
@@ -543,11 +543,16 @@ export default function ProfilePage() {
                             headers: { Authorization: `Bearer ${getToken()}`, "Content-Type": "application/json" },
                             body: JSON.stringify({ subjects: mySubjects }),
                           });
-                          if (!res.ok) alert("Lưu thất bại!");
-                        } catch { alert("Lỗi kết nối"); }
+                          if (res.ok) {
+                            alert("✅ Đã lưu danh sách môn học giảng dạy thành công!");
+                          } else {
+                            const err = await res.json().catch(() => ({}));
+                            alert("Lỗi: " + (err.detail || "Lưu thất bại!"));
+                          }
+                        } catch { alert("Lỗi kết nối máy chủ"); }
                         setSavingSubjects(false);
                       }}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white transition-colors disabled:opacity-60"
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white transition-colors disabled:opacity-60 cursor-pointer"
                     >
                       {savingSubjects ? <Loader2 className="w-3 h-3 animate-spin" /> : null}
                       Lưu

@@ -141,8 +141,9 @@ def update_my_subjects(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Giáo viên tự cập nhật danh sách môn học giảng dạy."""
-    if current_user.role not in ("teacher",):
+    """Giáo viên hoặc Admin tự cập nhật danh sách môn học giảng dạy."""
+    role_str = current_user.role.value if hasattr(current_user.role, 'value') else str(current_user.role)
+    if role_str not in ("teacher", "admin") and current_user.secondary_role != "teacher":
         raise HTTPException(status_code=403, detail="Chỉ giáo viên mới có thể cập nhật môn học")
     subjects = payload.get("subjects", [])
     if not isinstance(subjects, list):
