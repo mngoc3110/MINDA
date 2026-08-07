@@ -8,6 +8,8 @@ import {
   BookOpen, Calendar, User, Zap, Shield, ChevronLeft, ChevronRight
 } from "lucide-react";
 
+import ScheduleModal from "@/components/schedule/ScheduleModal";
+
 const API = process.env.NEXT_PUBLIC_API_URL || "https://minda.io.vn";
 const getToken = () => typeof window !== "undefined" ? localStorage.getItem("minda_token") || "" : "";
 
@@ -106,15 +108,52 @@ export default function SessionReportsPage() {
   const [newLinkExpires, setNewLinkExpires] = useState<number | null>(null);
   const [createdLink, setCreatedLink] = useState<any>(null);
 
+  // Schedule edit modal state
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editModalSchedule, setEditModalSchedule] = useState<ScheduleItem | null>(null);
+  const [courses, setCourses] = useState<any[]>([]);
+
+  const handleSaveEditSchedule = async (data: any) => {
+    if (!editModalSchedule) return;
+    const token = getToken();
+    const res = await fetch(`${API}/api/schedules/${editModalSchedule.id}`, {
+      method: "PUT",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
+
+    if (res.ok && data.student_ids && data.student_ids.length > 0) {
+      const extraStudentIds = data.student_ids.filter((sid: number) => sid !== data.student_id);
+      if (extraStudentIds.length > 0) {
+        await fetch(`${API}/api/schedules/`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+          body: JSON.stringify({ ...data, student_ids: extraStudentIds })
+        });
+      }
+    }
+
+    setIsEditModalOpen(false);
+    const targetId = selectedSchedule?.id || reportSchedule?.id || editModalSchedule.id;
+    if (targetId) {
+      const stuRes = await fetch(`${API}/api/schedules/${targetId}/students`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (stuRes.ok) setRoomStudents(await stuRes.json());
+    }
+    fetchData();
+  };
+
   const fetchData = useCallback(async () => {
     setLoading(true);
     const headers = { Authorization: `Bearer ${getToken()}` };
     try {
-      const [schRes, stuRes, devRes, linkRes] = await Promise.all([
+      const [schRes, stuRes, devRes, linkRes, crsRes] = await Promise.all([
         fetch(`${API}/api/schedules/`, { headers }),
         fetch(`${API}/api/profile/my-offline-students`, { headers }),
         fetch(`${API}/api/attendance/devices`, { headers }),
         fetch(`${API}/api/parent-links/my-links`, { headers }),
+        fetch(`${API}/api/courses/`, { headers }),
       ]);
       if (schRes.ok) {
         const data = await schRes.json();
@@ -133,6 +172,7 @@ export default function SessionReportsPage() {
       if (stuRes.ok) setMyStudents(await stuRes.json());
       if (devRes.ok) setDevices(await devRes.json());
       if (linkRes.ok) setParentLinks(await linkRes.json());
+      if (crsRes.ok) setCourses(await crsRes.json());
     } finally {
       setLoading(false);
     }
@@ -407,6 +447,13 @@ export default function SessionReportsPage() {
                     {new Date(selectedSchedule.start_time).toLocaleString("vi-VN")}
                   </p>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => { setEditModalSchedule(selectedSchedule); setIsEditModalOpen(true); }}
+                  className="px-3.5 py-2 rounded-xl bg-blue-500/10 text-blue-400 hover:bg-blue-500 hover:text-white transition text-xs font-bold flex items-center gap-1.5 border border-blue-500/20 shadow-sm"
+                >
+                  ✏️ Sửa danh sách học sinh
+                </button>
                 <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-bold ${wsConnected ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400" : "border-red-500/30 bg-red-500/10 text-red-400"}`}>
                   {wsConnected ? <><Wifi className="w-3 h-3" /> LIVE</> : <><WifiOff className="w-3 h-3" /> Offline</>}
                 </div>
@@ -897,10 +944,20 @@ export default function SessionReportsPage() {
               {parentLinks.length === 0 && (
                 <p className="text-sm text-text-secondary text-center py-6">Chưa có link nào được tạo</p>
               )}
-            </div>
           </div>
         </div>
       )}
+
+      {/* Edit Schedule Modal */}
+      <ScheduleModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        onSave={handleSaveEditSchedule}
+        initialData={editModalSchedule}
+        courses={courses}
+        students={myStudents}
+        userRole="teacher"
+      />
     </div>
   );
 }
