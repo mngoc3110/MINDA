@@ -252,11 +252,14 @@ def sync_github_repos(db: Session):
         "https://raw.githubusercontent.com/yalza/CPP_code.ptit/master/",
         "https://raw.githubusercontent.com/MahiPonii/Tai_Lieu_cpp/master/"
     ]
-    # Fetch directory tree via GitHub API
+    # Fetch directory tree via GitHub API (supports master and main)
     api_urls = [
         "https://api.github.com/repos/huyinit/Cplusplus-PTIT/git/trees/master?recursive=1",
+        "https://api.github.com/repos/huyinit/Cplusplus-PTIT/git/trees/main?recursive=1",
         "https://api.github.com/repos/yalza/CPP_code.ptit/git/trees/master?recursive=1",
-        "https://api.github.com/repos/MahiPonii/Tai_Lieu_cpp/git/trees/master?recursive=1"
+        "https://api.github.com/repos/yalza/CPP_code.ptit/git/trees/main?recursive=1",
+        "https://api.github.com/repos/MahiPonii/Tai_Lieu_cpp/git/trees/master?recursive=1",
+        "https://api.github.com/repos/MahiPonii/Tai_Lieu_cpp/git/trees/main?recursive=1"
     ]
     
     crawled_count = 0
