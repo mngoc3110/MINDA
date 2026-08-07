@@ -274,16 +274,16 @@ def sync_github_repos(db: Session):
                 for item in tree:
                     path = item.get("path", "")
                     if path.endswith(".cpp") or path.endswith(".c"):
-                        # Extract title from file path (e.g. CPP0101 - TONG TU 1 DEN N.cpp)
+                        # Extract clean title from file path (e.g. CPP0117 -TinhTongChuSo.cpp or CPP0121__Ước số chung-BoiSoChung.cpp)
                         raw_name = path.split("/")[-1].replace(".cpp", "").replace(".c", "")
-                        clean_title = re.sub(r'^[0-9A-Z_]+[-_ ]*', '', raw_name).strip()
+                        clean_title = re.sub(r'^[0-9A-Z_]{3,10}[-_ ]*', '', raw_name).replace('__', ' - ').strip()
                         if not clean_title:
                             clean_title = raw_name
                             
                         slug_base = "ptit-" + re.sub(r'[^a-z0-9]+', '-', raw_name.lower()).strip('-')
                         if not slug_base or slug_base == "ptit-":
                             continue
-                        slug = slug_base
+                        slug = slug_base[:60]
                         
                         # Handle duplicate slugs by appending index
                         if slug in added_slugs:
