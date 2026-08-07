@@ -346,6 +346,63 @@ export default function TeacherCVView({ teacherId, enableGoBack = true }: Teache
   return (
     <div className={`min-h-screen bg-transparent font-sans selection:bg-[#1a365d]/20 text-[#2d3748] py-10 px-4 md:px-10 ${activeLayout === 'futuristic' ? '!text-white' : ''}`}>
       
+      {/* Multi-CV Selector Bar */}
+      <div className="max-w-6xl mx-auto mb-4 p-3 rounded-2xl bg-bg-card border border-border-card flex flex-wrap items-center justify-between gap-3 shadow-sm">
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+          <span className="text-xs font-semibold text-text-secondary shrink-0 flex items-center gap-1">
+            <BookOpen className="w-3.5 h-3.5 text-indigo-400" /> Danh sách CV ({allCvs.length || 1}):
+          </span>
+          {allCvs.map(cv => (
+            <button
+              key={cv.id}
+              onClick={() => fetchProfile(cv.id)}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 shrink-0 ${
+                profile?.cv_id === cv.id
+                  ? "bg-indigo-600 text-white shadow-[0_0_12px_rgba(79,70,229,0.3)]"
+                  : "bg-bg-hover text-text-secondary hover:text-text-primary hover:bg-border-card"
+              }`}
+            >
+              <span>{cv.is_primary ? "⭐" : "📄"}</span>
+              <span>{cv.title || `Hồ sơ #${cv.id}`}</span>
+            </button>
+          ))}
+          {allCvs.length === 0 && profile && (
+            <span className="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-indigo-600 text-white">
+              ⭐ {profile.title || "Hồ sơ chính"}
+            </span>
+          )}
+        </div>
+
+        {isOwner && (
+          <div className="flex items-center gap-2 shrink-0">
+            {allCvs.length > 1 && profile && !profile.is_primary && (
+              <button
+                onClick={handleSetPrimaryCv}
+                title="Đặt CV này làm CV chính mặc định"
+                className="px-3 py-1.5 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20 hover:bg-amber-500/20 transition-all flex items-center gap-1"
+              >
+                ⭐ Đặt làm CV chính
+              </button>
+            )}
+            {allCvs.length > 1 && profile && (
+              <button
+                onClick={handleDeleteCv}
+                title="Xoá CV này"
+                className="p-1.5 rounded-lg text-xs text-rose-400 hover:bg-rose-500/10 transition-colors"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            )}
+            <button
+              onClick={handleCreateNewCv}
+              className="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white transition-all shadow-sm flex items-center gap-1"
+            >
+              <Plus className="w-3.5 h-3.5" /> + Tạo CV môn mới
+            </button>
+          </div>
+        )}
+      </div>
+
       {/* Fixed Header Toolbar */}
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
          {enableGoBack ? (

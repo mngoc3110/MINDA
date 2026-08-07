@@ -718,7 +718,7 @@ def get_teacher_cv(teacher_id: int, cv_id: Optional[int] = None, db: Session = D
 def create_new_cv(
     data: Optional[CVProfileCreate] = None,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("teacher", "admin"))
+    current_user: User = Depends(get_current_user)
 ):
     """Bổ sung thêm 1 hồ sơ CV mới cho giáo viên"""
     from app.models.user import TeacherProfile
@@ -742,7 +742,7 @@ def update_specific_cv(
     cv_id: int,
     data: CVProfileUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("teacher", "admin"))
+    current_user: User = Depends(get_current_user)
 ):
     """Cập nhật 1 hồ sơ CV cụ thể"""
     from app.models.user import TeacherProfile
@@ -785,7 +785,7 @@ def update_specific_cv(
     return {"message": "Đã cập nhật hồ sơ CV thành công", "cv_id": profile.id}
 
 @router.put("/teachers/cv")
-def update_my_cv(data: CVProfileUpdate, db: Session = Depends(get_db), current_user: User = Depends(require_role("teacher", "admin"))):
+def update_my_cv(data: CVProfileUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Legacy update endpoint (cập nhật hồ sơ chính hoặc hồ sơ đầu tiên)"""
     from app.models.user import TeacherProfile
     profile = db.query(TeacherProfile).filter(TeacherProfile.user_id == current_user.id, TeacherProfile.is_primary == True).first()
@@ -800,7 +800,7 @@ def update_my_cv(data: CVProfileUpdate, db: Session = Depends(get_db), current_u
 def set_primary_cv(
     cv_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("teacher", "admin"))
+    current_user: User = Depends(get_current_user)
 ):
     """Đặt 1 hồ sơ CV làm CV chính (mặc định hiển thị công khai)"""
     from app.models.user import TeacherProfile
@@ -821,7 +821,7 @@ def set_primary_cv(
 def delete_cv(
     cv_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("teacher", "admin"))
+    current_user: User = Depends(get_current_user)
 ):
     """Xoá 1 hồ sơ CV bổ sung"""
     from app.models.user import TeacherProfile
