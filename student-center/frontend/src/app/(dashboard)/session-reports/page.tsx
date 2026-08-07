@@ -5,7 +5,7 @@ import {
   ClipboardList, Radio, Cpu, BarChart3, Plus, Check, X, Clock,
   Users, Star, ChevronDown, ChevronUp, Loader2, Wifi, WifiOff,
   RefreshCw, AlertCircle, CheckCircle2, Copy, Trash2, Eye, EyeOff,
-  BookOpen, Calendar, User, Zap, Shield, ChevronLeft, ChevronRight, RotateCcw, Search
+  BookOpen, Calendar, User, Zap, Shield, ChevronLeft, ChevronRight, RotateCcw, Search, Key
 } from "lucide-react";
 
 import ScheduleModal from "@/components/schedule/ScheduleModal";
@@ -120,6 +120,7 @@ export default function SessionReportsPage() {
   const [newLinkParentName, setNewLinkParentName] = useState("");
   const [newLinkExpires, setNewLinkExpires] = useState<number | null>(null);
   const [createdLink, setCreatedLink] = useState<any>(null);
+  const [copiedLinkId, setCopiedLinkId] = useState<number | null>(null);
 
   // Schedule edit modal state
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -444,6 +445,29 @@ export default function SessionReportsPage() {
       setParentLinks((prev) => [data, ...prev]);
     }
     setGeneratingLink(false);
+  };
+
+  const regeneratePin = async (linkId: number) => {
+    try {
+      const res = await fetch(`${API}/api/parent-links/${linkId}/regenerate-pin`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${getToken()}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const link = parentLinks.find((l) => l.id === linkId);
+        setCreatedLink({
+          share_token: link?.share_token,
+          raw_pin: data.raw_pin,
+          student_name: link?.student_name,
+        });
+      } else {
+        alert("Không thể tạo lại mã PIN");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Lỗi kết nối khi cấp lại mã PIN");
+    }
   };
 
   const revokeLink = async (linkId: number) => {
@@ -1134,16 +1158,37 @@ export default function SessionReportsPage() {
                     <p className="text-xs text-text-secondary font-mono truncate">/{l.share_token}</p>
                   </div>
                   {l.is_active && (
-                    <button onClick={() => navigator.clipboard.writeText(`https://minda.io.vn/parent/${l.share_token}`)}
-                      className="p-1.5 rounded-lg hover:bg-bg-hover">
-                      <Copy className="w-3.5 h-3.5 text-text-secondary" />
-                    </button>
-                  )}
-                  {l.is_active && (
-                    <button onClick={() => revokeLink(l.id)}
-                      className="p-1.5 rounded-lg hover:bg-red-500/10 text-text-secondary hover:text-red-400 transition">
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(`https://minda.io.vn/parent/${l.share_token}`);
+                          setCopiedLinkId(l.id);
+                          setTimeout(() => setCopiedLinkId(null), 2000);
+                        }}
+                        className="px-2.5 py-1 rounded-lg bg-bg-main border border-border-card text-xs text-text-primary hover:bg-bg-hover flex items-center gap-1 transition font-medium"
+                        title="Sao chép link"
+                      >
+                        {copiedLinkId === l.id ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-text-secondary" />}
+                        {copiedLinkId === l.id ? "Đã chép!" : "Link"}
+                      </button>
+
+                      <button
+                        onClick={() => regeneratePin(l.id)}
+                        className="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-xs text-amber-400 hover:bg-amber-500 hover:text-white flex items-center gap-1 transition font-medium"
+                        title="Tạo lại mã PIN mới"
+                      >
+                        <Key className="w-3.5 h-3.5" />
+                        Cấp lại PIN
+                      </button>
+
+                      <button
+                        onClick={() => revokeLink(l.id)}
+                        className="p-1.5 rounded-lg hover:bg-red-500/10 text-text-secondary hover:text-red-400 transition"
+                        title="Thu hồi link"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   )}
                 </div>
               ))}
