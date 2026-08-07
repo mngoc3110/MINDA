@@ -198,6 +198,53 @@ def get_my_session_reports(
     return [_fmt_session_report(r) for r in reports]
 
 
+def _get_student_schedules(db: Session, student_id: int, start_dt: datetime, end_dt: datetime):
+    """
+    Lấy danh sách các buổi học CỤ THỂ của học sinh này trong khoảng thời gian [start_dt, end_dt].
+    Lọc bỏ các buổi học của học sinh khác và gom nhóm các buổi trùng slot.
+    """
+    student = db.query(User).filter(User.id == student_id).first()
+    student_course_ids = [c.id for c in student.courses] if student and hasattr(student, 'courses') and student.courses else []
+
+    all_period_schedules = db.query(ScheduleItem).filter(
+        ScheduleItem.start_time >= start_dt,
+        ScheduleItem.start_time <= end_dt,
+    ).all()
+
+    matching_schedules = []
+    for sch in all_period_schedules:
+        if sch.student_id == student_id:
+            matching_schedules.append(sch)
+        elif sch.course_id and sch.course_id in student_course_ids:
+            matching_schedules.append(sch)
+        else:
+            has_record = db.query(AttendanceRecord).filter(
+                AttendanceRecord.schedule_id == sch.id,
+                AttendanceRecord.student_id == student_id
+            ).first()
+            if has_record:
+                matching_schedules.append(sch)
+            else:
+                has_report = db.query(SessionReport).filter(
+                    SessionReport.schedule_id == sch.id,
+                    SessionReport.student_id == student_id
+                ).first()
+                if has_report:
+                    matching_schedules.append(sch)
+
+    # Gom nhóm theo (title, start_time ± 2 phút) để các lịch nhóm được đếm là 1 buổi
+    unique_schedules = []
+    seen_keys = set()
+    for sch in matching_schedules:
+        time_key = sch.start_time.strftime("%Y-%m-%d %H:%M")
+        key = f"{sch.title}_{time_key}"
+        if key not in seen_keys:
+            seen_keys.add(key)
+            unique_schedules.append(sch)
+
+    return unique_schedules
+
+
 # ─── Weekly Reports ────────────────────────────────────────────────────────────
 
 @router.post("/weekly/auto-generate")
@@ -216,11 +263,8 @@ def auto_generate_weekly(
     week_start_dt = datetime.combine(week_start, datetime.min.time())
     week_end_dt = datetime.combine(week_end, datetime.max.time())
 
-    # Lấy tất cả các buổi học trong tuần
-    schedules = db.query(ScheduleItem).filter(
-        ScheduleItem.start_time >= week_start_dt,
-        ScheduleItem.start_time <= week_end_dt,
-    ).all()
+    # Lấy các buổi học CỤ THỂ của học sinh này trong tuần
+    schedules = _get_student_schedules(db, student_id, week_start_dt, week_end_dt)
     schedule_ids = [s.id for s in schedules]
 
     # Tính thống kê điểm danh
@@ -229,7 +273,7 @@ def auto_generate_weekly(
         AttendanceRecord.student_id == student_id,
     ).all() if schedule_ids else []
 
-    total = len(schedule_ids)
+    total = len(schedules)
     attended = sum(1 for r in all_records if r.status == AttendanceStatus.present)
     late = sum(1 for r in all_records if r.status == AttendanceStatus.late)
 
@@ -352,10 +396,7 @@ def auto_generate_monthly(
     month_start = datetime(year, month, 1)
     month_end = datetime(year, month, last_day, 23, 59, 59)
 
-    schedules = db.query(ScheduleItem).filter(
-        ScheduleItem.start_time >= month_start,
-        ScheduleItem.start_time <= month_end,
-    ).all()
+    schedules = _get_student_schedules(db, student_id, month_start, month_end)
     schedule_ids = [s.id for s in schedules]
 
     all_records = db.query(AttendanceRecord).filter(
@@ -363,7 +404,7 @@ def auto_generate_monthly(
         AttendanceRecord.student_id == student_id,
     ).all() if schedule_ids else []
 
-    total = len(schedule_ids)
+    total = len(schedules)
     attended = sum(1 for r in all_records if r.status in [AttendanceStatus.present, AttendanceStatus.late])
     attendance_rate = round(attended / total, 2) if total else 0
 
