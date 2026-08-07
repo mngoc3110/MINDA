@@ -30,12 +30,6 @@ def get_code_problems(
     if db.query(CodeProblem).count() < 15:
         seed_code_problems(db)
 
-@router.post("/problems/sync")
-def sync_problems_manual(db: Session = Depends(get_db)):
-    """Kích hoạt cào bài tập tự động từ các nguồn GitHub PTIT/Giáo trình."""
-    total = seed_code_problems(db)
-    return {"message": "Đã đồng bộ thành công kho bài tập", "total_added": total}
-
     query = db.query(CodeProblem)
     if track and track != "all":
         query = query.filter(CodeProblem.track == track)
@@ -59,6 +53,12 @@ def sync_problems_manual(db: Session = Depends(get_db)):
         }
         for p in problems
     ]
+
+@router.post("/problems/sync")
+def sync_problems_manual(db: Session = Depends(get_db)):
+    """Kích hoạt cào bài tập tự động từ các nguồn GitHub PTIT/Giáo trình."""
+    total = seed_code_problems(db)
+    return {"message": "Đã đồng bộ thành công kho bài tập", "total_added": total}
 
 @router.get("/problems/{slug_or_id}")
 def get_code_problem_detail(
