@@ -20,8 +20,10 @@ def run_bulk_upload():
             clean_title = re.sub(r'^[0-9A-Z_]{3,10}[-_ ]*', '', raw_name).replace('__', ' - ').strip()
             if not clean_title:
                 clean_title = raw_name
-            slug = ("ptit-" + re.sub(r'[^a-z0-9]+', '-', raw_name.lower()).strip('-'))[:60]
-            if not slug or slug == "ptit-":
+            # Unique slug based on full relative path to prevent folder collisions
+            slug_clean = re.sub(r'[^a-z0-9]+', '-', path.lower().replace('.cpp', '').replace('.c', '')).strip('-')
+            slug = f"code-{slug_clean}"[:80]
+            if not slug or slug == "code-":
                 continue
 
             # Check existing

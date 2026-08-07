@@ -280,10 +280,10 @@ def sync_github_repos(db: Session):
                         if not clean_title:
                             clean_title = raw_name
                             
-                        slug_base = "ptit-" + re.sub(r'[^a-z0-9]+', '-', raw_name.lower()).strip('-')
-                        if not slug_base or slug_base == "ptit-":
+                        slug_clean = re.sub(r'[^a-z0-9]+', '-', path.lower().replace('.cpp', '').replace('.c', '')).strip('-')
+                        slug = f"code-{slug_clean}"[:80]
+                        if not slug or slug == "code-":
                             continue
-                        slug = slug_base[:60]
                         
                         # Handle duplicate slugs by appending index
                         if slug in added_slugs:
