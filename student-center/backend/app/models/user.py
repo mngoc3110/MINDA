@@ -9,6 +9,7 @@ class UserRole(str, enum.Enum):
     student = "student"
     teacher = "teacher"
     admin = "admin"
+    parent = "parent"
 
 
 class User(Base):
@@ -44,13 +45,16 @@ class User(Base):
     exam_submissions = relationship("ExamSubmission", back_populates="student")
     tuition_records = relationship("TuitionRecord", back_populates="student")
     
-    teacher_profile = relationship("TeacherProfile", uselist=False, back_populates="user")
+    teacher_profiles = relationship("TeacherProfile", back_populates="user", cascade="all, delete-orphan")
 
 class TeacherProfile(Base):
     __tablename__ = "teacher_profiles"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), unique=True, nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    
+    title = Column(String, default="Hồ sơ giảng dạy")   # Tên hồ sơ CV (VD: CV Gia sư Toán, CV Lập trình)
+    is_primary = Column(Boolean, default=True)           # Hồ sơ chính
     
     cv_title = Column(String, default="GIA SƯ MINDA")
     cv_competencies = Column(String, default="[]")  # JSON string array/list
@@ -70,7 +74,10 @@ class TeacherProfile(Base):
     social_facebook = Column(String, nullable=True)
     social_website = Column(String, nullable=True)
 
-    user = relationship("User", back_populates="teacher_profile")
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    user = relationship("User", back_populates="teacher_profiles")
 
 
 class TeacherStudentLink(Base):

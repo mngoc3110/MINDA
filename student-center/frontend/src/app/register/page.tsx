@@ -28,6 +28,9 @@ export default function RegisterPage() {
         if (role === "teacher") {
           alert("Đăng ký Giáo viên thành công!\n\n⚠️ Tài khoản của bạn đang chờ Admin phê duyệt. Bạn sẽ nhận được thông báo sau khi được chấp thuận.");
           router.push("/login?registered=teacher");
+        } else if (role === "parent") {
+          alert("Đăng ký tài khoản Phụ huynh thành công!\n\nBạn có thể đăng nhập ngay để theo dõi kết quả học tập.");
+          router.push("/login?registered=parent");
         } else {
           router.push("/login?registered=student");
         }
@@ -149,11 +152,11 @@ export default function RegisterPage() {
 
             <div className="space-y-3 pt-2">
               <label className="text-sm font-medium text-text-secondary">Bạn là ai?</label>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-2">
                 <button
                   type="button"
                   onClick={() => setRole("student")}
-                  className={`py-3 rounded-xl border text-sm font-semibold transition-all duration-300 flex items-center justify-center gap-2 ${
+                  className={`py-2.5 rounded-xl border text-xs font-semibold transition-all duration-300 flex items-center justify-center gap-1 ${
                     role === "student" 
                       ? "bg-indigo-600/20 border-indigo-500 text-indigo-300 shadow-[0_0_15px_rgba(79,70,229,0.2)]" 
                       : "bg-transparent border-border-card text-text-secondary hover:bg-bg-main hover:border-border-hover"
@@ -163,8 +166,19 @@ export default function RegisterPage() {
                 </button>
                 <button
                   type="button"
+                  onClick={() => setRole("parent")}
+                  className={`py-2.5 rounded-xl border text-xs font-semibold transition-all duration-300 flex items-center justify-center gap-1 ${
+                    role === "parent" 
+                      ? "bg-emerald-600/20 border-emerald-500 text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.2)]" 
+                      : "bg-transparent border-border-card text-text-secondary hover:bg-bg-main hover:border-border-hover"
+                  }`}
+                >
+                  👨‍👩‍👧 Phụ huynh
+                </button>
+                <button
+                  type="button"
                   onClick={() => setRole("teacher")}
-                  className={`py-3 rounded-xl border text-sm font-semibold transition-all duration-300 flex items-center justify-center gap-2 ${
+                  className={`py-2.5 rounded-xl border text-xs font-semibold transition-all duration-300 flex items-center justify-center gap-1 ${
                     role === "teacher" 
                       ? "bg-pink-600/20 border-pink-500 text-pink-300 shadow-[0_0_15px_rgba(236,72,153,0.2)]" 
                       : "bg-transparent border-border-card text-text-secondary hover:bg-bg-main hover:border-border-hover"

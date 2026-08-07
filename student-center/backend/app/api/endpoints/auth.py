@@ -32,7 +32,7 @@ def register(user_in: UserCreate, db: Session = Depends(get_db)):
     try:
         role = UserRole(user_in.role)
     except ValueError:
-        raise HTTPException(status_code=400, detail="Vai trò không hợp lệ. Chọn: student, teacher, admin")
+        raise HTTPException(status_code=400, detail="Vai trò không hợp lệ. Chọn: student, teacher, parent, admin")
     
     hashed_password = get_password_hash(user_in.password)
     # Random default avatar cho người mới
