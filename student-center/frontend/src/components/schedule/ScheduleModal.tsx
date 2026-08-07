@@ -254,12 +254,7 @@ export default function ScheduleModal({
              </div>
           )}
 
-          {!isReadOnly && initialData && initialData.type === "student" && initialData.student_name && (
-             <div>
-               <label className="block text-sm font-medium text-slate-700 mb-1">Đang xếp lịch cho học sinh</label>
-               <input type="text" readOnly className="w-full px-3 py-2 bg-slate-50 border rounded-xl text-slate-600 font-semibold" value={initialData.student_name} />
-             </div>
-          )}
+
 
           <div className="grid grid-cols-2 gap-4">
             <div>

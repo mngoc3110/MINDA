@@ -105,7 +105,7 @@ export default function SchedulePage() {
       const token = localStorage.getItem("minda_token");
       let res;
       if (selectedEvent && selectedEvent.id) {
-        // Update
+        // Update current event
         res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/schedules/${selectedEvent.id}`, {
           method: "PUT",
           headers: { 
@@ -114,8 +114,26 @@ export default function SchedulePage() {
           },
           body: JSON.stringify(data)
         });
+
+        // If additional students were selected during edit, create events for them
+        if (res.ok && data.student_ids && data.student_ids.length > 1) {
+          const extraStudentIds = data.student_ids.filter((sid: number) => sid !== data.student_id);
+          if (extraStudentIds.length > 0) {
+            await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/schedules/`, {
+              method: "POST",
+              headers: { 
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                ...data,
+                student_ids: extraStudentIds
+              })
+            });
+          }
+        }
       } else {
-        // Create
+        // Create new
         res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/schedules/`, {
           method: "POST",
           headers: { 
