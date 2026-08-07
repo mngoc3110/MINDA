@@ -100,6 +100,98 @@ function escapeHtmlInText(str: string): string {
   }).join("");
 }
 
+/** Helper to parse inline Markdown bold **text** and render LaTeX */
+function InlineMarkdownLatex({ text }: { text: string }) {
+  if (!text) return null;
+
+  // Replace **bold** with <strong> and preserve KaTeX math
+  const parts = text.split(/(\*\*[\s\S]+?\*\*)/g);
+  return (
+    <>
+      {parts.map((part, idx) => {
+        if (part.startsWith("**") && part.endsWith("**") && part.length > 4) {
+          const content = part.slice(2, -2);
+          return (
+            <strong key={idx} className="font-bold text-text-primary">
+              <Latex>{escapeHtmlInText(content)}</Latex>
+            </strong>
+          );
+        }
+        return <Latex key={idx}>{escapeHtmlInText(part)}</Latex>;
+      })}
+    </>
+  );
+}
+
+/** Renders a section of non-code text with Markdown elements (headings, lists, linebreaks) */
+function MarkdownBlock({ content }: { content: string }) {
+  const lines = content.split("\n");
+  const elements: React.ReactNode[] = [];
+  let currentList: React.ReactNode[] = [];
+
+  const flushList = (key: string) => {
+    if (currentList.length > 0) {
+      elements.push(
+        <ul key={key} className="my-2.5 space-y-1.5 pl-1">
+          {currentList}
+        </ul>
+      );
+      currentList = [];
+    }
+  };
+
+  lines.forEach((line, idx) => {
+    const trimmed = line.trim();
+    if (!trimmed) {
+      flushList(`list-${idx}`);
+      return;
+    }
+
+    // Heading 3: ### Title
+    if (trimmed.startsWith("### ")) {
+      flushList(`list-${idx}`);
+      elements.push(
+        <h3 key={idx} className="text-base font-black text-indigo-300 mt-5 mb-2 flex items-center gap-2 border-b border-indigo-500/20 pb-1.5">
+          <InlineMarkdownLatex text={trimmed.slice(4)} />
+        </h3>
+      );
+    }
+    // Heading 4: #### Title
+    else if (trimmed.startsWith("#### ")) {
+      flushList(`list-${idx}`);
+      elements.push(
+        <h4 key={idx} className="text-sm font-bold text-text-primary mt-4 mb-1.5 flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 inline-block" />
+          <InlineMarkdownLatex text={trimmed.slice(5)} />
+        </h4>
+      );
+    }
+    // Bullet item: - Item or * Item
+    else if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
+      currentList.push(
+        <li key={idx} className="flex items-start gap-2 text-xs text-text-secondary leading-relaxed">
+          <span className="text-indigo-400 shrink-0 mt-0.5">•</span>
+          <div>
+            <InlineMarkdownLatex text={trimmed.slice(2)} />
+          </div>
+        </li>
+      );
+    }
+    // Normal paragraph
+    else {
+      flushList(`list-${idx}`);
+      elements.push(
+        <p key={idx} className="text-xs text-text-secondary leading-relaxed mb-2.5">
+          <InlineMarkdownLatex text={trimmed} />
+        </p>
+      );
+    }
+  });
+
+  flushList(`list-end`);
+  return <div className="space-y-1">{elements}</div>;
+}
+
 export default function MathText({
   children,
   className = "",
@@ -113,29 +205,14 @@ export default function MathText({
 
   const segments = splitSegments(children);
 
-  // If there are NO code blocks, fast-path: just LaTeX render with HTML escaping
-  if (segments.length === 1 && segments[0].type === "text") {
-    return (
-      <span className={`math-text-wrapper ${className}`}>
-        <Latex>{escapeHtmlInText(children)}</Latex>
-      </span>
-    );
-  }
-
   return (
-    <span className={`math-text-wrapper ${className}`} style={{ display: "block" }}>
+    <div className={`math-text-wrapper space-y-2 ${className}`}>
       {segments.map((seg, idx) => {
         if (seg.type === "code") {
           return <CodeBlock key={idx} lang={seg.lang ?? ""} code={seg.content} />;
         }
-        // Normal text: HTML-escape then LaTeX-render
-        const safe = escapeHtmlInText(seg.content);
-        return safe.trim() ? (
-          <span key={idx}>
-            <Latex>{safe}</Latex>
-          </span>
-        ) : null;
+        return <MarkdownBlock key={idx} content={seg.content} />;
       })}
-    </span>
+    </div>
   );
 }
