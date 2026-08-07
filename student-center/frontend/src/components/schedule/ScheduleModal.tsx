@@ -62,7 +62,9 @@ export default function ScheduleModal({
         is_recurring: false,
         repeat_weeks: 12
       });
-      if (initialData.student_id) {
+      if (initialData.student_ids && Array.isArray(initialData.student_ids) && initialData.student_ids.length > 0) {
+        setSelectedStudentIds(initialData.student_ids);
+      } else if (initialData.student_id) {
         setSelectedStudentIds([initialData.student_id]);
       } else {
         setSelectedStudentIds([]);

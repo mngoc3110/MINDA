@@ -41,6 +41,7 @@ class ScheduleItemResponse(ScheduleItemBase):
     # Optional fields for frontend display context
     course_title: Optional[str] = None
     student_name: Optional[str] = None
+    student_ids: Optional[List[int]] = None
 
     class Config:
         from_attributes = True

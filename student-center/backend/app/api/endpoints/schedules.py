@@ -308,16 +308,23 @@ def get_schedule_students(
     if not schedule:
         raise HTTPException(status_code=404, detail="Không tìm thấy lịch học")
 
-    # 1. Tìm tất cả các sự kiện cùng khung giờ + tiêu đề do giáo viên này tạo
+    student_ids = set()
+    course_ids = set()
+
+    # Thêm trực tiếp học sinh/lớp nếu có trong bản ghi hiện tại
+    if schedule.student_id:
+        student_ids.add(schedule.student_id)
+    if schedule.course_id:
+        course_ids.add(schedule.course_id)
+
+    # Tìm các sự kiện cùng tiêu đề và thời gian tương đương (± 2 phút) do GV tạo
+    from datetime import timedelta
     matching_schedules = db.query(ScheduleItem).filter(
         ScheduleItem.user_id == current_user.id,
         ScheduleItem.title == schedule.title,
-        ScheduleItem.start_time == schedule.start_time,
-        ScheduleItem.end_time == schedule.end_time
+        ScheduleItem.start_time >= schedule.start_time - timedelta(minutes=2),
+        ScheduleItem.start_time <= schedule.start_time + timedelta(minutes=2),
     ).all()
-
-    student_ids = set()
-    course_ids = set()
 
     for s in matching_schedules:
         if s.student_id:
@@ -325,7 +332,7 @@ def get_schedule_students(
         if s.course_id:
             course_ids.add(s.course_id)
 
-    # 2. Nếu có course_id, lấy thêm học sinh đã đăng ký trong các lớp đó
+    # Nếu có course_id, lấy học sinh đã đăng ký trong các lớp đó
     if course_ids:
         enrollments = db.query(Enrollment).filter(
             Enrollment.course_id.in_(list(course_ids)),
@@ -334,7 +341,7 @@ def get_schedule_students(
         for e in enrollments:
             student_ids.add(e.student_id)
 
-    # 3. Trả về danh sách tất cả học sinh khớp
+    # Trả về đúng danh sách học sinh của buổi học này
     if student_ids:
         students = db.query(User).filter(User.id.in_(list(student_ids))).all()
         return [{
@@ -344,12 +351,6 @@ def get_schedule_students(
             "email": s.email,
         } for s in students]
 
-    # Fallback cuối: tất cả học sinh
-    students = db.query(User).filter(User.role == UserRole.student).all()
-    return [{
-        "id": s.id,
-        "full_name": s.full_name,
-        "avatar_url": s.avatar_url,
-        "email": s.email,
-    } for s in students]
+    # KHÔNG BAO GIỜ trả về toàn bộ học sinh hệ thống để tránh lộ/trùng lặp học sinh
+    return []
 
