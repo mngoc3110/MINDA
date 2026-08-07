@@ -116,15 +116,40 @@ def create_schedule(
         if current_user.role not in [UserRole.teacher, UserRole.admin]:
             raise HTTPException(status_code=403, detail="Chỉ giáo viên/admin mới được tạo lịch cho từng học sinh.")
         
-        if not schedule_in.student_id:
+        # Nếu chọn nhiều học sinh
+        if schedule_in.student_ids and len(schedule_in.student_ids) > 0:
+            pass # Xử lý bên dưới
+        elif schedule_in.student_id:
+            student_user = db.query(User).filter(User.id == schedule_in.student_id, User.role == UserRole.student).first()
+            if not student_user:
+                raise HTTPException(status_code=404, detail="Học sinh được chọn không tồn tại.")
+        else:
             raise HTTPException(status_code=400, detail="Vui lòng chọn học sinh cho sự kiện này.")
-            
-        # Kiểm tra học sinh có tồn tại không
-        student_user = db.query(User).filter(User.id == schedule_in.student_id, User.role == UserRole.student).first()
-        if not student_user:
-            raise HTTPException(status_code=404, detail="Học sinh được chọn không tồn tại.")
     
-    base_data = schedule_in.dict(exclude={"is_recurring", "repeat_weeks"})
+    # Xử lý nhiều học sinh cùng lúc (student_ids)
+    if schedule_in.type == ScheduleType.student and schedule_in.student_ids and len(schedule_in.student_ids) > 0:
+        base_data = schedule_in.dict(exclude={"is_recurring", "repeat_weeks", "student_ids"})
+        created_items = []
+        for sid in schedule_in.student_ids:
+            item_data = {**base_data, "student_id": sid, "user_id": current_user.id}
+            if schedule_in.is_recurring and schedule_in.repeat_weeks and schedule_in.repeat_weeks > 1:
+                from datetime import timedelta
+                for i in range(schedule_in.repeat_weeks):
+                    new_start = schedule_in.start_time + timedelta(weeks=i)
+                    new_end = schedule_in.end_time + timedelta(weeks=i)
+                    s = ScheduleItem(**item_data)
+                    s.start_time = new_start
+                    s.end_time = new_end
+                    created_items.append(s)
+            else:
+                s = ScheduleItem(**item_data)
+                created_items.append(s)
+
+        db.add_all(created_items)
+        db.commit()
+        return {"message": f"Đã tạo lịch cho {len(schedule_in.student_ids)} học sinh thành công", "count": len(created_items)}
+
+    base_data = schedule_in.dict(exclude={"is_recurring", "repeat_weeks", "student_ids"})
     
     if schedule_in.is_recurring and schedule_in.repeat_weeks and schedule_in.repeat_weeks > 1:
         from datetime import timedelta

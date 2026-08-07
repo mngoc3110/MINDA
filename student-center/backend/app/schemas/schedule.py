@@ -15,6 +15,7 @@ class ScheduleItemBase(BaseModel):
     color: Optional[str] = None
 
 class ScheduleItemCreate(ScheduleItemBase):
+    student_ids: Optional[List[int]] = None
     is_recurring: Optional[bool] = False
     repeat_weeks: Optional[int] = 12
 
