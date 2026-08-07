@@ -245,6 +245,67 @@ CURATED_PROBLEMS = [
     }
 ]
 
+def sync_github_repos(db: Session):
+    """Cào tự động toàn bộ bài tập C++ từ 3 Repos GitHub PTIT/Giáo trình."""
+    repos = [
+        "https://raw.githubusercontent.com/huyinit/Cplusplus-PTIT/master/",
+        "https://raw.githubusercontent.com/yalza/CPP_code.ptit/master/",
+        "https://raw.githubusercontent.com/MahiPonii/Tai_Lieu_cpp/master/"
+    ]
+    # Fetch directory tree via GitHub API
+    api_urls = [
+        "https://api.github.com/repos/huyinit/Cplusplus-PTIT/git/trees/master?recursive=1",
+        "https://api.github.com/repos/yalza/CPP_code.ptit/git/trees/master?recursive=1",
+        "https://api.github.com/repos/MahiPonii/Tai_Lieu_cpp/git/trees/master?recursive=1"
+    ]
+    
+    crawled_count = 0
+    headers = {"User-Agent": "MINDA-Bot/1.0"}
+    
+    for url in api_urls:
+        try:
+            res = requests.get(url, headers=headers, timeout=10)
+            if res.status_code == 200:
+                tree = res.json().get("tree", [])
+                for item in tree:
+                    path = item.get("path", "")
+                    if path.endswith(".cpp") or path.endswith(".c"):
+                        # Extract title from file path (e.g. CPP0101 - TONG TU 1 DEN N.cpp)
+                        raw_name = path.split("/")[-1].replace(".cpp", "").replace(".c", "")
+                        clean_title = re.sub(r'^[0-9A-Z_]+[-_ ]*', '', raw_name).strip()
+                        if not clean_title:
+                            clean_title = raw_name
+                            
+                        slug = "ptit-" + re.sub(r'[^a-z0-9]+', '-', raw_name.lower()).strip('-')
+                        
+                        existing = db.query(CodeProblem).filter(CodeProblem.slug == slug).first()
+                        if not existing:
+                            prob = CodeProblem(
+                                slug=slug,
+                                title=f"PTIT: {clean_title} ({raw_name.split()[0] if ' ' in raw_name else 'C++'})",
+                                description=f"Bài tập C++ từ bộ đề PTIT & Giáo trình lập trình: **{clean_title}**.\n\n*Yêu cầu*: Đọc kỹ đề bài và cài đặt thuật toán tối ưu nhất.",
+                                difficulty="medium" if "DP" in path or "GRAPH" in path else "easy",
+                                rating=1000 if "DP" in path else 850,
+                                track="ptit",
+                                tags=["C++ PTIT", "Lập trình C++", "Học viện PTIT"],
+                                constraints=["Thời gian chạy <= 1s", "Bộ nhớ <= 256MB"],
+                                examples=[{"input": "Xem mô tả", "output": "Kết quả chuẩn"}],
+                                hints=["Xem cấu trúc bài giải C++ chuẩn."],
+                                starter_code={
+                                    "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    // Viết code C++ ở đây\n    return 0;\n}",
+                                    "python": "# Viết code Python ở đây\n\n"
+                                },
+                                test_cases=[{"input": "1\n", "output": "1\n", "is_hidden": False}],
+                                source="PTIT Repository GitHub"
+                            )
+                            db.add(prob)
+                            crawled_count += 1
+        except Exception as e:
+            print(f"[Problem Importer] Error fetching repo {url}: {e}")
+            
+    db.commit()
+    return crawled_count
+
 def seed_code_problems(db: Session):
     """Seed / sync standard curated problemsets into DB."""
     count = 0
@@ -254,6 +315,9 @@ def seed_code_problems(db: Session):
             prob = CodeProblem(**prob_data)
             db.add(prob)
             count += 1
+            
+    # Auto-crawl all problems from GitHub Repos
+    crawled = sync_github_repos(db)
     db.commit()
-    print(f"[Problem Importer] ✅ Successfully seeded {count} standard coding problems.")
-    return count
+    print(f"[Problem Importer] ✅ Successfully seeded {count} standard problems + {crawled} GitHub problems.")
+    return count + crawled

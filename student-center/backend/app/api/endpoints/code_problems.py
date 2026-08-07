@@ -26,9 +26,15 @@ def get_code_problems(
     db: Session = Depends(get_db)
 ):
     """Lấy danh sách bài tập lập trình."""
-    # Ensure database is seeded with problemset
-    if db.query(CodeProblem).count() == 0:
+    # Ensure database is seeded with problemset and GitHub repos
+    if db.query(CodeProblem).count() < 15:
         seed_code_problems(db)
+
+@router.post("/problems/sync")
+def sync_problems_manual(db: Session = Depends(get_db)):
+    """Kích hoạt cào bài tập tự động từ các nguồn GitHub PTIT/Giáo trình."""
+    total = seed_code_problems(db)
+    return {"message": "Đã đồng bộ thành công kho bài tập", "total_added": total}
 
     query = db.query(CodeProblem)
     if track and track != "all":
