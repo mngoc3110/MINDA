@@ -118,6 +118,40 @@ def delete_featured_image(
         raise HTTPException(status_code=500, detail=str(e))
 
 from app.api.endpoints.dashboard import get_student_rank, get_teacher_rank
+import json
+
+
+@router.get("/my-subjects")
+def get_my_subjects(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Lấy danh sách môn học của giáo viên hiện tại (JSON array)."""
+    raw = current_user.subject or ""
+    try:
+        subjects = json.loads(raw) if raw.startswith("[") else ([raw] if raw else [])
+    except Exception:
+        subjects = [raw] if raw else []
+    return {"subjects": subjects}
+
+
+@router.put("/my-subjects")
+def update_my_subjects(
+    payload: dict,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Giáo viên tự cập nhật danh sách môn học giảng dạy."""
+    if current_user.role not in ("teacher",):
+        raise HTTPException(status_code=403, detail="Chỉ giáo viên mới có thể cập nhật môn học")
+    subjects = payload.get("subjects", [])
+    if not isinstance(subjects, list):
+        raise HTTPException(status_code=400, detail="subjects phải là mảng")
+    # Lưu dưới dạng JSON string
+    current_user.subject = json.dumps(subjects, ensure_ascii=False)
+    db.commit()
+    return {"message": "Cập nhật môn học thành công", "subjects": subjects}
+
 
 def get_rank_tier(exp_points: int) -> str:
     # Fallback legacy function if used anywhere without User object
@@ -200,9 +234,21 @@ def list_teachers(db: Session = Depends(get_db)):
             "avatar_url": t.avatar_url,
             "email": t.email,
             "subject": t.subject or "",
+            "subjects": _parse_subjects(t.subject),
         }
         for t in teachers
     ]
+
+
+def _parse_subjects(raw: str | None) -> list:
+    """Parse subject field — supports both legacy string and JSON array."""
+    if not raw:
+        return []
+    try:
+        parsed = json.loads(raw)
+        return parsed if isinstance(parsed, list) else [parsed]
+    except Exception:
+        return [raw] if raw else []
 
 @router.get("/students")
 def list_students(db: Session = Depends(get_db)):

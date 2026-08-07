@@ -99,6 +99,10 @@ export default function ProfilePage() {
   const [newInfoText, setNewInfoText] = useState("");
   const [newInfoIcon, setNewInfoIcon] = useState("Briefcase");
 
+  // Teacher Subjects State
+  const [mySubjects, setMySubjects] = useState<string[]>([]);
+  const [savingSubjects, setSavingSubjects] = useState(false);
+
   // Sidebar Featured Photos (API)
   const [featuredPhotos, setFeaturedPhotos] = useState<FeaturedImage[]>([]);
 
@@ -158,6 +162,14 @@ export default function ProfilePage() {
       } catch (e) {}
     };
     checkGoogleStatus();
+
+    // Fetch teacher subjects
+    if (currentRole === "teacher") {
+      fetch(`${API_BASE}/profile/my-subjects`, { headers: { Authorization: `Bearer ${getToken()}` } })
+        .then(r => r.json())
+        .then(d => { if (d.subjects) setMySubjects(d.subjects); })
+        .catch(() => {});
+    }
 
     // Fallback load images from lightweight localStorage URLs (NOT base64!)
     const savedAvatar = localStorage.getItem("minda_avatar_url");
@@ -515,6 +527,58 @@ export default function ProfilePage() {
                   </button>
                 )}
               </div>
+
+              {/* Teacher Subjects Panel */}
+              {role === "teacher" && (
+                <div className="bg-bg-card rounded-xl p-4 shadow-sm">
+                  <div className="flex items-center justify-between mb-3">
+                    <h2 className="font-bold text-lg text-text-primary">📚 Môn học giảng dạy</h2>
+                    <button
+                      disabled={savingSubjects}
+                      onClick={async () => {
+                        setSavingSubjects(true);
+                        try {
+                          const res = await fetch(`${API_BASE}/profile/my-subjects`, {
+                            method: "PUT",
+                            headers: { Authorization: `Bearer ${getToken()}`, "Content-Type": "application/json" },
+                            body: JSON.stringify({ subjects: mySubjects }),
+                          });
+                          if (!res.ok) alert("Lưu thất bại!");
+                        } catch { alert("Lỗi kết nối"); }
+                        setSavingSubjects(false);
+                      }}
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white transition-colors disabled:opacity-60"
+                    >
+                      {savingSubjects ? <Loader2 className="w-3 h-3 animate-spin" /> : null}
+                      Lưu
+                    </button>
+                  </div>
+                  <p className="text-text-secondary text-xs mb-3">Chọn tất cả các môn bạn đang giảng dạy để học sinh dễ tìm kiếm.</p>
+                  <div className="flex flex-col gap-2">
+                    {["Toán","Vật Lý","Hóa Học","Sinh Học","Tiếng Anh","Tin Học","Ngữ Văn","Lịch Sử","Địa Lý","Kinh Tế & Pháp Luật","Khác"].map(sub => {
+                      const checked = mySubjects.includes(sub);
+                      return (
+                        <label key={sub} className="flex items-center gap-2.5 cursor-pointer group">
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={() => {
+                              setMySubjects(prev =>
+                                checked ? prev.filter(s => s !== sub) : [...prev, sub]
+                              );
+                            }}
+                            className="w-4 h-4 rounded accent-indigo-500"
+                          />
+                          <span className={`text-sm transition-colors ${checked ? "text-text-primary font-medium" : "text-text-secondary group-hover:text-text-primary"}`}>
+                            {sub}
+                          </span>
+                          {checked && <span className="ml-auto text-indigo-400 text-xs">✓</span>}
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
               {/* Photos Panel — Drive API */}
               <div className="bg-bg-card rounded-xl p-4 shadow-sm">

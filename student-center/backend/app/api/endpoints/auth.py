@@ -50,7 +50,10 @@ def register(user_in: UserCreate, db: Session = Depends(get_db)):
         phone=user_in.phone,
         hashed_password=hashed_password,
         role=role,
-        subject=user_in.subject if role == UserRole.teacher else None,
+        subject=(
+            __import__('json').dumps([user_in.subject], ensure_ascii=False)
+            if role == UserRole.teacher and user_in.subject else None
+        ),
         avatar_url=default_avatar,
         is_active=is_active,
         current_rank="Sơ cấp",  # Bật thấp nhất cho mọi user mới

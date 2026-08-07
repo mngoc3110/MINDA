@@ -87,16 +87,32 @@ export default function AdminUsersPage() {
     }
   };
 
-  const updateSubject = async (userId: number, subject: string) => {
+  const updateSubject = async (userId: number, newSubject: string) => {
     try {
       const token = localStorage.getItem("minda_token");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/admin/users/${userId}/subject?subject=${encodeURIComponent(subject)}`, {
+      // Find the user to get existing subjects and append
+      const user = users.find(u => u.id === userId);
+      const existing = user ? getSubjects(user) : [];
+      if (existing.includes(newSubject)) return; // already exists
+      const merged = [...existing, newSubject];
+      const subjectParam = encodeURIComponent(JSON.stringify(merged));
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/admin/users/${userId}/subject?subject=${subjectParam}`, {
         method: "PUT",
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) fetchUsers();
     } catch (e) {
       console.error(e);
+    }
+  };
+
+  const getSubjects = (user: any): string[] => {
+    if (!user.subject) return [];
+    try {
+      const parsed = JSON.parse(user.subject);
+      return Array.isArray(parsed) ? parsed : [parsed];
+    } catch {
+      return user.subject ? [user.subject] : [];
     }
   };
 
@@ -185,16 +201,26 @@ export default function AdminUsersPage() {
                     </td>
                     <td className="px-6 py-4">
                       {user.role === 'teacher' ? (
-                        <select
-                          value={user.subject || ""}
-                          onChange={e => updateSubject(user.id, e.target.value)}
-                          className="px-2 py-1 text-xs bg-bg-hover border border-border-card rounded-lg outline-none text-text-primary"
-                        >
-                          <option value="">-- Chưa chọn --</option>
-                          {["Toán","Vật Lý","Hóa Học","Sinh Học","Tiếng Anh","Tin Học","Ngữ Văn","Lịch Sử","Địa Lý","Kinh Tế & Pháp Luật","Khác"].map(s => (
-                            <option key={s} value={s} className="bg-bg-card">{s}</option>
-                          ))}
-                        </select>
+                        <div className="flex flex-col gap-1.5">
+                          <div className="flex flex-wrap gap-1">
+                            {getSubjects(user).length > 0
+                              ? getSubjects(user).map((s: string) => (
+                                  <span key={s} className="px-1.5 py-0.5 rounded bg-blue-400/10 text-blue-400 text-xs border border-blue-400/20">{s}</span>
+                                ))
+                              : <span className="text-text-muted text-xs italic">Chưa có</span>
+                            }
+                          </div>
+                          <select
+                            defaultValue=""
+                            onChange={e => { if (e.target.value) updateSubject(user.id, e.target.value); e.target.value = ""; }}
+                            className="px-1.5 py-0.5 text-xs bg-bg-hover border border-border-card rounded outline-none text-text-secondary w-full"
+                          >
+                            <option value="">+ Thêm môn...</option>
+                            {["Toán","Vật Lý","Hóa Học","Sinh Học","Tiếng Anh","Tin Học","Ngữ Văn","Lịch Sử","Địa Lý","Kinh Tế & Pháp Luật","Khác"].map(s => (
+                              <option key={s} value={s} className="bg-bg-card">{s}</option>
+                            ))}
+                          </select>
+                        </div>
                       ) : <span className="text-text-muted text-xs">—</span>}
                     </td>
                     <td className="px-6 py-4">

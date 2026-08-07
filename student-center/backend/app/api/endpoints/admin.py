@@ -121,11 +121,17 @@ def update_teacher_subject(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_role("admin")),
 ):
-    """Cập nhật môn học giảng dạy của Giáo viên (Admin only)."""
+    """Cập nhật môn học giảng dạy của Giáo viên (Admin only). subject có thể là JSON array string hoặc tên môn đơn."""
+    import json
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="Người dùng không tồn tại")
-    user.subject = subject
+    # Nếu là JSON array thì lưu trực tiếp, ngược lại wrap thành array
+    try:
+        parsed = json.loads(subject)
+        user.subject = json.dumps(parsed, ensure_ascii=False)
+    except Exception:
+        user.subject = json.dumps([subject], ensure_ascii=False)
     db.commit()
-    return {"message": f"Đã cập nhật môn học cho {user.full_name}: {subject}"}
+    return {"message": f"Đã cập nhật môn học cho {user.full_name}"}
 

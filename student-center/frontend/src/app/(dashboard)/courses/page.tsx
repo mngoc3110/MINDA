@@ -28,7 +28,8 @@ interface Teacher {
   full_name: string;
   avatar_url: string | null;
   email: string;
-  subject: string;
+  subject: string;      // legacy single
+  subjects: string[];   // new multi-subject array
 }
 
 // Danh sách môn học chuẩn chương trình THPT
@@ -280,9 +281,14 @@ export default function CoursesPage() {
 
   const myEnrolledIds = enrollments.map(e => e.course_id);
   const myCourses = courses.filter(c => myEnrolledIds.includes(c.id));
+
+  // Helper: get subjects for a teacher (supports both legacy string and new array)
+  const getSubjects = (t: Teacher): string[] =>
+    t.subjects?.length ? t.subjects : (t.subject ? [t.subject] : []);
+
   const filteredTeachers = selectedSubject === "all"
     ? teachers
-    : teachers.filter(t => t.subject === selectedSubject);
+    : teachers.filter(t => getSubjects(t).includes(selectedSubject));
   const teacherCourses = selectedTeacher
     ? courses.filter(c => c.teacher_id === selectedTeacher.id)
     : [];
@@ -451,11 +457,11 @@ export default function CoursesPage() {
                   </div>
                   <div className="min-w-0">
                     <p className="font-semibold text-sm text-text-primary truncate">{teacher.full_name}</p>
-                    {teacher.subject && (
-                      <span className="inline-block mt-0.5 px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 text-xs">
-                        {teacher.subject}
-                      </span>
-                    )}
+                    <div className="flex flex-wrap gap-1 mt-0.5">
+                      {getSubjects(teacher).map(s => (
+                        <span key={s} className="inline-block px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 text-xs">{s}</span>
+                      ))}
+                    </div>
                     <p className="text-text-muted text-xs truncate mt-0.5">{teacher.email}</p>
                   </div>
                   <ChevronRight className="w-4 h-4 text-text-muted ml-auto shrink-0 group-hover:text-indigo-400 transition-colors" />
@@ -486,9 +492,11 @@ export default function CoursesPage() {
                 </div>
               )}
               <span className="text-sm font-semibold">{selectedTeacher.full_name}</span>
-              {selectedTeacher.subject && (
-                <span className="px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 text-xs">{selectedTeacher.subject}</span>
-              )}
+              <div className="flex flex-wrap gap-1">
+                {(selectedTeacher.subjects?.length ? selectedTeacher.subjects : (selectedTeacher.subject ? [selectedTeacher.subject] : [])).map(s => (
+                  <span key={s} className="px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 text-xs">{s}</span>
+                ))}
+              </div>
             </div>
           </div>
           <h2 className="text-base font-semibold text-text-secondary mb-3 flex items-center gap-2">
