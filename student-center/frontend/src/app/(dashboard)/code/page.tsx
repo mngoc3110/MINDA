@@ -26,9 +26,10 @@ const CODER_RANKS = [
 
 const TRACKS = [
   { id: "all",         label: "Tất cả",          icon: "🗂️" },
+  { id: "thcs",        label: "Chuyên Tin THCS",  icon: "🎒", desc: "Tổng chữ số, Ước số, Xâu ký tự, Thuật toán cơ bản" },
+  { id: "thpt",        label: "Chuyên Tin THPT",  icon: "🏆", desc: "Quy hoạch động, Đồ thị Dijkstra, LIS, VOI" },
   { id: "basic",       label: "Tin học cơ bản",   icon: "🌱", desc: "Cú pháp, Vòng lặp, Nhập xuất, Mảng 1D/2D" },
   { id: "cs",          label: "Khoa học máy tính",icon: "💻", desc: "Thuật toán cơ bản, Tìm kiếm nhị phân, Sắp xếp" },
-  { id: "competitive", label: "Chuyên Tin (VOI/CP)", icon: "⚔️", desc: "Quy hoạch động, Đồ thị, Cấu trúc dữ liệu" },
   { id: "ptit",        label: "Luyện C++ PTIT",    icon: "🏛️", desc: "Bộ bài tập C++ chuẩn Học viện PTIT" },
   { id: "advanced",    label: "Đại học / Pro",    icon: "🎓", desc: "Segment Tree, String Matching, Graph Pro" },
 ];
