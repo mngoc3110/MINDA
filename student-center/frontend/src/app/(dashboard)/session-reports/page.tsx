@@ -5,7 +5,7 @@ import {
   ClipboardList, Radio, Cpu, BarChart3, Plus, Check, X, Clock,
   Users, Star, ChevronDown, ChevronUp, Loader2, Wifi, WifiOff,
   RefreshCw, AlertCircle, CheckCircle2, Copy, Trash2, Eye, EyeOff,
-  BookOpen, Calendar, User, Zap, Shield, ChevronLeft, ChevronRight, RotateCcw
+  BookOpen, Calendar, User, Zap, Shield, ChevronLeft, ChevronRight, RotateCcw, Search
 } from "lucide-react";
 
 import ScheduleModal from "@/components/schedule/ScheduleModal";
@@ -85,6 +85,10 @@ export default function SessionReportsPage() {
   const [sessionReports, setSessionReports] = useState<Record<number, SessionReport>>({});
   const [savingReport, setSavingReport] = useState<number | null>(null);
   const [expandedStudentIds, setExpandedStudentIds] = useState<Record<number, boolean>>({});
+
+  // Search queries
+  const [studentSearchQuery, setStudentSearchQuery] = useState("");
+  const [roomSearchQuery, setRoomSearchQuery] = useState("");
 
   // Weekly/Monthly
   const [reportMode, setReportMode] = useState<"weekly" | "monthly">("weekly");
@@ -550,9 +554,23 @@ export default function SessionReportsPage() {
                 })}
               </div>
 
+              {/* Live room search filter */}
+              <div className="relative mb-4">
+                <Search className="w-4 h-4 text-text-secondary absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={roomSearchQuery}
+                  onChange={(e) => setRoomSearchQuery(e.target.value)}
+                  placeholder="🔍 Gõ tên học sinh để tìm nhanh trong danh sách..."
+                  className="w-full bg-bg-card border border-border-card rounded-xl pl-10 pr-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary focus:outline-none focus:border-rose-500/50 shadow-sm transition"
+                />
+              </div>
+
               {/* Student list */}
               <div className="space-y-3">
-                {roomStudents.map((student) => {
+                {roomStudents
+                  .filter((s) => s.full_name.toLowerCase().includes(roomSearchQuery.toLowerCase()))
+                  .map((student) => {
                   const record = getStudentAttendance(student.id);
                   const isSaving = checkingIn === student.id;
                   return (
@@ -822,13 +840,32 @@ export default function SessionReportsPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-1.5 block">Học sinh</label>
-                <select value={selectedStudentReport || ""} onChange={(e) => setSelectedStudentReport(Number(e.target.value) || null)}
-                  className="w-full bg-bg-main border border-border-card rounded-xl px-3 py-2.5 text-sm text-text-primary focus:outline-none focus:border-rose-500/50"
-                >
-                  <option value="">Chọn học sinh...</option>
-                  {myStudents.map((s) => <option key={s.id} value={s.id}>{s.full_name}</option>)}
-                </select>
+                <label className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-1.5 flex items-center justify-between">
+                  <span>Học sinh</span>
+                  <span className="text-[10px] text-text-secondary font-normal">
+                    {studentSearchQuery ? `Tìm thấy ${myStudents.filter(s => s.full_name.toLowerCase().includes(studentSearchQuery.toLowerCase())).length}/${myStudents.length}` : `Tổng ${myStudents.length}`}
+                  </span>
+                </label>
+                <div className="space-y-2">
+                  <div className="relative">
+                    <Search className="w-4 h-4 text-text-secondary absolute left-3 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      value={studentSearchQuery}
+                      onChange={(e) => setStudentSearchQuery(e.target.value)}
+                      placeholder="🔍 Gõ tên học sinh để tìm nhanh..."
+                      className="w-full bg-bg-main border border-border-card rounded-xl pl-9 pr-3 py-2 text-sm text-text-primary placeholder:text-text-secondary focus:outline-none focus:border-rose-500/50"
+                    />
+                  </div>
+                  <select value={selectedStudentReport || ""} onChange={(e) => setSelectedStudentReport(Number(e.target.value) || null)}
+                    className="w-full bg-bg-main border border-border-card rounded-xl px-3 py-2.5 text-sm text-text-primary focus:outline-none focus:border-rose-500/50"
+                  >
+                    <option value="">-- Chọn học sinh --</option>
+                    {myStudents
+                      .filter((s) => s.full_name.toLowerCase().includes(studentSearchQuery.toLowerCase()))
+                      .map((s) => <option key={s.id} value={s.id}>{s.full_name}</option>)}
+                  </select>
+                </div>
               </div>
 
               {reportMode === "weekly" ? (
