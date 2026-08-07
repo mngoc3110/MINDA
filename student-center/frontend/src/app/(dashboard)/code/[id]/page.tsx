@@ -28,10 +28,10 @@ const PROBLEMS: Record<string, any> = {
     ],
     hints: ["Dùng print() trong Python, printf trong C++, System.out.println trong Java."],
     starterCode: {
-      python: 'print("Hello, World!")',
-      cpp: '#include <iostream>\nusing namespace std;\nint main() {\n    cout << "Hello, World!" << endl;\n    return 0;\n}',
-      javascript: 'console.log("Hello, World!");',
-      java: 'public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello, World!");\n    }\n}',
+      python: '# Viết code Python ở đây\n\n',
+      cpp: '#include <iostream>\nusing namespace std;\n\nint main() {\n    // Viết code ở đây\n    return 0;\n}',
+      javascript: '// Viết code JavaScript ở đây\n',
+      java: 'import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        // Viết code ở đây\n    }\n}',
     }
   },
   "sum-two": {
@@ -45,10 +45,10 @@ const PROBLEMS: Record<string, any> = {
     ],
     hints: ["Đọc 2 số nguyên từ stdin.", "Cộng chúng lại và in ra."],
     starterCode: {
-      python: 'a, b = map(int, input().split())\nprint(a + b)',
-      cpp: '#include <iostream>\nusing namespace std;\nint main() {\n    long long a, b;\n    cin >> a >> b;\n    cout << a + b << endl;\n    return 0;\n}',
-      javascript: 'const [a, b] = require("fs").readFileSync("/dev/stdin","utf8").trim().split(" ").map(Number);\nconsole.log(a + b);',
-      java: 'import java.util.Scanner;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        long a = sc.nextLong(), b = sc.nextLong();\n        System.out.println(a + b);\n    }\n}',
+      python: '# Viết code Python ở đây\n\n',
+      cpp: '#include <iostream>\nusing namespace std;\n\nint main() {\n    // Viết code ở đây\n    return 0;\n}',
+      javascript: '// Viết code JavaScript ở đây\n',
+      java: 'import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        // Viết code ở đây\n    }\n}',
     }
   },
   "fibo": {
@@ -62,10 +62,10 @@ const PROBLEMS: Record<string, any> = {
     ],
     hints: ["Đệ quy thông thường sẽ bị TLE với N lớn.", "Dùng DP bottom-up với mảng 1D hoặc 2 biến."],
     starterCode: {
-      python: 'MOD = 10**9 + 7\nn = int(input())\na, b = 1, 1\nfor _ in range(n - 1):\n    a, b = b, (a + b) % MOD\nprint(a)',
-      cpp: '#include <iostream>\nusing namespace std;\nconst int MOD = 1e9 + 7;\nint main() {\n    int n;\n    cin >> n;\n    long long a = 1, b = 1;\n    for (int i = 2; i < n; i++) {\n        long long c = (a + b) % MOD;\n        a = b; b = c;\n    }\n    cout << a << endl;\n    return 0;\n}',
-      javascript: 'const n = parseInt(require("fs").readFileSync("/dev/stdin","utf8").trim());\nconst MOD = 1000000007n;\nlet [a, b] = [1n, 1n];\nfor (let i = 2; i < n; i++) [a, b] = [b, (a + b) % MOD];\nconsole.log(a.toString());',
-      java: 'import java.util.Scanner;\npublic class Main {\n    public static void main(String[] args) {\n        long MOD = 1000000007L;\n        int n = new Scanner(System.in).nextInt();\n        long a = 1, b = 1;\n        for (int i = 2; i < n; i++) { long c = (a+b)%MOD; a=b; b=c; }\n        System.out.println(a);\n    }\n}',
+      python: '# Viết code Python ở đây\n\n',
+      cpp: '#include <iostream>\nusing namespace std;\n\nint main() {\n    // Viết code ở đây\n    return 0;\n}',
+      javascript: '// Viết code JavaScript ở đây\n',
+      java: 'import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        // Viết code ở đây\n    }\n}',
     }
   },
 };
