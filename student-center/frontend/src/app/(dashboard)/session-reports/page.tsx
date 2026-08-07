@@ -1024,12 +1024,26 @@ export default function SessionReportsPage() {
             {/* Generate new */}
             <div className="p-4 rounded-2xl border border-border-card bg-bg-card space-y-3">
               <p className="text-sm font-bold text-text-secondary">Tạo link mới cho phụ huynh</p>
-              <select value={newLinkStudentId || ""} onChange={(e) => setNewLinkStudentId(Number(e.target.value) || null)}
-                className="w-full bg-bg-main border border-border-card rounded-xl px-3 py-2 text-sm text-text-primary focus:outline-none"
-              >
-                <option value="">Chọn học sinh...</option>
-                {myStudents.map((s) => <option key={s.id} value={s.id}>{s.full_name}</option>)}
-              </select>
+              <div className="space-y-2">
+                <div className="relative">
+                  <Search className="w-4 h-4 text-text-secondary absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={studentSearchQuery}
+                    onChange={(e) => setStudentSearchQuery(e.target.value)}
+                    placeholder="🔍 Gõ tên học sinh để tìm nhanh..."
+                    className="w-full bg-bg-main border border-border-card rounded-xl pl-9 pr-3 py-2 text-sm text-text-primary placeholder:text-text-secondary focus:outline-none focus:border-rose-500/50"
+                  />
+                </div>
+                <select value={newLinkStudentId || ""} onChange={(e) => setNewLinkStudentId(Number(e.target.value) || null)}
+                  className="w-full bg-bg-main border border-border-card rounded-xl px-3 py-2 text-sm text-text-primary focus:outline-none"
+                >
+                  <option value="">-- Chọn học sinh --</option>
+                  {myStudents
+                    .filter((s) => s.full_name.toLowerCase().includes(studentSearchQuery.toLowerCase()))
+                    .map((s) => <option key={s.id} value={s.id}>{s.full_name}</option>)}
+                </select>
+              </div>
               <input value={newLinkParentName} onChange={(e) => setNewLinkParentName(e.target.value)}
                 placeholder="Tên phụ huynh (VD: Mẹ của An)"
                 className="w-full bg-bg-main border border-border-card rounded-xl px-3 py-2 text-sm text-text-primary focus:outline-none"
