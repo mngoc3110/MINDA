@@ -34,7 +34,7 @@ from app.models.session_report import (
 
 # Import routers
 from app.api.endpoints import courses, assignments, exams, tuition, admin, auth, files, profile, google_auth, live_sessions, dashboard, emotion, ai_solver, assignment_folders, manim, yearbook, schedules, honors, testimonials
-from app.api.endpoints import attendance, reports, parent_access
+from app.api.endpoints import attendance, reports, parent_access, code_problems
 
 # Tự động tạo bảng DB nếu chưa có
 Base.metadata.create_all(bind=engine)
@@ -110,3 +110,4 @@ app.include_router(reports.router, prefix="/api/reports", tags=["📊 Reports"])
 app.include_router(parent_access.router, prefix="/api/parent-links", tags=["👨‍👩‍👧 Parent Access"])
 # Public parent portal (no JWT needed)
 app.include_router(parent_access.router, prefix="/api/parent", tags=["🔓 Parent Portal"])
+app.include_router(code_problems.router, prefix="/api", tags=["💻 Code Problems"])

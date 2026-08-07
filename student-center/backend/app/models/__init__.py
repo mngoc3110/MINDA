@@ -13,11 +13,13 @@ from app.models.session_report import (
     AttendanceRecord, AttendanceDevice, StudentBiometric, AttendanceStatus, AttendanceMethod,
     ParentLink, SessionReport, WeeklyReport, MonthlyReport, HomeworkStatus
 )
+from app.models.code_problem import CodeProblem, CodeSubmission
 
 __all__ = [
     "User", "UserRole",
     "Course", "Enrollment", "CourseChapter", "Lesson", "LessonProgress",
     "Assignment", "AssignmentSubmission",
+    "CodeProblem", "CodeSubmission",
     "EmotionLog",
     "Exam", "ExamQuestion", "ExamSubmission",
     "FileItem",

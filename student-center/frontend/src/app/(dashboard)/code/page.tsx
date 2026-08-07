@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import {
   Code2, Terminal, Trophy, Zap, Lock, ChevronRight,
   Target, Flame, Star, Clock, CheckCircle2, CircleDot,
-  ArrowRight, BookOpen, Cpu
+  ArrowRight, BookOpen, Cpu, Layers, RefreshCw
 } from "lucide-react";
 
 // ── Coding Elo Ranks ────────────────────────────────────────────────────────
@@ -22,77 +22,15 @@ const CODER_RANKS = [
   { name: "Legend",   min: 2400,  max: null, color: "#fbbf24", bg: "rgba(251,191,36,0.08)",  icon: "👑" },
 ];
 
-// ── Problem data (mock – will be API-driven) ─────────────────────────────────
-
-const PROBLEMS = [
-  {
-    id: "hello-world", title: "Hello, World!", difficulty: "easy",
-    tags: ["I/O cơ bản"], solved: 1240, rating: 800, accepted: false,
-    track: "basic",
-    desc: "In ra màn hình dòng chữ \"Hello, World!\".",
-  },
-  {
-    id: "sum-two", title: "Tổng Hai Số", difficulty: "easy",
-    tags: ["Toán", "I/O"], solved: 980, rating: 850, accepted: false,
-    track: "basic",
-    desc: "Nhập hai số nguyên a, b. In ra a + b.",
-  },
-  {
-    id: "fibo", title: "Số Fibonacci thứ N", difficulty: "medium",
-    tags: ["DP", "Đệ quy"], solved: 540, rating: 1100, accepted: false,
-    track: "basic",
-    desc: "Tính số Fibonacci thứ N (N ≤ 10^6).",
-  },
-  {
-    id: "prime-sieve", title: "Sàng Nguyên Tố", difficulty: "medium",
-    tags: ["Số học", "Sàng Eratosthenes"], solved: 430, rating: 1200, accepted: false,
-    track: "cs",
-    desc: "Liệt kê tất cả số nguyên tố ≤ N (N ≤ 10^7) dùng Sàng Eratosthenes.",
-  },
-  {
-    id: "sort-basics", title: "Sắp Xếp Nổi Bọt", difficulty: "easy",
-    tags: ["Sắp xếp", "Mảng"], solved: 700, rating: 900, accepted: false,
-    track: "cs",
-    desc: "Cài đặt thuật toán Bubble Sort. In mảng sau khi sắp xếp tăng dần.",
-  },
-  {
-    id: "binary-search", title: "Tìm Kiếm Nhị Phân", difficulty: "medium",
-    tags: ["Tìm kiếm", "Mảng"], solved: 390, rating: 1150, accepted: false,
-    track: "cs",
-    desc: "Tìm vị trí phần tử x trong mảng đã được sắp xếp.",
-  },
-  {
-    id: "dp-knapsack", title: "Bài Toán Cái Túi 0/1", difficulty: "hard",
-    tags: ["DP", "Tối ưu"], solved: 210, rating: 1400, accepted: false,
-    track: "competitive",
-    desc: "Cho n đồ vật và ba-lô sức chứa W. Chọn đồ vật sao cho tổng giá trị lớn nhất.",
-  },
-  {
-    id: "graph-bfs", title: "Duyệt Đồ Thị BFS", difficulty: "hard",
-    tags: ["Đồ thị", "BFS"], solved: 180, rating: 1350, accepted: false,
-    track: "competitive",
-    desc: "Cho đồ thị vô hướng, in ra thứ tự duyệt BFS từ đỉnh 1.",
-  },
-  {
-    id: "segment-tree", title: "Cây Phân Đoạn", difficulty: "hard",
-    tags: ["Cấu trúc dữ liệu", "Segment Tree"], solved: 95, rating: 1600, accepted: false,
-    track: "advanced",
-    desc: "Xây dựng Segment Tree, trả lời truy vấn tổng đoạn và cập nhật điểm.",
-  },
-  {
-    id: "lca", title: "LCA - Tổ Tiên Chung Gần Nhất", difficulty: "hard",
-    tags: ["Cây", "Binary Lifting"], solved: 72, rating: 1750, accepted: false,
-    track: "advanced",
-    desc: "Tìm LCA của hai đỉnh trong cây có trọng số.",
-  },
-];
+// ── Tracks & Detailed Subject Categories ────────────────────────────────────
 
 const TRACKS = [
   { id: "all",         label: "Tất cả",          icon: "🗂️" },
-  { id: "basic",       label: "Tin học cơ bản",   icon: "🌱" },
-  { id: "cs",          label: "Khoa học máy tính",icon: "💻" },
-  { id: "competitive", label: "Chuyên Tin / CP",  icon: "⚔️" },
-  { id: "advanced",    label: "Đại học / Pro",    icon: "🎓" },
+  { id: "basic",       label: "Tin học cơ bản",   icon: "🌱", desc: "Cú pháp, Vòng lặp, Nhập xuất, Mảng 1D/2D" },
+  { id: "cs",          label: "Khoa học máy tính",icon: "💻", desc: "Thuật toán cơ bản, Tìm kiếm nhị phân, Sắp xếp" },
+  { id: "competitive", label: "Chuyên Tin (VOI/CP)", icon: "⚔️", desc: "Quy hoạch động, Đồ thị, Cấu trúc dữ liệu" },
+  { id: "ptit",        label: "Luyện C++ PTIT",    icon: "🏛️", desc: "Bộ bài tập C++ chuẩn Học viện PTIT" },
+  { id: "advanced",    label: "Đại học / Pro",    icon: "🎓", desc: "Segment Tree, String Matching, Graph Pro" },
 ];
 
 const DIFF_COLORS: Record<string, string> = {
@@ -119,15 +57,15 @@ function EloRankBadge({ elo = 0 }: { elo?: number }) {
   );
 }
 
-function ProblemRow({ p, idx }: { p: typeof PROBLEMS[0]; idx: number }) {
+function ProblemRow({ p, idx }: { p: any; idx: number }) {
   return (
     <motion.div
       initial={{ opacity: 0, x: -10 }}
       animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: idx * 0.04 }}
+      transition={{ delay: idx * 0.03 }}
     >
       <Link
-        href={`/code/${p.id}`}
+        href={`/code/${p.slug || p.id}`}
         className="flex items-center gap-4 px-5 py-4 rounded-2xl border border-white/6 bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/12 transition-all group"
       >
         {/* Status dot */}
@@ -140,11 +78,18 @@ function ProblemRow({ p, idx }: { p: typeof PROBLEMS[0]; idx: number }) {
 
         {/* Title & tags */}
         <div className="flex-1 min-w-0">
-          <p className="font-semibold text-sm text-text-primary group-hover:text-indigo-300 transition-colors truncate">
-            {p.title}
-          </p>
+          <div className="flex items-center gap-2">
+            <p className="font-semibold text-sm text-text-primary group-hover:text-indigo-300 transition-colors truncate">
+              {p.title}
+            </p>
+            {p.source && (
+              <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-white/8 text-indigo-300 border border-white/10 shrink-0">
+                {p.source}
+              </span>
+            )}
+          </div>
           <div className="flex gap-1.5 mt-1 flex-wrap">
-            {p.tags.map(t => (
+            {p.tags?.map((t: string) => (
               <span key={t} className="text-[10px] px-2 py-0.5 rounded-full bg-white/8 text-text-muted border border-white/8">
                 {t}
               </span>
@@ -156,25 +101,25 @@ function ProblemRow({ p, idx }: { p: typeof PROBLEMS[0]; idx: number }) {
         <span
           className="shrink-0 text-xs font-bold px-2.5 py-1 rounded-full border hidden sm:inline-flex"
           style={{
-            color: CODER_RANKS.find(r => p.rating >= r.min && (r.max === null || p.rating <= r.max))?.color ?? "#9ca3af",
-            borderColor: `${CODER_RANKS.find(r => p.rating >= r.min && (r.max === null || p.rating <= r.max))?.color ?? "#9ca3af"}30`,
-            background: CODER_RANKS.find(r => p.rating >= r.min && (r.max === null || p.rating <= r.max))?.bg,
+            color: CODER_RANKS.find(r => (p.rating || 800) >= r.min && (r.max === null || (p.rating || 800) <= r.max))?.color ?? "#9ca3af",
+            borderColor: `${CODER_RANKS.find(r => (p.rating || 800) >= r.min && (r.max === null || (p.rating || 800) <= r.max))?.color ?? "#9ca3af"}30`,
+            background: CODER_RANKS.find(r => (p.rating || 800) >= r.min && (r.max === null || (p.rating || 800) <= r.max))?.bg,
           }}
         >
-          {p.rating}
+          {p.rating || 800}
         </span>
 
         {/* Difficulty */}
         <span
           className="shrink-0 text-xs font-bold px-2.5 py-1 rounded-full border hidden md:inline-flex"
-          style={{ color: DIFF_COLORS[p.difficulty], background: `${DIFF_COLORS[p.difficulty]}12`, borderColor: `${DIFF_COLORS[p.difficulty]}30` }}
+          style={{ color: DIFF_COLORS[p.difficulty || "easy"], background: `${DIFF_COLORS[p.difficulty || "easy"]}12`, borderColor: `${DIFF_COLORS[p.difficulty || "easy"]}30` }}
         >
-          {DIFF_LABELS[p.difficulty]}
+          {DIFF_LABELS[p.difficulty || "easy"]}
         </span>
 
         {/* Solved count */}
         <span className="shrink-0 text-xs text-text-muted hidden lg:inline-flex items-center gap-1">
-          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500/60" /> {p.solved}
+          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500/60" /> {p.solved || 0}
         </span>
 
         <ChevronRight className="w-4 h-4 text-text-muted group-hover:text-text-secondary transition-colors shrink-0" />
@@ -186,15 +131,35 @@ function ProblemRow({ p, idx }: { p: typeof PROBLEMS[0]; idx: number }) {
 // ── Page ─────────────────────────────────────────────────────────────────────
 
 export default function CodePage() {
+  const [problems, setProblems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [track, setTrack] = useState("all");
   const [diff, setDiff] = useState<"all" | "easy" | "medium" | "hard">("all");
 
-  const filtered = PROBLEMS.filter(p =>
-    (track === "all" || p.track === track) &&
+  const fetchProblems = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/problems`);
+      if (res.ok) {
+        setProblems(await res.json());
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProblems();
+  }, []);
+
+  const filtered = problems.filter(p =>
+    (track === "all" || p.track === track || (track === "ptit" && p.source?.includes("PTIT"))) &&
     (diff === "all" || p.difficulty === diff)
   );
 
-  const solvedCount = PROBLEMS.filter(p => p.accepted).length;
+  const solvedCount = problems.filter(p => p.accepted).length;
 
   return (
     <div className="min-h-screen bg-bg-main text-text-primary relative overflow-hidden">
@@ -205,14 +170,14 @@ export default function CodePage() {
       <div className="max-w-5xl mx-auto px-4 py-10">
 
         {/* ── Header ────────────────────────────────────────────── */}
-        <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
+        <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
               <Code2 className="w-6 h-6 text-white" />
             </div>
             <div>
               <h1 className="text-3xl font-black tracking-tight">MINDA Code</h1>
-              <p className="text-text-muted text-xs">Luyện lập trình · Thi đấu · Leo rank Elo</p>
+              <p className="text-text-muted text-xs">Phân chia phân khúc đề: Tin Học THPT · C++ PTIT · Chuyên Tin (VOI) · LeetCode</p>
             </div>
           </div>
 
@@ -220,7 +185,7 @@ export default function CodePage() {
           <div className="flex flex-wrap items-center gap-3 mt-4">
             <EloRankBadge elo={0} />
             <span className="text-xs text-text-muted px-3 py-1 rounded-full bg-white/5 border border-white/8">
-              ✅ {solvedCount}/{PROBLEMS.length} bài đã giải
+              ✅ {solvedCount}/{problems.length} bài đã giải
             </span>
             <Link
               href="/ranks"
@@ -236,23 +201,17 @@ export default function CodePage() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.06 }}
-          className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8"
+          className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 mb-8"
         >
-          {[
-            { label: "Tin học cơ bản",    desc: "Câu lệnh, vòng lặp, hàm",   icon: "🌱", color: "#4ade80", track: "basic" },
-            { label: "Khoa học máy tính", desc: "CTDL, giải thuật nổi bật",   icon: "💻", color: "#60a5fa", track: "cs" },
-            { label: "Chuyên Tin / CP",   desc: "DP, Đồ thị, VOI, ICPC style",icon: "⚔️", color: "#c084fc", track: "competitive" },
-            { label: "Đại học / Pro",     desc: "Segment Tree, LCA, String", icon: "🎓", color: "#f59e0b", track: "advanced" },
-          ].map((c) => (
+          {TRACKS.filter(t => t.id !== "all").map((c) => (
             <button
-              key={c.track}
-              onClick={() => setTrack(c.track)}
-              className={`text-left p-4 rounded-2xl border transition-all ${track === c.track ? "border-current" : "border-white/8 hover:border-white/16"} bg-white/[0.02] hover:bg-white/[0.04]`}
-              style={track === c.track ? { borderColor: `${c.color}50`, background: `${c.color}0a` } : {}}
+              key={c.id}
+              onClick={() => setTrack(c.id)}
+              className={`text-left p-3.5 rounded-2xl border transition-all ${track === c.id ? "border-indigo-500 bg-indigo-500/10 shadow-lg shadow-indigo-500/10" : "border-white/8 hover:border-white/16 bg-white/[0.02] hover:bg-white/[0.04]"}`}
             >
-              <span className="text-xl block mb-2">{c.icon}</span>
+              <span className="text-lg block mb-1.5">{c.icon}</span>
               <p className="text-xs font-bold text-text-primary leading-tight mb-1">{c.label}</p>
-              <p className="text-[10px] text-text-muted leading-relaxed">{c.desc}</p>
+              <p className="text-[10px] text-text-muted leading-relaxed line-clamp-2">{c.desc}</p>
             </button>
           ))}
         </motion.div>
@@ -265,12 +224,12 @@ export default function CodePage() {
           className="flex flex-wrap items-center gap-3 mb-5"
         >
           {/* Track filter */}
-          <div className="flex gap-1.5 p-1 rounded-xl bg-white/5 border border-white/8">
+          <div className="flex gap-1.5 p-1 rounded-xl bg-white/5 border border-white/8 overflow-x-auto custom-scrollbar">
             {TRACKS.map(t => (
               <button
                 key={t.id}
                 onClick={() => setTrack(t.id)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${track === t.id ? "bg-white/12 text-text-primary" : "text-text-muted hover:text-text-secondary"}`}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${track === t.id ? "bg-white/12 text-text-primary" : "text-text-muted hover:text-text-secondary"}`}
               >
                 {t.icon} {t.label}
               </button>
@@ -296,41 +255,34 @@ export default function CodePage() {
             ))}
           </div>
 
-          <span className="text-xs text-text-muted ml-auto">{filtered.length} bài</span>
+          <span className="text-xs text-text-muted ml-auto font-mono">{filtered.length} bài tập</span>
         </motion.div>
 
         {/* ── Problem list ───────────────────────────────────────── */}
-        <div className="flex flex-col gap-2">
-          <AnimatePresence mode="popLayout">
-            {filtered.length === 0 ? (
-              <motion.div
-                key="empty"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-center py-20 text-text-muted"
-              >
-                <Code2 className="w-10 h-10 mx-auto mb-3 opacity-30" />
-                <p className="text-sm">Không có bài nào khớp bộ lọc</p>
-              </motion.div>
-            ) : (
-              filtered.map((p, i) => <ProblemRow key={p.id} p={p} idx={i} />)
-            )}
-          </AnimatePresence>
-        </div>
-
-        {/* ── Coming soon banner ────────────────────────────────── */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="mt-10 p-6 rounded-3xl border border-dashed border-indigo-500/25 bg-indigo-500/5 text-center"
-        >
-          <Cpu className="w-8 h-8 text-indigo-400 mx-auto mb-3" />
-          <p className="font-bold text-text-primary mb-1">Online Judge đang được xây dựng 🚧</p>
-          <p className="text-sm text-text-muted max-w-md mx-auto">
-            Tính năng nộp code, chấm tự động (AC / WA / TLE / MLE), hệ thống Elo Rating và bảng xếp hạng Coder đang trong quá trình phát triển.
-          </p>
-        </motion.div>
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-3" />
+            <p className="text-xs text-text-muted font-medium">Đang kết nối ngân hàng bài tập...</p>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-2">
+            <AnimatePresence mode="popLayout">
+              {filtered.length === 0 ? (
+                <motion.div
+                  key="empty"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-center py-20 text-text-muted"
+                >
+                  <Code2 className="w-10 h-10 mx-auto mb-3 opacity-30" />
+                  <p className="text-sm">Không tìm thấy bài tập thuộc phân khúc này</p>
+                </motion.div>
+              ) : (
+                filtered.map((p, i) => <ProblemRow key={p.id || i} p={p} idx={i} />)
+              )}
+            </AnimatePresence>
+          </div>
+        )}
 
       </div>
     </div>
