@@ -156,6 +156,33 @@ def batch_attendance(
     return {"message": f"Đã điểm danh {len(results)} học sinh", "count": len(results)}
 
 
+@router.delete("/reset")
+def reset_attendance(
+    schedule_id: int,
+    student_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role("teacher", "admin")),
+):
+    """Hoàn tác điểm danh cho 1 học sinh (xoá bản ghi điểm danh)"""
+    records = db.query(AttendanceRecord).filter(
+        AttendanceRecord.schedule_id == schedule_id,
+        AttendanceRecord.student_id == student_id,
+    ).all()
+
+    for r in records:
+        db.delete(r)
+
+    db.commit()
+
+    asyncio.create_task(_broadcast_checkin(schedule_id, {
+        "type": "attendance_reset",
+        "student_id": student_id,
+        "schedule_id": schedule_id
+    }))
+
+    return {"message": "Đã hoàn tác điểm danh", "student_id": student_id}
+
+
 @router.put("/{record_id}")
 def update_attendance(
     record_id: int,

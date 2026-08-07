@@ -5,7 +5,7 @@ import {
   ClipboardList, Radio, Cpu, BarChart3, Plus, Check, X, Clock,
   Users, Star, ChevronDown, ChevronUp, Loader2, Wifi, WifiOff,
   RefreshCw, AlertCircle, CheckCircle2, Copy, Trash2, Eye, EyeOff,
-  BookOpen, Calendar, User, Zap, Shield, ChevronLeft, ChevronRight
+  BookOpen, Calendar, User, Zap, Shield, ChevronLeft, ChevronRight, RotateCcw
 } from "lucide-react";
 
 import ScheduleModal from "@/components/schedule/ScheduleModal";
@@ -207,6 +207,8 @@ export default function SessionReportsPage() {
           if (idx >= 0) { const n = [...prev]; n[idx] = data; return n; }
           return [...prev, data];
         });
+      } else if (data.type === "attendance_reset") {
+        setAttendanceRecords((prev) => prev.filter((r) => r.student_id !== data.student_id));
       }
     };
     wsRef.current = ws;
@@ -218,7 +220,25 @@ export default function SessionReportsPage() {
     setWsConnected(false);
   };
 
-  const manualCheckin = async (studentId: number, status: "present" | "late" | "excused") => {
+  const undoCheckin = async (studentId: number) => {
+    if (!selectedSchedule) return;
+    setCheckingIn(studentId);
+    try {
+      const res = await fetch(`${API}/api/attendance/reset?schedule_id=${selectedSchedule.id}&student_id=${studentId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${getToken()}` },
+      });
+      if (res.ok) {
+        setAttendanceRecords((prev) => prev.filter((r) => r.student_id !== studentId));
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setCheckingIn(null);
+    }
+  };
+
+  const manualCheckin = async (studentId: number, status: "present" | "late" | "excused" | "absent") => {
     if (!selectedSchedule) return;
     setCheckingIn(studentId);
     const res = await fetch(`${API}/api/attendance/manual-checkin`, {
@@ -513,15 +533,21 @@ export default function SessionReportsPage() {
                         {isSaving ? (
                           <Loader2 className="w-5 h-5 animate-spin text-rose-400" />
                         ) : (
-                          <div className="flex gap-2">
+                          <div className="flex items-center gap-1.5">
                             {[
                               { s: "present" as const, label: "✅", title: "Có mặt" },
                               { s: "late" as const, label: "⏰", title: "Muộn" },
                               { s: "excused" as const, label: "📋", title: "Phép" },
                               { s: "absent" as const, label: "❌", title: "Vắng" },
                             ].map(({ s, label, title }) => (
-                              <button key={s} title={title}
-                                onClick={() => manualCheckin(student.id, s === "absent" ? s : s)}
+                              <button key={s} title={record?.status === s ? `Bấm để hoàn tác (${title})` : title}
+                                onClick={() => {
+                                  if (record?.status === s) {
+                                    undoCheckin(student.id);
+                                  } else {
+                                    manualCheckin(student.id, s);
+                                  }
+                                }}
                                 className={`w-8 h-8 rounded-lg text-sm transition-all hover:scale-110 border ${
                                   record?.status === s ? "bg-rose-500 border-rose-500 shadow-lg shadow-rose-500/30" : "border-border-card hover:border-rose-500/30 hover:bg-bg-hover"
                                 }`}
@@ -529,6 +555,17 @@ export default function SessionReportsPage() {
                                 {label}
                               </button>
                             ))}
+
+                            {record && (
+                              <button
+                                type="button"
+                                title="Hoàn tác điểm danh (Reset về Chưa điểm danh)"
+                                onClick={() => undoCheckin(student.id)}
+                                className="w-8 h-8 rounded-lg text-xs font-bold transition-all border border-amber-500/40 text-amber-400 bg-amber-500/10 hover:bg-amber-500 hover:text-white flex items-center justify-center hover:scale-110"
+                              >
+                                <RotateCcw className="w-3.5 h-3.5" />
+                              </button>
+                            )}
                           </div>
                         )}
                       </div>
