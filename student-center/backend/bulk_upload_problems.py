@@ -1,7 +1,7 @@
 import requests
 import re
 import json
-import importlib
+import app.models.assignment_folder
 import app.models
 from app.db.database import engine
 from app.models.code_problem import CodeProblem
