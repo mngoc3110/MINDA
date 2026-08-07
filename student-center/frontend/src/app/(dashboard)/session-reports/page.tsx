@@ -91,8 +91,16 @@ export default function SessionReportsPage() {
   const [roomSearchQuery, setRoomSearchQuery] = useState("");
 
   // Weekly/Monthly
+  const getMondayDate = () => {
+    const d = new Date();
+    const day = d.getDay();
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+    const monday = new Date(d.setDate(diff));
+    return monday.toISOString().split("T")[0];
+  };
+
   const [reportMode, setReportMode] = useState<"weekly" | "monthly">("weekly");
-  const [weekStart, setWeekStart] = useState("");
+  const [weekStart, setWeekStart] = useState(getMondayDate());
   const [reportMonth, setReportMonth] = useState(new Date().getMonth() + 1);
   const [reportYear, setReportYear] = useState(new Date().getFullYear());
   const [selectedStudentReport, setSelectedStudentReport] = useState<number | null>(null);
@@ -354,21 +362,49 @@ export default function SessionReportsPage() {
 
   // ── Auto-generate weekly/monthly ───────────────────────────────────────────
   const autoGenerate = async () => {
-    if (!selectedStudentReport) return;
+    if (!selectedStudentReport) {
+      alert("Vui lòng chọn học sinh trước khi bấm tự động tổng hợp!");
+      return;
+    }
+
+    const currentWeekStart = weekStart || getMondayDate();
+    if (reportMode === "weekly" && !weekStart) {
+      setWeekStart(currentWeekStart);
+    }
+
     setGenerating(true);
     try {
       if (reportMode === "weekly") {
-        const res = await fetch(`${API}/api/reports/weekly/auto-generate?student_id=${selectedStudentReport}&week_start_str=${weekStart}`, {
-          method: "POST", headers: { Authorization: `Bearer ${getToken()}` },
+        const res = await fetch(`${API}/api/reports/weekly/auto-generate?student_id=${selectedStudentReport}&week_start_str=${currentWeekStart}`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${getToken()}` },
         });
-        if (res.ok) setWeeklyData(await res.json());
+        if (res.ok) {
+          const data = await res.json();
+          setWeeklyData(data);
+        } else {
+          const errData = await res.json();
+          alert(`Lỗi tổng hợp báo cáo tuần: ${errData.detail || "Vui lòng thử lại"}`);
+        }
       } else {
         const res = await fetch(`${API}/api/reports/monthly/auto-generate?student_id=${selectedStudentReport}&month=${reportMonth}&year=${reportYear}`, {
-          method: "POST", headers: { Authorization: `Bearer ${getToken()}` },
+          method: "POST",
+          headers: { Authorization: `Bearer ${getToken()}` },
         });
-        if (res.ok) setMonthlyData(await res.json());
+        if (res.ok) {
+          const data = await res.json();
+          setMonthlyData(data);
+        } else {
+          const errData = await res.json();
+          alert(`Lỗi tổng hợp báo cáo tháng: ${errData.detail || "Vui lòng thử lại"}`);
+        }
       }
-    } finally { setGenerating(false); }
+    } catch (err) {
+      console.error(err);
+      alert("Lỗi kết nối khi tự động tổng hợp báo cáo!");
+    } finally {
+      setGenerating(false);
+    }
   };
 
   // ── Device Management ───────────────────────────────────────────────────────
