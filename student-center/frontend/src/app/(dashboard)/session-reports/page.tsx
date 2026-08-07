@@ -73,6 +73,7 @@ export default function SessionReportsPage() {
   // Live Attendance State
   const [selectedSchedule, setSelectedSchedule] = useState<ScheduleItem | null>(null);
   const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>([]);
+  const [roomStudents, setRoomStudents] = useState<Student[]>([]);
   const [wsConnected, setWsConnected] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
   const [checkingIn, setCheckingIn] = useState<number | null>(null);
@@ -142,6 +143,7 @@ export default function SessionReportsPage() {
   // ── WebSocket for live attendance ──────────────────────────────────────────
   const openLiveRoom = async (schedule: ScheduleItem) => {
     setSelectedSchedule(schedule);
+    setRoomStudents([]);
     const headers = { Authorization: `Bearer ${getToken()}` };
     
     // Load existing attendance and schedule-specific students
@@ -150,7 +152,7 @@ export default function SessionReportsPage() {
       fetch(`${API}/api/schedules/${schedule.id}/students`, { headers }),
     ]);
     if (attRes.ok) setAttendanceRecords(await attRes.json());
-    if (stuRes.ok) setMyStudents(await stuRes.json());
+    if (stuRes.ok) setRoomStudents(await stuRes.json());
 
     // Connect WebSocket
     const wsUrl = `${API.replace("https://", "wss://").replace("http://", "ws://")}/api/attendance/ws/${schedule.id}?token=${getToken()}`;
@@ -428,7 +430,7 @@ export default function SessionReportsPage() {
 
               {/* Student list */}
               <div className="space-y-3">
-                {myStudents.map((student) => {
+                {roomStudents.map((student) => {
                   const record = getStudentAttendance(student.id);
                   const isSaving = checkingIn === student.id;
                   return (
@@ -535,7 +537,7 @@ export default function SessionReportsPage() {
               </div>
 
               <div className="space-y-4">
-                {myStudents.map((student) => {
+                {roomStudents.map((student) => {
                   const report = sessionReports[student.id] || {};
                   const [expanded, setExpanded] = useState(false);
                   return (
