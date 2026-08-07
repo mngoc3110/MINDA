@@ -36,11 +36,11 @@ export default function TeacherSidebar() {
   }, []);
 
   return (
-    <aside className="w-[280px] h-screen border-r border-border-card bg-bg-main/95 backdrop-blur-3xl flex-col hidden lg:flex shrink-0 relative z-50">
+    <aside className="w-[280px] h-screen border-r border-border-card bg-bg-main/95 backdrop-blur-3xl flex-col hidden lg:flex shrink-0 relative z-50 overflow-hidden">
       <div className="absolute top-0 left-0 w-full h-48 bg-gradient-to-b from-rose-500/5 via-transparent to-transparent -z-10 pointer-events-none" />
       
       {/* Logo */}
-      <Link href="/" className="p-8 pb-6 flex items-center gap-4 hover:opacity-80 transition-opacity">
+      <Link href="/" className="p-8 pb-6 flex items-center gap-4 hover:opacity-80 transition-opacity shrink-0">
         <div className="w-12 h-12 rounded-2xl overflow-hidden shadow-md shadow-rose-500/20">
           <img src="/logo.png" alt="MINDA" className="w-full h-full object-cover" />
         </div>
@@ -51,7 +51,7 @@ export default function TeacherSidebar() {
       </Link>
 
       {/* Nav */}
-      <nav className="flex-1 py-6 px-5 flex flex-col gap-1.5">
+      <nav className="flex-1 py-4 px-5 flex flex-col gap-1.5 overflow-y-auto custom-scrollbar">
         <span className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mb-2 ml-2">Công cụ giảng dạy</span>
         {NAV_ITEMS.map((item) => {
           const isActive = pathname === item.href || (item.href !== "/teacher-dashboard" && pathname.startsWith(item.href));
@@ -100,7 +100,7 @@ export default function TeacherSidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="p-5 border-t border-border-card">
+      <div className="p-4 border-t border-border-card shrink-0">
         <div className="p-4 rounded-2xl bg-bg-card border border-border-card mb-4 flex gap-3 items-center shadow-sm">
           <div className="w-10 h-10 rounded-full border-2 border-rose-400/50 shrink-0 overflow-hidden">
             <div className="w-full h-full bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center">

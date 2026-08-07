@@ -31,11 +31,11 @@ export default function StudentSidebar() {
   const initials = userName.split(" ").map(w => w[0]).slice(-2).join("").toUpperCase() || "HS";
 
   return (
-    <aside className="w-[280px] h-screen border-r border-border-card bg-bg-main/95 backdrop-blur-3xl flex-col hidden lg:flex shrink-0 relative z-50">
+    <aside className="w-[280px] h-screen border-r border-border-card bg-bg-main/95 backdrop-blur-3xl flex-col hidden lg:flex shrink-0 relative z-50 overflow-hidden">
       <div className="absolute top-0 left-0 w-full h-48 bg-gradient-to-b from-indigo-500/5 via-transparent to-transparent -z-10 pointer-events-none" />
       
       {/* Logo */}
-      <Link href="/" className="p-8 pb-6 flex items-center gap-4 hover:opacity-80 transition-opacity">
+      <Link href="/" className="p-8 pb-6 flex items-center gap-4 hover:opacity-80 transition-opacity shrink-0">
         <div className="w-12 h-12 rounded-2xl overflow-hidden shadow-md shadow-indigo-500/20">
           <img src="/logo.png" alt="MINDA" className="w-full h-full object-cover" />
         </div>
@@ -46,7 +46,7 @@ export default function StudentSidebar() {
       </Link>
 
       {/* Nav */}
-      <nav className="flex-1 py-6 px-5 flex flex-col gap-1.5">
+      <nav className="flex-1 py-4 px-5 flex flex-col gap-1.5 overflow-y-auto custom-scrollbar">
         <span className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mb-2 ml-2">Điều hướng học tập</span>
         {NAV_ITEMS.map((item) => {
           const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));

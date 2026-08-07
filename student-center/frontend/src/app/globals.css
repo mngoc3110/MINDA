@@ -201,8 +201,9 @@ body {
 }
 
 body {
-  background: #010103;
-  font-family: "General Sans", sans-serif;
+  background-color: var(--c-bg-main);
+  color: var(--c-text-primary);
+  font-family: var(--font-outfit), "General Sans", sans-serif;
 }
 
 @layer utilities {
