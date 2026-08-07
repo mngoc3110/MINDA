@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BrainCircuit, Grid, BookOpen, GraduationCap, ClipboardCheck, Wallet, LogOut, Sun, Moon, FileUser, Trophy, UserCircle, Users, RefreshCw, FileText, Clapperboard, Heart, Calendar } from "lucide-react";
+import { BrainCircuit, Grid, BookOpen, GraduationCap, ClipboardCheck, Wallet, LogOut, Sun, Moon, FileUser, Trophy, UserCircle, Users, RefreshCw, FileText, Clapperboard, Heart, Calendar, ClipboardList } from "lucide-react";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useEffect, useState } from "react";
 
@@ -14,6 +14,7 @@ const NAV_ITEMS = [
   { name: "Hồ sơ CV", href: "/cv", icon: FileUser },
   { name: "Quản lý Khoá học", href: "/courses", icon: BookOpen },
   { name: "Quản lý Học sinh", href: "/my-students", icon: Users },
+  { name: "Điểm Danh & Báo Cáo", href: "/session-reports", icon: ClipboardList },
   { name: "Lớp học Live", href: "/live", icon: GraduationCap },
   { name: "Chấm điểm & Bài tập", href: "/assignments", icon: ClipboardCheck },
   { name: "Bảng Vinh Danh", href: "/honors", icon: Trophy },

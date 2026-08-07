@@ -9,6 +9,10 @@ from app.models.live_session import LiveSession
 from app.models.tuition import TuitionRecord
 from app.models.yearbook import YearbookMessage
 from app.models.schedule import ScheduleItem, ScheduleType
+from app.models.session_report import (
+    AttendanceRecord, AttendanceDevice, StudentBiometric, AttendanceStatus, AttendanceMethod,
+    ParentLink, SessionReport, WeeklyReport, MonthlyReport, HomeworkStatus
+)
 
 __all__ = [
     "User", "UserRole",
@@ -21,4 +25,8 @@ __all__ = [
     "TuitionRecord",
     "YearbookMessage",
     "ScheduleItem", "ScheduleType",
+    "AttendanceRecord", "AttendanceDevice", "StudentBiometric",
+    "AttendanceStatus", "AttendanceMethod", "HomeworkStatus",
+    "ParentLink",
+    "SessionReport", "WeeklyReport", "MonthlyReport",
 ]

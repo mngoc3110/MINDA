@@ -1,0 +1,887 @@
+"use client";
+
+import { useEffect, useState, useRef, useCallback } from "react";
+import {
+  ClipboardList, Radio, Cpu, BarChart3, Plus, Check, X, Clock,
+  Users, Star, ChevronDown, ChevronUp, Loader2, Wifi, WifiOff,
+  RefreshCw, AlertCircle, CheckCircle2, Copy, Trash2, Eye, EyeOff,
+  BookOpen, Calendar, User, Zap, Shield, ChevronLeft, ChevronRight
+} from "lucide-react";
+
+const API = process.env.NEXT_PUBLIC_API_URL || "https://minda.io.vn";
+const getToken = () => typeof window !== "undefined" ? localStorage.getItem("minda_token") || "" : "";
+
+type TabType = "live" | "session" | "weekly-monthly" | "devices";
+
+interface Student { id: number; full_name: string; avatar_url?: string; }
+interface ScheduleItem {
+  id: number; title: string; start_time: string; end_time: string;
+  description?: string;
+}
+interface AttendanceRecord {
+  id: number; student_id: number; student_name: string; student_avatar?: string;
+  status: "present" | "absent" | "late" | "excused";
+  method: "manual" | "fingerprint" | "face";
+  checkin_time?: string; note?: string;
+}
+interface SessionReport {
+  id?: number; student_id: number; student_name: string;
+  content?: string; behavior_score?: number; progress_score?: number;
+  homework_status?: "done" | "partial" | "missing";
+  strengths?: string; weaknesses?: string; is_visible_to_parent: boolean;
+}
+interface Device { id: number; name: string; device_type: string; is_active: boolean; last_seen?: string; }
+
+const STATUS_CONFIG = {
+  present: { label: "Có mặt", color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30", dot: "bg-emerald-400" },
+  absent:  { label: "Vắng",   color: "bg-red-500/20 text-red-400 border-red-500/30",           dot: "bg-red-400" },
+  late:    { label: "Muộn",   color: "bg-amber-500/20 text-amber-400 border-amber-500/30",     dot: "bg-amber-400" },
+  excused: { label: "Phép",   color: "bg-blue-500/20 text-blue-400 border-blue-500/30",        dot: "bg-blue-400" },
+};
+
+const HW_CONFIG = {
+  done:    { label: "✅ Hoàn thành",  color: "text-emerald-400" },
+  partial: { label: "⚠️ Làm dở",      color: "text-amber-400" },
+  missing: { label: "❌ Không làm",   color: "text-red-400" },
+};
+
+function StarRating({ value, onChange }: { value?: number; onChange?: (v: number) => void }) {
+  const [hovered, setHovered] = useState(0);
+  return (
+    <div className="flex gap-1">
+      {[1, 2, 3, 4, 5].map((s) => (
+        <button key={s} type="button"
+          onClick={() => onChange?.(s)}
+          onMouseEnter={() => setHovered(s)}
+          onMouseLeave={() => setHovered(0)}
+          className="transition-transform hover:scale-110"
+        >
+          <Star className={`w-5 h-5 ${(hovered || value || 0) >= s ? "fill-amber-400 text-amber-400" : "text-zinc-600"}`} />
+        </button>
+      ))}
+    </div>
+  );
+}
+
+export default function SessionReportsPage() {
+  const [tab, setTab] = useState<TabType>("live");
+  const [schedules, setSchedules] = useState<ScheduleItem[]>([]);
+  const [myStudents, setMyStudents] = useState<Student[]>([]);
+  const [devices, setDevices] = useState<Device[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Live Attendance State
+  const [selectedSchedule, setSelectedSchedule] = useState<ScheduleItem | null>(null);
+  const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>([]);
+  const [wsConnected, setWsConnected] = useState(false);
+  const wsRef = useRef<WebSocket | null>(null);
+  const [checkingIn, setCheckingIn] = useState<number | null>(null);
+
+  // Session Report State
+  const [reportSchedule, setReportSchedule] = useState<ScheduleItem | null>(null);
+  const [sessionReports, setSessionReports] = useState<Record<number, SessionReport>>({});
+  const [savingReport, setSavingReport] = useState<number | null>(null);
+
+  // Weekly/Monthly
+  const [reportMode, setReportMode] = useState<"weekly" | "monthly">("weekly");
+  const [weekStart, setWeekStart] = useState("");
+  const [reportMonth, setReportMonth] = useState(new Date().getMonth() + 1);
+  const [reportYear, setReportYear] = useState(new Date().getFullYear());
+  const [selectedStudentReport, setSelectedStudentReport] = useState<number | null>(null);
+  const [weeklyData, setWeeklyData] = useState<any>(null);
+  const [monthlyData, setMonthlyData] = useState<any>(null);
+  const [generating, setGenerating] = useState(false);
+
+  // Device Management
+  const [newDeviceName, setNewDeviceName] = useState("");
+  const [newDeviceType, setNewDeviceType] = useState("fingerprint");
+  const [createdDeviceToken, setCreatedDeviceToken] = useState<string | null>(null);
+
+  // Parent Link
+  const [parentLinks, setParentLinks] = useState<any[]>([]);
+  const [generatingLink, setGeneratingLink] = useState(false);
+  const [newLinkStudentId, setNewLinkStudentId] = useState<number | null>(null);
+  const [newLinkParentName, setNewLinkParentName] = useState("");
+  const [newLinkExpires, setNewLinkExpires] = useState<number | null>(null);
+  const [createdLink, setCreatedLink] = useState<any>(null);
+
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    const headers = { Authorization: `Bearer ${getToken()}` };
+    try {
+      const [schRes, stuRes, devRes, linkRes] = await Promise.all([
+        fetch(`${API}/api/schedules/`, { headers }),
+        fetch(`${API}/api/profile/my-offline-students`, { headers }),
+        fetch(`${API}/api/attendance/devices`, { headers }),
+        fetch(`${API}/api/parent-links/my-links`, { headers }),
+      ]);
+      if (schRes.ok) {
+        const data = await schRes.json();
+        setSchedules(data.sort((a: any, b: any) => new Date(b.start_time).getTime() - new Date(a.start_time).getTime()));
+      }
+      if (stuRes.ok) setMyStudents(await stuRes.json());
+      if (devRes.ok) setDevices(await devRes.json());
+      if (linkRes.ok) setParentLinks(await linkRes.json());
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
+
+  // ── WebSocket for live attendance ──────────────────────────────────────────
+  const openLiveRoom = async (schedule: ScheduleItem) => {
+    setSelectedSchedule(schedule);
+    // Load existing attendance
+    const res = await fetch(`${API}/api/attendance/schedule/${schedule.id}`, {
+      headers: { Authorization: `Bearer ${getToken()}` },
+    });
+    if (res.ok) setAttendanceRecords(await res.json());
+
+    // Connect WebSocket
+    const wsUrl = `${API.replace("https://", "wss://").replace("http://", "ws://")}/api/attendance/ws/${schedule.id}?token=${getToken()}`;
+    const ws = new WebSocket(wsUrl);
+    ws.onopen = () => setWsConnected(true);
+    ws.onclose = () => setWsConnected(false);
+    ws.onmessage = (e) => {
+      const data = JSON.parse(e.data);
+      if (data.type === "student_arrived") {
+        setAttendanceRecords((prev) => {
+          const idx = prev.findIndex((r) => r.student_id === data.student_id);
+          if (idx >= 0) { const n = [...prev]; n[idx] = data; return n; }
+          return [...prev, data];
+        });
+      }
+    };
+    wsRef.current = ws;
+  };
+
+  const closeLiveRoom = () => {
+    wsRef.current?.close();
+    setSelectedSchedule(null);
+    setWsConnected(false);
+  };
+
+  const manualCheckin = async (studentId: number, status: "present" | "late" | "excused") => {
+    if (!selectedSchedule) return;
+    setCheckingIn(studentId);
+    const res = await fetch(`${API}/api/attendance/manual-checkin`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${getToken()}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ schedule_id: selectedSchedule.id, student_id: studentId, status }),
+    });
+    if (res.ok) {
+      const { record } = await res.json();
+      setAttendanceRecords((prev) => {
+        const idx = prev.findIndex((r) => r.student_id === studentId);
+        if (idx >= 0) { const n = [...prev]; n[idx] = record; return n; }
+        return [...prev, record];
+      });
+    }
+    setCheckingIn(null);
+  };
+
+  const getStudentAttendance = (studentId: number) =>
+    attendanceRecords.find((r) => r.student_id === studentId);
+
+  // ── Session Report ──────────────────────────────────────────────────────────
+  const loadReportsForSchedule = async (schedule: ScheduleItem) => {
+    setReportSchedule(schedule);
+    const res = await fetch(`${API}/api/reports/session/schedule/${schedule.id}`, {
+      headers: { Authorization: `Bearer ${getToken()}` },
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const map: Record<number, SessionReport> = {};
+      data.forEach((r: SessionReport) => { map[r.student_id] = r; });
+      setSessionReports(map);
+    }
+  };
+
+  const saveSessionReport = async (studentId: number) => {
+    if (!reportSchedule) return;
+    setSavingReport(studentId);
+    const report = sessionReports[studentId] || {};
+    await fetch(`${API}/api/reports/session`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${getToken()}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ schedule_id: reportSchedule.id, student_id: studentId, ...report }),
+    });
+    setSavingReport(null);
+  };
+
+  const updateReport = (studentId: number, field: string, value: any) => {
+    setSessionReports((prev) => ({ ...prev, [studentId]: { ...(prev[studentId] || {}), student_id: studentId, is_visible_to_parent: true, [field]: value } }));
+  };
+
+  // ── Auto-generate weekly/monthly ───────────────────────────────────────────
+  const autoGenerate = async () => {
+    if (!selectedStudentReport) return;
+    setGenerating(true);
+    try {
+      if (reportMode === "weekly") {
+        const res = await fetch(`${API}/api/reports/weekly/auto-generate?student_id=${selectedStudentReport}&week_start_str=${weekStart}`, {
+          method: "POST", headers: { Authorization: `Bearer ${getToken()}` },
+        });
+        if (res.ok) setWeeklyData(await res.json());
+      } else {
+        const res = await fetch(`${API}/api/reports/monthly/auto-generate?student_id=${selectedStudentReport}&month=${reportMonth}&year=${reportYear}`, {
+          method: "POST", headers: { Authorization: `Bearer ${getToken()}` },
+        });
+        if (res.ok) setMonthlyData(await res.json());
+      }
+    } finally { setGenerating(false); }
+  };
+
+  // ── Device Management ───────────────────────────────────────────────────────
+  const registerDevice = async () => {
+    const res = await fetch(`${API}/api/attendance/devices`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${getToken()}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ name: newDeviceName, device_type: newDeviceType }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      setCreatedDeviceToken(data.device_token);
+      setDevices((prev) => [...prev, data]);
+      setNewDeviceName("");
+    }
+  };
+
+  const toggleDevice = async (deviceId: number) => {
+    await fetch(`${API}/api/attendance/devices/${deviceId}/toggle`, {
+      method: "PUT", headers: { Authorization: `Bearer ${getToken()}` },
+    });
+    fetchData();
+  };
+
+  // ── Parent Link ─────────────────────────────────────────────────────────────
+  const generateParentLink = async () => {
+    if (!newLinkStudentId) return;
+    setGeneratingLink(true);
+    const res = await fetch(`${API}/api/parent-links/generate`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${getToken()}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ student_id: newLinkStudentId, parent_name: newLinkParentName || null, expires_days: newLinkExpires }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      setCreatedLink(data);
+      setParentLinks((prev) => [data, ...prev]);
+    }
+    setGeneratingLink(false);
+  };
+
+  const revokeLink = async (linkId: number) => {
+    await fetch(`${API}/api/parent-links/${linkId}`, {
+      method: "DELETE", headers: { Authorization: `Bearer ${getToken()}` },
+    });
+    setParentLinks((prev) => prev.filter((l) => l.id !== linkId));
+  };
+
+  if (loading) return (
+    <div className="flex items-center justify-center h-64">
+      <Loader2 className="w-8 h-8 animate-spin text-rose-400" />
+    </div>
+  );
+
+  const todaySchedules = schedules.filter((s) => {
+    const d = new Date(s.start_time);
+    const now = new Date();
+    return d.toDateString() === now.toDateString();
+  });
+
+  const pastSchedules = schedules.filter((s) => new Date(s.start_time) < new Date());
+
+  return (
+    <div className="max-w-6xl mx-auto px-4 pb-12">
+      {/* Header */}
+      <div className="pt-4 pb-8">
+        <h1 className="text-3xl font-black text-text-primary tracking-tight">
+          📋 Quản Lý Báo Cáo & Điểm Danh
+        </h1>
+        <p className="text-text-secondary mt-2">Điểm danh học sinh, viết báo cáo và chia sẻ với phụ huynh</p>
+      </div>
+
+      {/* Tab Bar */}
+      <div className="flex gap-2 mb-8 bg-bg-card border border-border-card rounded-2xl p-1.5 w-fit">
+        {[
+          { key: "live",          icon: Radio,          label: "Điểm Danh Live" },
+          { key: "session",       icon: ClipboardList,  label: "Báo Cáo Buổi" },
+          { key: "weekly-monthly",icon: BarChart3,      label: "Tuần / Tháng" },
+          { key: "devices",       icon: Cpu,            label: "Arduino & Phụ Huynh" },
+        ].map(({ key, icon: Icon, label }) => (
+          <button key={key} onClick={() => setTab(key as TabType)}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+              tab === key ? "bg-rose-500 text-white shadow-lg shadow-rose-500/30" : "text-text-secondary hover:text-text-primary hover:bg-bg-hover"
+            }`}
+          >
+            <Icon className="w-4 h-4" /> {label}
+          </button>
+        ))}
+      </div>
+
+      {/* ── Tab 1: LIVE ATTENDANCE ──────────────────────────────────────────── */}
+      {tab === "live" && (
+        <div className="space-y-6">
+          {!selectedSchedule ? (
+            <>
+              <div className="grid md:grid-cols-2 gap-6">
+                {/* Today's sessions */}
+                <div>
+                  <h2 className="text-sm font-bold text-rose-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                    <Radio className="w-4 h-4 animate-pulse" /> Buổi học hôm nay
+                  </h2>
+                  {todaySchedules.length === 0 ? (
+                    <div className="p-6 rounded-2xl border border-border-card text-center text-text-secondary">Không có buổi học nào hôm nay</div>
+                  ) : (
+                    <div className="space-y-3">
+                      {todaySchedules.map((s) => (
+                        <button key={s.id} onClick={() => openLiveRoom(s)}
+                          className="w-full text-left p-4 rounded-2xl border border-rose-500/30 bg-rose-500/5 hover:bg-rose-500/10 transition-all group"
+                        >
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="font-bold text-text-primary">{s.title}</p>
+                              <p className="text-sm text-text-secondary mt-0.5">
+                                {new Date(s.start_time).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })} –
+                                {new Date(s.end_time).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-2 text-rose-500 font-semibold text-sm group-hover:gap-3 transition-all">
+                              Mở phòng <Radio className="w-4 h-4 animate-pulse" />
+                            </div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                {/* Past sessions */}
+                <div>
+                  <h2 className="text-sm font-bold text-text-secondary uppercase tracking-widest mb-3">Buổi học gần đây</h2>
+                  <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
+                    {pastSchedules.slice(0, 10).map((s) => (
+                      <button key={s.id} onClick={() => openLiveRoom(s)}
+                        className="w-full text-left p-3 rounded-xl border border-border-card hover:bg-bg-hover transition-all"
+                      >
+                        <p className="font-semibold text-text-primary text-sm">{s.title}</p>
+                        <p className="text-xs text-text-secondary">
+                          {new Date(s.start_time).toLocaleDateString("vi-VN", { weekday: "short", day: "2-digit", month: "2-digit" })}
+                        </p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </>
+          ) : (
+            /* Live Room */
+            <div>
+              <div className="flex items-center gap-4 mb-6">
+                <button onClick={closeLiveRoom} className="p-2 rounded-xl hover:bg-bg-hover transition">
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <div className="flex-1">
+                  <h2 className="text-xl font-black text-text-primary">{selectedSchedule.title}</h2>
+                  <p className="text-text-secondary text-sm">
+                    {new Date(selectedSchedule.start_time).toLocaleString("vi-VN")}
+                  </p>
+                </div>
+                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-bold ${wsConnected ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400" : "border-red-500/30 bg-red-500/10 text-red-400"}`}>
+                  {wsConnected ? <><Wifi className="w-3 h-3" /> LIVE</> : <><WifiOff className="w-3 h-3" /> Offline</>}
+                </div>
+              </div>
+
+              {/* Stats bar */}
+              <div className="grid grid-cols-4 gap-3 mb-6">
+                {Object.entries(STATUS_CONFIG).map(([k, v]) => {
+                  const count = attendanceRecords.filter((r) => r.status === k).length;
+                  return (
+                    <div key={k} className="p-3 rounded-xl border border-border-card bg-bg-card text-center">
+                      <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-bold border ${v.color}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${v.dot}`} />
+                        {v.label}
+                      </div>
+                      <p className="text-2xl font-black text-text-primary mt-1">{count}</p>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Student list */}
+              <div className="space-y-3">
+                {myStudents.map((student) => {
+                  const record = getStudentAttendance(student.id);
+                  const isSaving = checkingIn === student.id;
+                  return (
+                    <div key={student.id} className={`p-4 rounded-2xl border transition-all ${record ? "border-border-card bg-bg-card" : "border-dashed border-border-card bg-bg-card/50"}`}>
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-rose-400 to-pink-600 flex items-center justify-center text-white font-bold text-sm shrink-0">
+                          {student.full_name.split(" ").pop()?.charAt(0) || "?"}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-text-primary">{student.full_name}</p>
+                          {record ? (
+                            <div className="flex items-center gap-2 mt-0.5">
+                              <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-bold border ${STATUS_CONFIG[record.status].color}`}>
+                                <span className={`w-1.5 h-1.5 rounded-full ${STATUS_CONFIG[record.status].dot}`} />
+                                {STATUS_CONFIG[record.status].label}
+                              </span>
+                              {record.checkin_time && (
+                                <span className="text-xs text-text-secondary flex items-center gap-1">
+                                  <Clock className="w-3 h-3" />
+                                  {new Date(record.checkin_time).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}
+                                </span>
+                              )}
+                              {record.method !== "manual" && (
+                                <span className="text-xs text-indigo-400 font-semibold">
+                                  {record.method === "fingerprint" ? "🖐️ Vân tay" : "📸 Khuôn mặt"}
+                                </span>
+                              )}
+                            </div>
+                          ) : (
+                            <p className="text-xs text-text-secondary mt-0.5">Chưa điểm danh</p>
+                          )}
+                        </div>
+                        {isSaving ? (
+                          <Loader2 className="w-5 h-5 animate-spin text-rose-400" />
+                        ) : (
+                          <div className="flex gap-2">
+                            {[
+                              { s: "present" as const, label: "✅", title: "Có mặt" },
+                              { s: "late" as const, label: "⏰", title: "Muộn" },
+                              { s: "excused" as const, label: "📋", title: "Phép" },
+                              { s: "absent" as const, label: "❌", title: "Vắng" },
+                            ].map(({ s, label, title }) => (
+                              <button key={s} title={title}
+                                onClick={() => manualCheckin(student.id, s === "absent" ? s : s)}
+                                className={`w-8 h-8 rounded-lg text-sm transition-all hover:scale-110 border ${
+                                  record?.status === s ? "bg-rose-500 border-rose-500 shadow-lg shadow-rose-500/30" : "border-border-card hover:border-rose-500/30 hover:bg-bg-hover"
+                                }`}
+                              >
+                                {label}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="mt-6 flex gap-3">
+                <button onClick={() => { closeLiveRoom(); setTab("session"); loadReportsForSchedule(selectedSchedule); }}
+                  className="flex-1 py-3 rounded-2xl bg-rose-500 text-white font-bold hover:bg-rose-600 transition text-center"
+                >
+                  Kết thúc & Viết báo cáo →
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── Tab 2: SESSION REPORT ───────────────────────────────────────────── */}
+      {tab === "session" && (
+        <div className="space-y-6">
+          {!reportSchedule ? (
+            <div>
+              <h2 className="text-lg font-bold text-text-primary mb-4">Chọn buổi học để viết báo cáo</h2>
+              <div className="space-y-2 max-h-[500px] overflow-y-auto">
+                {pastSchedules.map((s) => (
+                  <button key={s.id} onClick={() => loadReportsForSchedule(s)}
+                    className="w-full text-left p-4 rounded-2xl border border-border-card hover:bg-bg-hover hover:border-rose-500/20 transition-all group"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-bold text-text-primary">{s.title}</p>
+                        <p className="text-sm text-text-secondary">{new Date(s.start_time).toLocaleDateString("vi-VN", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}</p>
+                      </div>
+                      <ChevronRight className="w-5 h-5 text-text-secondary group-hover:text-rose-500 transition-colors" />
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div>
+              <div className="flex items-center gap-3 mb-6">
+                <button onClick={() => setReportSchedule(null)} className="p-2 rounded-xl hover:bg-bg-hover">
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <div>
+                  <h2 className="text-xl font-black text-text-primary">{reportSchedule.title}</h2>
+                  <p className="text-text-secondary text-sm">{new Date(reportSchedule.start_time).toLocaleDateString("vi-VN", { weekday: "long", day: "2-digit", month: "2-digit", year: "numeric" })}</p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                {myStudents.map((student) => {
+                  const report = sessionReports[student.id] || {};
+                  const [expanded, setExpanded] = useState(false);
+                  return (
+                    <div key={student.id} className="border border-border-card rounded-2xl overflow-hidden">
+                      <button onClick={() => setExpanded(!expanded)}
+                        className="w-full flex items-center gap-4 p-4 hover:bg-bg-hover transition"
+                      >
+                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-400 to-purple-600 flex items-center justify-center text-white font-bold text-sm shrink-0">
+                          {student.full_name.split(" ").pop()?.charAt(0)}
+                        </div>
+                        <div className="flex-1 text-left">
+                          <p className="font-semibold text-text-primary">{student.full_name}</p>
+                          {report.content ? (
+                            <p className="text-xs text-emerald-400 font-semibold">✅ Đã có nhận xét</p>
+                          ) : (
+                            <p className="text-xs text-text-secondary">Chưa viết báo cáo</p>
+                          )}
+                        </div>
+                        {expanded ? <ChevronUp className="w-4 h-4 text-text-secondary" /> : <ChevronDown className="w-4 h-4 text-text-secondary" />}
+                      </button>
+
+                      {expanded && (
+                        <div className="px-4 pb-4 border-t border-border-card space-y-4 pt-4">
+                          <div>
+                            <label className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-2 block">Nhận xét</label>
+                            <textarea rows={3} value={report.content || ""} onChange={(e) => updateReport(student.id, "content", e.target.value)}
+                              placeholder="Nhận xét về học sinh trong buổi học hôm nay..."
+                              className="w-full bg-bg-main border border-border-card rounded-xl px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary resize-none focus:outline-none focus:border-rose-500/50"
+                            />
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <label className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-2 block">Thái độ</label>
+                              <StarRating value={report.behavior_score} onChange={(v) => updateReport(student.id, "behavior_score", v)} />
+                            </div>
+                            <div>
+                              <label className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-2 block">Tiến bộ</label>
+                              <StarRating value={report.progress_score} onChange={(v) => updateReport(student.id, "progress_score", v)} />
+                            </div>
+                          </div>
+
+                          <div>
+                            <label className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-2 block">Bài tập về nhà</label>
+                            <div className="flex gap-2">
+                              {Object.entries(HW_CONFIG).map(([k, v]) => (
+                                <button key={k} onClick={() => updateReport(student.id, "homework_status", k)}
+                                  className={`px-3 py-1.5 rounded-xl border text-sm font-semibold transition ${report.homework_status === k ? "bg-rose-500/20 border-rose-500/50 text-rose-400" : "border-border-card hover:bg-bg-hover"}`}
+                                >
+                                  {v.label}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <label className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-1.5 block">Điểm mạnh</label>
+                              <input value={report.strengths || ""} onChange={(e) => updateReport(student.id, "strengths", e.target.value)}
+                                placeholder="Điểm mạnh buổi này..."
+                                className="w-full bg-bg-main border border-border-card rounded-xl px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary focus:outline-none focus:border-emerald-500/50"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-1.5 block">Cần cải thiện</label>
+                              <input value={report.weaknesses || ""} onChange={(e) => updateReport(student.id, "weaknesses", e.target.value)}
+                                placeholder="Điểm cần cải thiện..."
+                                className="w-full bg-bg-main border border-border-card rounded-xl px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary focus:outline-none focus:border-amber-500/50"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                            <label className="flex items-center gap-2 cursor-pointer">
+                              <input type="checkbox" checked={report.is_visible_to_parent !== false}
+                                onChange={(e) => updateReport(student.id, "is_visible_to_parent", e.target.checked)}
+                                className="w-4 h-4 accent-rose-500"
+                              />
+                              <span className="text-sm text-text-secondary">Hiển thị cho phụ huynh</span>
+                            </label>
+                            <button onClick={() => saveSessionReport(student.id)}
+                              disabled={savingReport === student.id}
+                              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-rose-500 text-white text-sm font-bold hover:bg-rose-600 transition disabled:opacity-50"
+                            >
+                              {savingReport === student.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                              Lưu báo cáo
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── Tab 3: WEEKLY / MONTHLY ─────────────────────────────────────────── */}
+      {tab === "weekly-monthly" && (
+        <div className="space-y-6">
+          {/* Controls */}
+          <div className="p-6 rounded-2xl border border-border-card bg-bg-card space-y-4">
+            <div className="flex gap-3 items-center">
+              <div className="flex gap-2 bg-bg-main rounded-xl p-1 border border-border-card">
+                {(["weekly", "monthly"] as const).map((m) => (
+                  <button key={m} onClick={() => setReportMode(m)}
+                    className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition ${reportMode === m ? "bg-rose-500 text-white" : "text-text-secondary hover:text-text-primary"}`}
+                  >
+                    {m === "weekly" ? "📅 Báo cáo Tuần" : "📆 Báo cáo Tháng"}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-1.5 block">Học sinh</label>
+                <select value={selectedStudentReport || ""} onChange={(e) => setSelectedStudentReport(Number(e.target.value) || null)}
+                  className="w-full bg-bg-main border border-border-card rounded-xl px-3 py-2.5 text-sm text-text-primary focus:outline-none focus:border-rose-500/50"
+                >
+                  <option value="">Chọn học sinh...</option>
+                  {myStudents.map((s) => <option key={s.id} value={s.id}>{s.full_name}</option>)}
+                </select>
+              </div>
+
+              {reportMode === "weekly" ? (
+                <div>
+                  <label className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-1.5 block">Tuần bắt đầu (Thứ 2)</label>
+                  <input type="date" value={weekStart} onChange={(e) => setWeekStart(e.target.value)}
+                    className="w-full bg-bg-main border border-border-card rounded-xl px-3 py-2.5 text-sm text-text-primary focus:outline-none focus:border-rose-500/50"
+                  />
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <div className="flex-1">
+                    <label className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-1.5 block">Tháng</label>
+                    <select value={reportMonth} onChange={(e) => setReportMonth(Number(e.target.value))}
+                      className="w-full bg-bg-main border border-border-card rounded-xl px-3 py-2.5 text-sm text-text-primary focus:outline-none"
+                    >
+                      {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => <option key={m} value={m}>Tháng {m}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-1.5 block">Năm</label>
+                    <input type="number" value={reportYear} onChange={(e) => setReportYear(Number(e.target.value))}
+                      className="w-24 bg-bg-main border border-border-card rounded-xl px-3 py-2.5 text-sm text-text-primary focus:outline-none"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <button onClick={autoGenerate} disabled={!selectedStudentReport || generating}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-rose-500 text-white font-bold hover:bg-rose-600 transition disabled:opacity-50"
+            >
+              {generating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
+              Tự động tổng hợp
+            </button>
+          </div>
+
+          {/* Generated data */}
+          {(weeklyData || monthlyData) && (
+            <div className="p-6 rounded-2xl border border-emerald-500/30 bg-emerald-500/5 space-y-4">
+              <h3 className="font-bold text-emerald-400 flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5" /> Đã tổng hợp xong
+              </h3>
+              {reportMode === "weekly" && weeklyData && (
+                <div className="grid grid-cols-3 gap-4 text-center">
+                  {[
+                    { label: "Tổng buổi", value: weeklyData.total_sessions },
+                    { label: "Đi học", value: weeklyData.attended_sessions },
+                    { label: "Đi muộn", value: weeklyData.late_sessions },
+                    { label: "TB Thái độ", value: weeklyData.avg_behavior_score ? `${weeklyData.avg_behavior_score}/5` : "—" },
+                    { label: "TB Tiến bộ", value: weeklyData.avg_progress_score ? `${weeklyData.avg_progress_score}/5` : "—" },
+                    { label: "BTVN", value: weeklyData.homework_completion_rate ? `${Math.round(weeklyData.homework_completion_rate * 100)}%` : "—" },
+                  ].map(({ label, value }) => (
+                    <div key={label} className="p-3 rounded-xl bg-bg-card border border-border-card">
+                      <p className="text-xs text-text-secondary">{label}</p>
+                      <p className="text-lg font-black text-text-primary">{value ?? "—"}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {reportMode === "monthly" && monthlyData && (
+                <div className="grid grid-cols-3 gap-4 text-center">
+                  {[
+                    { label: "Tổng buổi", value: monthlyData.total_sessions },
+                    { label: "Đi học", value: monthlyData.attended_sessions },
+                    { label: "Chuyên cần", value: monthlyData.attendance_rate ? `${Math.round(monthlyData.attendance_rate * 100)}%` : "—" },
+                    { label: "TB Thái độ", value: monthlyData.avg_behavior_score ? `${monthlyData.avg_behavior_score}/5` : "—" },
+                    { label: "TB Tiến bộ", value: monthlyData.avg_progress_score ? `${monthlyData.avg_progress_score}/5` : "—" },
+                  ].map(({ label, value }) => (
+                    <div key={label} className="p-3 rounded-xl bg-bg-card border border-border-card">
+                      <p className="text-xs text-text-secondary">{label}</p>
+                      <p className="text-lg font-black text-text-primary">{value ?? "—"}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <p className="text-xs text-text-secondary">Nhận xét và mục tiêu sẽ được thêm thủ công qua API. Tính năng giao diện chỉnh sửa đầy đủ sắp ra mắt.</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── Tab 4: DEVICES & PARENT LINKS ──────────────────────────────────── */}
+      {tab === "devices" && (
+        <div className="grid lg:grid-cols-2 gap-6">
+          {/* Arduino Devices */}
+          <div className="space-y-4">
+            <h2 className="text-lg font-bold text-text-primary flex items-center gap-2">
+              <Cpu className="w-5 h-5 text-indigo-400" /> Thiết Bị Arduino
+            </h2>
+
+            {/* Register new */}
+            <div className="p-4 rounded-2xl border border-border-card bg-bg-card space-y-3">
+              <p className="text-sm font-bold text-text-secondary">Đăng ký thiết bị mới</p>
+              <input value={newDeviceName} onChange={(e) => setNewDeviceName(e.target.value)}
+                placeholder="Tên thiết bị (VD: Arduino Phòng A)"
+                className="w-full bg-bg-main border border-border-card rounded-xl px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-indigo-500/50"
+              />
+              <select value={newDeviceType} onChange={(e) => setNewDeviceType(e.target.value)}
+                className="w-full bg-bg-main border border-border-card rounded-xl px-3 py-2 text-sm text-text-primary focus:outline-none"
+              >
+                <option value="fingerprint">🖐️ Vân tay</option>
+                <option value="face">📸 Khuôn mặt</option>
+              </select>
+              <button onClick={registerDevice} disabled={!newDeviceName}
+                className="w-full py-2 rounded-xl bg-indigo-500 text-white font-bold hover:bg-indigo-600 transition disabled:opacity-50 text-sm"
+              >
+                + Đăng ký thiết bị
+              </button>
+            </div>
+
+            {/* Token reveal */}
+            {createdDeviceToken && (
+              <div className="p-4 rounded-2xl border border-amber-500/30 bg-amber-500/10 space-y-2">
+                <p className="text-sm font-bold text-amber-400 flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4" /> Lưu token này ngay! Không hiện lại.
+                </p>
+                <div className="flex gap-2 items-center">
+                  <code className="flex-1 text-xs bg-bg-card px-3 py-2 rounded-lg font-mono text-text-primary break-all">{createdDeviceToken}</code>
+                  <button onClick={() => navigator.clipboard.writeText(createdDeviceToken)} className="p-2 rounded-lg hover:bg-bg-hover transition">
+                    <Copy className="w-4 h-4 text-amber-400" />
+                  </button>
+                </div>
+                <button onClick={() => setCreatedDeviceToken(null)} className="text-xs text-text-secondary hover:text-text-primary">Đã lưu, đóng</button>
+              </div>
+            )}
+
+            {/* Device list */}
+            <div className="space-y-2">
+              {devices.map((d) => (
+                <div key={d.id} className="flex items-center gap-3 p-3 rounded-xl border border-border-card">
+                  <div className={`w-2.5 h-2.5 rounded-full ${d.is_active ? "bg-emerald-400" : "bg-zinc-600"}`} />
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-text-primary">{d.name}</p>
+                    <p className="text-xs text-text-secondary">{d.device_type === "fingerprint" ? "🖐️ Vân tay" : "📸 Khuôn mặt"}</p>
+                  </div>
+                  <button onClick={() => toggleDevice(d.id)}
+                    className={`text-xs px-2.5 py-1 rounded-lg font-bold border transition ${d.is_active ? "border-emerald-500/30 text-emerald-400 hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/30" : "border-zinc-600 text-zinc-500 hover:bg-emerald-500/10 hover:text-emerald-400 hover:border-emerald-500/30"}`}
+                  >
+                    {d.is_active ? "Đang bật" : "Đã tắt"}
+                  </button>
+                </div>
+              ))}
+              {devices.length === 0 && (
+                <p className="text-sm text-text-secondary text-center py-6">Chưa có thiết bị nào</p>
+              )}
+            </div>
+          </div>
+
+          {/* Parent Links */}
+          <div className="space-y-4">
+            <h2 className="text-lg font-bold text-text-primary flex items-center gap-2">
+              <Shield className="w-5 h-5 text-rose-400" /> Link Phụ Huynh
+            </h2>
+
+            {/* Generate new */}
+            <div className="p-4 rounded-2xl border border-border-card bg-bg-card space-y-3">
+              <p className="text-sm font-bold text-text-secondary">Tạo link mới cho phụ huynh</p>
+              <select value={newLinkStudentId || ""} onChange={(e) => setNewLinkStudentId(Number(e.target.value) || null)}
+                className="w-full bg-bg-main border border-border-card rounded-xl px-3 py-2 text-sm text-text-primary focus:outline-none"
+              >
+                <option value="">Chọn học sinh...</option>
+                {myStudents.map((s) => <option key={s.id} value={s.id}>{s.full_name}</option>)}
+              </select>
+              <input value={newLinkParentName} onChange={(e) => setNewLinkParentName(e.target.value)}
+                placeholder="Tên phụ huynh (VD: Mẹ của An)"
+                className="w-full bg-bg-main border border-border-card rounded-xl px-3 py-2 text-sm text-text-primary focus:outline-none"
+              />
+              <select value={newLinkExpires || ""} onChange={(e) => setNewLinkExpires(Number(e.target.value) || null)}
+                className="w-full bg-bg-main border border-border-card rounded-xl px-3 py-2 text-sm text-text-primary focus:outline-none"
+              >
+                <option value="">Không hết hạn</option>
+                <option value="7">7 ngày</option>
+                <option value="30">30 ngày</option>
+                <option value="90">3 tháng</option>
+              </select>
+              <button onClick={generateParentLink} disabled={!newLinkStudentId || generatingLink}
+                className="w-full py-2 rounded-xl bg-rose-500 text-white font-bold hover:bg-rose-600 transition disabled:opacity-50 text-sm"
+              >
+                {generatingLink ? <Loader2 className="w-4 h-4 animate-spin inline mr-2" /> : null}
+                Tạo link & PIN
+              </button>
+            </div>
+
+            {/* Created link reveal */}
+            {createdLink && (
+              <div className="p-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/5 space-y-3">
+                <p className="text-sm font-bold text-emerald-400">🔗 Link đã tạo — chia sẻ ngay!</p>
+                <div>
+                  <p className="text-xs text-text-secondary mb-1">URL chia sẻ:</p>
+                  <div className="flex gap-2">
+                    <code className="flex-1 text-xs bg-bg-card px-2 py-1.5 rounded-lg font-mono text-text-primary break-all">
+                      {`minda.io.vn/parent/${createdLink.share_token}`}
+                    </code>
+                    <button onClick={() => navigator.clipboard.writeText(`https://minda.io.vn/parent/${createdLink.share_token}`)}
+                      className="p-1.5 rounded-lg hover:bg-bg-hover"><Copy className="w-4 h-4 text-emerald-400" /></button>
+                  </div>
+                </div>
+                <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30">
+                  <p className="text-xs text-amber-400 font-bold mb-1">⚠️ Mã PIN (chỉ hiện 1 lần!):</p>
+                  <p className="text-3xl font-black tracking-widest text-amber-400">{createdLink.raw_pin}</p>
+                </div>
+                <button onClick={() => setCreatedLink(null)} className="text-xs text-text-secondary hover:text-text-primary">Đã chia sẻ, đóng</button>
+              </div>
+            )}
+
+            {/* Link list */}
+            <div className="space-y-2">
+              {parentLinks.map((l) => (
+                <div key={l.id} className="flex items-center gap-3 p-3 rounded-xl border border-border-card">
+                  <div className={`w-2.5 h-2.5 rounded-full ${l.is_active ? "bg-emerald-400" : "bg-zinc-600"}`} />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-text-primary truncate">
+                      {l.parent_name || "Phụ huynh"} → {l.student_name}
+                    </p>
+                    <p className="text-xs text-text-secondary font-mono truncate">/{l.share_token}</p>
+                  </div>
+                  {l.is_active && (
+                    <button onClick={() => navigator.clipboard.writeText(`https://minda.io.vn/parent/${l.share_token}`)}
+                      className="p-1.5 rounded-lg hover:bg-bg-hover">
+                      <Copy className="w-3.5 h-3.5 text-text-secondary" />
+                    </button>
+                  )}
+                  {l.is_active && (
+                    <button onClick={() => revokeLink(l.id)}
+                      className="p-1.5 rounded-lg hover:bg-red-500/10 text-text-secondary hover:text-red-400 transition">
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+              ))}
+              {parentLinks.length === 0 && (
+                <p className="text-sm text-text-secondary text-center py-6">Chưa có link nào được tạo</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

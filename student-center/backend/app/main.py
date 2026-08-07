@@ -27,9 +27,14 @@ from app.models.emotion import EmotionLog
 from app.models.schedule import ScheduleItem
 from app.models.honor import HonorBoard
 from app.models.testimonial import Testimonial
+from app.models.session_report import (
+    AttendanceRecord, AttendanceDevice, StudentBiometric,
+    ParentLink, SessionReport, WeeklyReport, MonthlyReport
+)
 
 # Import routers
 from app.api.endpoints import courses, assignments, exams, tuition, admin, auth, files, profile, google_auth, live_sessions, dashboard, emotion, ai_solver, assignment_folders, manim, yearbook, schedules, honors, testimonials
+from app.api.endpoints import attendance, reports, parent_access
 
 # Tự động tạo bảng DB nếu chưa có
 Base.metadata.create_all(bind=engine)
@@ -98,3 +103,10 @@ app.include_router(honors.router, prefix="/api/honors", tags=["🏆 Honors"])
 
 from app.api.endpoints import contact
 app.include_router(contact.router, prefix="/api/contact", tags=["📞 Contact"])
+
+# ─── Attendance & Reports ─────────────────────────────────────────────────────
+app.include_router(attendance.router, prefix="/api/attendance", tags=["📋 Attendance"])
+app.include_router(reports.router, prefix="/api/reports", tags=["📊 Reports"])
+app.include_router(parent_access.router, prefix="/api/parent-links", tags=["👨‍👩‍👧 Parent Access"])
+# Public parent portal (no JWT needed)
+app.include_router(parent_access.router, prefix="/api/parent", tags=["🔓 Parent Portal"])

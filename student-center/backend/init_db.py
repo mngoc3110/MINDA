@@ -6,6 +6,10 @@ from app.models.exam import Exam, ExamQuestion, ExamSubmission
 from app.models.live_session import LiveSession
 from app.models.tuition import TuitionRecord
 from app.models.emotion import EmotionLog
+from app.models.session_report import (
+    AttendanceDevice, StudentBiometric, AttendanceRecord,
+    ParentLink, SessionReport, WeeklyReport, MonthlyReport
+)
 
 print("📡 Đang cố gắng tạo các bảng trong PostgreSQL...")
 try:
