@@ -1120,27 +1120,23 @@ export default function SessionReportsPage() {
                 className="w-full py-2 rounded-xl bg-rose-500 text-white font-bold hover:bg-rose-600 transition disabled:opacity-50 text-sm"
               >
                 {generatingLink ? <Loader2 className="w-4 h-4 animate-spin inline mr-2" /> : null}
-                Tạo link & PIN
+                Tạo link chia sẻ
               </button>
             </div>
 
             {/* Created link reveal */}
             {createdLink && (
               <div className="p-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/5 space-y-3">
-                <p className="text-sm font-bold text-emerald-400">🔗 Link đã tạo — chia sẻ ngay!</p>
+                <p className="text-sm font-bold text-emerald-400">🔗 Link đã tạo — chia sẻ ngay cho phụ huynh!</p>
                 <div>
                   <p className="text-xs text-text-secondary mb-1">URL chia sẻ:</p>
                   <div className="flex gap-2">
                     <code className="flex-1 text-xs bg-bg-card px-2 py-1.5 rounded-lg font-mono text-text-primary break-all">
-                      {`minda.io.vn/parent/${createdLink.share_token}`}
+                      {`https://minda.io.vn/parent/${createdLink.share_token}`}
                     </code>
                     <button onClick={() => navigator.clipboard.writeText(`https://minda.io.vn/parent/${createdLink.share_token}`)}
                       className="p-1.5 rounded-lg hover:bg-bg-hover"><Copy className="w-4 h-4 text-emerald-400" /></button>
                   </div>
-                </div>
-                <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30">
-                  <p className="text-xs text-amber-400 font-bold mb-1">⚠️ Mã PIN (chỉ hiện 1 lần!):</p>
-                  <p className="text-3xl font-black tracking-widest text-amber-400">{createdLink.raw_pin}</p>
                 </div>
                 <button onClick={() => setCreatedLink(null)} className="text-xs text-text-secondary hover:text-text-primary">Đã chia sẻ, đóng</button>
               </div>
@@ -1155,7 +1151,7 @@ export default function SessionReportsPage() {
                     <p className="text-sm font-semibold text-text-primary truncate">
                       {l.parent_name || "Phụ huynh"} → {l.student_name}
                     </p>
-                    <p className="text-xs text-text-secondary font-mono truncate">/{l.share_token}</p>
+                    <p className="text-xs text-text-secondary font-mono truncate">/parent/{l.share_token}</p>
                   </div>
                   {l.is_active && (
                     <div className="flex items-center gap-1.5 shrink-0">
@@ -1165,20 +1161,11 @@ export default function SessionReportsPage() {
                           setCopiedLinkId(l.id);
                           setTimeout(() => setCopiedLinkId(null), 2000);
                         }}
-                        className="px-2.5 py-1 rounded-lg bg-bg-main border border-border-card text-xs text-text-primary hover:bg-bg-hover flex items-center gap-1 transition font-medium"
-                        title="Sao chép link"
+                        className="px-3 py-1.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs text-rose-400 hover:bg-rose-500 hover:text-white flex items-center gap-1.5 transition font-bold"
+                        title="Sao chép link chia sẻ"
                       >
-                        {copiedLinkId === l.id ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-text-secondary" />}
-                        {copiedLinkId === l.id ? "Đã chép!" : "Link"}
-                      </button>
-
-                      <button
-                        onClick={() => regeneratePin(l.id)}
-                        className="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-xs text-amber-400 hover:bg-amber-500 hover:text-white flex items-center gap-1 transition font-medium"
-                        title="Tạo lại mã PIN mới"
-                      >
-                        <Key className="w-3.5 h-3.5" />
-                        Cấp lại PIN
+                        {copiedLinkId === l.id ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                        {copiedLinkId === l.id ? "Đã chép link!" : "Sao chép link"}
                       </button>
 
                       <button

@@ -54,11 +54,11 @@ export default function ParentPortalPage() {
   const [weeklyIdx, setWeeklyIdx] = useState(0);
   const [monthlyIdx, setMonthlyIdx] = useState(0);
 
-  // Load link info
+  // Load reports directly without PIN
   useEffect(() => {
-    const fetchInfo = async () => {
+    const fetchReports = async () => {
       try {
-        const res = await fetch(`${API}/api/parent/${token}/info`);
+        const res = await fetch(`${API}/api/parent/${token}/reports`);
         let data: any = null;
         try {
           data = await res.json();
@@ -78,66 +78,18 @@ export default function ParentPortalPage() {
           return;
         }
 
-        setLinkInfo(data);
-        setStep("pin-entry");
+        setReportsData(data);
+        setStep("reports");
       } catch (err) {
-        console.error("Parent fetch info error:", err);
+        console.error("Parent fetch reports error:", err);
         setErrorMsg("Không thể kết nối tới máy chủ. Vui lòng kiểm tra lại mạng.");
         setStep("error");
       }
     };
     if (token) {
-      fetchInfo();
+      fetchReports();
     }
   }, [token]);
-
-  const handlePinChange = (idx: number, val: string) => {
-    if (!/^\d*$/.test(val)) return;
-    const newPin = [...pin];
-    newPin[idx] = val.slice(-1);
-    setPin(newPin);
-    // Auto-focus next
-    if (val && idx < 5) {
-      const next = document.getElementById(`pin-${idx + 1}`);
-      next?.focus();
-    }
-  };
-
-  const handlePinKeyDown = (idx: number, e: React.KeyboardEvent) => {
-    if (e.key === "Backspace" && !pin[idx] && idx > 0) {
-      document.getElementById(`pin-${idx - 1}`)?.focus();
-    }
-  };
-
-  const verifyPin = async () => {
-    const pinStr = pin.join("");
-    if (pinStr.length < 6) return;
-    setVerifying(true);
-    try {
-      const res = await fetch(`${API}/api/parent/${token}/verify`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pin_code: pinStr }),
-      });
-      if (!res.ok) {
-        const err = await res.json();
-        setErrorMsg(err.detail || "Mã PIN không đúng");
-        setPin(["", "", "", "", "", ""]);
-        document.getElementById("pin-0")?.focus();
-        setVerifying(false);
-        return;
-      }
-      const data = await res.json();
-      setSessionToken(data.session_token);
-      // Fetch reports
-      const rRes = await fetch(`${API}/api/parent/${token}/reports?session_token=${data.session_token}`);
-      if (rRes.ok) setReportsData(await rRes.json());
-      setStep("reports");
-    } catch {
-      setErrorMsg("Lỗi kết nối, thử lại sau");
-    }
-    setVerifying(false);
-  };
 
   const ThemeToggle = () => (
     <button

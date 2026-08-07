@@ -239,11 +239,19 @@ def get_parent_link_info(
 @router.get("/{token}/reports")
 def get_parent_reports(
     token: str,
-    session_token: str = Query(...),
     db: Session = Depends(get_db),
 ):
-    """Phụ huynh xem tất cả báo cáo của con (sau khi xác thực PIN)"""
-    link = _validate_parent_session(session_token, token, db)
+    """Phụ huynh xem tất cả báo cáo của con (trực tiếp qua link, không cần PIN)"""
+    link = db.query(ParentLink).filter(
+        ParentLink.share_token == token,
+        ParentLink.is_active == True,
+    ).first()
+    if not link:
+        raise HTTPException(status_code=404, detail="Link không hợp lệ hoặc đã bị thu hồi. Vui lòng liên hệ giáo viên để nhận link mới.")
+
+    if link.expires_at and link.expires_at < datetime.utcnow():
+        raise HTTPException(status_code=410, detail="Link đã hết hạn. Vui lòng liên hệ giáo viên để nhận link mới.")
+
     student_id = link.student_id
 
     session_reports = db.query(SessionReport).filter(
