@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { ArrowLeft, ChevronLeft, ChevronRight, Zap, Crown, Star, Users, GraduationCap } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, Zap, Crown, Star, Users, GraduationCap, Code2 } from "lucide-react";
 
 // ── Dữ liệu ranks ──────────────────────────────────────────────────────────────
 
@@ -342,7 +342,7 @@ function RankSlider({ ranks }: { ranks: any[] }) {
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
 export default function RanksPage() {
-  const [tab, setTab] = useState<"student" | "teacher">("student");
+  const [tab, setTab] = useState<"student" | "teacher" | "coding">("student");
 
   return (
     <div className="min-h-screen bg-bg-main text-text-primary relative overflow-hidden">
@@ -366,47 +366,70 @@ export default function RanksPage() {
               <h1 className="text-3xl font-black tracking-tight">Bảng Bậc Rank</h1>
             </div>
             <p className="text-text-secondary text-sm max-w-lg">
-              Hệ thống xếp hạng MINDA được tính theo <strong className="text-indigo-400">EXP (điểm kinh nghiệm)</strong> tích lũy từ bài tập, đề thi và hoạt động học tập.
+              MINDA có <strong className="text-indigo-400">hai hệ thống rank độc lập</strong>: <strong className="text-amber-400">EXP</strong> cho học tập thông thường và <strong className="text-emerald-400">Elo</strong> dành riêng cho luyện code.
             </p>
           </motion.div>
         </div>
 
-        {/* EXP Info */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.97 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.08 }}
-          className="mb-7 p-4 rounded-2xl border border-indigo-500/20 bg-indigo-500/5 flex gap-3 items-start"
-        >
-          <Zap className="w-4 h-4 text-indigo-400 mt-0.5 shrink-0" />
-          <div>
-            <p className="text-xs font-semibold text-indigo-300 mb-1.5">Cách tích EXP</p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs text-text-secondary">
-              <span>✅ Nộp bài tập: <strong className="text-green-400">+10 EXP</strong></span>
-              <span>🏅 Điểm cao ≥ 8: <strong className="text-blue-400">+20 EXP</strong></span>
-              <span>⚡ Hoàn thành đề: <strong className="text-purple-400">+15 EXP</strong></span>
-              <span>🔥 Chuỗi ngày học: <strong className="text-amber-400">+Bonus</strong></span>
+        {/* Info panel — changes based on tab */}
+        {tab !== "coding" ? (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.97 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.08 }}
+            className="mb-7 p-4 rounded-2xl border border-indigo-500/20 bg-indigo-500/5 flex gap-3 items-start"
+          >
+            <Zap className="w-4 h-4 text-indigo-400 mt-0.5 shrink-0" />
+            <div>
+              <p className="text-xs font-semibold text-indigo-300 mb-1.5">Cách tích EXP</p>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs text-text-secondary">
+                <span>✅ Nộp bài tập: <strong className="text-green-400">+10 EXP</strong></span>
+                <span>🏅 Điểm cao ≥ 8: <strong className="text-blue-400">+20 EXP</strong></span>
+                <span>⚡ Hoàn thành đề: <strong className="text-purple-400">+15 EXP</strong></span>
+                <span>🔥 Chuỗi ngày học: <strong className="text-amber-400">+Bonus</strong></span>
+              </div>
             </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.97 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.08 }}
+            className="mb-7 p-4 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 flex gap-3 items-start"
+          >
+            <Code2 className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" />
+            <div>
+              <p className="text-xs font-semibold text-emerald-300 mb-1.5">Hệ thống Elo Coding (Codeforces-style)</p>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs text-text-secondary">
+                <span>✅ Giải bài AC: <strong className="text-green-400">+Elo</strong></span>
+                <span>❌ Submit WA/TLE: <strong className="text-red-400">−Elo nhỏ</strong></span>
+                <span>⚡ Bài rating cao: <strong className="text-purple-400">+Elo nhiều hơn</strong></span>
+                <span>🏆 Thi contest: <strong className="text-amber-400">+Elo bonus</strong></span>
+              </div>
+            </div>
+          </motion.div>
+        )}
 
         {/* Tab switcher */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.12 }}
-          className="flex gap-2 mb-7 p-1 rounded-2xl bg-white/5 border border-white/10 w-fit"
+          className="flex gap-2 mb-7 p-1 rounded-2xl bg-white/5 border border-white/10"
         >
           {([
-            { key: "student", label: "👨‍🎓 Bậc Học Sinh", Icon: Users },
-            { key: "teacher", label: "👩‍🏫 Bậc Giáo Viên", Icon: GraduationCap },
+            { key: "student", label: "👨‍🎓 Học Sinh" },
+            { key: "teacher", label: "👩‍🏫 Giáo Viên" },
+            { key: "coding",  label: "💻 Coding Elo" },
           ] as const).map(({ key, label }) => (
             <button
               key={key}
               onClick={() => setTab(key)}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
+              className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
                 tab === key
-                  ? "bg-white/12 text-text-primary shadow-sm"
+                  ? key === "coding"
+                    ? "bg-emerald-500/20 text-emerald-300 shadow-sm"
+                    : "bg-white/12 text-text-primary shadow-sm"
                   : "text-text-muted hover:text-text-secondary"
               }`}
             >
@@ -422,7 +445,9 @@ export default function RanksPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <RankSlider ranks={tab === "student" ? STUDENT_RANKS : TEACHER_RANKS} />
+          {tab === "coding"
+            ? <CoderRankSlider />
+            : <RankSlider ranks={tab === "student" ? STUDENT_RANKS : TEACHER_RANKS} />}
         </motion.div>
       </div>
     </div>

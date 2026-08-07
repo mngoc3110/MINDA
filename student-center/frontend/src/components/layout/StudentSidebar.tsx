@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BrainCircuit, Grid, FolderOpen, Video, Trophy, LogOut, Sun, Moon, BookOpen, FileText, Star, Wallet, RefreshCw, Heart, Calendar, BarChart3 } from "lucide-react";
+import { BrainCircuit, Grid, FolderOpen, Video, Trophy, LogOut, Sun, Moon, BookOpen, FileText, Star, Wallet, RefreshCw, Heart, Calendar, BarChart3, Terminal } from "lucide-react";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useEffect, useState } from "react";
 
@@ -13,6 +13,7 @@ const NAV_ITEMS = [
   { name: "Nhật Ký Học Tập", href: "/my-reports", icon: BarChart3 },
   { name: "Phòng học Live", href: "/live", icon: Video },
   { name: "Phòng Luyện Thi", href: "/practice", icon: FileText },
+  { name: "MINDA Code", href: "/code", icon: Terminal, badge: "NEW" },
   { name: "Cặp xách (Drive)", href: "/drive", icon: Star },
   { name: "Lưu Bút Kỷ Yếu", href: "/yearbook/", icon: Heart },
   { name: "Bảng Thành tích", href: "/leaderboard", icon: Trophy },
