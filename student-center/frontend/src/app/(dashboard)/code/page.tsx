@@ -27,7 +27,7 @@ const CODER_RANKS = [
 const PROBLEMS = [
   {
     id: "hello-world", title: "Hello, World!", difficulty: "easy",
-    tags: ["I/O cơ bản"], solved: 1240, rating: 800, accepted: true,
+    tags: ["I/O cơ bản"], solved: 1240, rating: 800, accepted: false,
     track: "basic",
     desc: "In ra màn hình dòng chữ \"Hello, World!\".",
   },
@@ -45,7 +45,7 @@ const PROBLEMS = [
   },
   {
     id: "prime-sieve", title: "Sàng Nguyên Tố", difficulty: "medium",
-    tags: ["Số học", "Sàng Eratosthenes"], solved: 430, rating: 1200, accepted: true,
+    tags: ["Số học", "Sàng Eratosthenes"], solved: 430, rating: 1200, accepted: false,
     track: "cs",
     desc: "Liệt kê tất cả số nguyên tố ≤ N (N ≤ 10^7) dùng Sàng Eratosthenes.",
   },
