@@ -90,6 +90,38 @@ function splitSegments(str: string) {
   return segments;
 }
 
+/** Tự động bọc $ ... $ cho các công thức toán học thô (ví dụ: P(A|B), \frac, \cap, \int...) */
+function autoWrapMathDelimiters(str: string): string {
+  if (!str) return "";
+  // Nếu chuỗi đã chứa $...$ thì giữ nguyên
+  if (str.includes("$")) return str;
+
+  let text = str;
+  // Biểu thức xác suất: P(A|B) = P(A ∩ B) / P(B) -> $P(A|B) = \frac{P(A \cap B)}{P(B)}$
+  text = text.replace(/P\(([^)]+)\)\s*=\s*P\(([^)]+)\)\s*(\/|chia cho)\s*P\(([^)]+)\)/g, (m, a, b, op, c) => {
+    return `$P(${a}) = \\frac{P(${b})}{P(${c})}$`;
+  });
+  
+  // Các ký hiệu toán học có backslash hoặc dấu toán học mà chưa bọc $
+  text = text.replace(/(\b[A-Za-z]\([^)]+\)\s*=\s*[^,.\n]+)/g, (m) => {
+    if (m.includes("=") && (m.includes("P(") || m.includes("f(") || m.includes("f'("))) {
+      return `$${m}$`;
+    }
+    return m;
+  });
+
+  // Tự động bọc $ cho các chuỗi chứa \frac, \int, \sqrt, \vec, \cap, \cup, \dots
+  if (/(\\(frac|int|sqrt|vec|cap|cup|sum|lim|cdot|times|pm|approx|neq|le|ge|infty)|∩|∪|∈|∉|⊂|⊃|∅)/.test(text)) {
+    // Nếu có ∩ hoặc ∪ thay thế bằng \cap, \cup
+    text = text.replace(/∩/g, "\\cap ").replace(/∪/g, "\\cup ").replace(/∅/g, "\\emptyset ");
+    if (!text.includes("$")) {
+      text = `$${text}$`;
+    }
+  }
+
+  return text;
+}
+
 /** Escapes raw HTML tags in non-math, non-code text to prevent DOM injection */
 function escapeHtmlInText(str: string): string {
   // Split by LaTeX delimiters (do not escape inside math blocks)
@@ -104,8 +136,10 @@ function escapeHtmlInText(str: string): string {
 function InlineMarkdownLatex({ text }: { text: string }) {
   if (!text) return null;
 
+  const formatted = autoWrapMathDelimiters(text);
+
   // Replace **bold** with <strong> and preserve KaTeX math
-  const parts = text.split(/(\*\*[\s\S]+?\*\*)/g);
+  const parts = formatted.split(/(\*\*[\s\S]+?\*\*)/g);
   return (
     <>
       {parts.map((part, idx) => {
