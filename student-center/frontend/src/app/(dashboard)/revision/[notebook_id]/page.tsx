@@ -9,6 +9,7 @@ import {
   XCircle, Clock, BookOpen, BrainCircuit, Send, Loader2, RefreshCw, Zap,
   Layers, BarChart2, MessageSquare, ChevronRight, HelpCircle, X
 } from "lucide-react";
+import MathText from "@/components/MathText";
 
 export default function NotebookWorkspacePage() {
   const params = useParams();
@@ -639,9 +640,9 @@ export default function NotebookWorkspacePage() {
                         )}
                       </div>
 
-                      <p className="text-sm md:text-base font-bold text-text-primary leading-relaxed whitespace-pre-wrap">
-                        {q.question}
-                      </p>
+                      <div className="text-sm md:text-base font-bold text-text-primary leading-relaxed whitespace-pre-wrap">
+                        <MathText text={q.question} />
+                      </div>
 
                       {/* Options for MCQ 4 */}
                       {q.options && (
@@ -668,7 +669,7 @@ export default function NotebookWorkspacePage() {
                                 }}
                                 className={`p-4 rounded-2xl border text-left text-xs md:text-sm font-medium transition-all flex items-center justify-between ${optStyle}`}
                               >
-                                <span>{opt}</span>
+                                <span className="flex-1 pr-2"><MathText text={opt} /></span>
                                 {isRevealed && isCorrect && <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />}
                               </button>
                             );
@@ -682,7 +683,9 @@ export default function NotebookWorkspacePage() {
                           <p className="font-bold text-indigo-500 mb-1 flex items-center gap-1.5">
                             <Sparkles className="w-4 h-4" /> Giải thích chi tiết & Trích dẫn:
                           </p>
-                          <p className="text-text-secondary leading-relaxed font-medium">{q.explanation}</p>
+                          <div className="text-text-secondary leading-relaxed font-medium">
+                            <MathText text={q.explanation} />
+                          </div>
                         </motion.div>
                       )}
                     </div>
@@ -718,7 +721,7 @@ export default function NotebookWorkspacePage() {
                     : "bg-bg-main border border-border-card text-text-primary self-start rounded-bl-none font-medium"
                 }`}
               >
-                {msg.text}
+                <MathText text={msg.text} />
               </div>
             ))}
             {chatLoading && (

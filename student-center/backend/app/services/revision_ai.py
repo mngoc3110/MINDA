@@ -239,9 +239,10 @@ CẤU HÌNH BỘ CÂU HỎI:
 
 QUY TẮC BẮT BUỘC:
 1. Tất cả kiến thức và câu hỏi PHẢI bám sát 100% vào nội dung tài liệu được cung cấp dưới đây. Nếu là tài liệu Toán/KHTN, hãy tạo các câu hỏi có công thức, dữ kiện số học, bài toán cụ thể bám sát bài học.
-2. Các phương án nhiễu (Distractors) phải có tính đánh lừa tư duy logic cao (dựa trên các lỗi học sinh hay nhầm lẫn).
-3. Luôn có trường "citation" ghi rõ xuất xứ bài học/chương trong tài liệu.
-4. Trả về DUY NHẤT một JSON Array hợp lệ [ {{...}}, {{...}} ], không bọc trong bất kỳ văn bản giải thích nào khác ngoài chuỗi JSON.
+2. CÔNG THỨC TOÁN HỌC & KHOA HỌC: Bắt buộc biểu diễn bằng chuẩn LaTeX và bọc trong cặp dấu $ ... $ (hoặc $$ ... $$), ví dụ: $P(A|B) = \\frac{P(A \\cap B)}{P(B)}$, $f'(x) = 3x^2 - 6x$, $\\int_a^b f(x)dx$, $\\vec{u} = (1; 2; 3)$, $\\sqrt{x^2+1}$.
+3. Các phương án nhiễu (Distractors) phải có tính đánh lừa tư duy logic cao (dựa trên các lỗi học sinh hay nhầm lẫn).
+4. Luôn có trường "citation" ghi rõ xuất xứ bài học/chương trong tài liệu.
+5. Trả về DUY NHẤT một JSON Array hợp lệ [ {{...}}, {{...}} ], không bọc trong bất kỳ văn bản giải thích nào khác ngoài chuỗi JSON.
 
 TÀI LIỆU ĐỀ CƯƠNG CỦA HỌC SINH:
 {combined_docs_text}
