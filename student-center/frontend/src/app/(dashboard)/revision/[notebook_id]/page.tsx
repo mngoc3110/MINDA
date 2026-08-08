@@ -447,11 +447,67 @@ export default function NotebookWorkspacePage() {
               </div>
 
               {/* Form Options */}
+              {/* Form Options */}
               <div className="p-6 rounded-3xl border border-border-card bg-bg-card flex flex-col gap-5 shadow-sm">
-                {/* 1. Quiz Type */}
+                
+                {/* Quick Presets */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-xs font-bold text-text-secondary">🎯 Chọn nhanh mẫu đề thi chuẩn:</label>
+                    <span className="text-[10px] text-pink-500 font-bold">Chuẩn Bộ GD&ĐT 2025</span>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    <button
+                      onClick={() => {
+                        setQuizType("mcq_4");
+                        setTotalQuestions(10);
+                        setDurationMinutes(15);
+                      }}
+                      className="p-2.5 rounded-xl border border-border-card bg-bg-main hover:border-pink-500 text-left transition-all"
+                    >
+                      <p className="text-xs font-bold text-text-primary">⚡ Đề 15 Phút</p>
+                      <p className="text-[10px] text-text-muted">10 câu • 15 phút</p>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setQuizType("mcq_4");
+                        setTotalQuestions(20);
+                        setDurationMinutes(45);
+                      }}
+                      className="p-2.5 rounded-xl border border-border-card bg-bg-main hover:border-indigo-500 text-left transition-all"
+                    >
+                      <p className="text-xs font-bold text-text-primary">⏱️ Đề 1 Tiết</p>
+                      <p className="text-[10px] text-text-muted">20 câu • 45 phút</p>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setQuizType("thpt_combo");
+                        setTotalQuestions(20);
+                        setDurationMinutes(50);
+                      }}
+                      className="p-2.5 rounded-xl border border-pink-500/50 bg-pink-500/10 text-left transition-all shadow-sm"
+                    >
+                      <p className="text-xs font-bold text-pink-500">🎓 Tốt Nghiệp THPT</p>
+                      <p className="text-[10px] text-text-muted">Tổ hợp 3 phần • 50p</p>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setQuizType("flashcard");
+                        setTotalQuestions(15);
+                        setDurationMinutes(10);
+                      }}
+                      className="p-2.5 rounded-xl border border-border-card bg-bg-main hover:border-purple-500 text-left transition-all"
+                    >
+                      <p className="text-xs font-bold text-text-primary">🎴 Flashcard Ôn Tập</p>
+                      <p className="text-[10px] text-text-muted">15 thẻ ghi nhớ</p>
+                    </button>
+                  </div>
+                </div>
+
+                {/* 1. Quiz Type (5 formats) */}
                 <div>
                   <label className="text-xs font-bold text-text-secondary block mb-2">1. Định dạng bài ôn tập:</label>
-                  <div className="grid grid-cols-3 gap-2.5">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5">
                     <button
                       onClick={() => setQuizType("mcq_4")}
                       className={`p-3.5 rounded-2xl border text-left transition-all ${quizType === "mcq_4" ? "border-pink-500 bg-pink-500/10 text-pink-500 font-bold shadow-sm" : "border-border-card hover:bg-bg-hover text-text-secondary"}`}
@@ -463,8 +519,22 @@ export default function NotebookWorkspacePage() {
                       onClick={() => setQuizType("true_false")}
                       className={`p-3.5 rounded-2xl border text-left transition-all ${quizType === "true_false" ? "border-pink-500 bg-pink-500/10 text-pink-500 font-bold shadow-sm" : "border-border-card hover:bg-bg-hover text-text-secondary"}`}
                     >
-                      <p className="text-xs font-bold mb-0.5">Đúng / Sai (Mới 2025)</p>
+                      <p className="text-xs font-bold mb-0.5">Đúng / Sai (Chuẩn 2025)</p>
                       <p className="text-[10px] text-text-muted">4 khẳng định a, b, c, d</p>
+                    </button>
+                    <button
+                      onClick={() => setQuizType("short_answer")}
+                      className={`p-3.5 rounded-2xl border text-left transition-all ${quizType === "short_answer" ? "border-pink-500 bg-pink-500/10 text-pink-500 font-bold shadow-sm" : "border-border-card hover:bg-bg-hover text-text-secondary"}`}
+                    >
+                      <p className="text-xs font-bold mb-0.5">Trả lời ngắn / Điền số</p>
+                      <p className="text-[10px] text-text-muted">Tính toán và điền đáp số</p>
+                    </button>
+                    <button
+                      onClick={() => setQuizType("thpt_combo")}
+                      className={`p-3.5 rounded-2xl border text-left transition-all ${quizType === "thpt_combo" ? "border-pink-500 bg-pink-500/10 text-pink-500 font-bold shadow-sm" : "border-border-card hover:bg-bg-hover text-text-secondary"}`}
+                    >
+                      <p className="text-xs font-bold mb-0.5">Đề THPT Quốc Gia 2025</p>
+                      <p className="text-[10px] text-text-muted">Tổ hợp cả 3 phần chuẩn Bộ</p>
                     </button>
                     <button
                       onClick={() => setQuizType("flashcard")}
@@ -501,9 +571,10 @@ export default function NotebookWorkspacePage() {
                       className="w-full px-3.5 py-2.5 rounded-xl bg-bg-main text-text-primary border border-border-card text-xs font-semibold focus:border-pink-500 focus:outline-none"
                     >
                       <option value={10}>10 Phút</option>
-                      <option value={15}>15 Phút</option>
+                      <option value={15}>15 Phút (Đề ngắn)</option>
                       <option value={20}>20 Phút</option>
                       <option value={45}>45 Phút (Chuẩn 1 tiết)</option>
+                      <option value={50}>50 Phút (Chuẩn THPT 2025)</option>
                     </select>
                   </div>
                 </div>
@@ -538,7 +609,7 @@ export default function NotebookWorkspacePage() {
                   <label className="text-xs font-bold text-text-secondary block mb-1.5">5. Chủ đề hoặc Chương trọng tâm (Tùy chọn):</label>
                   <input
                     type="text"
-                    placeholder="VD: Chương 2 Hàm số lũy thừa, thuật toán BFS, hình học không gian..."
+                    placeholder="VD: Xác suất có điều kiện, đạo hàm, hình học không gian..."
                     value={focusTopic}
                     onChange={e => setFocusTopic(e.target.value)}
                     className="w-full px-4 py-3 rounded-xl bg-bg-main border border-border-card text-xs text-text-primary placeholder:text-text-muted focus:border-pink-500 focus:outline-none"
@@ -547,6 +618,25 @@ export default function NotebookWorkspacePage() {
 
                 {/* Action Buttons */}
                 <div className="flex gap-3 pt-2">
+                  <button
+                    onClick={() => handleGenerateQuiz("practice")}
+                    disabled={generatingQuiz}
+                    className="flex-1 py-3.5 rounded-2xl bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 hover:opacity-95 text-white text-xs md:text-sm font-bold shadow-lg shadow-pink-500/25 disabled:opacity-50 transition-all flex items-center justify-center gap-2 hover:scale-[1.01]"
+                  >
+                    {generatingQuiz ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
+                    {generatingQuiz ? "Gemini 2.0 đang phân tích & sinh đề..." : "✨ Luyện Tập Tức Thì (Chấm & Giải thích ngay)"}
+                  </button>
+                  <button
+                    onClick={() => handleGenerateQuiz("exam")}
+                    disabled={generatingQuiz}
+                    className="px-6 py-3.5 rounded-2xl bg-bg-main border border-indigo-500/40 text-indigo-500 hover:bg-indigo-500/10 text-xs md:text-sm font-bold transition-all flex items-center gap-2"
+                  >
+                    <Clock className="w-4 h-4" />
+                    <span>Thi Thử Bấm Giờ</span>
+                  </button>
+                </div>
+              </div>
+            </motion.div>
                   <button
                     onClick={() => handleGenerateQuiz("practice")}
                     disabled={generatingQuiz}
@@ -644,7 +734,7 @@ export default function NotebookWorkspacePage() {
                         <MathText text={q.question} />
                       </div>
 
-                      {/* Options for MCQ 4 */}
+                      {/* 1. MCQ 4 Options */}
                       {q.options && (
                         <div className="grid grid-cols-1 gap-2.5">
                           {q.options.map((opt: string) => {
@@ -674,6 +764,120 @@ export default function NotebookWorkspacePage() {
                               </button>
                             );
                           })}
+                        </div>
+                      )}
+
+                      {/* 2. True / False Sub-Items (Chuẩn Bộ GD 2025) */}
+                      {q.sub_items && (
+                        <div className="flex flex-col gap-3">
+                          {q.sub_items.map((sub: any, sIdx: number) => {
+                            const subKey = `${qid}_${sub.label || sIdx}`;
+                            const userChoice = userAnswers[subKey];
+                            const isSubRevealed = revealedAnswers[qid] || quizResult;
+                            const isSubCorrect = userChoice === sub.is_true;
+
+                            return (
+                              <div
+                                key={sIdx}
+                                className={`p-4 rounded-2xl border transition-all flex flex-col md:flex-row md:items-center justify-between gap-3 ${
+                                  isSubRevealed
+                                    ? isSubCorrect
+                                      ? "border-emerald-500/50 bg-emerald-500/10"
+                                      : "border-red-500/50 bg-red-500/10"
+                                    : "border-border-card bg-bg-main"
+                                }`}
+                              >
+                                <div className="flex-1 text-xs md:text-sm text-text-primary">
+                                  <strong className="text-pink-500 mr-2">{sub.label})</strong>
+                                  <MathText text={sub.statement} />
+                                </div>
+
+                                <div className="flex items-center gap-2 shrink-0">
+                                  <button
+                                    onClick={() => {
+                                      setUserAnswers(prev => ({ ...prev, [subKey]: true }));
+                                      setRevealedAnswers(prev => ({ ...prev, [qid]: true }));
+                                    }}
+                                    className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all ${
+                                      userChoice === true
+                                        ? sub.is_true && isSubRevealed
+                                          ? "border-emerald-500 bg-emerald-500 text-white"
+                                          : "border-pink-500 bg-pink-500 text-white"
+                                        : "border-border-card bg-bg-card hover:bg-bg-hover text-text-secondary"
+                                    }`}
+                                  >
+                                    Đúng
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      setUserAnswers(prev => ({ ...prev, [subKey]: false }));
+                                      setRevealedAnswers(prev => ({ ...prev, [qid]: true }));
+                                    }}
+                                    className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all ${
+                                      userChoice === false
+                                        ? !sub.is_true && isSubRevealed
+                                          ? "border-emerald-500 bg-emerald-500 text-white"
+                                          : "border-pink-500 bg-pink-500 text-white"
+                                        : "border-border-card bg-bg-card hover:bg-bg-hover text-text-secondary"
+                                    }`}
+                                  >
+                                    Sai
+                                  </button>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+
+                      {/* 3. Short Answer / Fill-in Number */}
+                      {q.type === "short_answer" && (
+                        <div className="flex flex-col gap-3">
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="text"
+                              placeholder="Nhập kết quả tính toán (số)..."
+                              value={userAnswers[qid] || ""}
+                              onChange={e => setUserAnswers(prev => ({ ...prev, [qid]: e.target.value }))}
+                              className="flex-1 px-4 py-3 rounded-2xl bg-bg-main border border-border-card text-xs md:text-sm font-bold text-text-primary focus:border-pink-500 focus:outline-none"
+                            />
+                            <button
+                              onClick={() => setRevealedAnswers(prev => ({ ...prev, [qid]: true }))}
+                              className="px-5 py-3 rounded-2xl bg-gradient-to-r from-pink-500 to-indigo-600 text-white text-xs font-bold shadow-md shadow-pink-500/20"
+                            >
+                              Kiểm tra
+                            </button>
+                          </div>
+                          {isRevealed && (
+                            <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-xs text-emerald-600 dark:text-emerald-300 font-bold">
+                              Đáp số chuẩn: <strong>{q.correct_answer}</strong> {q.unit || ""}
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* 4. Flashcard Flip */}
+                      {q.front && (
+                        <div className="p-5 rounded-2xl bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-pink-500/10 border border-indigo-500/20 flex flex-col gap-3">
+                          <p className="text-xs font-bold text-indigo-500 uppercase tracking-wider">Mặt trước (Khái niệm):</p>
+                          <div className="text-sm md:text-base font-bold text-text-primary">
+                            <MathText text={q.front} />
+                          </div>
+                          {isRevealed ? (
+                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="pt-3 border-t border-indigo-500/20 flex flex-col gap-1.5">
+                              <p className="text-xs font-bold text-pink-500 uppercase tracking-wider">Mặt sau (Định nghĩa & Bài học):</p>
+                              <div className="text-xs md:text-sm text-text-secondary leading-relaxed font-medium">
+                                <MathText text={q.back} />
+                              </div>
+                            </motion.div>
+                          ) : (
+                            <button
+                              onClick={() => setRevealedAnswers(prev => ({ ...prev, [qid]: true }))}
+                              className="mt-2 py-2 px-4 rounded-xl bg-indigo-500/15 border border-indigo-500/30 text-indigo-500 text-xs font-bold self-start hover:bg-indigo-500/25 transition-all"
+                            >
+                              🔄 Lật thẻ xem đáp án
+                            </button>
+                          )}
                         </div>
                       )}
 
