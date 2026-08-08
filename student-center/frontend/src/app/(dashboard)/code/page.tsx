@@ -176,6 +176,16 @@ function ProblemRow({ p, idx }: { p: any; idx: number }) {
   );
 }
 
+// ── Page ─────────────────────────────────────────────────────────────────────
+
+export default function CodePage() {
+  const [problems, setProblems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [track, setTrack] = useState("all");
+  const [diff, setDiff] = useState<"all" | "easy" | "medium" | "hard">("all");
+  const [selectedSubject, setSelectedSubject] = useState("all");
+  const [selectedChapter, setSelectedChapter] = useState("all");
+
   const [userRole, setUserRole] = useState<string>("student");
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [creating, setCreating] = useState(false);
