@@ -104,10 +104,7 @@ app.include_router(honors.router, prefix="/api/honors", tags=["🏆 Honors"])
 from app.api.endpoints import contact
 app.include_router(contact.router, prefix="/api/contact", tags=["📞 Contact"])
 
-# ─── Attendance & Reports ─────────────────────────────────────────────────────
-app.include_router(attendance.router, prefix="/api/attendance", tags=["📋 Attendance"])
-app.include_router(reports.router, prefix="/api/reports", tags=["📊 Reports"])
-app.include_router(parent_access.router, prefix="/api/parent-links", tags=["👨‍👩‍👧 Parent Access"])
-# Public parent portal (no JWT needed)
-app.include_router(parent_access.router, prefix="/api/parent", tags=["🔓 Parent Portal"])
+from app.api.endpoints import attendance, reports, parent_access, code_problems, revision
 app.include_router(code_problems.router, prefix="/api", tags=["💻 Code Problems"])
+app.include_router(revision.router, prefix="/api", tags=["📖 AI Smart Revision Center"])
+
