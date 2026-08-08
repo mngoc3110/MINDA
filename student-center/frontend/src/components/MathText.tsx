@@ -90,34 +90,47 @@ function splitSegments(str: string) {
   return segments;
 }
 
-/** Tự động bọc $ ... $ cho các công thức toán học thô (ví dụ: P(A|B), \frac, \cap, \int...) */
+/** Tự động chuẩn hoá các công thức toán học mà không làm ảnh hưởng đến câu chữ tiếng Việt */
 function autoWrapMathDelimiters(str: string): string {
   if (!str) return "";
-  // Nếu chuỗi đã chứa $...$ thì giữ nguyên
-  if (str.includes("$")) return str;
 
-  let text = str;
-  // Biểu thức xác suất: P(A|B) = P(A ∩ B) / P(B) -> $P(A|B) = \frac{P(A \cap B)}{P(B)}$
-  text = text.replace(/P\(([^)]+)\)\s*=\s*P\(([^)]+)\)\s*(\/|chia cho)\s*P\(([^)]+)\)/g, (m, a, b, op, c) => {
-    return `$P(${a}) = \\frac{P(${b})}{P(${c})}$`;
-  });
-  
-  // Các ký hiệu toán học có backslash hoặc dấu toán học mà chưa bọc $
-  text = text.replace(/(\b[A-Za-z]\([^)]+\)\s*=\s*[^,.\n]+)/g, (m) => {
-    if (m.includes("=") && (m.includes("P(") || m.includes("f(") || m.includes("f'("))) {
-      return `$${m}$`;
-    }
-    return m;
-  });
+  // Thay thế ký tự unicode toán học sang LaTeX macro
+  let text = str
+    .replace(/∩/g, " \\cap ")
+    .replace(/∪/g, " \\cup ")
+    .replace(/∈/g, " \\in ")
+    .replace(/∉/g, " \\notin ")
+    .replace(/⊂/g, " \\subset ")
+    .replace(/⊃/g, " \\supset ")
+    .replace(/∅/g, " \\emptyset ")
+    .replace(/≤/g, " \\le ")
+    .replace(/≥/g, " \\ge ")
+    .replace(/≠/g, " \\neq ")
+    .replace(/±/g, " \\pm ")
+    .replace(/×/g, " \\times ")
+    .replace(/·/g, " \\cdot ")
+    .replace(/→/g, " \\to ")
+    .replace(/⇒/g, " \\Rightarrow ")
+    .replace(/⇔/g, " \\Leftrightarrow ");
 
-  // Tự động bọc $ cho các chuỗi chứa \frac, \int, \sqrt, \vec, \cap, \cup, \dots
-  if (/(\\(frac|int|sqrt|vec|cap|cup|sum|lim|cdot|times|pm|approx|neq|le|ge|infty)|∩|∪|∈|∉|⊂|⊃|∅)/.test(text)) {
-    // Nếu có ∩ hoặc ∪ thay thế bằng \cap, \cup
-    text = text.replace(/∩/g, "\\cap ").replace(/∪/g, "\\cup ").replace(/∅/g, "\\emptyset ");
-    if (!text.includes("$")) {
-      text = `$${text}$`;
-    }
+  // Nếu chuỗi đã có $ ... $ thì để nguyên
+  if (text.includes("$")) {
+    // Làm sạch lỗi double $$ không cần thiết
+    return text.replace(/\$\$+/g, "$$");
   }
+
+  // Tự động bọc $ cho các biểu thức dạng P(A|B) = \frac{...}{...}
+  text = text.replace(/(P\([^)]+\)\s*=\s*(?:\\frac\{[^}]+\}\{[^}]+\}|[^,.\n]+))/g, (m) => {
+    return `$${m.trim()}$`;
+  });
+
+  // Tự động bọc $ cho các biểu thức chứa \frac, \int, \sqrt, \vec, \cap, \cup đơn lẻ
+  text = text.replace(/((?:\\[a-zA-Z]+(?:\{[^}]*\})*|[\w^_\+\-\*\/=><\(\)]+)*(?:\\[a-zA-Z]+)(?:\{[^}]*\})*(?:[\w^_\+\-\*\/=><\(\)]+)*)/g, (m) => {
+    if (m.startsWith("$") || m.endsWith("$") || m.length < 3) return m;
+    // Không bọc các từ tiếng Anh thông thường
+    if (/^[a-zA-Z]+$/.test(m)) return m;
+    return `$${m.trim()}$`;
+  });
 
   return text;
 }
@@ -147,11 +160,11 @@ function InlineMarkdownLatex({ text }: { text: string }) {
           const content = part.slice(2, -2);
           return (
             <strong key={idx} className="font-bold text-text-primary">
-              <Latex>{escapeHtmlInText(content)}</Latex>
+              <Latex strict={false}>{escapeHtmlInText(content)}</Latex>
             </strong>
           );
         }
-        return <Latex key={idx}>{escapeHtmlInText(part)}</Latex>;
+        return <Latex key={idx} strict={false}>{escapeHtmlInText(part)}</Latex>;
       })}
     </>
   );

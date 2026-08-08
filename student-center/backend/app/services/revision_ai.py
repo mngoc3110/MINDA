@@ -5,16 +5,19 @@ import zipfile
 import random
 import xml.etree.ElementTree as ET
 from typing import List, Dict, Any, Optional
+from dotenv import load_dotenv
 import google.generativeai as genai
+
+# Load .env file explicitly
+load_dotenv()
+load_dotenv("/var/www/minda/student-center/backend/.env")
 
 # Thu thập tất cả Gemini API Keys trong môi trường (.env)
 def get_all_gemini_keys() -> List[str]:
     keys = []
-    # Kiểm tra GEMINI_API_KEY đơn lẻ
     single = os.getenv("GEMINI_API_KEY")
     if single:
         keys.append(single)
-    # Kiểm tra GEMINI_API_KEY_1 đến GEMINI_API_KEY_20
     for i in range(1, 25):
         k = os.getenv(f"GEMINI_API_KEY_{i}")
         if k and k not in keys:
