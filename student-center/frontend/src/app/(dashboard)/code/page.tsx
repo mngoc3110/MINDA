@@ -176,15 +176,18 @@ function ProblemRow({ p, idx }: { p: any; idx: number }) {
   );
 }
 
-// ── Page ─────────────────────────────────────────────────────────────────────
+  const [userRole, setUserRole] = useState<string>("student");
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [creating, setCreating] = useState(false);
 
-export default function CodePage() {
-  const [problems, setProblems] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [track, setTrack] = useState("all");
-  const [diff, setDiff] = useState<"all" | "easy" | "medium" | "hard">("all");
-  const [selectedSubject, setSelectedSubject] = useState("all");
-  const [selectedChapter, setSelectedChapter] = useState("all");
+  // Form states
+  const [newTitle, setNewTitle] = useState("");
+  const [newSubject, setNewSubject] = useState("Lập trình cơ bản");
+  const [newChapter, setNewChapter] = useState("1. Nhập / Xuất");
+  const [newDiff, setNewDiff] = useState<"easy" | "medium" | "hard">("easy");
+  const [newDesc, setNewDesc] = useState("");
+  const [newInputEx, setNewInputEx] = useState("");
+  const [newOutputEx, setNewOutputEx] = useState("");
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 15;
@@ -205,7 +208,48 @@ export default function CodePage() {
 
   useEffect(() => {
     fetchProblems();
+    const role = localStorage.getItem("minda_user_role") || "student";
+    setUserRole(role);
   }, []);
+
+  const handleCreateProblem = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTitle.trim() || !newDesc.trim()) return;
+    setCreating(true);
+
+    try {
+      const token = localStorage.getItem("minda_token");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/problems`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          title: newTitle,
+          subject: newSubject,
+          chapter: newChapter,
+          difficulty: newDiff,
+          rating: newDiff === "hard" ? 1400 : (newDiff === "medium" ? 1100 : 800),
+          description: newDesc,
+          examples: [{ input: newInputEx || "1\n5", output: newOutputEx || "YES", explanation: "Ví dụ mẫu bài toán" }]
+        })
+      });
+
+      if (res.ok) {
+        setShowCreateModal(false);
+        setNewTitle("");
+        setNewDesc("");
+        setNewInputEx("");
+        setNewOutputEx("");
+        await fetchProblems();
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setCreating(false);
+    }
+  };
 
   // Reset to page 1 whenever filters change
   const handleTrackChange = (t: string) => {
@@ -255,14 +299,26 @@ export default function CodePage() {
 
         {/* ── Header ────────────────────────────────────────────── */}
         <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
-              <Code2 className="w-6 h-6 text-white" />
+          <div className="flex items-center justify-between gap-3 mb-3">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                <Code2 className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-black tracking-tight">MINDA Code</h1>
+                <p className="text-text-muted text-xs">Phân chia môn học & chương mục: Lập trình cơ bản · Lập trình nâng cao · OOP · Giải thuật · Đồ thị</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-3xl font-black tracking-tight">MINDA Code</h1>
-              <p className="text-text-muted text-xs">Phân chia môn học & chương mục: Lập trình cơ bản · Lập trình nâng cao · OOP · Giải thuật · Đồ thị</p>
-            </div>
+
+            {/* Teacher Create Problem Button */}
+            {(userRole === "teacher" || userRole === "admin") && (
+              <button
+                onClick={() => setShowCreateModal(true)}
+                className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white text-xs font-bold shadow-lg shadow-indigo-500/25 flex items-center gap-2 transition-all shrink-0"
+              >
+                <Zap className="w-4 h-4" /> + Thêm bài tập mới
+              </button>
+            )}
           </div>
 
           {/* Elo badge + stats row */}
@@ -448,6 +504,156 @@ export default function CodePage() {
                 </div>
               </div>
             )}
+          </div>
+        )}
+
+        {/* ── Teacher Create Problem Modal ───────────────────────── */}
+        {showCreateModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="w-full max-w-xl bg-neutral-900 border border-white/12 rounded-3xl p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar"
+            >
+              <div className="flex items-center justify-between mb-5 border-b border-white/8 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold">
+                    +
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-base text-text-primary">Tạo Bài Tập Lập Trình Mới</h3>
+                    <p className="text-[11px] text-text-muted">Soạn thảo bài toán, phân loại môn học và testcase cho học sinh</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowCreateModal(false)}
+                  className="w-8 h-8 rounded-full hover:bg-white/8 flex items-center justify-center text-text-muted hover:text-text-primary transition-colors text-sm"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <form onSubmit={handleCreateProblem} className="flex flex-col gap-4">
+                <div>
+                  <label className="text-xs font-semibold text-text-muted block mb-1">Tên bài toán *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="VD: Kiểm Tra Số Hoàn Hảo"
+                    value={newTitle}
+                    onChange={e => setNewTitle(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm focus:border-indigo-500 focus:outline-none transition-colors"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-semibold text-text-muted block mb-1">Môn học</label>
+                    <select
+                      value={newSubject}
+                      onChange={e => {
+                        setNewSubject(e.target.value);
+                        const chaps = SUBJECTS_CHAPTERS[e.target.value];
+                        if (chaps?.length) setNewChapter(chaps[0]);
+                      }}
+                      className="w-full px-3 py-2 rounded-xl bg-neutral-800 border border-white/10 text-xs focus:border-indigo-500 focus:outline-none"
+                    >
+                      {Object.keys(SUBJECTS_CHAPTERS).map(s => (
+                        <option key={s} value={s}>{s}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-text-muted block mb-1">Chương - Mục</label>
+                    <select
+                      value={newChapter}
+                      onChange={e => setNewChapter(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl bg-neutral-800 border border-white/10 text-xs focus:border-indigo-500 focus:outline-none"
+                    >
+                      {SUBJECTS_CHAPTERS[newSubject]?.map(c => (
+                        <option key={c} value={c}>{c}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-semibold text-text-muted block mb-1">Độ khó</label>
+                    <select
+                      value={newDiff}
+                      onChange={e => setNewDiff(e.target.value as any)}
+                      className="w-full px-3 py-2 rounded-xl bg-neutral-800 border border-white/10 text-xs focus:border-indigo-500 focus:outline-none"
+                    >
+                      <option value="easy">Dễ (800 - 1000 Elo)</option>
+                      <option value="medium">Trung bình (1100 - 1300 Elo)</option>
+                      <option value="hard">Khó (1400+ Elo)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-text-muted block mb-1">Thời gian giới hạn</label>
+                    <input
+                      type="text"
+                      disabled
+                      value="1.0 giây · 256 MB"
+                      className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/5 text-xs text-text-muted"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-text-muted block mb-1">Nội dung Đề bài (Hỗ trợ Markdown & LaTeX) *</label>
+                  <textarea
+                    required
+                    rows={5}
+                    placeholder="Mô tả yêu cầu bài toán, quy định input, output..."
+                    value={newDesc}
+                    onChange={e => setNewDesc(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-xs font-mono leading-relaxed focus:border-indigo-500 focus:outline-none transition-colors"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-semibold text-text-muted block mb-1">Input Mẫu</label>
+                    <textarea
+                      rows={2}
+                      placeholder="VD: 5 10"
+                      value={newInputEx}
+                      onChange={e => setNewInputEx(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-mono focus:border-indigo-500 focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-text-muted block mb-1">Output Mẫu</label>
+                    <textarea
+                      rows={2}
+                      placeholder="VD: 15"
+                      value={newOutputEx}
+                      onChange={e => setNewOutputEx(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-mono focus:border-indigo-500 focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-end gap-3 mt-3 border-t border-white/8 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowCreateModal(false)}
+                    className="px-4 py-2 rounded-xl text-xs text-text-muted hover:text-text-primary hover:bg-white/5 transition-colors"
+                  >
+                    Hủy
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={creating}
+                    className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white text-xs font-bold shadow-lg shadow-indigo-500/20 disabled:opacity-50 transition-all flex items-center gap-2"
+                  >
+                    {creating ? "Đang lưu đề bài..." : "Lưu & Xuất bản đề"}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
           </div>
         )}
 
