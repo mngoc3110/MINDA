@@ -637,17 +637,6 @@ export default function NotebookWorkspacePage() {
                 </div>
               </div>
             </motion.div>
-                  <button
-                    onClick={() => handleGenerateQuiz("practice")}
-                    disabled={generatingQuiz}
-                    className="flex-1 py-3.5 rounded-2xl bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 hover:opacity-95 text-white text-xs md:text-sm font-bold shadow-lg shadow-pink-500/25 disabled:opacity-50 transition-all flex items-center justify-center gap-2 hover:scale-[1.01]"
-                  >
-                    {generatingQuiz ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
-                    {generatingQuiz ? "Gemini 2.0 đang phân tích & sinh đề..." : "✨ Luyện Tập Tức Thì (Chấm & Giải thích ngay)"}
-                  </button>
-                </div>
-              </div>
-            </motion.div>
           ) : (
             /* ── INTERACTIVE PRACTICE & EXAM VIEW ────────────────────── */
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-3xl mx-auto w-full flex flex-col gap-6">
