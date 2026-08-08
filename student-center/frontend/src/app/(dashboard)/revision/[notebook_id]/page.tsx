@@ -77,7 +77,7 @@ export default function NotebookWorkspacePage() {
   };
 
   // Quiz Generation States
-  const [quizType, setQuizType] = useState<"mcq_4" | "true_false" | "flashcard">("mcq_4");
+  const [quizType, setQuizType] = useState<"mcq_4" | "true_false" | "short_answer" | "thpt_combo" | "flashcard">("mcq_4");
   const [totalQuestions, setTotalQuestions] = useState(10);
   const [durationMinutes, setDurationMinutes] = useState(15);
   const [ratioRecall, setRatioRecall] = useState(40);
@@ -86,6 +86,7 @@ export default function NotebookWorkspacePage() {
   const [ratioHighApp, setRatioHighApp] = useState(10);
   const [focusTopic, setFocusTopic] = useState("");
   const [generatingQuiz, setGeneratingQuiz] = useState(false);
+  const [activePreset, setActivePreset] = useState<"15min" | "1tiet" | "thpt" | "flashcard" | null>(null);
 
   // Active Quiz & Attempt States
   const [activeQuiz, setActiveQuiz] = useState<any | null>(null);
@@ -457,50 +458,37 @@ export default function NotebookWorkspacePage() {
                     <span className="text-[10px] text-pink-500 font-bold">Chuẩn Bộ GD&ĐT 2025</span>
                   </div>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                    <button
-                      onClick={() => {
-                        setQuizType("mcq_4");
-                        setTotalQuestions(10);
-                        setDurationMinutes(15);
-                      }}
-                      className="p-2.5 rounded-xl border border-border-card bg-bg-main hover:border-pink-500 text-left transition-all"
-                    >
-                      <p className="text-xs font-bold text-text-primary">⚡ Đề 15 Phút</p>
-                      <p className="text-[10px] text-text-muted">10 câu • 15 phút</p>
-                    </button>
-                    <button
-                      onClick={() => {
-                        setQuizType("mcq_4");
-                        setTotalQuestions(20);
-                        setDurationMinutes(45);
-                      }}
-                      className="p-2.5 rounded-xl border border-border-card bg-bg-main hover:border-indigo-500 text-left transition-all"
-                    >
-                      <p className="text-xs font-bold text-text-primary">⏱️ Đề 1 Tiết</p>
-                      <p className="text-[10px] text-text-muted">20 câu • 45 phút</p>
-                    </button>
-                    <button
-                      onClick={() => {
-                        setQuizType("thpt_combo");
-                        setTotalQuestions(20);
-                        setDurationMinutes(50);
-                      }}
-                      className="p-2.5 rounded-xl border border-pink-500/50 bg-pink-500/10 text-left transition-all shadow-sm"
-                    >
-                      <p className="text-xs font-bold text-pink-500">🎓 Tốt Nghiệp THPT</p>
-                      <p className="text-[10px] text-text-muted">Tổ hợp 3 phần • 50p</p>
-                    </button>
-                    <button
-                      onClick={() => {
-                        setQuizType("flashcard");
-                        setTotalQuestions(15);
-                        setDurationMinutes(10);
-                      }}
-                      className="p-2.5 rounded-xl border border-border-card bg-bg-main hover:border-purple-500 text-left transition-all"
-                    >
-                      <p className="text-xs font-bold text-text-primary">🎴 Flashcard Ôn Tập</p>
-                      <p className="text-[10px] text-text-muted">15 thẻ ghi nhớ</p>
-                    </button>
+                    {[
+                      { id: "15min" as const, icon: "⚡", label: "Đề 15 Phút", sub: "10 câu • 15 phút", color: "pink",
+                        apply: () => { setQuizType("mcq_4"); setTotalQuestions(10); setDurationMinutes(15); } },
+                      { id: "1tiet" as const, icon: "⏱️", label: "Đề 1 Tiết", sub: "20 câu • 45 phút", color: "indigo",
+                        apply: () => { setQuizType("mcq_4"); setTotalQuestions(20); setDurationMinutes(45); } },
+                      { id: "thpt" as const, icon: "🎓", label: "Tốt Nghiệp THPT", sub: "Tổ hợp 3 phần • 50p", color: "amber",
+                        apply: () => { setQuizType("thpt_combo"); setTotalQuestions(20); setDurationMinutes(50); } },
+                      { id: "flashcard" as const, icon: "🎴", label: "Flashcard Ôn Tập", sub: "15 thẻ ghi nhớ", color: "purple",
+                        apply: () => { setQuizType("flashcard"); setTotalQuestions(15); setDurationMinutes(10); } },
+                    ].map(p => {
+                      const isActive = activePreset === p.id;
+                      const colorMap: Record<string, string> = {
+                        pink: isActive ? "border-pink-500 bg-pink-500/15 shadow-sm shadow-pink-500/20" : "border-border-card hover:border-pink-400",
+                        indigo: isActive ? "border-indigo-500 bg-indigo-500/15 shadow-sm shadow-indigo-500/20" : "border-border-card hover:border-indigo-400",
+                        amber: isActive ? "border-amber-500 bg-amber-500/15 shadow-sm shadow-amber-500/20" : "border-border-card hover:border-amber-400",
+                        purple: isActive ? "border-purple-500 bg-purple-500/15 shadow-sm shadow-purple-500/20" : "border-border-card hover:border-purple-400",
+                      };
+                      const textColorMap: Record<string, string> = {
+                        pink: isActive ? "text-pink-500" : "text-text-primary",
+                        indigo: isActive ? "text-indigo-500" : "text-text-primary",
+                        amber: isActive ? "text-amber-500" : "text-text-primary",
+                        purple: isActive ? "text-purple-500" : "text-text-primary",
+                      };
+                      return (
+                        <button key={p.id} onClick={() => { p.apply(); setActivePreset(p.id); }}
+                          className={`p-2.5 rounded-xl border bg-bg-main text-left transition-all ${colorMap[p.color]}`}>
+                          <p className={`text-xs font-bold ${textColorMap[p.color]}`}>{p.icon} {p.label}</p>
+                          <p className="text-[10px] text-text-muted mt-0.5">{p.sub}</p>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 

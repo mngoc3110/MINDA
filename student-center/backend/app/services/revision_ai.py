@@ -26,12 +26,13 @@ def get_all_gemini_keys() -> List[str]:
 
 ALL_GEMINI_KEYS = get_all_gemini_keys()
 
-def get_active_gemini_model(model_name: str = "gemini-1.5-flash", system_instruction: Optional[str] = None):
+def get_active_gemini_model(model_name: str = "gemini-2.0-flash", key: Optional[str] = None, system_instruction: Optional[str] = None):
     """Lấy Gemini model với key xoay vòng tự động và hỗ trợ đa model."""
-    if not ALL_GEMINI_KEYS:
-        key = "AIzaSyC2Ns3jqZTjOXk44burtJUptQnb7oTKPUA"
-    else:
-        key = random.choice(ALL_GEMINI_KEYS)
+    if key is None:
+        if not ALL_GEMINI_KEYS:
+            key = os.getenv("GEMINI_API_KEY", "")
+        else:
+            key = random.choice(ALL_GEMINI_KEYS)
     
     genai.configure(api_key=key)
     if system_instruction:
@@ -402,28 +403,41 @@ TÀI LIỆU ĐỀ CƯƠNG CỦA HỌC SINH:
 {combined_docs_text}
 """
 
-    # Thử gọi Gemini với các model khác nhau: 1.5-flash -> 2.0-flash -> 1.5-pro
-    models_to_try = ["gemini-1.5-flash", "gemini-2.0-flash", "gemini-1.5-pro"]
+    # Thử gọi Gemini với các model hiện tại: 2.0-flash-lite -> 2.0-flash -> 2.5-flash
+    models_to_try = ["gemini-2.0-flash-lite", "gemini-2.0-flash", "gemini-2.5-flash"]
+    keys_copy = list(ALL_GEMINI_KEYS) if ALL_GEMINI_KEYS else [os.getenv("GEMINI_API_KEY", "")]
+    random.shuffle(keys_copy)
+    attempt_count = 0
     for model_name in models_to_try:
-        for attempt in range(2):
+        for key in keys_copy[:5]:  # thử tối đa 5 key per model
+            attempt_count += 1
             try:
-                model = get_active_gemini_model(model_name=model_name)
+                print(f"[Quiz AI] Thử model={model_name}, key=...{key[-6:] if key else 'N/A'}")
+                model = get_active_gemini_model(model_name=model_name, key=key)
                 response = model.generate_content(
                     prompt,
-                    generation_config={"response_mime_type": "application/json", "temperature": 0.3}
+                    generation_config={"response_mime_type": "application/json", "temperature": 0.35, "max_output_tokens": 8192}
                 )
                 raw_text = response.text.strip()
                 raw_text = re.sub(r'^```json\s*', '', raw_text)
                 raw_text = re.sub(r'\s*```$', '', raw_text)
                 data = json.loads(raw_text)
                 if isinstance(data, list) and len(data) >= 1:
+                    print(f"[Quiz AI] Thành công! {len(data)} câu hỏi từ {model_name}")
                     return data
                 elif isinstance(data, dict) and "questions" in data:
-                    return data["questions"]
+                    qs = data["questions"]
+                    print(f"[Quiz AI] Thành công! {len(qs)} câu hỏi từ {model_name}")
+                    return qs
             except Exception as e:
-                print(f"Lỗi AI sinh câu hỏi với model {model_name} (lần {attempt+1}): {e}")
+                err_msg = str(e)
+                if "CONSUMER_SUSPENDED" in err_msg or "403" in err_msg:
+                    print(f"[Quiz AI] Key bị suspended, thử key khác")
+                    continue
+                print(f"[Quiz AI] Lỗi model {model_name}: {err_msg[:120]}")
 
     # Fallback chất lượng cao đảm bảo ĐỦ ĐÚNG số lượng câu hỏi
+    print(f"[Quiz AI] Dùng fallback pool sau {attempt_count} lần thử")
     return generate_fallback_quiz(total_questions, focus_topic)
 
 def generate_smart_quiz_from_docs(
