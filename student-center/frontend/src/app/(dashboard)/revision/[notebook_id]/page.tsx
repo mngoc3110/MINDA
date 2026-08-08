@@ -148,9 +148,13 @@ export default function NotebookWorkspacePage() {
       });
       if (res.ok) {
         await fetchNotebook();
+      } else {
+        const err = await res.json();
+        alert("Lỗi upload: " + (err.detail || "Không thể tải lên file"));
       }
     } catch (err) {
       console.error(err);
+      alert("Không thể kết nối đến máy chủ.");
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";

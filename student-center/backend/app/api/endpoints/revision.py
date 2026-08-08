@@ -172,6 +172,8 @@ async def upload_documents(
 
         if not text_content.strip():
             text_content = f"Tài liệu {file.filename} đã được tải lên thành công."
+        else:
+            text_content = text_content.replace('\x00', '')
 
         doc = RevisionDocument(
             notebook_id=nb.id,

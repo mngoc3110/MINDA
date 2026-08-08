@@ -55,13 +55,9 @@ def parse_document_content(filename: str, file_bytes: bytes) -> tuple[str, str]:
         content = extract_text_from_pdf_bytes(file_bytes)
         file_type = 'pdf'
     else:
-        try:
-            content = file_bytes.decode('utf-8')
-        except Exception:
-            content = file_bytes.decode('latin-1', errors='ignore')
-        file_type = 'txt'
-    
-    # Làm sạch văn bản
+    # Làm sạch văn bản và loại bỏ triệt để ký tự NUL (\x00) cho PostgreSQL
+    content = content.replace('\x00', '')
+    content = re.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]', '', content)
     content = re.sub(r'[ \t]+', ' ', content)
     content = re.sub(r'\n{3,}', '\n\n', content).strip()
     return file_type, content
