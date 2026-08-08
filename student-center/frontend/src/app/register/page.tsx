@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { BrainCircuit, Mail, Lock, User, ArrowRight, ChevronDown } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 const SUBJECTS = [
