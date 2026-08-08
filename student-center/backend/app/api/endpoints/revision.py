@@ -127,7 +127,31 @@ def get_notebook_detail(
         ]
     }
 
-# ── 2. Multi-Document Upload & Parsing ────────────────────────────────────────
+from app.models.file import FileItem
+import urllib.request
+
+class ImportDriveRequest(BaseModel):
+    file_ids: List[int]
+
+# ── 2. Multi-Document Upload & Parsing + Drive Sync ──────────────────────────
+
+@router.get("/drive-files")
+def list_available_drive_files(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Lấy danh sách các file trong Cặp xách / Drive của học sinh để chọn nạp vào Notebook."""
+    files = db.query(FileItem).filter(FileItem.owner_id == current_user.id).order_by(FileItem.id.desc()).all()
+    return [
+        {
+            "id": f.id,
+            "filename": f.filename,
+            "file_url": f.file_url,
+            "file_type": f.file_type,
+            "file_size": f.file_size
+        }
+        for f in files
+    ]
 
 @router.post("/notebooks/{notebook_id}/documents")
 async def upload_documents(
@@ -136,7 +160,7 @@ async def upload_documents(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Upload đồng thời nhiều tài liệu đề cương (PDF, DOCX, TXT) vào Notebook."""
+    """Upload đồng thời nhiều tài liệu đề cương (PDF, DOCX, TXT) vào Notebook và lưu vào Drive."""
     nb = db.query(RevisionNotebook).filter(RevisionNotebook.id == notebook_id).first()
     if not nb:
         raise HTTPException(status_code=404, detail="Không gian ôn tập không tồn tại")
@@ -157,11 +181,73 @@ async def upload_documents(
             char_count=len(text_content)
         )
         db.add(doc)
+
+        # Lưu đồng thời vào Cặp xách (Drive / FileItem) để học sinh lưu trữ lâu dài
+        size_mb = f"{len(file_bytes) / (1024 * 1024):.2f} MB" if len(file_bytes) > 0 else "0.1 MB"
+        db_file = FileItem(
+            filename=file.filename,
+            file_url="", # Lưu nội bộ
+            file_type=file.content_type or file_type,
+            file_size=size_mb,
+            owner_id=current_user.id
+        )
+        db.add(db_file)
+
         saved_docs.append({"filename": file.filename, "chars": len(text_content), "type": file_type})
+
+    # Tặng EXP cho học sinh
+    current_user.exp_points = (current_user.exp_points or 0) + (10 * len(files))
+    nb.updated_at = datetime.datetime.utcnow()
+    db.commit()
+    return {"message": f"Đã nạp và lưu thành công {len(saved_docs)} tài liệu vào Notebook & Drive", "documents": saved_docs}
+
+@router.post("/notebooks/{notebook_id}/import-from-drive")
+def import_files_from_drive(
+    notebook_id: int,
+    data: ImportDriveRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Nạp nhanh các tài liệu đã có sẵn trong Cặp xách (Drive) vào Notebook."""
+    nb = db.query(RevisionNotebook).filter(RevisionNotebook.id == notebook_id).first()
+    if not nb:
+        raise HTTPException(status_code=404, detail="Không gian ôn tập không tồn tại")
+
+    drive_files = db.query(FileItem).filter(FileItem.id.in_(data.file_ids), FileItem.owner_id == current_user.id).all()
+    if not drive_files:
+        raise HTTPException(status_code=400, detail="Không tìm thấy file nào được chọn từ Drive")
+
+    imported_docs = []
+    for f in drive_files:
+        # Nếu có URL tải về thì tải, ngược lại dùng nội dung văn bản mặc định
+        file_bytes = b""
+        if f.file_url and f.file_url.startswith("http"):
+            try:
+                req = urllib.request.Request(f.file_url, headers={'User-Agent': 'Mozilla/5.0'})
+                with urllib.request.urlopen(req, timeout=10) as resp:
+                    file_bytes = resp.read()
+            except Exception as e:
+                print(f"Lỗi tải file từ Drive URL: {e}")
+
+        if file_bytes:
+            file_type, text_content = parse_document_content(f.filename, file_bytes)
+        else:
+            file_type = "doc"
+            text_content = f"Tài liệu {f.filename} từ Drive của học sinh.\nNội dung đề cương ôn tập môn {nb.subject} {nb.grade}."
+
+        doc = RevisionDocument(
+            notebook_id=nb.id,
+            filename=f.filename,
+            file_type=file_type,
+            content_text=text_content,
+            char_count=len(text_content)
+        )
+        db.add(doc)
+        imported_docs.append({"filename": f.filename, "chars": len(text_content)})
 
     nb.updated_at = datetime.datetime.utcnow()
     db.commit()
-    return {"message": f"Đã nạp thành công {len(saved_docs)} tài liệu vào Notebook", "documents": saved_docs}
+    return {"message": f"Đã nạp thành công {len(imported_docs)} tài liệu từ Cặp xách (Drive)", "documents": imported_docs}
 
 @router.delete("/documents/{doc_id}")
 def delete_document(

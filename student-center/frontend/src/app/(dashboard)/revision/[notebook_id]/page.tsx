@@ -26,6 +26,55 @@ export default function NotebookWorkspacePage() {
   const [previewDoc, setPreviewDoc] = useState<any | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Drive integration states
+  const [showDriveModal, setShowDriveModal] = useState(false);
+  const [driveFiles, setDriveFiles] = useState<any[]>([]);
+  const [loadingDrive, setLoadingDrive] = useState(false);
+  const [selectedDriveIds, setSelectedDriveIds] = useState<number[]>([]);
+  const [importingDrive, setImportingDrive] = useState(false);
+
+  const fetchDriveFiles = async () => {
+    setLoadingDrive(true);
+    try {
+      const token = localStorage.getItem("minda_token");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/revision/drive-files`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        setDriveFiles(await res.json());
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoadingDrive(false);
+    }
+  };
+
+  const handleImportDrive = async () => {
+    if (selectedDriveIds.length === 0) return;
+    setImportingDrive(true);
+    try {
+      const token = localStorage.getItem("minda_token");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/revision/notebooks/${notebookId}/import-from-drive`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ file_ids: selectedDriveIds })
+      });
+      if (res.ok) {
+        setShowDriveModal(false);
+        setSelectedDriveIds([]);
+        await fetchNotebook();
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setImportingDrive(false);
+    }
+  };
+
   // Quiz Generation States
   const [quizType, setQuizType] = useState<"mcq_4" | "true_false" | "flashcard">("mcq_4");
   const [totalQuestions, setTotalQuestions] = useState(10);
@@ -294,14 +343,25 @@ export default function NotebookWorkspacePage() {
                 Nguồn tài liệu ({notebook?.documents?.length || 0})
               </span>
             </div>
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              disabled={uploading}
-              className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-pink-500 to-indigo-600 text-white hover:opacity-90 transition-all text-xs font-bold flex items-center gap-1.5 shadow-md shadow-pink-500/20"
-            >
-              {uploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
-              <span>Upload</span>
-            </button>
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => {
+                  fetchDriveFiles();
+                  setShowDriveModal(true);
+                }}
+                className="px-2.5 py-1.5 rounded-xl bg-bg-main border border-border-card text-text-primary hover:border-indigo-500 text-[11px] font-bold flex items-center gap-1 transition-all shadow-sm"
+              >
+                <span>📁 Từ Drive</span>
+              </button>
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-pink-500 to-indigo-600 text-white hover:opacity-90 transition-all text-[11px] font-bold flex items-center gap-1 shadow-md shadow-pink-500/20"
+              >
+                {uploading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" />}
+                <span>Upload</span>
+              </button>
+            </div>
             <input
               type="file"
               ref={fileInputRef}
@@ -686,31 +746,103 @@ export default function NotebookWorkspacePage() {
 
       </div>
 
-      {/* ── Document Preview Modal ───────────────────────────────────── */}
-      {previewDoc && (
+      {/* ── Drive Selection Modal ─────────────────────────────────────── */}
+      {showDriveModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="w-full max-w-3xl bg-bg-card border border-border-card rounded-3xl p-6 shadow-2xl relative max-h-[85vh] flex flex-col text-text-primary"
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="w-full max-w-xl bg-bg-card border border-border-card rounded-3xl p-6 md:p-8 shadow-2xl relative text-text-primary flex flex-col max-h-[85vh]"
           >
-            <div className="flex items-center justify-between mb-4 border-b border-border-card pb-3">
-              <div>
-                <h3 className="font-bold text-sm text-text-primary truncate">{previewDoc.filename}</h3>
-                <p className="text-xs text-text-secondary font-medium">Đã trích xuất {previewDoc.char_count?.toLocaleString()} ký tự</p>
+            <div className="flex items-center justify-between mb-5 border-b border-border-card pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-indigo-500/15 text-indigo-500 flex items-center justify-center font-bold text-lg border border-indigo-500/20">
+                  📁
+                </div>
+                <div>
+                  <h3 className="font-black text-lg text-text-primary">Nạp Tài Liệu Từ Cặp Xách (Drive)</h3>
+                  <p className="text-xs text-text-secondary font-medium">Chọn các đề cương, bài giảng đã tải lên Drive trước đây</p>
+                </div>
               </div>
               <button
-                onClick={() => setPreviewDoc(null)}
+                onClick={() => setShowDriveModal(false)}
                 className="w-8 h-8 rounded-full hover:bg-bg-hover flex items-center justify-center text-text-muted hover:text-text-primary text-sm"
               >
                 ✕
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto custom-scrollbar rounded-2xl border border-border-card bg-bg-main p-4">
-              <pre className="text-xs font-mono text-text-secondary leading-relaxed whitespace-pre-wrap select-all">
-                {previewDoc.content_text || previewDoc.snippet}
-              </pre>
+            {loadingDrive ? (
+              <div className="py-16 flex flex-col items-center justify-center gap-2">
+                <Loader2 className="w-6 h-6 animate-spin text-indigo-500" />
+                <p className="text-xs text-text-muted">Đang mở Cặp xách của bạn...</p>
+              </div>
+            ) : driveFiles.length === 0 ? (
+              <div className="py-14 text-center text-text-muted">
+                <p className="text-sm font-semibold">Cặp xách (Drive) của bạn chưa có file nào</p>
+                <p className="text-xs mt-1">Hãy bấm nút "Upload" để tải trực tiếp từ máy tính lên nhé!</p>
+              </div>
+            ) : (
+              <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-2 p-1">
+                {driveFiles.map(f => {
+                  const isChecked = selectedDriveIds.includes(f.id);
+                  return (
+                    <button
+                      key={f.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedDriveIds(prev =>
+                          isChecked ? prev.filter(id => id !== f.id) : [...prev, f.id]
+                        );
+                      }}
+                      className={`p-3.5 rounded-2xl border text-left transition-all flex items-center justify-between gap-3 ${
+                        isChecked
+                          ? "border-indigo-500 bg-indigo-500/15 text-text-primary shadow-sm"
+                          : "border-border-card bg-bg-main hover:bg-bg-hover text-text-secondary"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-8 h-8 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xs font-bold shrink-0">
+                          {f.file_type?.includes("pdf") ? "PDF" : "DOC"}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-xs font-bold text-text-primary truncate">{f.filename}</p>
+                          <p className="text-[10px] text-text-muted">{f.file_size || "1.2 MB"}</p>
+                        </div>
+                      </div>
+
+                      <div className={`w-5 h-5 rounded-lg border flex items-center justify-center shrink-0 ${isChecked ? "bg-indigo-600 border-indigo-500 text-white" : "border-border-card bg-bg-main"}`}>
+                        {isChecked && <CheckCircle2 className="w-3.5 h-3.5" />}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            <div className="flex items-center justify-between border-t border-border-card pt-4 mt-4">
+              <span className="text-xs text-text-muted font-medium">
+                Đã chọn: <strong className="text-text-primary">{selectedDriveIds.length}</strong> tài liệu
+              </span>
+
+              <div className="flex items-center gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setShowDriveModal(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-text-secondary hover:text-text-primary hover:bg-bg-hover"
+                >
+                  Hủy
+                </button>
+                <button
+                  type="button"
+                  onClick={handleImportDrive}
+                  disabled={selectedDriveIds.length === 0 || importingDrive}
+                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:opacity-95 text-white text-xs font-bold shadow-md shadow-indigo-500/20 disabled:opacity-40 flex items-center gap-2"
+                >
+                  {importingDrive ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" />}
+                  {importingDrive ? "Đang nạp..." : `Nạp ${selectedDriveIds.length} Tài Liệu Vào Notebook`}
+                </button>
+              </div>
             </div>
           </motion.div>
         </div>
