@@ -18,6 +18,27 @@ SECRET_KEY = os.getenv("SECRET_KEY", "2098e80e6ffb09517dbcd7baa913fc4663831cc023
 router = APIRouter()
 
 
+@router.get("/search-students")
+def search_students(q: str = "", db: Session = Depends(get_db)):
+    """Tìm kiếm học sinh theo tên hoặc email để phụ huynh liên kết."""
+    query = db.query(User).filter(User.role == UserRole.student)
+    if q:
+        query = query.filter(
+            (User.full_name.ilike(f"%{q}%")) | (User.email.ilike(f"%{q}%")) | (User.phone.ilike(f"%{q}%"))
+        )
+    students = query.limit(10).all()
+    return [
+        {
+            "id": s.id,
+            "full_name": s.full_name,
+            "email": s.email,
+            "phone": s.phone,
+            "avatar_url": s.avatar_url,
+            "rank": s.current_rank
+        }
+        for s in students
+    ]
+
 @router.post("/register", response_model=UserResponse)
 def register(user_in: UserCreate, db: Session = Depends(get_db)):
     """Đăng ký tài khoản mới. Mặc định role=student."""
@@ -61,6 +82,35 @@ def register(user_in: UserCreate, db: Session = Depends(get_db)):
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
+
+    # Nếu là Phụ huynh và có nhập email/tên học sinh con em -> Tự động kết nối ParentLink
+    if role == UserRole.parent and (user_in.student_email or user_in.student_name):
+        student = None
+        if user_in.student_email:
+            student = db.query(User).filter(User.email == user_in.student_email, User.role == UserRole.student).first()
+        if not student and user_in.student_name:
+            student = db.query(User).filter(User.full_name.ilike(f"%{user_in.student_name}%"), User.role == UserRole.student).first()
+
+        if student:
+            import uuid
+            from app.models.session_report import ParentLink
+            # Lấy giáo viên đầu tiên hoặc giáo viên của khoá học học sinh tham gia
+            teacher = db.query(User).filter(User.role == UserRole.teacher).first()
+            teacher_id = teacher.id if teacher else db_user.id
+
+            parent_link = ParentLink(
+                student_id=student.id,
+                teacher_id=teacher_id,
+                parent_user_id=db_user.id,
+                parent_name=db_user.full_name or f"Phụ huynh của {student.full_name}",
+                parent_phone=db_user.phone,
+                share_token=str(uuid.uuid4()),
+                pin_code="123456",
+                is_active=True
+            )
+            db.add(parent_link)
+            db.commit()
+
     return db_user
 
 

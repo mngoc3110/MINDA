@@ -19,6 +19,8 @@ class UserCreate(UserBase):
     phone: Optional[str] = None
     role: Optional[str] = "student"  # student / teacher / parent / admin
     subject: Optional[str] = None   # Môn học (dành cho giáo viên)
+    student_email: Optional[str] = None # Email của học sinh (dành cho phụ huynh)
+    student_name: Optional[str] = None  # Họ tên học sinh (dành cho phụ huynh)
 
     @field_validator("password")
     def validate_password(cls, v):

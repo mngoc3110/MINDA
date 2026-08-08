@@ -22,6 +22,33 @@ export default function RegisterPage() {
   const [subject, setSubject] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Parent student selection states
+  const [studentQuery, setStudentQuery] = useState("");
+  const [selectedStudent, setSelectedStudent] = useState<any | null>(null);
+  const [studentResults, setStudentResults] = useState<any[]>([]);
+  const [searchingStudents, setSearchingStudents] = useState(false);
+
+  useEffect(() => {
+    if (role === "parent" && studentQuery.trim().length >= 1 && !selectedStudent) {
+      setSearchingStudents(true);
+      const timer = setTimeout(async () => {
+        try {
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/auth/search-students?q=${encodeURIComponent(studentQuery)}`);
+          if (res.ok) {
+            setStudentResults(await res.json());
+          }
+        } catch (e) {
+          console.error(e);
+        } finally {
+          setSearchingStudents(false);
+        }
+      }, 250);
+      return () => clearTimeout(timer);
+    } else {
+      setStudentResults([]);
+    }
+  }, [studentQuery, role, selectedStudent]);
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -29,7 +56,16 @@ export default function RegisterPage() {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, full_name: name, role, phone, subject: role === "teacher" ? subject : undefined }),
+        body: JSON.stringify({
+          email,
+          password,
+          full_name: name,
+          role,
+          phone,
+          subject: role === "teacher" ? subject : undefined,
+          student_email: role === "parent" ? (selectedStudent?.email || studentQuery || undefined) : undefined,
+          student_name: role === "parent" ? (selectedStudent?.full_name || studentQuery || undefined) : undefined
+        }),
       });
       
       if (res.ok) {
@@ -37,7 +73,7 @@ export default function RegisterPage() {
           alert("Đăng ký Giáo viên thành công!\n\n⚠️ Tài khoản của bạn đang chờ Admin phê duyệt. Bạn sẽ nhận được thông báo sau khi được chấp thuận.");
           router.push("/login?registered=teacher");
         } else if (role === "parent") {
-          alert("Đăng ký tài khoản Phụ huynh thành công!\n\nBạn có thể đăng nhập ngay để theo dõi kết quả học tập.");
+          alert("Đăng ký tài khoản Phụ huynh thành công!\n\nTài khoản của bạn đã được kết nối với con em để theo dõi kết quả học tập.");
           router.push("/login?registered=parent");
         } else {
           router.push("/login?registered=student");
@@ -194,6 +230,87 @@ export default function RegisterPage() {
                   👩‍🏫 Giáo viên
                 </button>
               </div>
+
+              {/* Child Student selector for parents */}
+              {role === "parent" && (
+                <div className="space-y-2 pt-1">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-medium text-emerald-400 flex items-center gap-1.5">
+                      <span>🎒</span> Bạn là phụ huynh của học sinh nào?
+                    </label>
+                  </div>
+
+                  {selectedStudent ? (
+                    <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="w-9 h-9 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center font-bold text-sm shrink-0 border border-emerald-500/30">
+                          {selectedStudent.full_name?.[0]?.toUpperCase() || "H"}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-xs font-bold text-text-primary truncate">{selectedStudent.full_name}</p>
+                          <p className="text-[10px] text-text-muted truncate">{selectedStudent.email} {selectedStudent.phone ? `· ${selectedStudent.phone}` : ""}</p>
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => { setSelectedStudent(null); setStudentQuery(""); }}
+                        className="px-2 py-1 rounded-lg bg-white/8 hover:bg-white/12 text-[11px] text-text-muted hover:text-text-primary transition-colors shrink-0"
+                      >
+                        Đổi học sinh
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <span className="text-text-muted text-xs">🔍</span>
+                      </div>
+                      <input
+                        type="text"
+                        value={studentQuery}
+                        onChange={e => setStudentQuery(e.target.value)}
+                        placeholder="Nhập tên, email hoặc SĐT của con..."
+                        className="w-full pl-9 pr-4 py-2.5 bg-transparent border border-border-card rounded-xl focus:outline-none focus:border-emerald-500/50 focus:bg-bg-main transition-colors text-xs text-text-primary placeholder-gray-500"
+                      />
+
+                      {/* Dropdown search suggestions */}
+                      {studentResults.length > 0 && (
+                        <div className="absolute top-full left-0 right-0 mt-1.5 p-1.5 rounded-2xl bg-neutral-900 border border-white/12 shadow-2xl z-30 max-h-48 overflow-y-auto custom-scrollbar flex flex-col gap-1">
+                          {studentResults.map(st => (
+                            <button
+                              key={st.id}
+                              type="button"
+                              onClick={() => {
+                                setSelectedStudent(st);
+                                setStudentQuery(st.full_name);
+                                setStudentResults([]);
+                              }}
+                              className="p-2 rounded-xl hover:bg-white/8 flex items-center justify-between text-left transition-colors"
+                            >
+                              <div className="flex items-center gap-2 min-w-0">
+                                <div className="w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center font-bold text-[11px] shrink-0">
+                                  {st.full_name?.[0]?.toUpperCase() || "H"}
+                                </div>
+                                <div className="min-w-0">
+                                  <p className="text-xs font-semibold text-text-primary truncate">{st.full_name}</p>
+                                  <p className="text-[10px] text-text-muted truncate">{st.email}</p>
+                                </div>
+                              </div>
+                              <span className="text-[10px] text-emerald-400 font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 shrink-0">
+                                Chọn
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  <p className="text-[11px] text-text-muted leading-relaxed">
+                    💡 Hệ thống sẽ tự động kết nối tài khoản của bạn với học sinh này để theo dõi điểm danh, báo cáo buổi học và tiến độ làm bài tập.
+                  </p>
+                </div>
+              )}
 
               {/* Subject selector for teachers */}
               {role === "teacher" && (
