@@ -194,19 +194,25 @@ function MarkdownBlock({ content }: { content: string }) {
 
 export default function MathText({
   children,
+  text,
   className = "",
 }: {
-  children: React.ReactNode;
+  children?: React.ReactNode;
+  text?: string;
   className?: string;
 }) {
-  if (typeof children !== "string") {
+  const content = text !== undefined ? text : (typeof children === "string" ? children : "");
+
+  if (!content && children && typeof children !== "string") {
     return <span className={className}>{children}</span>;
   }
 
-  const segments = splitSegments(children);
+  if (!content) return null;
+
+  const segments = splitSegments(content);
 
   return (
-    <div className={`math-text-wrapper space-y-2 ${className}`}>
+    <div className={`math-text-wrapper ${className}`}>
       {segments.map((seg, idx) => {
         if (seg.type === "code") {
           return <CodeBlock key={idx} lang={seg.lang ?? ""} code={seg.content} />;
