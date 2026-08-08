@@ -219,6 +219,13 @@ Format JSON cho mỗi câu:
 }
 """
 
+    latex_rules = (
+        "2. CÔNG THỨC TOÁN HỌC & KHOA HỌC: Bắt buộc biểu diễn bằng chuẩn LaTeX và bọc trong cặp dấu $ ... $ (hoặc $$ ... $$), "
+        "ví dụ: $P(A|B) = \\frac{P(A \\cap B)}{P(B)}$, $f'(x) = 3x^2 - 6x$, $\\int_a^b f(x)dx$, $\\vec{u} = (1; 2; 3)$, $\\sqrt{x^2+1}$."
+    )
+
+    focus_line = f"- Chủ đề trọng tâm cần nhấn mạnh: {focus_topic}" if focus_topic else ""
+
     prompt = f"""
 Bạn là Chuyên gia Giáo dục & Khảo thí Cao cấp của MINDA.
 Nhiệm vụ của bạn là đọc kỹ toàn bộ tài liệu/đề cương học tập dưới đây và tạo ra một bộ câu hỏi ôn tập CHUẨN XÁC, THÔNG MINH NHẤT theo Khung Chương trình GDPT 2018.
@@ -233,16 +240,16 @@ CẤU HÌNH BỘ CÂU HỎI:
   + Thông hiểu: ~{ratio_matrix.get('understanding', 30)}%
   + Vận dụng: ~{ratio_matrix.get('application', 20)}%
   + Vận dụng cao: ~{ratio_matrix.get('high_application', 10)}%
-{f'- Chủ đề trọng tâm cần nhấn mạnh: {focus_topic}' if focus_topic else ''}
+{focus_line}
 
 {quiz_format_desc}
 
 QUY TẮC BẮT BUỘC:
 1. Tất cả kiến thức và câu hỏi PHẢI bám sát 100% vào nội dung tài liệu được cung cấp dưới đây. Nếu là tài liệu Toán/KHTN, hãy tạo các câu hỏi có công thức, dữ kiện số học, bài toán cụ thể bám sát bài học.
-2. CÔNG THỨC TOÁN HỌC & KHOA HỌC: Bắt buộc biểu diễn bằng chuẩn LaTeX và bọc trong cặp dấu $ ... $ (hoặc $$ ... $$), ví dụ: $P(A|B) = \\frac{P(A \\cap B)}{P(B)}$, $f'(x) = 3x^2 - 6x$, $\\int_a^b f(x)dx$, $\\vec{u} = (1; 2; 3)$, $\\sqrt{x^2+1}$.
+{latex_rules}
 3. Các phương án nhiễu (Distractors) phải có tính đánh lừa tư duy logic cao (dựa trên các lỗi học sinh hay nhầm lẫn).
 4. Luôn có trường "citation" ghi rõ xuất xứ bài học/chương trong tài liệu.
-5. Trả về DUY NHẤT một JSON Array hợp lệ [ {{...}}, {{...}} ], không bọc trong bất kỳ văn bản giải thích nào khác ngoài chuỗi JSON.
+5. Trả về DUY NHẤT một JSON Array hợp lệ, không bọc trong bất kỳ văn bản giải thích nào khác ngoài chuỗi JSON.
 
 TÀI LIỆU ĐỀ CƯƠNG CỦA HỌC SINH:
 {combined_docs_text}
