@@ -301,7 +301,7 @@ def get_curriculum(course_id: int, db: Session = Depends(get_db), current_user: 
     curriculum = []
     for chap in chapters:
        lessons_data = []
-       for less in chap.lessons:
+       for less in sorted(chap.lessons, key=lambda l: (l.order_index or 0)):
            # Get assignments and exams for this lesson
            assignments = db.query(Assignment).filter(Assignment.lesson_id == less.id).all()
            exams = db.query(Exam).filter(Exam.lesson_id == less.id).all()

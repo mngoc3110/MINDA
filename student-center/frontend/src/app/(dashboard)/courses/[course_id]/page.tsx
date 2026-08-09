@@ -423,7 +423,7 @@ export default function CoursePlayerPage() {
                 {chap.title}
              </h3>
              <div className="flex flex-col gap-3">
-                {chap.lessons?.map((less: any) => {
+                {[...(chap.lessons ?? [])].sort((a: any, b: any) => (a.order_index ?? 0) - (b.order_index ?? 0)).map((less: any) => {
                    const isLessActive = activeType === "lesson" && activeItemId === less.id;
                    const isCompleted = completedLessons[less.id];
                    return (
