@@ -492,17 +492,17 @@ export default function SessionReportsPage() {
   const pastSchedules = schedules.filter((s) => new Date(s.start_time) < new Date());
 
   return (
-    <div className="max-w-6xl mx-auto px-4 pb-12">
+    <div className="max-w-6xl mx-auto px-3 sm:px-6 pb-12">
       {/* Header */}
-      <div className="pt-4 pb-8">
-        <h1 className="text-3xl font-black text-text-primary tracking-tight">
+      <div className="pt-3 sm:pt-4 pb-5 sm:pb-8">
+        <h1 className="text-2xl sm:text-3xl font-black text-text-primary tracking-tight">
           📋 Quản Lý Báo Cáo & Điểm Danh
         </h1>
-        <p className="text-text-secondary mt-2">Điểm danh học sinh, viết báo cáo và chia sẻ với phụ huynh</p>
+        <p className="text-xs sm:text-sm text-text-secondary mt-1.5 sm:mt-2">Điểm danh học sinh, viết báo cáo và chia sẻ với phụ huynh</p>
       </div>
 
       {/* Tab Bar */}
-      <div className="flex gap-2 mb-8 bg-bg-card border border-border-card rounded-2xl p-1.5 w-fit">
+      <div className="flex gap-1.5 sm:gap-2 mb-6 sm:mb-8 bg-bg-card border border-border-card rounded-2xl p-1.5 overflow-x-auto max-w-full no-scrollbar">
         {[
           { key: "live",          icon: Radio,          label: "Điểm Danh Live" },
           { key: "session",       icon: ClipboardList,  label: "Báo Cáo Buổi" },
@@ -510,11 +510,11 @@ export default function SessionReportsPage() {
           { key: "devices",       icon: Cpu,            label: "Arduino & Phụ Huynh" },
         ].map(({ key, icon: Icon, label }) => (
           <button key={key} onClick={() => setTab(key as TabType)}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+            className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap shrink-0 transition-all ${
               tab === key ? "bg-rose-500 text-white shadow-lg shadow-rose-500/30" : "text-text-secondary hover:text-text-primary hover:bg-bg-hover"
             }`}
           >
-            <Icon className="w-4 h-4" /> {label}
+            <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" /> {label}
           </button>
         ))}
       </div>
@@ -576,39 +576,43 @@ export default function SessionReportsPage() {
           ) : (
             /* Live Room */
             <div>
-              <div className="flex items-center gap-4 mb-6">
-                <button onClick={closeLiveRoom} className="p-2 rounded-xl hover:bg-bg-hover transition">
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
-                <div className="flex-1">
-                  <h2 className="text-xl font-black text-text-primary">{selectedSchedule.title}</h2>
-                  <p className="text-text-secondary text-sm">
-                    {new Date(selectedSchedule.start_time).toLocaleString("vi-VN")}
-                  </p>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 sm:mb-6">
+                <div className="flex items-center gap-3">
+                  <button onClick={closeLiveRoom} className="p-2 rounded-xl hover:bg-bg-hover transition shrink-0">
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+                  <div className="flex-1 min-w-0">
+                    <h2 className="text-lg sm:text-xl font-black text-text-primary truncate">{selectedSchedule.title}</h2>
+                    <p className="text-text-secondary text-xs sm:text-sm truncate">
+                      {new Date(selectedSchedule.start_time).toLocaleString("vi-VN")}
+                    </p>
+                  </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => { setEditModalSchedule(selectedSchedule); setIsEditModalOpen(true); }}
-                  className="px-3.5 py-2 rounded-xl bg-blue-500/10 text-blue-400 hover:bg-blue-500 hover:text-white transition text-xs font-bold flex items-center gap-1.5 border border-blue-500/20 shadow-sm"
-                >
-                  ✏️ Sửa danh sách học sinh
-                </button>
-                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-bold ${wsConnected ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400" : "border-red-500/30 bg-red-500/10 text-red-400"}`}>
-                  {wsConnected ? <><Wifi className="w-3 h-3" /> LIVE</> : <><WifiOff className="w-3 h-3" /> Offline</>}
+                <div className="flex items-center gap-2 self-end sm:self-auto">
+                  <button
+                    type="button"
+                    onClick={() => { setEditModalSchedule(selectedSchedule); setIsEditModalOpen(true); }}
+                    className="px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-blue-500/10 text-blue-400 hover:bg-blue-500 hover:text-white transition text-xs font-bold flex items-center gap-1.5 border border-blue-500/20 shadow-sm"
+                  >
+                    ✏️ Sửa danh sách học sinh
+                  </button>
+                  <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-bold ${wsConnected ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400" : "border-red-500/30 bg-red-500/10 text-red-400"}`}>
+                    {wsConnected ? <><Wifi className="w-3 h-3" /> LIVE</> : <><WifiOff className="w-3 h-3" /> Offline</>}
+                  </div>
                 </div>
               </div>
 
               {/* Stats bar */}
-              <div className="grid grid-cols-4 gap-3 mb-6">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-6">
                 {Object.entries(STATUS_CONFIG).map(([k, v]) => {
                   const count = roomStudents.filter((s) => getStudentAttendance(s.id)?.status === k).length;
                   return (
-                    <div key={k} className="p-3 rounded-xl border border-border-card bg-bg-card text-center">
-                      <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-bold border ${v.color}`}>
+                    <div key={k} className="p-2.5 sm:p-3 rounded-xl border border-border-card bg-bg-card text-center">
+                      <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] sm:text-xs font-bold border ${v.color}`}>
                         <span className={`w-1.5 h-1.5 rounded-full ${v.dot}`} />
                         {v.label}
                       </div>
-                      <p className="text-2xl font-black text-text-primary mt-1">{count}</p>
+                      <p className="text-xl sm:text-2xl font-black text-text-primary mt-1">{count}</p>
                     </div>
                   );
                 })}
@@ -634,67 +638,74 @@ export default function SessionReportsPage() {
                   const record = getStudentAttendance(student.id);
                   const isSaving = checkingIn === student.id;
                   return (
-                    <div key={student.id} className={`p-4 rounded-2xl border transition-all ${record ? "border-border-card bg-bg-card" : "border-dashed border-border-card bg-bg-card/50"}`}>
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-rose-400 to-pink-600 flex items-center justify-center text-white font-bold text-sm shrink-0">
-                          {student.full_name.split(" ").pop()?.charAt(0) || "?"}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-text-primary">{student.full_name}</p>
-                          {record ? (
-                            <div className="flex items-center gap-2 mt-0.5">
-                              <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-bold border ${STATUS_CONFIG[record.status].color}`}>
-                                <span className={`w-1.5 h-1.5 rounded-full ${STATUS_CONFIG[record.status].dot}`} />
-                                {STATUS_CONFIG[record.status].label}
-                              </span>
-                              {record.checkin_time && (
-                                <span className="text-xs text-text-secondary flex items-center gap-1">
-                                  <Clock className="w-3 h-3" />
-                                  {new Date(record.checkin_time).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}
+                    <div key={student.id} className={`p-3.5 sm:p-4 rounded-2xl border transition-all ${record ? "border-border-card bg-bg-card" : "border-dashed border-border-card bg-bg-card/50"}`}>
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-rose-400 to-pink-600 flex items-center justify-center text-white font-bold text-sm shrink-0">
+                            {student.full_name.split(" ").pop()?.charAt(0) || "?"}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-text-primary text-sm sm:text-base truncate">{student.full_name}</p>
+                            {record ? (
+                              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mt-0.5">
+                                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold border ${STATUS_CONFIG[record.status].color}`}>
+                                  <span className={`w-1.5 h-1.5 rounded-full ${STATUS_CONFIG[record.status].dot}`} />
+                                  {STATUS_CONFIG[record.status].label}
                                 </span>
-                              )}
-                              {record.method !== "manual" && (
-                                <span className="text-xs text-indigo-400 font-semibold">
-                                  {record.method === "fingerprint" ? "🖐️ Vân tay" : "📸 Khuôn mặt"}
-                                </span>
-                              )}
-                            </div>
-                          ) : (
-                            <p className="text-xs text-text-secondary mt-0.5">Chưa điểm danh</p>
-                          )}
+                                {record.checkin_time && (
+                                  <span className="text-[11px] text-text-secondary flex items-center gap-1">
+                                    <Clock className="w-3 h-3" />
+                                    {new Date(record.checkin_time).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}
+                                  </span>
+                                )}
+                                {record.method !== "manual" && (
+                                  <span className="text-[11px] text-indigo-400 font-semibold">
+                                    {record.method === "fingerprint" ? "🖐️ Vân tay" : "📸 Khuôn mặt"}
+                                  </span>
+                                )}
+                              </div>
+                            ) : (
+                              <p className="text-xs text-text-secondary mt-0.5">Chưa điểm danh</p>
+                            )}
+                          </div>
                         </div>
+
                         {isSaving ? (
-                          <Loader2 className="w-5 h-5 animate-spin text-rose-400" />
+                          <div className="flex justify-end sm:justify-center py-1">
+                            <Loader2 className="w-5 h-5 animate-spin text-rose-400" />
+                          </div>
                         ) : (
-                          <div className="flex items-center gap-1.5">
-                            {[
-                              { s: "present" as const, label: "✅", title: "Có mặt" },
-                              { s: "late" as const, label: "⏰", title: "Muộn" },
-                              { s: "excused" as const, label: "📋", title: "Phép" },
-                              { s: "absent" as const, label: "❌", title: "Vắng" },
-                            ].map(({ s, label, title }) => (
-                              <button key={s} title={record?.status === s ? `Bấm để hoàn tác (${title})` : title}
-                                onClick={() => {
-                                  if (record?.status === s) {
-                                    undoCheckin(student.id);
-                                  } else {
-                                    manualCheckin(student.id, s);
-                                  }
-                                }}
-                                className={`w-8 h-8 rounded-lg text-sm transition-all hover:scale-110 border ${
-                                  record?.status === s ? "bg-rose-500 border-rose-500 shadow-lg shadow-rose-500/30" : "border-border-card hover:border-rose-500/30 hover:bg-bg-hover"
-                                }`}
-                              >
-                                {label}
-                              </button>
-                            ))}
+                          <div className="flex items-center justify-between sm:justify-end gap-1.5 pt-2 sm:pt-0 border-t sm:border-t-0 border-border-card/50">
+                            <div className="grid grid-cols-4 sm:flex items-center gap-1.5 flex-1 sm:flex-initial">
+                              {[
+                                { s: "present" as const, label: "✅", title: "Có mặt" },
+                                { s: "late" as const, label: "⏰", title: "Muộn" },
+                                { s: "excused" as const, label: "📋", title: "Phép" },
+                                { s: "absent" as const, label: "❌", title: "Vắng" },
+                              ].map(({ s, label, title }) => (
+                                <button key={s} title={record?.status === s ? `Bấm để hoàn tác (${title})` : title}
+                                  onClick={() => {
+                                    if (record?.status === s) {
+                                      undoCheckin(student.id);
+                                    } else {
+                                      manualCheckin(student.id, s);
+                                    }
+                                  }}
+                                  className={`h-9 sm:h-8 px-2 sm:w-8 rounded-xl sm:rounded-lg text-sm transition-all flex items-center justify-center border ${
+                                    record?.status === s ? "bg-rose-500 border-rose-500 shadow-lg shadow-rose-500/30 text-white" : "border-border-card hover:border-rose-500/30 hover:bg-bg-hover"
+                                  }`}
+                                >
+                                  {label}
+                                </button>
+                              ))}
+                            </div>
 
                             {record && (
                               <button
                                 type="button"
                                 title="Hoàn tác điểm danh (Reset về Chưa điểm danh)"
                                 onClick={() => undoCheckin(student.id)}
-                                className="w-8 h-8 rounded-lg text-xs font-bold transition-all border border-amber-500/40 text-amber-400 bg-amber-500/10 hover:bg-amber-500 hover:text-white flex items-center justify-center hover:scale-110"
+                                className="h-9 w-9 sm:h-8 sm:w-8 rounded-xl sm:rounded-lg text-xs font-bold transition-all border border-amber-500/40 text-amber-400 bg-amber-500/10 hover:bg-amber-500 hover:text-white flex items-center justify-center shrink-0"
                               >
                                 <RotateCcw className="w-3.5 h-3.5" />
                               </button>
@@ -752,18 +763,20 @@ export default function SessionReportsPage() {
             </div>
           ) : (
             <div>
-              <div className="flex items-center gap-3 mb-6">
-                <button onClick={() => setReportSchedule(null)} className="p-2 rounded-xl hover:bg-bg-hover">
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
-                <div className="flex-1">
-                  <h2 className="text-xl font-black text-text-primary">{reportSchedule.title}</h2>
-                  <p className="text-text-secondary text-sm">{new Date(reportSchedule.start_time).toLocaleDateString("vi-VN", { weekday: "long", day: "2-digit", month: "2-digit", year: "numeric" })}</p>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 sm:mb-6">
+                <div className="flex items-center gap-3">
+                  <button onClick={() => setReportSchedule(null)} className="p-2 rounded-xl hover:bg-bg-hover shrink-0">
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+                  <div className="flex-1 min-w-0">
+                    <h2 className="text-lg sm:text-xl font-black text-text-primary truncate">{reportSchedule.title}</h2>
+                    <p className="text-text-secondary text-xs sm:text-sm truncate">{new Date(reportSchedule.start_time).toLocaleDateString("vi-VN", { weekday: "long", day: "2-digit", month: "2-digit", year: "numeric" })}</p>
+                  </div>
                 </div>
                 <button
                   type="button"
                   onClick={() => { setEditModalSchedule(reportSchedule); setIsEditModalOpen(true); }}
-                  className="px-3.5 py-2 rounded-xl bg-blue-500/10 text-blue-400 hover:bg-blue-500 hover:text-white transition text-xs font-bold flex items-center gap-1.5 border border-blue-500/20 shadow-sm"
+                  className="px-3.5 py-2 rounded-xl bg-blue-500/10 text-blue-400 hover:bg-blue-500 hover:text-white transition text-xs font-bold flex items-center justify-center gap-1.5 border border-blue-500/20 shadow-sm self-stretch sm:self-auto"
                 >
                   ✏️ Sửa danh sách học sinh
                 </button>
@@ -777,24 +790,24 @@ export default function SessionReportsPage() {
                   return (
                     <div key={student.id} className="border border-border-card rounded-2xl overflow-hidden bg-bg-card">
                       <button onClick={toggleExpanded}
-                        className="w-full flex items-center gap-4 p-4 hover:bg-bg-hover transition"
+                        className="w-full flex items-center gap-3 sm:gap-4 p-3.5 sm:p-4 hover:bg-bg-hover transition"
                       >
                         <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-400 to-purple-600 flex items-center justify-center text-white font-bold text-sm shrink-0">
                           {student.full_name.split(" ").pop()?.charAt(0) || "?"}
                         </div>
-                        <div className="flex-1 text-left">
-                          <p className="font-semibold text-text-primary">{student.full_name}</p>
+                        <div className="flex-1 text-left min-w-0">
+                          <p className="font-semibold text-text-primary text-sm sm:text-base truncate">{student.full_name}</p>
                           {report.content ? (
                             <p className="text-xs text-emerald-400 font-semibold">✅ Đã có nhận xét</p>
                           ) : (
                             <p className="text-xs text-text-secondary">Chưa viết báo cáo</p>
                           )}
                         </div>
-                        {isExpanded ? <ChevronUp className="w-4 h-4 text-text-secondary" /> : <ChevronDown className="w-4 h-4 text-text-secondary" />}
+                        {isExpanded ? <ChevronUp className="w-4 h-4 text-text-secondary shrink-0" /> : <ChevronDown className="w-4 h-4 text-text-secondary shrink-0" />}
                       </button>
 
                       {isExpanded && (
-                        <div className="px-4 pb-4 border-t border-border-card space-y-4 pt-4">
+                        <div className="px-3.5 sm:px-4 pb-4 border-t border-border-card space-y-4 pt-4">
                           <div>
                             <label className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-2 block">Nhận xét</label>
                             <textarea rows={3} value={report.content || ""} onChange={(e) => updateReport(student.id, "content", e.target.value)}
@@ -803,7 +816,7 @@ export default function SessionReportsPage() {
                             />
                           </div>
 
-                          <div className="grid grid-cols-2 gap-4">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                               <label className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-2 block">Thái độ</label>
                               <StarRating value={report.behavior_score} onChange={(v) => updateReport(student.id, "behavior_score", v)} />
@@ -816,10 +829,10 @@ export default function SessionReportsPage() {
 
                           <div>
                             <label className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-2 block">Bài tập về nhà</label>
-                            <div className="flex gap-2">
+                            <div className="grid grid-cols-3 sm:flex gap-1.5 sm:gap-2">
                               {Object.entries(HW_CONFIG).map(([k, v]) => (
                                 <button key={k} onClick={() => updateReport(student.id, "homework_status", k)}
-                                  className={`px-3 py-1.5 rounded-xl border text-sm font-semibold transition ${report.homework_status === k ? "bg-rose-500/20 border-rose-500/50 text-rose-400" : "border-border-card hover:bg-bg-hover"}`}
+                                  className={`px-2.5 sm:px-3 py-1.5 rounded-xl border text-xs sm:text-sm font-semibold transition text-center ${report.homework_status === k ? "bg-rose-500/20 border-rose-500/50 text-rose-400" : "border-border-card hover:bg-bg-hover"}`}
                                 >
                                   {v.label}
                                 </button>
@@ -827,7 +840,7 @@ export default function SessionReportsPage() {
                             </div>
                           </div>
 
-                          <div className="grid grid-cols-2 gap-3">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
                               <label className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-1.5 block">Điểm mạnh</label>
                               <input value={report.strengths || ""} onChange={(e) => updateReport(student.id, "strengths", e.target.value)}
@@ -844,17 +857,17 @@ export default function SessionReportsPage() {
                             </div>
                           </div>
 
-                          <div className="flex items-center justify-between">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
                             <label className="flex items-center gap-2 cursor-pointer">
                               <input type="checkbox" checked={report.is_visible_to_parent !== false}
                                 onChange={(e) => updateReport(student.id, "is_visible_to_parent", e.target.checked)}
                                 className="w-4 h-4 accent-rose-500"
                               />
-                              <span className="text-sm text-text-secondary">Hiển thị cho phụ huynh</span>
+                              <span className="text-xs sm:text-sm text-text-secondary">Hiển thị cho phụ huynh</span>
                             </label>
                             <button onClick={() => saveSessionReport(student.id)}
                               disabled={savingReport === student.id}
-                              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition ${
+                              className={`flex items-center justify-center gap-2 px-4 py-2.5 sm:py-2 rounded-xl text-sm font-bold transition w-full sm:w-auto ${
                                 savedSuccessStudentId === student.id
                                   ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/30"
                                   : "bg-rose-500 text-white hover:bg-rose-600 shadow-lg shadow-rose-500/20"
@@ -898,7 +911,7 @@ export default function SessionReportsPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-1.5 flex items-center justify-between">
                   <span>Học sinh</span>
@@ -956,7 +969,7 @@ export default function SessionReportsPage() {
             </div>
 
             <button onClick={autoGenerate} disabled={!selectedStudentReport || generating}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-rose-500 text-white font-bold hover:bg-rose-600 transition disabled:opacity-50"
+              className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-rose-500 text-white font-bold hover:bg-rose-600 transition disabled:opacity-50 w-full sm:w-auto"
             >
               {generating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
               Tự động tổng hợp
@@ -965,12 +978,12 @@ export default function SessionReportsPage() {
 
           {/* Generated data */}
           {(weeklyData || monthlyData) && (
-            <div className="p-6 rounded-2xl border border-emerald-500/30 bg-emerald-500/5 space-y-4">
-              <h3 className="font-bold text-emerald-400 flex items-center gap-2">
+            <div className="p-4 sm:p-6 rounded-2xl border border-emerald-500/30 bg-emerald-500/5 space-y-4">
+              <h3 className="font-bold text-emerald-400 flex items-center gap-2 text-sm sm:text-base">
                 <CheckCircle2 className="w-5 h-5" /> Đã tổng hợp xong
               </h3>
               {reportMode === "weekly" && weeklyData && (
-                <div className="grid grid-cols-3 gap-4 text-center">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-4 text-center">
                   {[
                     { label: "Tổng buổi", value: weeklyData.total_sessions },
                     { label: "Đi học", value: weeklyData.attended_sessions },
@@ -979,15 +992,15 @@ export default function SessionReportsPage() {
                     { label: "TB Tiến bộ", value: weeklyData.avg_progress_score ? `${weeklyData.avg_progress_score}/5` : "—" },
                     { label: "BTVN", value: weeklyData.homework_completion_rate ? `${Math.round(weeklyData.homework_completion_rate * 100)}%` : "—" },
                   ].map(({ label, value }) => (
-                    <div key={label} className="p-3 rounded-xl bg-bg-card border border-border-card">
-                      <p className="text-xs text-text-secondary">{label}</p>
-                      <p className="text-lg font-black text-text-primary">{value ?? "—"}</p>
+                    <div key={label} className="p-2.5 sm:p-3 rounded-xl bg-bg-card border border-border-card">
+                      <p className="text-[11px] sm:text-xs text-text-secondary">{label}</p>
+                      <p className="text-base sm:text-lg font-black text-text-primary">{value ?? "—"}</p>
                     </div>
                   ))}
                 </div>
               )}
               {reportMode === "monthly" && monthlyData && (
-                <div className="grid grid-cols-3 gap-4 text-center">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-4 text-center">
                   {[
                     { label: "Tổng buổi", value: monthlyData.total_sessions },
                     { label: "Đi học", value: monthlyData.attended_sessions },
@@ -995,9 +1008,9 @@ export default function SessionReportsPage() {
                     { label: "TB Thái độ", value: monthlyData.avg_behavior_score ? `${monthlyData.avg_behavior_score}/5` : "—" },
                     { label: "TB Tiến bộ", value: monthlyData.avg_progress_score ? `${monthlyData.avg_progress_score}/5` : "—" },
                   ].map(({ label, value }) => (
-                    <div key={label} className="p-3 rounded-xl bg-bg-card border border-border-card">
-                      <p className="text-xs text-text-secondary">{label}</p>
-                      <p className="text-lg font-black text-text-primary">{value ?? "—"}</p>
+                    <div key={label} className="p-2.5 sm:p-3 rounded-xl bg-bg-card border border-border-card">
+                      <p className="text-[11px] sm:text-xs text-text-secondary">{label}</p>
+                      <p className="text-base sm:text-lg font-black text-text-primary">{value ?? "—"}</p>
                     </div>
                   ))}
                 </div>
@@ -1145,23 +1158,25 @@ export default function SessionReportsPage() {
             {/* Link list */}
             <div className="space-y-2">
               {parentLinks.map((l) => (
-                <div key={l.id} className="flex items-center gap-3 p-3 rounded-xl border border-border-card">
-                  <div className={`w-2.5 h-2.5 rounded-full ${l.is_active ? "bg-emerald-400" : "bg-zinc-600"}`} />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-text-primary truncate">
-                      {l.parent_name || "Phụ huynh"} → {l.student_name}
-                    </p>
-                    <p className="text-xs text-text-secondary font-mono truncate">/parent/{l.share_token}</p>
+                <div key={l.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-3 rounded-xl border border-border-card bg-bg-main/30">
+                  <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                    <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${l.is_active ? "bg-emerald-400" : "bg-zinc-600"}`} />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-semibold text-text-primary truncate">
+                        {l.parent_name || "Phụ huynh"} → <span className="text-rose-400">{l.student_name}</span>
+                      </p>
+                      <p className="text-[11px] text-text-secondary font-mono truncate">/parent/{l.share_token}</p>
+                    </div>
                   </div>
                   {l.is_active && (
-                    <div className="flex items-center gap-1.5 shrink-0">
+                    <div className="flex items-center justify-between sm:justify-end gap-2 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-border-card/40">
                       <button
                         onClick={() => {
                           navigator.clipboard.writeText(`https://minda.io.vn/parent/${l.share_token}`);
                           setCopiedLinkId(l.id);
                           setTimeout(() => setCopiedLinkId(null), 2000);
                         }}
-                        className="px-3 py-1.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs text-rose-400 hover:bg-rose-500 hover:text-white flex items-center gap-1.5 transition font-bold"
+                        className="flex-1 sm:flex-initial px-3 py-1.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs text-rose-400 hover:bg-rose-500 hover:text-white flex items-center justify-center gap-1.5 transition font-bold"
                         title="Sao chép link chia sẻ"
                       >
                         {copiedLinkId === l.id ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
@@ -1173,7 +1188,7 @@ export default function SessionReportsPage() {
                         className="p-1.5 rounded-lg hover:bg-red-500/10 text-text-secondary hover:text-red-400 transition"
                         title="Thu hồi link"
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   )}

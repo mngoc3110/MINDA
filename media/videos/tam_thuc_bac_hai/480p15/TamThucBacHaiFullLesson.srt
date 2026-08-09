@@ -1,0 +1,60 @@
+1
+00:00:00,000 --> 00:00:03,340
+Chào mừng các em đến với Bài học Chủ đề
+
+2
+00:00:03,440 --> 00:00:06,692
+4: Tam thức bậc hai và Hàm số bậc hai.
+
+3
+00:00:06,733 --> 00:00:12,010
+Tổng quát, hàm số bậc hai là hàm số được cho bởi công thức y
+
+4
+00:00:12,110 --> 00:00:16,401
+bằng a x bình cộng b x cộng c, trong đó a khác 0.
+
+5
+00:00:16,466 --> 00:00:20,405
+Các em lưu ý, hàm số y bằng a x bình đã học ở
+
+6
+00:00:20,505 --> 00:00:24,982
+lớp 9 là một trường hợp đặc biệt khi b và c bằng 0.
+
+7
+00:00:26,066 --> 00:00:30,957
+Đồ thị của hàm số bậc hai là một đường Parabol có đỉnh
+
+8
+00:00:31,057 --> 00:00:35,300
+I có tọa độ trừ b trên 2a và trừ Delta trên 4a,
+
+9
+00:00:35,400 --> 00:00:40,198
+có trục đối xứng là đường thẳng x bằng trừ b trên 2a.
+
+10
+00:00:40,266 --> 00:00:45,278
+Nếu a lớn hơn 0, Parabol quay bề lõm lên trên. Ngược
+
+11
+00:00:45,378 --> 00:00:50,390
+lại nếu a nhỏ hơn 0, Parabol quay bề lõm xuống dưới.
+
+12
+00:00:52,466 --> 00:00:56,530
+Chúng ta cùng giải Câu 4: Tìm tất cả giá trị
+
+13
+00:00:56,630 --> 00:01:00,694
+của m để biểu thức f(x) là tam thức bậc hai.
+
+14
+00:01:00,733 --> 00:01:06,917
+Để f(x) là tam thức bậc hai thì hệ số a phải khác 0, tức
+
+15
+00:01:07,017 --> 00:01:13,089
+m trừ 2 khác 0, tương đương m khác 2. Đáp án đúng là C.
+

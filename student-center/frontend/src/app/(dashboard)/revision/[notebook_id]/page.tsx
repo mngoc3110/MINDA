@@ -448,16 +448,15 @@ export default function NotebookWorkspacePage() {
               </div>
 
               {/* Form Options */}
-              {/* Form Options */}
-              <div className="p-6 rounded-3xl border border-border-card bg-bg-card flex flex-col gap-5 shadow-sm">
+              <div className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-border-card bg-bg-card flex flex-col gap-4 sm:gap-5 shadow-sm">
                 
                 {/* Quick Presets */}
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <label className="text-xs font-bold text-text-secondary">🎯 Chọn nhanh mẫu đề thi chuẩn:</label>
-                    <span className="text-[10px] text-pink-500 font-bold">Chuẩn Bộ GD&ĐT 2025</span>
+                    <span className="text-[10px] text-pink-500 font-bold">Chuẩn GD&ĐT 2025</span>
                   </div>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     {[
                       { id: "15min" as const, icon: "⚡", label: "Đề 15 Phút", sub: "10 câu • 15 phút", color: "pink",
                         apply: () => { setQuizType("mcq_4"); setTotalQuestions(10); setDurationMinutes(15); } },
@@ -495,24 +494,24 @@ export default function NotebookWorkspacePage() {
                 {/* 1. Quiz Type (5 formats) */}
                 <div>
                   <label className="text-xs font-bold text-text-secondary block mb-2">1. Định dạng bài ôn tập:</label>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-2.5">
                     <button
                       onClick={() => setQuizType("mcq_4")}
-                      className={`p-3.5 rounded-2xl border text-left transition-all ${quizType === "mcq_4" ? "border-pink-500 bg-pink-500/10 text-pink-500 font-bold shadow-sm" : "border-border-card hover:bg-bg-hover text-text-secondary"}`}
+                      className={`p-3 sm:p-3.5 rounded-2xl border text-left transition-all ${quizType === "mcq_4" ? "border-pink-500 bg-pink-500/10 text-pink-500 font-bold shadow-sm" : "border-border-card hover:bg-bg-hover text-text-secondary"}`}
                     >
                       <p className="text-xs font-bold mb-0.5">Trắc nghiệm 4 lựa chọn</p>
                       <p className="text-[10px] text-text-muted">A, B, C, D kèm phân tích bẫy</p>
                     </button>
                     <button
                       onClick={() => setQuizType("true_false")}
-                      className={`p-3.5 rounded-2xl border text-left transition-all ${quizType === "true_false" ? "border-pink-500 bg-pink-500/10 text-pink-500 font-bold shadow-sm" : "border-border-card hover:bg-bg-hover text-text-secondary"}`}
+                      className={`p-3 sm:p-3.5 rounded-2xl border text-left transition-all ${quizType === "true_false" ? "border-pink-500 bg-pink-500/10 text-pink-500 font-bold shadow-sm" : "border-border-card hover:bg-bg-hover text-text-secondary"}`}
                     >
                       <p className="text-xs font-bold mb-0.5">Đúng / Sai (Chuẩn 2025)</p>
                       <p className="text-[10px] text-text-muted">4 khẳng định a, b, c, d</p>
                     </button>
                     <button
                       onClick={() => setQuizType("short_answer")}
-                      className={`p-3.5 rounded-2xl border text-left transition-all ${quizType === "short_answer" ? "border-pink-500 bg-pink-500/10 text-pink-500 font-bold shadow-sm" : "border-border-card hover:bg-bg-hover text-text-secondary"}`}
+                      className={`p-3 sm:p-3.5 rounded-2xl border text-left transition-all ${quizType === "short_answer" ? "border-pink-500 bg-pink-500/10 text-pink-500 font-bold shadow-sm" : "border-border-card hover:bg-bg-hover text-text-secondary"}`}
                     >
                       <p className="text-xs font-bold mb-0.5">Trả lời ngắn / Điền số</p>
                       <p className="text-[10px] text-text-muted">Tính toán và điền đáp số</p>
@@ -535,7 +534,7 @@ export default function NotebookWorkspacePage() {
                 </div>
 
                 {/* 2. Number of Questions & Duration */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
                     <label className="text-xs font-bold text-text-secondary block mb-2">2. Số lượng câu hỏi:</label>
                     <div className="flex gap-2">
@@ -543,7 +542,7 @@ export default function NotebookWorkspacePage() {
                         <button
                           key={num}
                           onClick={() => setTotalQuestions(num)}
-                          className={`flex-1 py-2.5 rounded-xl text-xs font-bold border transition-all ${totalQuestions === num ? "border-pink-500 bg-pink-500/15 text-pink-500 shadow-sm" : "border-border-card hover:bg-bg-hover text-text-secondary"}`}
+                          className={`flex-1 py-2 sm:py-2.5 rounded-xl text-xs font-bold border transition-all ${totalQuestions === num ? "border-pink-500 bg-pink-500/15 text-pink-500 shadow-sm" : "border-border-card hover:bg-bg-hover text-text-secondary"}`}
                         >
                           {num} câu
                         </button>
@@ -572,22 +571,22 @@ export default function NotebookWorkspacePage() {
                   <label className="text-xs font-bold text-text-secondary block mb-2">
                     4. Ma trận phân bổ 4 Mức độ nhận thức (GDPT 2018):
                   </label>
-                  <div className="grid grid-cols-4 gap-2.5 text-center text-xs">
-                    <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/25">
-                      <p className="font-bold text-emerald-500">Nhận biết</p>
-                      <p className="text-xl font-black text-text-primary mt-1">{ratioRecall}%</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5 text-center text-xs">
+                    <div className="p-3 sm:p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/25">
+                      <p className="font-bold text-emerald-500 text-xs">Nhận biết</p>
+                      <p className="text-lg sm:text-xl font-black text-text-primary mt-0.5 sm:mt-1">{ratioRecall}%</p>
                     </div>
-                    <div className="p-3.5 rounded-2xl bg-blue-500/10 border border-blue-500/25">
-                      <p className="font-bold text-blue-500">Thông hiểu</p>
-                      <p className="text-xl font-black text-text-primary mt-1">{ratioUnderstanding}%</p>
+                    <div className="p-3 sm:p-3.5 rounded-2xl bg-blue-500/10 border border-blue-500/25">
+                      <p className="font-bold text-blue-500 text-xs">Thông hiểu</p>
+                      <p className="text-lg sm:text-xl font-black text-text-primary mt-0.5 sm:mt-1">{ratioUnderstanding}%</p>
                     </div>
-                    <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/25">
-                      <p className="font-bold text-amber-500">Vận dụng</p>
-                      <p className="text-xl font-black text-text-primary mt-1">{ratioApplication}%</p>
+                    <div className="p-3 sm:p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/25">
+                      <p className="font-bold text-amber-500 text-xs">Vận dụng</p>
+                      <p className="text-lg sm:text-xl font-black text-text-primary mt-0.5 sm:mt-1">{ratioApplication}%</p>
                     </div>
-                    <div className="p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/25">
-                      <p className="font-bold text-rose-500">Vận dụng cao</p>
-                      <p className="text-xl font-black text-text-primary mt-1">{ratioHighApp}%</p>
+                    <div className="p-3 sm:p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/25">
+                      <p className="font-bold text-rose-500 text-xs">Vận dụng cao</p>
+                      <p className="text-lg sm:text-xl font-black text-text-primary mt-0.5 sm:mt-1">{ratioHighApp}%</p>
                     </div>
                   </div>
                 </div>
@@ -600,24 +599,24 @@ export default function NotebookWorkspacePage() {
                     placeholder="VD: Xác suất có điều kiện, đạo hàm, hình học không gian..."
                     value={focusTopic}
                     onChange={e => setFocusTopic(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl bg-bg-main border border-border-card text-xs text-text-primary placeholder:text-text-muted focus:border-pink-500 focus:outline-none"
+                    className="w-full px-4 py-2.5 sm:py-3 rounded-xl bg-bg-main border border-border-card text-xs text-text-primary placeholder:text-text-muted focus:border-pink-500 focus:outline-none"
                   />
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex gap-3 pt-2">
+                <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-3 pt-2">
                   <button
                     onClick={() => handleGenerateQuiz("practice")}
                     disabled={generatingQuiz}
-                    className="flex-1 py-3.5 rounded-2xl bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 hover:opacity-95 text-white text-xs md:text-sm font-bold shadow-lg shadow-pink-500/25 disabled:opacity-50 transition-all flex items-center justify-center gap-2 hover:scale-[1.01]"
+                    className="flex-1 py-3.5 rounded-2xl bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 hover:opacity-95 text-white text-xs sm:text-sm font-bold shadow-lg shadow-pink-500/25 disabled:opacity-50 transition-all flex items-center justify-center gap-2 hover:scale-[1.01]"
                   >
                     {generatingQuiz ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
-                    {generatingQuiz ? "Gemini 2.0 đang phân tích & sinh đề..." : "✨ Luyện Tập Tức Thì (Chấm & Giải thích ngay)"}
+                    {generatingQuiz ? "Gemini 2.0 đang sinh đề..." : "✨ Luyện Tập Tức Thì"}
                   </button>
                   <button
                     onClick={() => handleGenerateQuiz("exam")}
                     disabled={generatingQuiz}
-                    className="px-6 py-3.5 rounded-2xl bg-bg-main border border-indigo-500/40 text-indigo-500 hover:bg-indigo-500/10 text-xs md:text-sm font-bold transition-all flex items-center gap-2"
+                    className="px-6 py-3.5 rounded-2xl bg-bg-main border border-indigo-500/40 text-indigo-500 hover:bg-indigo-500/10 text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2"
                   >
                     <Clock className="w-4 h-4" />
                     <span>Thi Thử Bấm Giờ</span>
