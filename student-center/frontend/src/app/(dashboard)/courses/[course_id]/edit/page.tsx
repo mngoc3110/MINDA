@@ -422,6 +422,51 @@ export default function CourseBuilderPage() {
     if (res.ok) fetchCurriculum();
   };
 
+  const moveLesson = async (chapterId: number, lessonId: number, direction: "up" | "down") => {
+    // Tìm chapter và vị trí bài trong chapter
+    const chapter = curriculum.find((c: any) => c.id === chapterId);
+    if (!chapter) return;
+    const lessons = [...chapter.lessons].sort((a: any, b: any) => a.order_index - b.order_index);
+    const idx = lessons.findIndex((l: any) => l.id === lessonId);
+    if (idx === -1) return;
+    if (direction === "up" && idx === 0) return;
+    if (direction === "down" && idx === lessons.length - 1) return;
+
+    const swapIdx = direction === "up" ? idx - 1 : idx + 1;
+    const thisLesson = lessons[idx];
+    const swapLesson = lessons[swapIdx];
+
+    // Hoán đổi order_index
+    const [newThisOrder, newSwapOrder] = [swapLesson.order_index, thisLesson.order_index];
+
+    // Cập nhật optimistic trước
+    setCurriculum((prev: any[]) => prev.map((ch: any) => {
+      if (ch.id !== chapterId) return ch;
+      return {
+        ...ch,
+        lessons: ch.lessons.map((l: any) => {
+          if (l.id === thisLesson.id) return { ...l, order_index: newThisOrder };
+          if (l.id === swapLesson.id) return { ...l, order_index: newSwapOrder };
+          return l;
+        })
+      };
+    }));
+
+    // Gọi API cập nhật cả 2 bài
+    await Promise.all([
+      fetch(`${apiBase}/api/courses/lessons/${thisLesson.id}`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${getToken()}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ order_index: newThisOrder })
+      }),
+      fetch(`${apiBase}/api/courses/lessons/${swapLesson.id}`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${getToken()}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ order_index: newSwapOrder })
+      })
+    ]);
+  };
+
   if (loading) return <div className="min-h-screen bg-bg-main flex items-center justify-center text-t-primary font-outfit">Đang tải giáo án...</div>;
 
   return (
@@ -567,7 +612,7 @@ export default function CourseBuilderPage() {
               {openChapters[chap.id] && (
                  <div className="px-5 pb-5 border-t border-border-card bg-bg-main/50">
                     <div className="space-y-3 pt-4">
-                       {(chap.lessons || []).map((less: any, lessIndex: number) => (
+                       {([...(chap.lessons || [])].sort((a: any, b: any) => (a.order_index ?? 0) - (b.order_index ?? 0))).map((less: any, lessIndex: number) => (
                           <div key={less.id} className="bg-bg-card border border-border-card rounded-xl overflow-hidden">
                              {/* Lesson Header */}
                              <div className="p-4 flex items-center justify-between hover:bg-bg-hover cursor-pointer transition-colors"
@@ -594,6 +639,21 @@ export default function CourseBuilderPage() {
                                 <div className="flex items-center gap-2 shrink-0 ml-2">
                                    {editingLessonId !== less.id && (
                                      <>
+                                       {/* Nút di chuyển lên/xuống */}
+                                       <button
+                                         onClick={e => { e.stopPropagation(); moveLesson(chap.id, less.id, "up"); }}
+                                         className="p-1 text-t-secondary hover:text-blue-500 hover:bg-blue-500/10 rounded-lg transition-colors"
+                                         title="Di chuyển lên"
+                                       >
+                                         <ChevronUp className="w-3 h-3" />
+                                       </button>
+                                       <button
+                                         onClick={e => { e.stopPropagation(); moveLesson(chap.id, less.id, "down"); }}
+                                         className="p-1 text-t-secondary hover:text-blue-500 hover:bg-blue-500/10 rounded-lg transition-colors"
+                                         title="Di chuyển xuống"
+                                       >
+                                         <ChevronDown className="w-3 h-3" />
+                                       </button>
                                        <button onClick={e => { e.stopPropagation(); setEditLessonTitle(less.title); setEditingLessonId(less.id); }} className="p-1 text-t-secondary hover:text-indigo-500 hover:bg-indigo-500/10 rounded-lg transition-colors" title="Sửa tên bài">
                                          <Pencil className="w-3 h-3" />
                                        </button>
