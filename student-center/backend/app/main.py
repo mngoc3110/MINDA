@@ -108,6 +108,7 @@ from app.api.endpoints import attendance, reports, parent_access, code_problems,
 app.include_router(attendance.router, prefix="/api/attendance", tags=["✅ Attendance"])
 app.include_router(reports.router, prefix="/api/reports", tags=["📋 Session Reports"])
 app.include_router(parent_access.router, prefix="/api/parent", tags=["👨‍👩‍👧 Parent Access"])
+app.include_router(parent_access.router, prefix="/api/parent-links", tags=["👨‍👩‍👧 Parent Links"])
 app.include_router(code_problems.router, prefix="/api", tags=["💻 Code Problems"])
 app.include_router(revision.router, prefix="/api", tags=["📖 AI Smart Revision Center"])
 
