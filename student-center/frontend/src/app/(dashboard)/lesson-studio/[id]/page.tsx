@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import confetti from "canvas-confetti";
@@ -28,7 +28,8 @@ import {
   FileSpreadsheet,
   Plus,
   StickyNote,
-  Tv
+  Tv,
+  Palette
 } from "lucide-react";
 
 import { SAMPLE_LESSONS } from "@/data/sampleLessons";
@@ -37,6 +38,8 @@ import { InteractiveLesson, packageLessonToSCORMZip } from "@/lib/scormPackager"
 import { saveLessonToGoogleDrive } from "@/lib/driveExport";
 import { exportLessonToPPTX, SlideData } from "@/lib/pptxExporter";
 
+import SlideThemePicker, { SlideTheme } from "@/components/lesson-studio/SlideThemePicker";
+import InteractiveSlideViewer from "@/components/lesson-studio/InteractiveSlideViewer";
 import InteractiveUnitScale from "@/components/lesson-studio/InteractiveUnitScale";
 import DragDropGame from "@/components/lesson-studio/DragDropGame";
 import PresenterToolkit from "@/components/lesson-studio/PresenterToolkit";
@@ -51,7 +54,10 @@ export default function LessonPlayerPage() {
   const [currentSlideIdx, setCurrentSlideIdx] = useState<number>(0);
   const [currentActivityIdx, setCurrentActivityIdx] = useState<number>(0);
 
-  // View Mode: 'slides' (PowerPoint PPT view) vs 'activities' (Interactive 4-step view)
+  // Theme template state
+  const [slideTheme, setSlideTheme] = useState<SlideTheme>("cyber-neon");
+
+  // View Mode: 'slides' vs 'activities'
   const [viewMode, setViewMode] = useState<"slides" | "activities">("slides");
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
   const [showTeacherNotes, setShowTeacherNotes] = useState<boolean>(false);
@@ -71,7 +77,7 @@ export default function LessonPlayerPage() {
     setLesson(found);
   }, [id]);
 
-  // Keyboard navigation for PPT slides
+  // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
@@ -97,7 +103,7 @@ export default function LessonPlayerPage() {
     }
   };
 
-  // 1. Export PowerPoint .pptx
+  // 1. Export PPTX
   const handleDownloadPPTX = async () => {
     if (!lesson) return;
     setIsExportingPPTX(true);
@@ -167,7 +173,7 @@ export default function LessonPlayerPage() {
     }
   };
 
-  // Add custom expanded slide
+  // Add custom slide
   const handleAddExpandedSlide = () => {
     if (!newSlideTopic.trim()) return;
     const newSlide: SlideData = {
@@ -209,7 +215,7 @@ export default function LessonPlayerPage() {
     <div className="min-h-screen bg-bg-main text-text-primary flex flex-col font-outfit pb-20 relative">
       
       {/* ── TOP CONTROL BAR ── */}
-      <header className="sticky top-0 z-30 bg-bg-card/90 backdrop-blur-xl border-b border-border-card px-4 sm:px-6 py-3 flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-sm">
+      <header className="sticky top-0 z-30 bg-bg-card/90 backdrop-blur-xl border-b border-border-card px-4 sm:px-6 py-3 flex flex-col xl:flex-row xl:items-center justify-between gap-3 shadow-sm">
         <div className="flex items-center gap-3">
           <button
             onClick={() => router.push("/lesson-studio")}
@@ -223,7 +229,7 @@ export default function LessonPlayerPage() {
               <span className="text-[10px] font-black uppercase tracking-widest text-rose-500 px-2 py-0.5 rounded-md bg-rose-500/10 border border-rose-500/20">
                 {lesson.subject} {lesson.grade}
               </span>
-              <span className="text-xs text-text-secondary truncate">{slides.length} Slide Bài Giảng</span>
+              <span className="text-xs text-text-secondary truncate">{slides.length} Slide</span>
             </div>
             <h1 className="text-base sm:text-lg font-black text-text-primary truncate mt-0.5">
               {lesson.title}
@@ -231,10 +237,16 @@ export default function LessonPlayerPage() {
           </div>
         </div>
 
-        {/* View Mode Switcher + Action Buttons */}
-        <div className="flex flex-wrap items-center gap-2 self-end md:self-auto shrink-0">
+        {/* Theme Picker + View Mode + Action Buttons */}
+        <div className="flex flex-wrap items-center gap-2 self-end xl:self-auto shrink-0">
           
-          {/* Switch View Mode: Slide PPT vs Activities */}
+          {/* Slide Theme Picker */}
+          <SlideThemePicker
+            currentTheme={slideTheme}
+            onSelectTheme={setSlideTheme}
+          />
+
+          {/* View Mode Switcher */}
           <div className="bg-bg-main border border-border-card p-1 rounded-xl flex items-center gap-1">
             <button
               onClick={() => setViewMode("slides")}
@@ -242,7 +254,7 @@ export default function LessonPlayerPage() {
                 viewMode === "slides" ? "bg-rose-500 text-white shadow-sm" : "text-text-secondary hover:text-text-primary"
               }`}
             >
-              <Presentation className="w-3.5 h-3.5" /> Slide PPT ({slides.length})
+              <Presentation className="w-3.5 h-3.5" /> Slide PPT
             </button>
             <button
               onClick={() => setViewMode("activities")}
@@ -254,29 +266,29 @@ export default function LessonPlayerPage() {
             </button>
           </div>
 
-          {/* Download PPTX Button */}
+          {/* Export PPTX */}
           <button
             onClick={handleDownloadPPTX}
             disabled={isExportingPPTX}
             className="px-3 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:opacity-95 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-orange-500/20 disabled:opacity-50"
-            title="Tải bài giảng file PowerPoint .pptx thật"
+            title="Tải bài giảng file PowerPoint .pptx"
           >
             {isExportingPPTX ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <FileSpreadsheet className="w-3.5 h-3.5" />}
             <span>Xuất PPTX</span>
           </button>
 
-          {/* Download SCORM */}
+          {/* Export SCORM */}
           <button
             onClick={handleDownloadSCORM}
             disabled={isExportingSCORM}
             className="px-3 py-2 rounded-xl bg-bg-main border border-border-card hover:border-indigo-500/40 text-text-secondary hover:text-indigo-400 text-xs font-bold transition flex items-center gap-1.5 disabled:opacity-50"
-            title="Xuất file SCORM 1.2 ZIP chuẩn LMS"
+            title="Xuất file SCORM 1.2 ZIP"
           >
             {isExportingSCORM ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
             <span className="hidden sm:inline">SCORM</span>
           </button>
 
-          {/* Save to Google Drive */}
+          {/* Save to Drive */}
           <button
             onClick={handleSaveToDrive}
             disabled={isSavingToDrive}
@@ -290,7 +302,7 @@ export default function LessonPlayerPage() {
           <button
             onClick={toggleFullscreen}
             className="p-2 rounded-xl bg-bg-main border border-border-card text-text-secondary hover:text-text-primary transition"
-            title="Toàn màn hình (Phím F)"
+            title="Toàn màn hình"
           >
             {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
           </button>
@@ -317,16 +329,16 @@ export default function LessonPlayerPage() {
       )}
 
       {/* ═══════════════════════════════════════════════════════════════ */}
-      {/* ── VIEW MODE 1: MULTI-SLIDE POWERPOINT SLIDE DECK VIEW ── */}
+      {/* ── VIEW MODE 1: POWERPOINT SLIDE DECK WITH THEMES & GAMES ── */}
       {/* ═══════════════════════════════════════════════════════════════ */}
       {viewMode === "slides" && (
         <div className="flex-1 flex flex-col lg:flex-row gap-4 p-3 sm:p-6 max-w-7xl w-full mx-auto">
           
-          {/* ── LEFT SIDEBAR: SLIDE THUMBNAILS LIST ── */}
-          <aside className="w-full lg:w-72 bg-bg-card border border-border-card rounded-3xl p-3 flex flex-col gap-2 shrink-0 max-h-[320px] lg:max-h-[750px] overflow-y-auto custom-scrollbar">
+          {/* ── LEFT SIDEBAR: SLIDE THUMBNAILS ── */}
+          <aside className="w-full lg:w-72 bg-bg-card border border-border-card rounded-3xl p-3 flex flex-col gap-2 shrink-0 max-h-[320px] lg:max-h-[750px] overflow-y-auto custom-scrollbar shadow-lg">
             <div className="flex items-center justify-between px-2 py-1.5 border-b border-border-card">
               <span className="text-[11px] font-black text-text-secondary uppercase tracking-wider">
-                Danh Sách Slide ({slides.length})
+                Slides ({slides.length})
               </span>
               <button
                 onClick={() => setShowAddSlideModal(true)}
@@ -344,15 +356,15 @@ export default function LessonPlayerPage() {
                   <button
                     key={s.id}
                     onClick={() => setCurrentSlideIdx(idx)}
-                    className={`w-44 lg:w-full p-2.5 rounded-2xl border text-left transition-all shrink-0 flex flex-col gap-1.5 relative ${
+                    className={`w-48 lg:w-full p-3 rounded-2xl border text-left transition-all shrink-0 flex flex-col gap-1.5 relative ${
                       isActive
-                        ? "bg-rose-500/15 border-rose-500 shadow-md ring-1 ring-rose-500"
+                        ? "bg-rose-500/15 border-rose-500 shadow-md ring-2 ring-rose-500/40"
                         : "bg-bg-main border-border-card hover:border-rose-500/40 hover:bg-bg-hover"
                     }`}
                   >
                     <div className="flex items-center justify-between text-[10px]">
                       <span className="font-mono font-bold text-text-secondary">#{idx + 1}</span>
-                      <span className={`px-1.5 py-0.5 rounded-md font-bold truncate max-w-[120px] ${
+                      <span className={`px-2 py-0.5 rounded-md font-black truncate max-w-[130px] ${
                         s.activityType === "expansion" ? "bg-purple-500/20 text-purple-400" : "bg-bg-card text-rose-400"
                       }`}>
                         {s.badge}
@@ -367,102 +379,22 @@ export default function LessonPlayerPage() {
             </div>
           </aside>
 
-          {/* ── CENTER: PRESENTATION STAGE (16:9 SLIDE CANVAS) ── */}
+          {/* ── CENTER: PRESENTATION STAGE WITH INTERACTIVE SLIDE VIEWER ── */}
           <main className="flex-1 flex flex-col gap-3">
             
-            {/* 16:9 Slide Screen */}
-            <div className="w-full aspect-[16/9] bg-slate-950 border border-slate-800 rounded-3xl p-6 sm:p-10 flex flex-col justify-between shadow-2xl relative overflow-hidden text-slate-100 selection:bg-rose-500/30">
-              <div className="absolute -top-24 -right-24 w-72 h-72 bg-rose-500/10 rounded-full blur-3xl pointer-events-none" />
-
-              {/* Slide Header */}
-              <div className="space-y-2 relative z-10">
-                <div className="flex items-center justify-between">
-                  <span className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest border ${
-                    currentSlide.activityType === "expansion"
-                      ? "bg-purple-500/20 border-purple-500/40 text-purple-300"
-                      : "bg-rose-500/20 border-rose-500/40 text-rose-400"
-                  }`}>
-                    {currentSlide.badge}
-                  </span>
-                  <span className="font-mono text-xs font-bold text-slate-500">
-                    Slide {currentSlideIdx + 1} / {slides.length}
-                  </span>
-                </div>
-
-                <h2 className="text-xl sm:text-3xl font-black text-white leading-tight">
-                  {currentSlide.title}
-                </h2>
-                {currentSlide.subtitle && (
-                  <p className="text-xs sm:text-sm text-slate-400 italic">
-                    {currentSlide.subtitle}
-                  </p>
-                )}
-              </div>
-
-              {/* Slide Body Content */}
-              <div className="my-auto py-3 space-y-4 relative z-10 overflow-y-auto max-h-[60%] custom-scrollbar">
-                
-                {/* Bullet Points */}
-                {currentSlide.bulletPoints && (
-                  <ul className="space-y-2 text-xs sm:text-base text-slate-200">
-                    {currentSlide.bulletPoints.map((bp, i) => (
-                      <li key={i} className="flex items-start gap-2.5 leading-relaxed">
-                        <span className="text-rose-400 font-bold mt-1">▸</span>
-                        <span>{bp}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-
-                {/* Cards Grid */}
-                {currentSlide.cards && (
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    {currentSlide.cards.map((c, i) => (
-                      <div key={i} className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-1.5 shadow-md">
-                        <div className="flex items-center gap-2">
-                          <span className="text-2xl">{c.icon}</span>
-                          <h4 className="font-black text-xs sm:text-sm text-slate-100">{c.title}</h4>
-                        </div>
-                        <p className="text-[11px] sm:text-xs text-slate-300 leading-relaxed">{c.desc}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Comparison Box */}
-                {currentSlide.comparison && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="p-4 sm:p-5 rounded-2xl bg-slate-900/90 border border-rose-500/40 space-y-2">
-                      <h4 className="font-black text-sm text-rose-400">{currentSlide.comparison.leftTitle}</h4>
-                      <p className="text-xs sm:text-sm text-slate-200 whitespace-pre-line leading-relaxed">
-                        {currentSlide.comparison.leftContent}
-                      </p>
-                    </div>
-                    <div className="p-4 sm:p-5 rounded-2xl bg-slate-900/90 border border-emerald-500/40 space-y-2">
-                      <h4 className="font-black text-sm text-emerald-400">{currentSlide.comparison.rightTitle}</h4>
-                      <p className="text-xs sm:text-sm text-slate-200 whitespace-pre-line leading-relaxed">
-                        {currentSlide.comparison.rightContent}
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Callout Box Footer */}
-              {currentSlide.callout && (
-                <div className="p-3.5 rounded-2xl bg-indigo-950/70 border border-indigo-500/40 text-indigo-200 text-xs sm:text-sm flex items-center gap-2.5 relative z-10">
-                  <span className="text-lg">💡</span>
-                  <p><strong>{currentSlide.callout.title}:</strong> {currentSlide.callout.content}</p>
-                </div>
-              )}
-            </div>
+            <InteractiveSlideViewer
+              slide={currentSlide}
+              slideIndex={currentSlideIdx}
+              totalSlides={slides.length}
+              theme={slideTheme}
+            />
 
             {/* Slide Navigation Controller */}
-            <div className="flex items-center justify-between bg-bg-card border border-border-card p-3 rounded-2xl">
+            <div className="flex items-center justify-between bg-bg-card border border-border-card p-3 rounded-2xl shadow-sm">
               <button
                 onClick={() => setCurrentSlideIdx(prev => Math.max(0, prev - 1))}
                 disabled={currentSlideIdx === 0}
-                className="px-4 py-2 rounded-xl bg-bg-main hover:bg-bg-hover text-text-secondary disabled:opacity-30 text-xs font-bold transition flex items-center gap-1.5"
+                className="px-4 py-2 rounded-xl bg-bg-main hover:bg-bg-hover text-text-secondary disabled:opacity-30 text-xs font-bold transition flex items-center gap-1.5 border border-border-card"
               >
                 <ChevronLeft className="w-4 h-4" /> Slide Trước
               </button>
@@ -471,7 +403,7 @@ export default function LessonPlayerPage() {
                 <button
                   onClick={() => setShowTeacherNotes(!showTeacherNotes)}
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
-                    showTeacherNotes ? "bg-amber-500 text-white" : "bg-bg-main text-text-secondary hover:text-text-primary"
+                    showTeacherNotes ? "bg-amber-500 text-white" : "bg-bg-main text-text-secondary hover:text-text-primary border border-border-card"
                   }`}
                 >
                   <StickyNote className="w-3.5 h-3.5" /> Ghi chú giáo viên
@@ -490,7 +422,7 @@ export default function LessonPlayerPage() {
               </button>
             </div>
 
-            {/* Teacher Speaker Notes Display */}
+            {/* Teacher Speaker Notes */}
             {showTeacherNotes && currentSlide.notes && (
               <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-300 animate-in fade-in space-y-1">
                 <span className="font-bold uppercase tracking-wider block">📝 Lời khuyên giảng dạy cho giáo viên:</span>
@@ -529,7 +461,6 @@ export default function LessonPlayerPage() {
             ))}
           </div>
 
-          {/* Interactive Components */}
           {currentActivityIdx === 0 && (
             <div className="p-6 sm:p-8 rounded-3xl bg-bg-card border border-border-card shadow-2xl space-y-6 animate-in fade-in">
               <span className="px-3 py-1 rounded-full text-xs font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20 uppercase tracking-widest">
@@ -583,13 +514,13 @@ export default function LessonPlayerPage() {
         </div>
       )}
 
-      {/* ── FLOATING PRESENTER TOOLKIT (DRAWING, LASER, TIMER, WHEEL, SFX) ── */}
+      {/* ── FLOATING PRESENTER TOOLKIT ── */}
       <PresenterToolkit
         isFullscreen={isFullscreen}
         onToggleFullscreen={toggleFullscreen}
       />
 
-      {/* ── MODAL: ADD CUSTOM EXPANDED SLIDE ── */}
+      {/* ── MODAL: ADD EXPANDED SLIDE ── */}
       {showAddSlideModal && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="max-w-md w-full bg-bg-card border border-border-card rounded-3xl p-6 shadow-2xl space-y-5 animate-in zoom-in-95">
@@ -606,11 +537,10 @@ export default function LessonPlayerPage() {
                 type="text"
                 value={newSlideTopic}
                 onChange={(e) => setNewSlideTopic(e.target.value)}
-                placeholder="VD: Máy tính lượng tử (Quantum Computing), Blockchain, Metaverse..."
+                placeholder="VD: Máy tính lượng tử (Quantum Computing), Blockchain..."
                 className="w-full bg-bg-main border border-border-card rounded-xl px-4 py-2.5 text-xs text-text-primary focus:outline-none focus:border-rose-500/50"
               />
 
-              {/* Quick suggestions */}
               <div className="space-y-1.5 pt-1">
                 <span className="text-[10px] text-text-secondary font-bold uppercase tracking-wider block">Gợi ý chủ đề hot:</span>
                 <div className="flex flex-wrap gap-1.5">
