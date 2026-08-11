@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BrainCircuit, Grid, BookOpen, GraduationCap, ClipboardCheck, Wallet, LogOut, Sun, Moon, FileUser, Trophy, UserCircle, Users, RefreshCw, FileText, Clapperboard, Heart, Calendar, ClipboardList, Zap, Terminal, Sparkles } from "lucide-react";
+import { BrainCircuit, Grid, BookOpen, GraduationCap, ClipboardCheck, Wallet, LogOut, Sun, Moon, FileUser, Trophy, UserCircle, Users, RefreshCw, FileText, Clapperboard, Heart, Calendar, ClipboardList, Zap, Terminal, Sparkles, Presentation } from "lucide-react";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useEffect, useState } from "react";
 
 const NAV_ITEMS = [
   { name: "Tổng quan", href: "/dashboard", icon: Grid },
+  { name: "Bài Giảng Tương Tác", href: "/lesson-studio", icon: Presentation, badge: "SCORM" },
   { name: "Ôn tập AI (Notebook)", href: "/revision", icon: Sparkles, badge: "AI" },
   { name: "Bảng thành tích", href: "/leaderboard", icon: Trophy },
   { name: "Lịch học", href: "/schedule", icon: Calendar },

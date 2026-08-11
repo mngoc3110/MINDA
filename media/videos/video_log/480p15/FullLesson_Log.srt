@@ -1,0 +1,32 @@
+1
+00:00:00,000 --> 00:00:05,300
+Chào mừng các em đến với bài học Hàm số Mũ và Hàm số Logarit.
+
+2
+00:00:05,333 --> 00:00:09,012
+Hàm số mũ y bằng 2 mũ x và hàm số logarit y
+
+3
+00:00:09,112 --> 00:00:13,582
+bằng logarit cơ số 2 của x là hai hàm số ngược nhau,
+
+4
+00:00:13,682 --> 00:00:17,449
+có đồ thị đối xứng qua đường thẳng y bằng x.
+
+5
+00:00:19,000 --> 00:00:25,046
+Câu 1: Điều kiện xác định của hàm số logarit logarit cơ số a của u x
+
+6
+00:00:25,146 --> 00:00:32,005
+là biểu thức dưới dấu logarit u x phải dương strictly lớn hơn 0. Áp dụng điều
+
+7
+00:00:32,105 --> 00:00:37,700
+kiện: x trừ 2 lớn hơn 0, tương đương x lớn hơn 2. Do đó tập xác
+
+8
+00:00:37,800 --> 00:00:42,852
+định là khoảng 2 đến cộng vô cực. Chúng ta chọn đáp án A.
+

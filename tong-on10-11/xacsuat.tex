@@ -1,0 +1,462 @@
+\documentclass[12pt,a4paper]{extarticle}
+\usepackage[utf8]{inputenc}
+\usepackage[T5]{fontenc}
+\usepackage{geometry}
+\geometry{a4paper, left=1.5cm, right=1cm, top=1.5cm, bottom=1.5cm, headheight=20pt, headsep=15pt, footskip=28pt}
+\usepackage{enumitem}
+\usepackage{amssymb}
+% Gọi package nằm trong thư mục con template
+\usepackage{../template/mngocbox}
+
+\begin{document}
+
+% Sử dụng ngoặc vuông [...] để thay đổi linh hoạt các thông số
+\makeheadbox[headerright={Tổng ôn 10-11},chude={CHỦ ĐỀ 06},tieude={Xác suất cơ bản},dinhdang={Đại số},lop={12 },gv={Nguyễn Lê Minh Ngọc}]
+
+\vspace{2em}
+\makeheading{I}{Tóm tắt lý thuyết}
+\section{Hoán vị, chỉnh hợp, tổ hợp}
+\noindent \textbf{\textcolor{blue}{\large A. CÁC QUY TẮC ĐẾM}}
+\vspace{0.2cm}
+\noindent \textbf{\textcolor{blue}{1. Quy tắc cộng và sơ đồ hình cây}}
+\noindent \textcolor{blue}{Quy tắc cộng}\\
+\vspace{0.1cm}
+\noindent\fbox{
+\begin{minipage}{\dimexpr\textwidth-2\fboxsep-2\fboxrule\relax}
+\vspace{0.1cm}
+Giả sử một công việc nào đó có thể thực hiện theo một trong hai phương án khác nhau:
+\begin{itemize}
+    \item Phương án một có $n_1$ cách thực hiện,
+    \item Phương án hai có $n_2$ cách thực hiện.
+\end{itemize}
+Khi đó số cách thực hiện công việc sẽ là: $n_1 + n_2$ cách.
+\vspace{0.1cm}
+\end{minipage}
+}
+\vspace{0.3cm}
+\noindent \textcolor{blue}{Sơ đồ hình cây}
+\begin{center}
+\textbf{Sơ đồ cây: Tung đồng xu 2 lần}
+\vspace{0.5cm}
+\begin{tikzpicture}[
+    % Tùy chỉnh khoảng cách giữa các nhánh
+    level 1/.style={sibling distance=4cm},
+    level 2/.style={sibling distance=2cm},
+    % Tùy chỉnh định dạng của các ô chữ (node)
+    every node/.style={circle, draw=black, minimum size=1cm, inner sep=0pt},
+    % Tùy chỉnh chữ trên các nhánh không bị đóng khung
+    edge label/.style={draw=none, rectangle, fill=white, inner sep=2pt}
+]
+% Nút gốc
+\node {Gốc}
+    % Nhánh cấp 1: Lần tung thứ nhất
+    child { node {Sấp}
+        % Nhánh cấp 2: Lần tung thứ hai
+        child { node {Sấp} 
+            edge from parent node[edge label, left] {0.5} 
+        }
+        child { node {Ngửa} 
+            edge from parent node[edge label, right] {0.5} 
+        }
+        edge from parent node[edge label, left, xshift=-0.1cm] {0.5}
+    }
+    child { node {Ngửa}
+        % Nhánh cấp 2: Lần tung thứ hai
+        child { node {Sấp} 
+            edge from parent node[edge label, left] {0.5} 
+        }
+        child { node {Ngửa} 
+            edge from parent node[edge label, right] {0.5} 
+        }
+        edge from parent node[edge label, right, xshift=0.1cm] {0.5}
+    };
+\end{tikzpicture}
+\end{center}
+\noindent \textbf{\textit{Nhận xét:}}
+\begin{itemize}
+    \item Sơ đồ hình cây là sơ đồ bắt đầu tại một nút duy nhất với các nhánh toả ra các nút bổ sung.
+    \item Ta có thể sử dụng sơ đồ hình cây để đếm số cách hoàn thành một công việc khi công việc đó đòi hỏi những hành động liên tiếp.
+\end{itemize}
+
+\vspace{0.5cm}
+\noindent \textbf{\textcolor{blue}{2. Quy tắc nhân}}\\
+\vspace{0.1cm}
+\noindent\fbox{
+\begin{minipage}{\dimexpr\textwidth-2\fboxsep-2\fboxrule\relax}
+\vspace{0.1cm}
+Giả sử một công việc nào đó phải hoàn thành qua hai công đoạn liên tiếp nhau:
+\begin{itemize}
+    \item Công đoạn một có $m_1$ cách thực hiện,
+    \item Với mỗi cách thực hiện công đoạn một, có $m_2$ cách thực hiện công đoạn hai.
+\end{itemize}
+Khi đó số cách thực hiện công việc là: $m_1 \cdot m_2$ cách.
+\vspace{0.1cm}
+\end{minipage}
+}
+\vspace{0.2cm}
+\noindent \textbf{\textit{Chú ý:}} Quy tắc nhân áp dụng để tính số cách thực hiện một công việc có nhiều công đoạn, các công đoạn nối tiếp nhau và những công đoạn này độc lập với nhau.\\
+\vspace{0.2cm}
+\vspace{0.5cm}
+\noindent \textbf{\textcolor{blue}{3. Kết hợp quy tắc cộng và quy tắc nhân}}\\
+\noindent \textbf{\textit{Chú ý:}}
+\begin{itemize}
+    \item Quy tắc cộng được áp dụng khi công việc được chia thành các phương án phân biệt (thực hiện một trong các phương án để hoàn thành công việc).
+    \item Quy tắc nhân được áp dụng khi công việc có nhiều công đoạn nối tiếp nhau (phải thực hiện tất cả các công đoạn để hoàn thành công việc).
+\end{itemize}
+\noindent \textbf{\textcolor{blue}{\large B. HOÁN VỊ}}
+
+\noindent Tổng quát ta có:
+
+\vspace{0.1cm}
+\noindent\fbox{
+\begin{minipage}{\dimexpr\textwidth-2\fboxsep-2\fboxrule\relax}
+\vspace{0.1cm}
+Một hoán vị của một tập hợp có $n$ phần tử là một cách sắp xếp có thứ tự $n$ phần tử đó (với $n$ là một số tự nhiên, $n \ge 1$).
+
+Số các hoán vị của tập hợp có $n$ phần tử, kí hiệu là $P_n$, được tính bằng công thức
+\begin{center}
+    $P_n = n.(n - 1).(n - 2) \dots 2.1$
+\end{center}
+\vspace{0.1cm}
+\end{minipage}
+}
+
+\vspace{0.2cm}
+\noindent \textbf{\textit{Chú ý:}} Kí hiệu $n.(n - 1).(n - 2) \dots 2.1$ là $n!$ (đọc là $n$ giai thừa), ta có: $P_n = n!$.
+
+\noindent Chẳng hạn $P_3 = 3! = 3.2.1 = 6$.
+
+\noindent Quy ước $0! = 1$.
+
+\vspace{0.2cm}
+
+\vspace{0.5cm}
+\noindent \textbf{\textcolor{blue}{\large C. CHỈNH HỢP}}
+
+\noindent Tổng quát ta có:
+
+\vspace{0.1cm}
+\noindent\fbox{
+\begin{minipage}{\dimexpr\textwidth-2\fboxsep-2\fboxrule\relax}
+\vspace{0.1cm}
+Một chỉnh hợp chập $k$ của $n$ phần tử là một cách sắp xếp có thứ tự $k$ phần tử từ một tập hợp $n$ phần tử (với $k, n$ là các số tự nhiên, $1 \le k \le n$).
+
+Số các chỉnh hợp chập $k$ của $n$, kí hiệu là $A_n^k$, được tính bằng công thức
+\begin{center}
+    $A_n^k = n.(n - 1) \dots (n - k + 1)$ hay $A_n^k = \dfrac{n!}{(n - k)!} (1 \le k \le n)$
+\end{center}
+\vspace{0.1cm}
+\end{minipage}
+}
+
+\vspace{0.2cm}
+\noindent \textbf{\textit{Chú ý:}}
+\begin{itemize}
+    \item Hoán vị sắp xếp tất cả các phần tử của tập hợp, còn chỉnh hợp chọn ra một số phần tử và sắp xếp chúng.
+    \item Mỗi hoán vị của $n$ phần tử cũng chính là một chỉnh hợp chập $n$ của $n$ phần tử đó. Vì vậy $P_n = A_n^n$.
+\end{itemize}
+
+\vspace{0.2cm}
+
+\vspace{0.5cm}
+\noindent \textbf{\textcolor{blue}{\large D. TỔ HỢP}}
+
+\noindent Tổng quát ta có:
+
+\vspace{0.1cm}
+\noindent\fbox{
+\begin{minipage}{\dimexpr\textwidth-2\fboxsep-2\fboxrule\relax}
+\vspace{0.1cm}
+Cho tập $A$ có $n$ phần tử ($n \ge 1$).
+
+Mỗi tập con gồm $k$ phần tử ($1 \le k \le n$) của $A$ được gọi là một tổ hợp chập $k$ của $n$ phần tử.
+
+Số các tổ hợp chập $k$ của $n$, kí hiệu là $C_n^k$, được tính bằng công thức
+\begin{center}
+    $C_n^k = \dfrac{n!}{(n - k)! \, k!} (0 \le k \le n)$
+\end{center}
+\vspace{0.1cm}
+\end{minipage}
+}
+
+\vspace{0.2cm}
+\noindent \textbf{\textit{Chú ý:}}
+\begin{itemize}
+    \item $C_n^k = \dfrac{A_n^k}{k!}$.
+    \item Chỉnh hợp và tổ hợp có điểm giống nhau là đều chọn một số phần tử trong một tập hợp, nhưng khác nhau ở chỗ, chỉnh hợp là chọn có xếp thứ tự, còn tổ hợp là chọn không xếp thứ tự.
+\end{itemize}
+\section{Nhị thức newton}
+\noindent \textbf{\textcolor{blue}{\large 1. Công thức nhị thức Newton}}
+
+\vspace{0.1cm}
+\noindent\fbox{
+\begin{minipage}{\dimexpr\textwidth-2\fboxsep-2\fboxrule\relax}
+\vspace{0.1cm}
+\begin{itemize}
+    \item \begin{math}\begin{aligned}[t]
+        (a + b)^4 &= C_4^0 a^4 + C_4^1 a^3 b + C_4^2 a^2 b^2 + C_4^3 a b^3 + C_4^4 b^4 \\
+        &= a^4 + 4 a^3 b + 6 a^2 b^2 + 4 a b^3 + b^4
+    \end{aligned}\end{math}
+    \item \begin{math}\begin{aligned}[t]
+        (a + b)^5 &= C_5^0 a^5 + C_5^1 a^4 b + C_5^2 a^3 b^2 + C_5^3 a^2 b^3 + C_5^4 a b^4 + C_5^5 b^5 \\
+        &= a^5 + 5 a^4 b + 10 a^3 b^2 + 10 a^2 b^3 + 5 a b^4 + b^5
+    \end{aligned}\end{math}
+    \item Trong trường hợp tổng quát, với $n$ là số nguyên dương, ta có công thức nhị thức Newton
+    \begin{center}
+        $(a + b)^n = C_n^0 a^n + C_n^1 a^{n-1} b + \dots + C_n^k a^{n-k} b^k + \dots + C_n^{n-1} a b^{n-1} + C_n^n b^n$
+    \end{center}
+    \begin{center}
+        $(a + b)^n = \sum\limits_{k=0}^n C_n^k a^{n-k} b^k.$
+    \end{center}
+\end{itemize}
+\vspace{0.1cm}
+\end{minipage}
+}
+
+\vspace{0.2cm}
+\noindent \textbf{\textit{Nhận xét:}}
+
+\noindent Từ công thức nhị thức Newton nói trên, ta có khai triển của $(a - b)^n$ như sau: \\
+$(a - b)^n = C_n^0 a^n - C_n^1 a^{n-1} b + C_n^2 a^{n-2} b^2 - C_n^3 a^{n-3} b^3 + \dots$, ở đó các dấu "$+$", "$-$" xen kẽ nhau.
+
+\vspace{0.2cm}
+
+\vspace{0.5cm}
+\noindent \textbf{\textcolor{blue}{\large 2. Hệ số $x^k$ trong khai triển $(ax + b)^n (ab \ne 0)$ thành đa thức}}
+
+\vspace{0.1cm}
+\noindent\fbox{
+\begin{minipage}{\dimexpr\textwidth-2\fboxsep-2\fboxrule\relax}
+\vspace{0.1cm}
+\begin{center}
+\begin{math}\begin{aligned}
+    (ax + b)^n &= C_n^0 (ax)^n + C_n^1 (ax)^{n-1} b + C_n^2 (ax)^{n-2} b^2 + \dots + C_n^{n-1} (ax) b^{n-1} + C_n^n b^n \\
+    &= C_n^0 a^n x^n + C_n^1 a^{n-1} b x^{n-1} + C_n^2 a^{n-2} b^2 x^{n-2} + \dots + C_n^{n-1} a b^{n-1} x + C_n^n b^n
+\end{aligned}\end{math}
+\end{center}
+Công thức tính hệ số của $x^k$ trong khai triển trên: $C_n^{n-k} a^k b^{n-k}$ với $k \in \mathbb{N}, k \le n, n \in \mathbb{N}^*$.
+\vspace{0.1cm}
+\end{minipage}
+}
+\section{Xác suất cổ điển}
+\noindent \textbf{\textcolor{blue}{\large A. BIẾN CỐ}}
+
+\vspace{0.2cm}
+\noindent \textbf{\textcolor{blue}{1. Khái niệm}}
+
+\noindent Ở lớp 9 ta đã biết những khái niệm quan trọng sau:
+
+\vspace{0.1cm}
+\noindent\fbox{
+\begin{minipage}{\dimexpr\textwidth-2\fboxsep-2\fboxrule\relax}
+\vspace{0.1cm}
+\begin{itemize}
+    \item \textit{Phép thử ngẫu nhiên} (gọi tắt là phép thử) là một thí nghiệm hay một hành động mà kết quả của nó không thể biết được trước khi phép thử được thực hiện.
+    \item \textit{Không gian mẫu} của phép thử là tập hợp tất cả các kết quả có thể khi thực hiện phép thử. Không gian mẫu của phép thử được kí hiệu là $\Omega$.
+    \item \textit{Kết quả thuận lợi} cho một biến cố $E$ liên quan tới phép thử $T$ là kết quả của phép thử $T$ làm cho biến cố đó xảy ra.
+\end{itemize}
+\vspace{0.1cm}
+\end{minipage}
+}
+
+\vspace{0.2cm}
+\noindent \textbf{\textit{Chú ý:}} Ta chỉ xét các phép thử mà không gian mẫu gồm hữu hạn kết quả.
+
+\vspace{0.5cm}
+\noindent \textbf{\textcolor{blue}{2. Biến cố}}
+
+\noindent Theo định nghĩa, ta thấy mỗi kết quả thuận lợi cho biến cố $E$ chính là một phần tử thuộc không gian mẫu $\Omega$. Do đó về mặt toán học, ta có:
+
+\vspace{0.1cm}
+\noindent\fbox{
+\begin{minipage}{\dimexpr\textwidth-2\fboxsep-2\fboxrule\relax}
+\vspace{0.1cm}
+Mỗi biến cố là một tập con của không gian mẫu $\Omega$. Tập con này là tập tất cả các kết quả thuận lợi cho biến cố đó.
+\vspace{0.1cm}
+\end{minipage}
+}
+
+\vspace{0.2cm}
+\noindent \textbf{\textit{Nhận xét:}} Biến cố chắc chắn là tập $\Omega$, biến cố không thể là tập $\emptyset$.
+\noindent \textbf{\textcolor{blue}{3. Biến cố đối}}
+
+\vspace{0.1cm}
+\noindent\fbox{
+\begin{minipage}{\dimexpr\textwidth-2\fboxsep-2\fboxrule\relax}
+\vspace{0.1cm}
+Biến cố đối của biến cố $E$ là biến cố "$E$ không xảy ra". \\
+Biến cố đối của $E$ được kí hiệu là $\overline{E}$.
+\vspace{0.1cm}
+\end{minipage}
+}
+
+\vspace{0.2cm}
+\noindent \textbf{\textit{Nhận xét:}} Nếu biến cố $E$ là tập con của không gian mẫu $\Omega$ thì biến cố đối $\overline{E}$ là tập tất cả các phần tử của $\Omega$ mà không là phần tử của $E$. Vậy biến cố $\overline{E}$ là phần bù của $E$ trong $\Omega$: $\overline{E} = C_\Omega E$.
+
+\vspace{0.2cm}
+
+
+\vspace{0.5cm}
+\noindent \textbf{\textcolor{blue}{\large B. ĐỊNH NGHĨA CỔ ĐIỂN CỦA XÁC SUẤT}}
+
+\noindent Ta đã biết không gian mẫu $\Omega$ của phép thử $T$ là tập hợp tất cả các kết quả có thể của $T$; biến cố $E$ liên quan đến phép thử $T$ là tập con của $\Omega$. Vì thế số kết quả có thể của phép thử $T$ chính là số phần tử tập $\Omega$; số kết quả thuận lợi của biến cố $E$ chính là số phần tử của tập $E$. Do đó, ta có định nghĩa cổ điển của xác suất như sau:
+
+\vspace{0.1cm}
+\noindent\fbox{
+\begin{minipage}{\dimexpr\textwidth-2\fboxsep-2\fboxrule\relax}
+\vspace{0.1cm}
+Cho phép thử $T$ có không gian mẫu là $\Omega$. Giả thiết rằng các kết quả có thể của $T$ là đồng khả năng. Khi đó nếu $E$ là một biến cố liên quan đến phép thử $T$ thì xác suất của $E$ được cho bởi công thức
+\begin{center}
+    $P(E) = \dfrac{n(E)}{n(\Omega)}$
+\end{center}
+trong đó $n(\Omega)$ và $n(E)$ tương ứng là số phần tử của tập $\Omega$ và tập $E$.
+\vspace{0.1cm}
+\end{minipage}
+}
+
+\vspace{0.2cm}
+\noindent \textbf{\textit{Nhận xét:}}
+\begin{itemize}
+    \item Với mỗi biến cố $E$, ta có $0 \le P(E) \le 1$.
+    \item Với biến cố chắc chắn (là tập $\Omega$), ta có $P(\Omega) = 1$.
+    \item Với biến cố không thể (là tập $\emptyset$), ta có $P(\emptyset) = 0$.
+\end{itemize}
+
+\vspace{0.2cm}
+\noindent \textbf{\textit{Chú ý:}} Trong những phép thử đơn giản, ta đếm số phần tử của tập $\Omega$ và số phần tử của biến cố $E$ bằng cách liệt kê ra tất cả các phần tử của hai tập hợp này.
+
+\vspace{0.2cm}
+
+
+\vspace{0.5cm}
+\noindent \textbf{\textcolor{blue}{\large C. TÍNH XÁC SUẤT THEO ĐỊNH NGHĨA CỔ ĐIỂN}}
+
+\vspace{0.2cm}
+\noindent \textbf{\textcolor{blue}{1. Sử dụng phương pháp tổ hợp}}
+
+\vspace{0.1cm}
+\vspace{0.1cm}
+Trong nhiều bài toán, để tính số phần tử của không gian mẫu, của các biến cố, ta thường sử dụng các quy tắc đếm, các công thức tính số hoán vị, chỉnh hợp và tổ hợp.
+\vspace{0.1cm}
+
+
+\vspace{0.2cm}
+
+\noindent \textbf{\textcolor{blue}{2. Sử dụng sơ đồ hình cây}}
+
+\vspace{0.1cm}
+\vspace{0.1cm}
+Trong một số bài toán, phép thử $T$ được hình thành từ một vài phép thử, chẳng hạn: gieo xúc xắc liên tiếp bốn lần; lấy ba viên bi, mỗi viên từ một hộp;... Khi đó ta sử dụng sơ đồ hình cây để có thể mô tả đầy đủ, trực quan không gian mẫu và biến cố cần tính xác suất.
+\vspace{0.1cm}
+
+
+
+\vspace{0.2cm}
+
+\vspace{0.5cm}
+\noindent \textbf{\textcolor{blue}{3. Xác suất của biến cố đối}}
+
+\noindent Ta có công thức sau đây liên hệ giữa xác suất của một biến cố với xác suất của biến cố đối.
+
+\vspace{0.1cm}
+
+\vspace{0.1cm}
+Cho $E$ là một biến cố. Xác suất của biến cố $\overline{E}$ liên hệ với xác suất của $E$ bởi công thức sau:
+\begin{center}
+    $P(\overline{E}) = 1 - P(E)$
+\end{center}
+\vspace{0.1cm}
+
+
+\vspace{0.2cm}
+\noindent \textbf{\textit{Chú ý:}} Trong một số bài toán, nếu tính trực tiếp xác suất của biến cố gặp khó khăn, ta có thể tính gián tiếp bằng cách tính xác suất của biến cố đối của nó.
+\vspace{0.5cm}
+
+\makeheading{II}{Bài tập tự luyện}
+
+\textbf{{1.}} Một hãng thời trang đưa ra một mẫu áo sơ mi mới có ba màu: trắng, xanh, đen. Mỗi loại có các cỡ S, M, L, XL, XXL.
+
+a) Vẽ sơ đồ hình cây biểu thị các loại áo sơ mi với màu và cỡ áo nói trên.
+
+b) Nếu một cửa hàng muốn mua tất cả các loại áo sơ mi (đủ loại màu và đủ loại cỡ áo) và mỗi loại một chiếc để về giới thiệu thì cần mua tất cả bao nhiêu chiếc áo sơ mi?
+
+\vspace{0.2cm}
+\textbf{{2.}} Cho kiểu gen $AaBbDdEe$ . Giả sử quá trình giảm phân tạo giao tử bình thường, không xảy ra đột biến.
+
+a) Vẽ sơ đồ hình cây biểu\\ 
+b) Từ đó, tính số loại giao tử của các kiểu gen AaBbDdEe\\
+\textbf{{3.}} Khai triển các đa thức
+
+a) $(x - 2)^4$;
+
+b) $(x + 2)^5$;
+
+c) $(2x + 3y)^4$;
+
+d) $(2x - y)^5$.
+
+\textbf{{4.}} Hãy sử dụng ba số hạng đầu tiên trong khai triển của $(1 + 0,03)^4$ để tính giá trị gần đúng của $1,03^4$. Xác định sai số tuyệt đối.
+
+\textbf{{5.}} Trong khai triển $(5x - 2)^5$, số mũ của $x$ được sắp xếp theo lũy thừa tăng dần, hãy tìm hệ số hạng tử thứ hai.
+
+$\Rightarrow$ Đáp số: .........
+
+\textbf{{6.}} Xác định hạng tử không chứa $x$ trong khai triển $\left(x + \dfrac{2}{x}\right)^4$.
+
+$\Rightarrow$ Đáp số: .........\\
+\vspace{0.5cm}
+\noindent\textbf{7.} Chọn ngẫu nhiên một số nguyên dương không lớn hơn 30.
+\noindent a) Mô tả không gian mẫu.
+\noindent b) Gọi $A$ là biến cố: "Số được chọn là số nguyên tố". Các biến cố $A$ và $\overline{A}$ là tập con nào của không gian mẫu?
+\vspace{0.4cm}
+\noindent\textbf{8.} Chọn ngẫu nhiên một số nguyên dương không lớn hơn 22.
+\noindent a) Mô tả không gian mẫu.
+\noindent b) Gọi $B$ là biến cố: "Số được chọn chia hết cho 3". Các biến cố $B$ và $\overline{B}$ là các tập con nào của không gian mẫu?
+\vspace{0.4cm}
+\noindent\textbf{9.} Gieo đồng thời một con xúc xắc và một đồng xu.
+\noindent a) Mô tả không gian mẫu.
+\noindent b) Xét các biến cố sau:
+\noindent $C$: "Đồng xu xuất hiện mặt sấp";
+\noindent $D$: "Đồng xu xuất hiện mặt ngửa hoặc số chấm xuất hiện trên con xúc xắc là 5".
+\noindent Các biến cố $C, \overline{C}, D$ và $\overline{D}$ là các tập con nào của không gian mẫu?
+
+\makeheading{III}{Bài tập làm thêm}
+\noindent\textbf{1.} Số điện thoại cho mỗi thuê bao của một nhà mạng có 10 chữ số và có các đầu số là 081, 082, 083, 084, 085, 088, 091 hoặc 094. Giả sử hiện tại, nhà mạng đó đã cấp số cho tổng số 35 triệu thuê bao. Hỏi, nếu không có thêm các đầu số mới và không thu hồi các đầu số đã cấp thì nhà mạng đó còn có thể cung cấp bao nhiêu thuê bao nữa?
+
+\vspace{0.4cm}
+\noindent\textbf{2.} Mỗi máy tính tham gia vào mạng phải có một địa chỉ duy nhất, gọi là địa chỉ IP, nhằm định danh máy tính đó trên Internet. Xét tập hợp $A$ gồm các địa chỉ IP có dạng 192.168.abc.deg, trong đó $a, d$ là các chữ số khác nhau được chọn ra từ các chữ số 1, 2, còn $b, c, e, g$ là các chữ số đôi một khác nhau được chọn ra từ các chữ số 0, 1, 2, 3, 4, 5. Hỏi tập hợp $A$ có bao nhiêu phần tử?
+
+\vspace{0.4cm}
+\noindent\textbf{3.} Một lớp có 40 học sinh chụp ảnh tổng kết năm học. Lớp đó muốn trong bức ảnh có 18 học sinh ngồi ở hàng đầu và 22 học sinh đứng ở hàng sau. Có bao nhiêu cách xếp vị trí chụp ảnh như vậy?
+
+\vspace{0.4cm}
+\noindent\textbf{4.} Cần sắp xếp thứ tự 8 tiết mục văn nghệ cho buổi biểu diễn văn nghệ của trường. Ban tổ chức dự kiến xếp 4 tiết mục ca nhạc ở vị trí thứ 1, thứ 2, thứ 5 và thứ 8; 2 tiết mục múa ở vị trí thứ 3 và thứ 6; 2 tiết mục hài ở vị trí thứ 4 và thứ 7. Có bao nhiêu cách xếp khác nhau?
+
+\noindent\textbf{5.} Giả sử hệ số của $x$ trong khai triển $\left(x^2 + \frac{r}{x}\right)^5$ bằng 640. Xác định giá trị của $r$.
+
+\noindent\textbf{6.} Hãy khai triển và rút gọn biểu thức: $(1 + x)^4 + (1 - x)^4$. Sử dụng kết quả đó để tính giá trị gần đúng của biểu thức $T = 1{,}05^4 + 0{,}95^4$.
+
+\noindent\textbf{7.} Xác định hệ số của $x^4$ trong khai triển biểu thức $(3x + 2)^5$.
+
+\noindent\textbf{8.} Tìm hệ số của $x^2$ trong khai triển $(2x - 5)^4$.
+
+\noindent\textbf{9.} Một chiếc hộp đựng 6 viên bi trắng, 4 viên bi đỏ và 2 viên bi đen. Chọn ngẫu nhiên ra 6 viên bi. Tính xác suất để trong 6 viên bi đó có 3 viên bi trắng, 2 viên bi đỏ và 1 viên bi đen.
+\vspace{0.4cm}
+\noindent\textbf{10.} Gieo liên tiếp một con xúc xắc và một đồng xu.
+\noindent a) Vẽ sơ đồ hình cây mô tả các phần tử của không gian mẫu.
+\noindent b) Tính xác suất của các biến cố sau:
+\noindent $F$ : "Đồng xu xuất hiện mặt ngửa";
+\noindent $G$ : "Đồng xu xuất hiện mặt sấp hoặc số chấm xuất hiện trên con xúc xắc là 5 ".
+\vspace{0.4cm}
+
+\noindent\textbf{11.} Trên một phố có hai quán ăn $X, Y$. Ba bạn Sơn, Hải, Văn mỗi người chọn ngẫu nhiên một quán ăn.
+\noindent a) Vẽ sơ đồ hình cây mô tả các phần tử của không gian mẫu.
+\noindent b) Tính xác suất của biến cố "Hai bạn vào quán $X$, bạn còn lại vào quán $Y$ ".
+\vspace{0.4cm}
+
+\noindent\textbf{12.} Gieo lần lượt hai con xúc xắc cân đối. Tính xác suất để ít nhất một con xúc xắc xuất hiện mặt 6 chấm.
+\vspace{0.4cm}
+
+\noindent\textbf{13.} Màu hạt của đậu Hà Lan có hai kiểu hình là màu vàng và màu xanh tương ứng với hai loại gen là gen trội $A$ và gen lặn $a$. Hình dạng hạt của đậu Hà Lan có hai kiểu hình là hạt trơn và hạt nhăn tương ứng với hai loại gen là gen trội $B$ và gen lặn $b$. Biết rằng, cây con lấy ngẫu nhiên một gen từ cây bố và một gen từ cây mẹ.
+\noindent Phép thử là cho lai hai loại đậu Hà Lan, trong đó cả cây bố và cây mẹ đều có kiểu gen là $(Aa, Bb)$ và kiểu hình là hạt màu vàng và trơn. Giả sử các kết quả có thể là đồng khả năng. Tính xác suất để cây con cũng có kiểu hình là hạt màu vàng và trơn.
+\end{document}

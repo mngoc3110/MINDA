@@ -1,0 +1,351 @@
+\documentclass[12pt,a4paper]{extarticle}
+\usepackage[utf8]{inputenc}
+\usepackage[T5]{fontenc}
+\usepackage{geometry}
+\geometry{a4paper, left=1.5cm, right=1cm, top=1.5cm, bottom=1.5cm, headheight=20pt, headsep=15pt, footskip=28pt}
+\usepackage{enumitem}
+\usepackage{multirow}
+\usepackage{amssymb}
+\usepackage{setspace}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, calc}
+\definecolor{book}{RGB}{58,90,172}
+\newcommand{\noteicon}{\textcolor{book}{$\blacktriangleright$}}
+\usetikzlibrary{patterns, patterns.meta, calc} % Thêm patterns.meta vào đây
+% Gọi package nằm trong thư mục con template
+\usepackage{../template/mngocbox}
+
+\begin{document}
+\onehalfspacing
+
+% Sử dụng ngoặc vuông [...] để thay đổi linh hoạt các thông số
+\makeheadbox[headerright={Tổng ôn 10-11},chude={CHỦ ĐỀ 09},tieude={logarit và luỹ thừa},dinhdang={Giải tích},lop={12 },gv={Nguyễn Lê Minh Ngọc}]
+
+\vspace{2em}
+\makeheading{I}{Tóm tắt lý thuyết}
+
+\noindent\textbf{1. Khái niệm logarit}
+\begin{itemize}
+    \item Cho $a$ là một số thực dương khác 1 và $M$ là một số thực dương. Số thực $\alpha$ để $a^\alpha = M$ được gọi là lôgarit cơ số $a$ của $M$ và kí hiệu là $\log_a M$.
+    \[ \alpha = \log_a M \Leftrightarrow a^\alpha = M. \]
+    \item \textbf{Chú ý:} Không có lôgarit của số âm và số 0. Cơ số của lôgarit phải dương và khác 1.
+    \item Từ định nghĩa lôgarit, ta có các tính chất sau:
+    
+    Với $0 < a \ne 1, M > 0$ và $\alpha$ là số thực tuỳ ý, ta có:
+    \begin{align*}
+        &\log_a 1 = 0; \quad \log_a a = 1 \\
+        &a^{\log_a M} = M; \quad \log_a a^\alpha = \alpha
+    \end{align*}
+\end{itemize}
+
+\vspace{0.4cm}
+\noindent\textbf{2. Tính chất của logarit}
+\noindent\textit{a) Quy tắc tính logarit}
+\begin{itemize}
+    \item Giả sử $a$ là số thực dương khác 1, $M$ và $N$ là các số thực dương, $\alpha$ là số thực tuỳ ý. Khi đó:
+    \begin{align*}
+        &\log_a(MN) = \log_a M + \log_a N; \\
+        &\log_a\left(\frac{M}{N}\right) = \log_a M - \log_a N; \\
+        &\log_a M^\alpha = \alpha \log_a M.
+    \end{align*}
+\end{itemize}
+
+\vspace{0.4cm}
+\noindent\textit{b) Đổi cơ số của logarit}
+\begin{itemize}
+    \item Với các cơ số lôgarit $a$ và $b$ bất kì ($0 < a \ne 1, 0 < b \ne 1$) và $M$ là số thực dương tuỳ ý, ta luôn có:
+    \[ \log_a M = \frac{\log_b M}{\log_b a}. \]
+\end{itemize}
+
+\noindent\textbf{3. Logarit thập phân và logarit tự nhiên}
+\vspace{0.2cm}
+\noindent\textit{a) Logarit thập phân}
+\begin{itemize}
+    \item Trong thực hành, ta hay dùng hệ đếm thập phân (hệ đếm cơ số 10); lôgarit cơ số 10 đóng vai trò quan trọng trong tính toán.
+    
+    Lôgarit cơ số 10 của một số dương $M$ gọi là lôgarit thập phân của $M$, kí hiệu là $\log M$ hoặc $\lg M$ (đọc là lốc của $M$).
+\end{itemize}
+\noindent\textbf{Ví dụ} Độ $\text{pH}$ của một dung dịch hoá học được tính theo công thức:
+\[ \text{pH} = -\log[\text{H}^+] \]
+trong đó $[\text{H}^+]$ là nồng độ (tính theo mol/lít) của các ion hydrogen. Giá trị $\text{pH}$ nằm trong khoảng từ 0 đến 14. Nếu $\text{pH} < 7$ thì dung dịch có tính acid, nếu $\text{pH} > 7$ thì dung dịch có tính base, còn nếu $\text{pH} = 7$ thì dung dịch là trung tính.
+\noindent a) Tính độ $\text{pH}$ của dung dịch có nồng độ ion hydrogen bằng $0{,}01\text{ mol/lít}$.
+\noindent b) Xác định nồng độ ion hydrogen của một dung dịch có độ $\text{pH} = 7{,}4$.
+\vspace{0.4cm}
+\noindent\textit{b) Số $e$ và logarit tự nhiên}
+\begin{itemize}
+    \item Với số vốn ban đầu là $P$, theo thể thức lãi kép liên tục, lãi suất hằng năm không đổi là $r$ thì sau $t$ năm, số tiền thu được cả vốn lẫn lãi sẽ là:
+    \[ A = P e^{rt}. \]
+    Công thức trên gọi là công thức lãi kép liên tục.
+    \item Lôgarit cơ số $e$ của một số dương $M$ gọi là lôgarit tự nhiên của $M$, kí hiệu là $\ln M$ (đọc là lôgarit Nêpe của $M$).
+\end{itemize}
+\noindent\textbf{Ví dụ} Biết thời gian cần thiết (tính theo năm) để tăng gấp đôi số tiền đầu tư theo thể thức lãi kép liên tục với lãi suất không đổi $r$ mỗi năm được cho bởi công thức sau:
+\[ t = \frac{\ln 2}{r}. \]
+Tính thời gian cần thiết để tăng gấp đôi một khoản đầu tư khi lãi suất là $6\%$ mỗi năm (làm tròn kết quả đến chữ số thập phân thứ nhất).
+
+\noindent\textbf{2. Hàm số mũ và hàm số log}
+\begin{itemize}
+    \item Giả sử $a$ là số thực dương khác 1. Hàm số $y = a^x$ được gọi là hàm số mũ; hàm số $y = \log_a x$ được gọi là hàm số logarit.
+\end{itemize}
+\noindent\textbf{3. Một số giới hạn quan trọng}
+\noindent Các hàm số $y = a^x$ và $y = \log_a x$ liên tục trên mỗi điểm mà nó xác định.
+\vspace{0.2cm}
+
+\noindent\textbf{Định lý:}
+\[ \lim_{x \to 0} \frac{\ln(1 + x)}{x} = 1 \]
+\[ \lim_{x \to 0} \frac{e^x - 1}{x} = 1 \]
+\vspace{0.4cm}
+\noindent\textbf{4. Đạo hàm}
+
+\noindent\textbf{Định lý:}
+\begin{itemize}
+    \item[a)] Hàm số $y = a^x$ có đạo hàm tại mọi điểm $x \in \mathbb{R}$ và $(a^x)' = a^x \ln a$. Đặc biệt $(e^x)' = e^x$.
+    \item[b)] Hàm số $y = \log_a x$ có đạo hàm tại mọi điểm $x > 0$, và $(\log_a x)' = \dfrac{1}{x \ln a}$. Đặc biệt $(\ln x)' = \dfrac{1}{x}$.
+\end{itemize}
+\noindent\textbf{Hệ quả:}
+\begin{itemize}
+    \item[a)] Hàm hợp: $\left(a^{u(x)}\right)' = a^{u(x)} \cdot \ln a \cdot u'(x)$; \quad $\left(\log_a u(x)\right)' = \dfrac{1}{u(x) \cdot \ln a} \cdot u'(x)$.
+    \item[b)] $(\ln|x|)' = \dfrac{1}{x}$ \quad $\forall x \ne 0$.
+\end{itemize}
+\vspace{0.4cm}
+\noindent\textbf{5. Đồ thị}
+\noindent Trường hợp $a > 1$
+
+% --- ĐỒ THỊ 1: TRƯỜNG HỢP a > 1 ---
+\begin{center}
+\begin{tikzpicture}[>=stealth, scale=1.2]
+    % Trục tọa độ
+    \draw[->, thick] (-1.5, 0) -- (4.5, 0) node[above] {$x$};
+    \draw[->, thick] (0, -1.5) -- (0, 4.5) node[right] {$y$};
+    
+    % Đường phân giác y = x (nét đứt)
+    \draw[dashed, gray, domain=-1.2:3.8] plot (\x, \x) node[right] {$y = x$};
+    
+    % Hàm số mũ y = a^x (chọn a = 2)
+    \draw[thick, black, domain=-1.5:2.0, smooth] plot (\x, {2^\x}) node[left] {$y = a^x$};
+    
+    % Hàm số logarit y = log_a(x) (đối xứng qua y = x)
+    \draw[thick, blue, domain=0.25:4.0, smooth] plot (\x, {ln(\x)/ln(2)}) node[below right] {$y = \log_a x$};
+    
+    % Điểm mốc và nhãn
+    \filldraw (0, 1) circle (1.2pt) node[left] {$1$};
+    \filldraw (1, 0) circle (1.2pt) node[below] {$1$};
+    \node[below left] at (0, 0) {$O$};
+    \node[below] at (2, -0.3) {$a > 1$};
+\end{tikzpicture}
+\end{center}
+\noindent Trường hợp $0 < a < 1$
+% --- ĐỒ THỊ 2: TRƯỜNG HỢP 0 < a < 1 ---
+\begin{center}
+\begin{tikzpicture}[>=stealth, scale=1.2]
+    % Trục tọa độ
+    \draw[->, thick] (-1.5, 0) -- (4.5, 0) node[above] {$x$};
+    \draw[->, thick] (0, -1.5) -- (0, 4.5) node[right] {$y$};
+    
+    % Đường phân giác y = x (nét đứt)
+    \draw[dashed, gray, domain=-1.2:3.8] plot (\x, \x) node[right] {$y = x$};
+    
+    % Hàm số mũ y = a^x (chọn a = 0.5)
+    \draw[thick, black, domain=-1.8:3.5, smooth] plot (\x, {0.5^\x}) node[above right] {$y = a^x$};
+    
+    % Hàm số logarit y = log_a(x) (đối xứng qua y = x)
+    \draw[thick, blue, domain=0.22:4.0, smooth] plot (\x, {-ln(\x)/ln(2)}) node[above right] {$y = \log_a x$};
+    
+    % Điểm mốc và nhãn
+    \filldraw (0, 1) circle (1.2pt) node[left] {$1$};
+    \filldraw (1, 0) circle (1.2pt) node[below] {$1$};
+    \node[below left] at (0, 0) {$O$};
+    \node[right] at (2.2, 1.5) {$0 < a < 1$};
+\end{tikzpicture}
+\end{center}
+\vspace{0.4cm}
+\noindent{\textbf{6. Ghi nhớ}}
+\vspace{0.2cm}
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{|p{0.47\textwidth}|p{0.47\textwidth}|}
+\hline
+{$\blacklozenge$} \textbf{Hàm số $y = a^x$} & {$\blacklozenge$} \textbf{Hàm số $y = \log_a x$} \\
+$\star$ TXĐ: $\mathbb{R}$. & $\star$ TXĐ: $(0; +\infty)$. \\
+$\star$ Đồng biến trên $\mathbb{R}$ khi $a > 1$, nghịch biến trên $\mathbb{R}$ khi $0 < a < 1$. & $\star$ Đồng biến trên $(0; +\infty)$ khi $a > 1$, nghịch biến trên $(0; +\infty)$ khi $0 < a < 1$. \\
+$\star$ Đồ thị luôn đi qua điểm $(0; 1)$, nằm trên trục hoành và nhận trục hoành làm tiệm cận ngang. & $\star$ Có đồ thị đi qua điểm $(1; 0)$, nằm phía bên phải trục tung và nhận trục tung làm tiệm cận đứng. \\
+\hline
+\end{tabular}
+\end{center}
+
+\noindent\textbf{7. Phương trình mũ.}
+\begin{itemize}
+    \item Phương trình mũ cơ bản có dạng $a^x = b$ (với $0 < a \ne 1$).
+    \begin{itemize}
+        \item[-] Nếu $b > 0$ thì phương trình có nghiệm duy nhất $x = \log_a b$.
+        \item[-] Nếu $b \le 0$ thì phương trình vô nghiệm.
+    \end{itemize}
+    \item \textbf{Chú ý:} Phương pháp giải phương trình mũ bằng cách đưa về cùng cơ số: Nếu $0 < a \ne 1$ thì $a^u = a^v \Leftrightarrow u = v$.
+\end{itemize}
+
+\noindent\textbf{8. Phương trình lôgarit.}
+\begin{itemize}
+    \item Phương trình lôgarit cơ bản có dạng $\log_a x = b$ ($0 < a \ne 1$). Phương trình lôgarit cơ bản có nghiệm duy nhất $x = a^b$.
+    \item \textbf{Chú ý:} Phương pháp giải phương trình lôgarit bằng cách đưa về cùng cơ số: Nếu $u, v > 0$ và $0 < a \ne 1$ thì $\log_a u = \log_a v \Leftrightarrow u = v$.
+\end{itemize}
+
+\vspace{0.4cm}
+\noindent\textbf{9. Bất phương trình mũ.}
+\begin{itemize}
+    \item Bất phương trình mũ cơ bản có dạng $a^x > b$ (hoặc $a^x \ge b$; $a^x \le b$; $a^x < b$) với $a > 0, a \ne 1$.
+    
+    Xét bất phương trình có dạng $a^x > b$:
+    \begin{itemize}
+        \item[-] Nếu $b \le 0$ thì tập nghiệm của bất phương trình là $\mathbb{R}$.
+        \item[-] Nếu $b > 0$ thì bất phương trình tương đương với $a^x > a^{\log_a b}$.
+        
+        Với $a > 1$, nghiệm của bất phương trình là $x > \log_a b$.
+        
+        Với $0 < a < 1$, nghiệm của bất phương trình là $x < \log_a b$.
+    \end{itemize}
+    \item \textbf{Chú ý:}
+    \begin{itemize}
+        \item[-] Các bất phương trình mũ cơ bản còn lại được giải tương tự.
+        \item[-] Nếu $a > 1$ thì $a^u > a^v \Leftrightarrow u > v$.
+        \item[-] Nếu $0 < a < 1$ thì $a^u > a^v \Leftrightarrow u < v$.
+    \end{itemize}
+\end{itemize}
+
+\noindent\textbf{10. Bất phương trình logarit.}
+\begin{itemize}
+    \item Bất phương trình lôgarit cơ bản có dạng $\log_a x > b$ (hoặc $\log_a x \ge b$; $\log_a x < b$; $\log_a x \le b$) với $a > 0, a \ne 1$.
+    
+    Xét bất phương trình có dạng $\log_a x > b$:
+    \begin{itemize}
+        \item[-] Nếu $a > 1$ thì tập nghiệm của bất phương trình là $x > a^b$.
+        \item[-] Nếu $0 < a < 1$ thì nghiệm của phương trình là: $0 < x < a^b$.
+    \end{itemize}
+    \item \textbf{Chú ý:}
+    \begin{itemize}
+        \item[-] Phương pháp giải phương trình lôgarit cơ bản còn lại được giải tương tự.
+        \item[-] Nếu $a > 1$ thì $\log_a u > \log_a v \Leftrightarrow u > v > 0$.
+        \item[-] Nếu $0 < a < 1$ thì $\log_a u > \log_a v \Leftrightarrow 0 < u < v$.
+    \end{itemize}
+\end{itemize}
+
+\makeheading{II}{Bài tập tự luyện}
+\noindent\textbf{1.} Tính giá trị các biểu thức sau:
+\noindent a) $A = 2\log_2 12 + 3\log_2 5 - \log_2 15 - \log_2 150$
+\noindent b) $B = \log_{\sqrt{a}} b^2 + \dfrac{2}{\log_{\frac{a}{b^2}} a}$ (với $a > 0, b > 0, a \ne 1, b \ne 1$).
+\noindent c) $C = \ln(\tan 1^\circ) + \ln(\tan 2^\circ) + \dots + \ln(\tan 89^\circ)$
+\noindent d) $P = \log_{a^2}(a^{10}b^2) + \log_{\sqrt{a}}\left(\dfrac{a}{\sqrt{b}}\right) + \log_{\sqrt[3]{b}} b^{-2}$ với $0 < a \ne 1, 0 < b \ne 1$.
+\vspace{0.4cm}
+
+\noindent\textbf{2.} Cho $a, b$ là các số thực dương thỏa mãn $ab \ne 1$ và $\log_{ab} a^2 = 3$. Tính $\log_{ab} \sqrt[3]{\dfrac{a}{b}}$.
+\vspace{0.4cm}
+
+\noindent\textbf{3.} Cho $x = 2000!$. Tính $A = \dfrac{1}{\log_2 x} + \dfrac{1}{\log_3 x} + \dots + \dfrac{1}{\log_{2000} x}$.\\
+
+\noindent\textbf{4.} Tìm tập xác định của hàm số $y = (x - 1)^{\frac{3}{4}} + \log_2 x$.
+\vspace{0.4cm}
+
+\noindent\textbf{5.} Tìm tập các giá trị thực của tham số $m$ để hàm số $y = \ln(3x - 1) - \dfrac{m}{x} + 2$ đồng biến trên khoảng $\left(\dfrac{1}{2}; +\infty\right)$.
+\vspace{0.2cm}
+
+
+\noindent\textbf{6.} Tìm tất cả các giá trị của tham số $m$ để hàm số $y = \log_2(x^2 + 2x + m - 2)$ xác định với mọi giá trị của $x$.
+
+\noindent\textbf{7.} Số nghiệm của phương trình $\log(x^2 - 7x + 12) = \log(2x - 8)$ là:
+\vspace{0.2cm}
+
+\noindent\textbf{A.} 0. \hfill \textbf{B.} 1. \hfill \textbf{C.} 2. \hfill \textbf{D.} 3.
+\vspace{0.4cm}
+
+\noindent\textbf{8.} Giải phương trình sau:
+\noindent a) $3^{x-1} = 27$;
+\noindent b) $\sqrt{3} \cdot e^{3x} = 1$;
+\noindent c) $100^{2x^2 - 3} = 0{,}1^{2x^2 - 18}$.
+\vspace{0.4cm}
+
+\noindent\textbf{9.} Giải các phương trình sau:
+\noindent a) $2\log_4 x + \log_2(x - 3) = x$;
+\noindent b) $\ln x + \ln(x - 1) = \ln 4x$;
+\noindent c) $\log_3(x^2 - 3x + 2) = \log_3(2x - 4)$.
+
+\newpage
+\makeheading{III}{Bài tập làm thêm}
+
+\noindent\textbf{1.} Cho $a, b$ là các số hữu tỉ thỏa mãn $\log_2 \sqrt[6]{360} - \log_2 \sqrt{2} = a\log_2 3 + b\log_2 5$. Tính $a + b$.
+\vspace{0.4cm}
+
+\noindent\textbf{2.} Biết $\log_{27} 5 = a$; $\log_8 7 = b$; $\log_2 3 = c$ thì $\log_{12} 35$ bằng bao nhiêu?
+\vspace{0.4cm}
+
+\noindent\textbf{3.} Cho $a = \log_2 3$; $b = \log_3 5$; $c = \log_7 2$. Tính $\log_{140} 63$ theo $a, b, c$?
+\vspace{0.4cm}
+
+\noindent\textbf{4.} Cho $a = \log_2 3$; $b = \log_3 5$; $c = \log_7 2$. Tính $\log_{140} 63$.
+\vspace{0.4cm}
+
+\noindent\textbf{5.} Cho số thực $x$ thỏa mãn $\log x = \dfrac{1}{2}\log 3a - 2\log b + 3\log \sqrt{c}$ ($a, b, c$ là các số thực dương). Hãy biểu diễn $x$ theo $a, b, c$.
+\vspace{0.4cm}
+
+\noindent\textbf{6.} Cho $\log_3 5 = a$; $\log_3 6 = b$; $\log_3 22 = c$. Tính $\log_3\left(\dfrac{270}{121}\right)$.
+\vspace{0.4cm}
+
+\noindent\textbf{7.} Đặt $a = \ln 2$, $b = \ln 5$. Hãy biểu diễn $I = \ln\dfrac{1}{2} + \ln\dfrac{2}{3} + \ln\dfrac{3}{4} + \dots + \ln\dfrac{98}{99} + \ln\dfrac{99}{100}$ theo $a$ và $b$.
+\vspace{0.4cm}
+
+\noindent\textbf{8.} Cho các số thực dương $a, b$ thỏa mãn $\log_{16} a = \log_{20} b = \log_{25} \dfrac{2a - b}{3}$. Tính $\dfrac{a}{b}$.
+\vspace{0.4cm}
+
+\noindent\textbf{9.} Cho hai số thực $a, b$ thỏa mãn đồng thời đẳng thức $3^{-a} \cdot 2^b = 1152$ và $\log_{\sqrt{5}}(a + b) = 2$.
+\noindent Tính $P = a + b$.
+
+\noindent\textbf{10. [tự luận]} Chu kì bán rã của đồng vị phóng xạ Radi 226 là khoảng 1\,600 năm. Giả sử khối lượng $m$ (tính bằng gam) còn lại sau $t$ năm của một lượng Radi 226 được cho bởi công thức:
+\[ m = 25 \cdot \left(\frac{1}{2}\right)^{\frac{t}{1600}} \]
+\noindent a) Khối lượng ban đầu (khi $t = 0$) của lượng Radi 226 đó là bao nhiêu?
+\noindent b) Sau 2\,500 năm, khối lượng của Radi 226 đó là bao nhiêu?
+\vspace{0.4cm}
+
+\noindent\textbf{11. [tự luận]} Sau khi bệnh nhân uống một liều thuốc, lượng thuốc còn lại trong cơ thể giảm dần và được tính theo công thức $D(t) = D_0 \cdot a^t$ (mg), trong đó $D_0$ và $a$ là các hằng số dương, $t$ là thời gian tính bằng giờ kể từ thời điểm uống thuốc.
+\noindent a) Tại sao có thể khẳng định rằng $0 < a < 1$?
+\noindent b) Biết rằng bệnh nhân đã uống 100 mg thuốc và sau 1 giờ thì lượng thuốc trong cơ thể còn 80 mg. Hãy xác định giá trị của $D_0$ và $a$.
+\noindent c) Sau 5 giờ, lượng thuốc đã giảm đi bao nhiêu phần trăm so với lượng thuốc ban đầu?
+\vspace{0.4cm}
+
+\noindent\textbf{12. [tự luận]} Số tiền ban đầu 120 triệu đồng được gửi tiết kiệm với lãi suất năm không đổi là 6\%. Tính số tiền (cả vốn lẫn lãi) thu được sau 5 năm, nếu nó được tính lãi kép:
+\noindent a) hằng quý;
+\noindent b) hằng tháng;
+\noindent c) liên tục.
+\vspace{0.15cm}
+
+\noindent\textit{(Kết quả tính theo đơn vị triệu đồng và làm tròn đến chữ số thập phân thứ ba).}
+
+
+
+\noindent\textbf{13.} Với giá trị nào của $x$ thì đồ thị hàm số $y = \left(\dfrac{2}{3}\right)^x$ nằm phía trên đường thẳng $y = 1$?
+\vspace{0.2cm}
+
+\noindent\textbf{A.} $x > 0$. \hfill \textbf{B.} $x < 0$. \hfill \textbf{C.} $x > 1$. \hfill \textbf{D.} $x < 1$.
+\vspace{0.4cm}
+
+\noindent\textbf{14.} Tập nghiệm của bất phương trình $\left(\dfrac{1}{2}\right)^x \ge \left(\dfrac{1}{4}\right)^2$ là:
+\vspace{0.2cm}
+
+\noindent\textbf{A.} $x > 4$. \hfill \textbf{B.} $4 > x > -1$. \hfill \textbf{C.} $x > -\dfrac{1}{2}$. \hfill \textbf{D.} $x \le 4$.
+\vspace{0.4cm}
+
+\noindent\textbf{15.} Nghiệm của phương trình $\log_{\frac{1}{2}}(x - 1) = -2$ là:
+\vspace{0.2cm}
+
+\noindent\textbf{A.} $x = 2$. \hfill \textbf{B.} $x = 5$. \hfill \textbf{C.} $x = \dfrac{5}{2}$. \hfill \textbf{D.} $x = \dfrac{3}{2}$.
+
+
+\noindent\textbf{16.} Nhắc lại rằng mức cường độ âm (đo bằng dB) được tính bởi công thức $L = 10 \log \dfrac{I}{I_0}$, trong đó $I$ là cường độ âm tính theo $\text{W/m}^2$ và $I_0 = 10^{-12} \text{ W/m}^2$.
+\noindent a) Tính cường độ âm của âm thanh tàu điện ngầm có mức cường độ âm là 100 dB.
+\noindent b) Âm thanh trên một tuyến đường giao thông có mức cường độ âm thay đổi từ 70 dB đến 85 dB. Hỏi cường độ âm thay đổi trong đoạn nào?
+\vspace{0.4cm}
+
+\noindent\textbf{17.} Cent âm nhạc là một đơn vị trong thang lôgarit của cao độ hoặc khoảng tương đối. Một quãng tám bằng 1200 cent. Công thức xác định chênh lệch khoảng thời gian (tính bằng cent) giữa hai nốt nhạc có tần số $a$ và $b$ là: $n = 1200 \log_2 \dfrac{a}{b}$.
+\noindent a) Tìm khoảng thời gian tính bằng cent khi tần số thay đổi từ 443 Hz về 415 Hz.
+\noindent b) Giả sử khoảng thời gian là 55 cent và tần số đầu là 225 Hz, hãy tìm tần số cuối cùng.
+\vspace{0.4cm}
+
+\noindent\textbf{18.} Tốc độ của gió $S$ (dặm/giờ) gần tâm của một cơn lốc xoáy được tính bởi công thức: $S = 93 \log d + 65$, trong đó $d$ (dặm) là quãng đường cơn lốc xoáy đó di chuyển được. Tính quãng đường cơn lốc xoáy đã di chuyển được, biết tốc độ của gió ở gần tâm bằng 140 dặm/giờ (làm tròn kết quả đến hàng phần mười).
+
+\end{document}

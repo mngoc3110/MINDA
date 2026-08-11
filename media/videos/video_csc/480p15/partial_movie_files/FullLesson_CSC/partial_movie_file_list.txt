@@ -1,0 +1,12 @@
+# This file is used internally by FFMPEG.
+file 'file:/Users/macbook/Desktop/coding/projects/MINDA/media/videos/video_csc/480p15/partial_movie_files/FullLesson_CSC/1584795214_2455809522_223132457.mp4'
+file 'file:/Users/macbook/Desktop/coding/projects/MINDA/media/videos/video_csc/480p15/partial_movie_files/FullLesson_CSC/4072820271_1776772728_829773746.mp4'
+file 'file:/Users/macbook/Desktop/coding/projects/MINDA/media/videos/video_csc/480p15/partial_movie_files/FullLesson_CSC/4072820271_4236780522_3845183233.mp4'
+file 'file:/Users/macbook/Desktop/coding/projects/MINDA/media/videos/video_csc/480p15/partial_movie_files/FullLesson_CSC/4072820271_1008998831_1021344107.mp4'
+file 'file:/Users/macbook/Desktop/coding/projects/MINDA/media/videos/video_csc/480p15/partial_movie_files/FullLesson_CSC/4072820271_2402552218_212287364.mp4'
+file 'file:/Users/macbook/Desktop/coding/projects/MINDA/media/videos/video_csc/480p15/partial_movie_files/FullLesson_CSC/4072820271_310540274_462782899.mp4'
+file 'file:/Users/macbook/Desktop/coding/projects/MINDA/media/videos/video_csc/480p15/partial_movie_files/FullLesson_CSC/4072820271_1567079531_1179089484.mp4'
+file 'file:/Users/macbook/Desktop/coding/projects/MINDA/media/videos/video_csc/480p15/partial_movie_files/FullLesson_CSC/4072820271_1062346762_3357978125.mp4'
+file 'file:/Users/macbook/Desktop/coding/projects/MINDA/media/videos/video_csc/480p15/partial_movie_files/FullLesson_CSC/4072820271_2619100822_226446783.mp4'
+file 'file:/Users/macbook/Desktop/coding/projects/MINDA/media/videos/video_csc/480p15/partial_movie_files/FullLesson_CSC/4072820271_966517256_1998315006.mp4'
+file 'file:/Users/macbook/Desktop/coding/projects/MINDA/media/videos/video_csc/480p15/partial_movie_files/FullLesson_CSC/4072820271_2872842549_2473759608.mp4'

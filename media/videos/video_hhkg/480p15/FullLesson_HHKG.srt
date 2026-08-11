@@ -1,0 +1,32 @@
+1
+00:00:00,000 --> 00:00:02,818
+Chào mừng các em đến với bài học Hình học
+
+2
+00:00:02,918 --> 00:00:06,236
+không gian, góc và khoảng cách trong không gian.
+
+3
+00:00:06,333 --> 00:00:10,641
+Trong hình học không gian, ta quan sát các hình chóp, hình
+
+4
+00:00:10,741 --> 00:00:14,897
+hộp và quan hệ vuông góc giữa đường thẳng với mặt phẳng.
+
+5
+00:00:16,400 --> 00:00:22,095
+Câu 1: Theo định lý vuông góc trong không gian, nếu một đường thẳng vuông
+
+6
+00:00:22,195 --> 00:00:27,256
+góc với một mặt phẳng thì nó sẽ vuông góc với mọi đường thẳng nằm
+
+7
+00:00:27,356 --> 00:00:32,575
+trong mặt phẳng đó. Do SA vuông góc với mặt phẳng ABCD nên SA vuông
+
+8
+00:00:32,675 --> 00:00:37,180
+góc với mọi đường nằm trong ABCD. Vì vậy ta chọn đáp án B.
+

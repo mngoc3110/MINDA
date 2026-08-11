@@ -1,0 +1,105 @@
+\documentclass[12pt,a4paper]{extarticle}
+\usepackage[utf8]{inputenc}
+\usepackage[T5]{fontenc}
+\usepackage{geometry}
+\geometry{a4paper, left=1.5cm, right=1cm, top=1.5cm, bottom=1.5cm, headheight=20pt, headsep=15pt, footskip=28pt}
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{diagbox}
+\usepackage[most]{tcolorbox}
+\newcommand{\khongxacdinh}{\text{KXĐ}}
+\newcommand{\blackbox}[1]{\texorpdfstring{\fcolorbox{black}{black}{\textcolor{white}{#1}}}{#1}}
+\usepackage{tikz}
+\definecolor{bookblue}{RGB}{58,90,172}
+\definecolor{book}{RGB}{58,90,172}
+\definecolor{myblue}{RGB}{200,40,40}
+\newcommand{\bluecheck}{\textcolor{myblue}{\checkmark}}
+\newtcolorbox{formulaBox}{colback=gray!5,colframe=bookblue,boxrule=0.8pt,arc=2mm}
+\newtcolorbox{notebox}{colback=blue!3,colframe=myblue,boxrule=0.8pt,arc=2mm}
+\newtcolorbox{doublelinebox}{
+    enhanced,
+    colback=blue!2,
+    colframe=bookblue,
+    boxrule=0.8pt,
+    arc=2mm,
+    borderline={0.8pt}{2pt}{bookblue}
+}
+\usetikzlibrary{patterns, patterns.meta} % Thêm patterns.meta vào đây
+% Gọi package nằm trong thư mục con template
+\usepackage{../template/mngocbox}
+
+\begin{document}
+
+% Sử dụng ngoặc vuông [...] để thay đổi linh hoạt các thông số
+\makeheadbox[headerright={Chương 1},chude={Bài 2},tieude={Giá trị lớn nhất và giá trị nhỏ nhất của hàm số},dinhdang={Giải tích},lop={12 },gv={Nguyễn Lê Minh Ngọc}]
+
+\vspace{2em}
+\makeheading{I}{Kiến thức cần nhớ}
+\subsection*{1. Định nghĩa}
+Cho hàm số $f(x)$ xác định trên $D$.
+\begin{doublelinebox}
+    Số $M$ được gọi là giá trị lớn nhất của hàm số $y = f(x)$ trên $D$, kí hiệu $M = \max_{D} f(x)$ nếu:
+    \[
+    \begin{cases}
+        f(x) \le M, \quad \forall x \in D \\
+        \exists x_0 \in D \mid f(x_0) = M
+    \end{cases}
+    \]
+    
+    Số $m$ được gọi là giá trị nhỏ nhất của hàm số $y = f(x)$ trên $D$, kí hiệu $m = \min_{D} f(x)$ nếu:
+    \[
+    \begin{cases}
+        f(x) \ge m, \quad \forall x \in D \\
+        \exists x_0 \in D \mid f(x_0) = m
+    \end{cases}
+    \]
+\end{doublelinebox}
+\subsection*{2. Tìm giá trị lớn nhất và nhỏ nhất của hàm số liên tục}
+\noindent $\bullet$ \textbf{Lưu ý:} Mọi hàm số liên tục trên một đoạn đều có giá trị lớn nhất và giá trị nhỏ nhất trên đoạn đó.
+\vspace{0.3cm}
+\noindent Giả sử hàm số $f(x)$ liên tục trên đoạn $[a; b]$ và có đạo hàm trên khoảng $(a; b)$, có thể trừ đi một số hữu hạn điểm. Nếu $f'(x) = 0$ chỉ tại một số hữu hạn điểm thuộc khoảng $(a; b)$ thì ta có quy tắc tìm giá trị lớn nhất và giá trị nhỏ nhất của hàm số $f(x)$ trên đoạn $[a; b]$ như sau:
+\vspace{0.3cm}
+\begin{doublelinebox}
+    \noindent \textbf{\color{blue}Bước 1.} Tìm các điểm $x_1, x_2, \dots, x_n$ thuộc khoảng $(a; b)$ mà tại đó hàm số có đạo hàm bằng $0$ hoặc không tồn tại đạo hàm.\\
+    
+    \noindent \textbf{\color{blue}Bước 2.} Tính $f(x_1), f(x_2), \dots, f(x_n), f(a)$ và $f(b)$.\\
+    
+    \noindent \textbf{\color{blue}Bước 3.} So sánh các giá trị tìm được ở \textit{bước 2}.\\
+    
+    \noindent Số lớn nhất trong các giá trị đó là giá trị lớn nhất của hàm số $f(x)$ trên đoạn $[a; b]$, số nhỏ nhất trong các giá trị đó là giá trị nhỏ nhất của hàm số $f(x)$ trên đoạn $[a; b]$.
+\end{doublelinebox}
+\subsection*{3. Lưu ý}
+
+\noindent \textbf{\color{blue}a) Lưu ý về giá trị lớn nhất và nhỏ nhất của hàm số $f(x) = a\sin x + b\cos x$.}\\
+Cho hàm số $f(x) = a\sin x + b\cos x$ ($a^2 + b^2 > 0$). Khi đó:
+\[
+\max f(x) = \sqrt{a^2 + b^2}; \quad \min f(x) = -\sqrt{a^2 + b^2}
+\]
+Hệ quả: $\max(a\sin x) = |a|$; \quad $\min(a\sin x) = -|a|$.
+
+\vspace{0.4cm}
+
+\noindent \textbf{\color{blue}b) Lưu ý về giá trị lớn nhất và nhỏ nhất của hàm số $f(u(x))$ trên $D$.}\\
+Đặt $t = u(x)$, với $x \in D$, giả sử ta tìm được tập giá trị của $u(x)$ trên $D$ là $K$. Khi đó:
+\[
+\max_{x \in D} f(u(x)) = \max_{t \in K} f(t)
+\]
+
+\vspace{0.4cm}
+
+\noindent \textbf{\color{blue}c) Bất đẳng thức Cauchy (BĐT AM-GM) cho 2 số và cho 3 số}\\
+Cho $a, b$ là các số thực không âm, khi đó:
+\[
+\frac{a + b}{2} \ge \sqrt{ab}
+\]
+Cho $a, b, c$ là các số thực không âm, khi đó:
+\[
+\frac{a + b + c}{3} \ge \sqrt[3]{abc}
+\]
+\noindent \textbf{Hệ quả:}
+\[
+ab \le \left(\frac{a + b}{2}\right)^2, \quad abc \le \left(\frac{a + b + c}{3}\right)^3 \quad \text{với } a, b, c \ge 0
+\]
+
+\end{document}

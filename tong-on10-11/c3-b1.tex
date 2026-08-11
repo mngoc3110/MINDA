@@ -1,0 +1,168 @@
+\documentclass[12pt,a4paper]{extarticle}
+\usepackage[utf8]{inputenc}
+\usepackage[T5]{fontenc}
+\usepackage{geometry}
+\geometry{a4paper, left=1.5cm, right=1cm, top=1.5cm, bottom=1.5cm, headheight=20pt, headsep=15pt, footskip=28pt}
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{diagbox}
+\usepackage{colortbl} % Sửa lỗi \arrayrulecolor
+\usepackage{array}    % Hỗ trợ định dạng cột m{2cm}
+\usepackage[most]{tcolorbox}
+\newcommand{\khongxacdinh}{\text{KXĐ}}
+\newcommand{\blackbox}[1]{\texorpdfstring{\fcolorbox{black}{black}{\textcolor{white}{#1}}}{#1}}
+\usepackage{tikz}
+\definecolor{bookblue}{RGB}{58,90,172}
+\definecolor{book}{RGB}{58,90,172}
+\definecolor{myblue}{RGB}{200,40,40}
+\newcommand{\bluecheck}{\textcolor{myblue}{\checkmark}}
+\newtcolorbox{formulaBox}{colback=gray!5,colframe=bookblue,boxrule=0.8pt,arc=2mm}
+\newtcolorbox{notebox}{colback=blue!3,colframe=myblue,boxrule=0.8pt,arc=2mm}
+\usetikzlibrary{patterns, patterns.meta} % Thêm patterns.meta vào đây
+% Gọi package nằm trong thư mục con template
+\usepackage{../template/mngocbox}
+
+\begin{document}
+
+% Sử dụng ngoặc vuông [...] để thay đổi linh hoạt các thông số
+\makeheadbox[headerright={Chương 3},chude={Bài 1},tieude={Khoảng biến thiên, khoảng tứ phân vị, phương sai, độ lệch chuẩn},dinhdang={Xác suất},lop={12 },gv={Nguyễn Lê Minh Ngọc}]
+\vspace{2em}
+\makeheading{I}{Kiến thức cần nhớ}
+\section*{\color{blue!80!black}1. KHOẢNG BIẾN THIÊN}
+\noindent Cho mẫu số liệu ghép nhóm sau:
+\begin{center}
+    \arrayrulecolor{blue!60!white}
+    \renewcommand{\arraystretch}{1.5}
+    \begin{tabular}{|c|c|c|c|c|c|}
+        \hline
+        \textbf{Nhóm} & $[a_1; a_2)$ & $\dots$ & $[a_i; a_{i+1})$ & $\dots$ & $[a_k; a_{k+1})$ \\
+        \hline
+        \textbf{Tần số} & $m_1$ & $\dots$ & $m_i$ & $\dots$ & $m_k$ \\
+        \hline
+    \end{tabular}
+\end{center}
+\noindent Trong đó các tần số $m_1 > 0$, $m_k > 0$ và $n = m_1 + m_2 + \dots + m_k$ là cỡ mẫu.
+\vspace{1em}
+\begin{tcolorbox}[
+    colback=blue!5!white,
+    colframe=blue!75!black,
+    sharp corners,
+    boxrule=0pt,
+    leftrule=3pt,
+    top=8pt,
+    bottom=8pt,
+    left=12pt
+]
+    Khoảng biến thiên của mẫu số liệu ghép nhóm trên là \textbf{\color{blue!80!black}$R = a_{k+1} - a_1$}.
+\end{tcolorbox}
+\vspace{0.5em}
+\noindent {\color{blue!80!black}$\blacktriangleright$ \textbf{Ý nghĩa:}} Khoảng biến thiên của mẫu số liệu ghép nhóm xấp xỉ cho khoảng biến thiên của mẫu số liệu gốc. Khoảng biến thiên dùng để đo mức độ phân tán của mẫu số liệu ghép nhóm. Khoảng biến thiên càng lớn thì mẫu số liệu càng phân tán.
+\vspace{2.5em}
+\section*{\color{blue!80!black}2. KHOẢNG TỨ PHÂN VỊ}
+\noindent Xét mẫu số liệu ghép nhóm được cho ở bảng sau:
+\begin{center}
+    \arrayrulecolor{blue!60!white}
+    \renewcommand{\arraystretch}{1.5}
+    \begin{tabular}{|c|c|c|c|c|c|}
+        \hline
+        \textbf{Nhóm} & $[a_1; a_2)$ & $\dots$ & $[a_i; a_{i+1})$ & $\dots$ & $[a_k; a_{k+1})$ \\
+        \hline
+        \textbf{Tần số} & $m_1$ & $\dots$ & $m_i$ & $\dots$ & $m_k$ \\
+        \hline
+    \end{tabular}
+\end{center}
+\noindent Tứ phân vị $Q_r$ (với $r \in \{1, 2, 3\}$) của mẫu số liệu ghép nhóm được tính theo công thức:
+\[
+\boxed{Q_r = a_p + \frac{\dfrac{r \cdot n}{4} - (m_1 + \dots + m_{p-1})}{m_p}(a_{p+1} - a_p)}
+\]
+\noindent Trong đó nhóm $[a_p; a_{p+1})$ là nhóm chứa tứ phân vị thứ $r$.
+Trong đó $[a_p; a_{p+1})$ là nhóm chứa tứ phân vị thứ $r$, với $r = 1,2,3$.
+
+\vspace{1.5em}
+
+\begin{tcolorbox}[
+    colback=blue!5!white,
+    colframe=blue!75!black,
+    sharp corners,
+    boxrule=0pt,
+    leftrule=3pt,
+    top=8pt,
+    bottom=8pt,
+    left=12pt
+]
+    Khoảng tứ phân vị của mẫu số liệu ghép nhóm, kí hiệu là $\Delta_Q$, là hiệu số giữa tứ phân vị thứ ba $Q_3$ và tứ phân vị thứ nhất $Q_1$ của mẫu số liệu đó, tức là \textbf{\color{blue!80!black}$\Delta_Q = Q_3 - Q_1$}.
+\end{tcolorbox}
+
+\vspace{0.5em}
+
+\begin{itemize}[leftmargin=*, label={\color{blue!80!black}$\blacktriangleright$}, itemsep=0.8em]
+    \item \textbf{Ý nghĩa:} Khoảng tứ phân vị của mẫu số liệu ghép nhóm xấp xỉ cho khoảng tứ phân vị của mẫu số liệu gốc. Khoảng tứ phân vị cũng được dùng để đo mức độ phân tán của mẫu số liệu ghép nhóm. Khoảng tứ phân vị càng lớn thì mẫu số liệu càng phân tán.
+    \item \textbf{Nhận xét:} Do khoảng tứ phân vị của mẫu số liệu ghép nhóm chỉ phụ thuộc vào nửa giữa của mẫu số liệu, nên không bị ảnh hưởng bởi các giá trị bất thường và có thể dùng đại lượng này để loại các giá trị bất thường.
+    \item \textbf{Chú ý:} Khoảng tứ phân vị của mẫu số liệu được sử dụng chủ yếu khi mẫu số liệu có phân phối không đối xứng.
+\end{itemize}
+
+\vspace{1.5em}
+\noindent Với mẫu số liệu ghép nhóm cho các đại lượng (biến) nhận giá trị nguyên, ta thường hiệu chỉnh thành dạng bảng sau để tính các khoảng tứ phân vị của mẫu số liệu ghép nhóm:
+
+\begin{center}
+    \arrayrulecolor{blue!60!white}
+    \renewcommand{\arraystretch}{1.5}
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline
+        \textbf{Nhóm} & $[a_1 - 0{,}5; a_2 + 0{,}5)$ & $[a_2 - 0{,}5; a_3 + 0{,}5)$ & $\dots$ & $[a_k - 0{,}5; a_{k+1} + 0{,}5)$ \\
+        \hline
+        \textbf{Tần số} & $m_1$ & $m_2$ & $\dots$ & $m_k$ \\
+        \hline
+    \end{tabular}
+\end{center}
+\section*{\color{blue!80!black}3. PHƯƠNG SAI \& ĐỘ LỆCH CHUẨN}
+\begin{tcolorbox}[
+    colback=blue!5!white,
+    colframe=blue!75!black,
+    sharp corners,
+    boxrule=0pt,
+    leftrule=3pt,
+    top=8pt,
+    bottom=8pt,
+    left=12pt
+]
+    Phương sai của mẫu số liệu ghép nhóm, kí hiệu $s^2$, là một số được tính theo công thức sau:
+    \[
+    s^2 = \frac{m_1(x_1 - \bar{x})^2 + \dots + m_k(x_k - \bar{x})^2}{n};
+    \]
+    Trong đó:
+    \begin{itemize}[leftmargin=*, label=$\bullet$, itemsep=0.4em]
+        \item $n = m_1 + \dots + m_k$ là cỡ mẫu.
+        \item $x_i = \dfrac{a_i + a_{i+1}}{2}$ với $i = 1, 2, \dots, k$ là giá trị đại diện cho nhóm $[a_i; a_{i+1})$.
+        \item $\bar{x} = \dfrac{m_1 x_1 + \dots + m_k x_k}{n}$ là số trung bình của mẫu số liệu ghép nhóm.
+    \end{itemize}
+\end{tcolorbox}
+\vspace{1.5em}
+\begin{tcolorbox}[
+    colback=blue!5!white,
+    colframe=blue!75!black,
+    sharp corners,
+    boxrule=0pt,
+    leftrule=3pt,
+    top=8pt,
+    bottom=8pt,
+    left=12pt
+]
+    Độ lệch chuẩn của mẫu số liệu ghép nhóm, kí hiệu là $s$, là căn bậc hai số học của phương sai của mẫu số liệu ghép nhóm, tức là \textbf{\color{blue!80!black}$s = \sqrt{s^2}$}.
+\end{tcolorbox}
+\vspace{1.5em}
+\begin{itemize}[leftmargin=*, label={\color{blue!80!black}$\blacktriangleright$}, itemsep=1em]
+    \item \textbf{Nhận xét:} Ta có thể tính phương sai theo công thức:
+    \[
+    s^2 = \frac{1}{n}\left(m_1 x_1^2 + \dots + m_k x_k^2\right) - (\bar{x})^2
+    \]
+    Độ lệch chuẩn có cùng đơn vị với đơn vị của mẫu số liệu.
+    \item \textbf{Ý nghĩa:} Phương sai, độ lệch chuẩn của mẫu số liệu ghép nhóm là các xấp xỉ cho phương sai, độ lệch chuẩn của mẫu số liệu gốc. Chúng được dùng để đo mức độ phân tán của mẫu số liệu ghép nhóm xung quanh số trung bình của mẫu số liệu đó. Phương sai, độ lệch chuẩn càng lớn thì mẫu số liệu càng phân tán.
+    \item \textbf{Chú ý:} Người ta còn sử dụng các đại lượng sau để đo mức độ phân tán của mẫu số liệu ghép nhóm:
+    \[
+    \hat{s}^2 = \frac{m_1(x_1 - \bar{x})^2 + \dots + m_k(x_k - \bar{x})^2}{n-1}, \quad \hat{s} = \sqrt{\hat{s}^2}
+    \]
+\end{itemize}
+
+\end{document}

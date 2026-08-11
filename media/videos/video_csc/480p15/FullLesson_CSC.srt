@@ -1,0 +1,28 @@
+1
+00:00:00,000 --> 00:00:04,772
+Chào mừng các em đến với bài học Cấp số cộng và Cấp số nhân.
+
+2
+00:00:04,866 --> 00:00:11,309
+Cấp số cộng có số hạng tổng quát u n bằng u 1 cộng n trừ 1 nhân d.
+
+3
+00:00:11,409 --> 00:00:17,654
+Cấp số nhân có số hạng tổng quát u n bằng u 1 nhân q mũ n trừ 1.
+
+4
+00:00:19,200 --> 00:00:25,392
+Câu 1: Công thức số hạng tổng quát của cấp số cộng là u n bằng
+
+5
+00:00:25,492 --> 00:00:30,466
+u 1 cộng n trừ 1 nhân d. Thay n bằng 5, u 1 bằng 3
+
+6
+00:00:30,566 --> 00:00:35,845
+và công sai d bằng 2: u 5 bằng 3 cộng 4 nhân 2 bằng 3
+
+7
+00:00:35,945 --> 00:00:41,732
+cộng 8 bằng 11. Do đó u 5 bằng 11. Chúng ta chọn đáp án A.
+

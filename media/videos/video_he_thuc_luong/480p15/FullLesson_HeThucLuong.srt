@@ -1,0 +1,180 @@
+1
+00:00:00,000 --> 00:00:04,789
+Chào mừng các em học sinh! Hôm nay chúng ta sẽ cùng nghiên
+
+2
+00:00:04,889 --> 00:00:09,594
+cứu toàn bộ chuyên đề Hệ thức lượng trong tam giác và Giá
+
+3
+00:00:09,694 --> 00:00:13,220
+trị lượng giác của một góc từ 0 đến 180 độ.
+
+4
+00:00:13,320 --> 00:00:20,272
+Trong mặt phẳng tọa độ Oxy, xét nửa đường tròn đơn vị bán kính R bằng 1
+
+5
+00:00:20,372 --> 00:00:27,622
+nằm phía trên trục hoành. Cho trước góc alpha từ 0 đến 180 độ, có duy nhất
+
+6
+00:00:27,722 --> 00:00:34,675
+điểm M hoành độ x0, tung độ y0 sao cho góc xOM bằng alpha. Khi đó, tung
+
+7
+00:00:34,775 --> 00:00:41,826
+độ y0 được định nghĩa là sin alpha, hoành độ x0 là cosin alpha, tỉ số y0
+
+8
+00:00:41,926 --> 00:00:47,588
+trên x0 là tang alpha và tỉ số x0 trên y0 là côtang alpha.
+
+9
+00:00:47,653 --> 00:00:52,164
+Quan sát điểm M di chuyển trên nửa đường tròn đơn vị.
+
+10
+00:00:52,264 --> 00:00:56,340
+Khi góc alpha thay đổi, tọa độ x0 và y0 thay đổi
+
+11
+00:00:56,440 --> 00:01:00,777
+liên tục, tạo nên các giá trị lượng giác tương ứng.
+
+12
+00:01:02,320 --> 00:01:09,946
+Dưới đây là bảng giá trị lượng giác của các góc đặc biệt 0, 30, 45, 60,
+
+13
+00:01:10,046 --> 00:01:16,584
+90 và 180 độ. Các em cần ghi nhớ kỹ các giá trị 1 phần 2, căn
+
+14
+00:01:16,684 --> 00:01:22,788
+2 trên 2, căn 3 trên 2 để làm tốt các bài tập lượng giác.
+
+15
+00:01:24,853 --> 00:01:31,545
+Đây là hình vẽ minh họa trực quan hai góc bù nhau alpha và 180 độ trừ
+
+16
+00:01:31,645 --> 00:01:38,929
+alpha trên nửa đường tròn đơn vị. Điểm M đại diện cho góc alpha 30 độ, điểm
+
+17
+00:01:39,029 --> 00:01:45,032
+M phẩy đại diện cho góc bù 150 độ. Do M và M phẩy đối xứng qua
+
+18
+00:01:45,132 --> 00:01:51,726
+trục tung Oy nên chúng có CÙNG TUNG ĐỘ y0. Do đó, sin của 180 độ trừ
+
+19
+00:01:51,826 --> 00:01:57,633
+alpha BẰNG sin alpha, còn cosin hoành độ thì trái dấu âm x0.
+
+20
+00:02:00,186 --> 00:02:06,081
+Bây giờ là hình vẽ minh họa hai góc phụ nhau alpha 30 độ và 90
+
+21
+00:02:06,181 --> 00:02:12,173
+độ trừ alpha 60 độ. Hai điểm M và N đối xứng với nhau qua đường
+
+22
+00:02:12,273 --> 00:02:18,168
+phân giác y bằng x. Tọa độ điểm N bị hoán đổi thành y0, x0. Do
+
+23
+00:02:18,268 --> 00:02:24,743
+đó, sin của 90 độ trừ alpha BẰNG cosin alpha, và cosin của 90 độ trừ
+
+24
+00:02:24,843 --> 00:02:30,254
+alpha BẰNG sin alpha. Sin góc này chính là Cosin góc kia!
+
+25
+00:02:32,786 --> 00:02:39,524
+Tiếp theo là phần Giải phương trình lượng giác. Phương trình sin u bằng sin v có
+
+26
+00:02:39,624 --> 00:02:44,395
+2 họ nghiệm v cộng k 2 pi và pi trừ v cộng k 2 pi. Phương
+
+27
+00:02:44,495 --> 00:02:49,609
+trình cos u bằng cos v có 2 họ nghiệm cộng trừ v cộng k 2 pi.
+
+28
+00:02:49,709 --> 00:02:55,335
+Các trường hợp đặc biệt sin u, cos u bằng 0, bằng 1 hoặc bằng trừ 1
+
+29
+00:02:55,435 --> 00:02:59,950
+chỉ có duy nhất 1 họ nghiệm gộp cần ghi nhớ chính xác.
+
+30
+00:03:01,986 --> 00:03:09,185
+Định lý Cosin phát biểu: Trong tam giác ABC, bình phương một cạnh bằng tổng bình
+
+31
+00:03:09,285 --> 00:03:15,572
+phương hai cạnh còn lại trừ đi hai lần tích hai cạnh đó nhân với cosin
+
+32
+00:03:15,672 --> 00:03:22,049
+góc kẹp giữa. Chứng minh cực kỳ đơn giản bằng tích vô hướng véc tơ: véc
+
+33
+00:03:22,149 --> 00:03:27,888
+tơ BC bằng AC trừ AB, bình phương hai vế ta thu được a bình bằng
+
+34
+00:03:27,988 --> 00:03:33,454
+b bình cộng c bình trừ 2bc cos A. Định lý Sin phát biểu tỷ số
+
+35
+00:03:33,554 --> 00:03:38,654
+a trên sin A bằng b trên sin B bằng c trên sin C bằng 2R.
+
+36
+00:03:40,720 --> 00:03:46,326
+Về diện tích tam giác ABC: Ta có công thức 1 phần 2 tích hai cạnh
+
+37
+00:03:46,426 --> 00:03:52,120
+nhân sin góc kẹp giữa. Thay sin A bằng a trên 2R ta được công thức
+
+38
+00:03:52,220 --> 00:03:57,212
+S bằng abc trên 4R. Công thức S bằng p nhân r với p là nửa
+
+39
+00:03:57,312 --> 00:04:03,094
+chu vi giúp tính bán kính đường tròn nội tiếp r bằng S trên p. Công
+
+40
+00:04:03,194 --> 00:04:09,591
+thức Heron tính diện tích khi biết 3 cạnh và công thức đường trung tuyến m
+
+41
+00:04:09,691 --> 00:04:14,508
+a bình bằng b bình cộng c bình trên 2 trừ a bình trên 4.
+
+42
+00:04:16,586 --> 00:04:25,577
+Câu 1: Áp dụng định lý Cosin tính cạnh AB. Ta có AB bình bằng BC bình cộng
+
+43
+00:04:25,677 --> 00:04:33,807
+AC bình trừ 2 BC nhân AC nhân cos C. Thay BC bằng 12, AC bằng 15 và
+
+44
+00:04:33,907 --> 00:04:42,652
+cos 60 độ bằng 1 phần 2: AB bình bằng 144 cộng 225 trừ 180 bằng 189. Rút
+
+45
+00:04:42,752 --> 00:04:49,654
+căn AB bằng căn 189 bằng 3 căn 7. Do đó ta chọn đáp án B.
+

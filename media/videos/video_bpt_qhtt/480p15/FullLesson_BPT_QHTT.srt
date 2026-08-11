@@ -1,0 +1,32 @@
+1
+00:00:00,000 --> 00:00:03,356
+Chào mừng các em đến với bài học Bất phương trình
+
+2
+00:00:03,456 --> 00:00:06,812
+bậc nhất hai ẩn và Bài toán Quy hoạch tuyến tính.
+
+3
+00:00:06,866 --> 00:00:11,758
+Miền nghiệm của hệ bất phương trình bậc nhất hai ẩn là một đa giác
+
+4
+00:00:11,858 --> 00:00:16,297
+lồi. Giá trị lớn nhất hoặc nhỏ nhất của biểu thức F bằng a x
+
+5
+00:00:16,397 --> 00:00:20,230
+cộng b y luôn đạt được tại các đỉnh của đa giác này.
+
+6
+00:00:21,733 --> 00:00:27,970
+Câu 1: Thay trực tiếp cặp số x bằng 1 và y bằng 1 vào biểu thức x
+
+7
+00:00:28,070 --> 00:00:34,308
+trừ 2y cộng 3: 1 trừ 2 cộng 3 bằng 2 lớn hơn 0, là một khẳng định
+
+8
+00:00:34,408 --> 00:00:41,913
+đúng. Như vậy cặp số (1; 1) thỏa mãn bất phương trình. Chúng ta chọn đáp án A.
+

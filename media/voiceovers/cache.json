@@ -70,5 +70,851 @@
     },
     "original_audio": "de-f-x-la-tam-thuc-bac-hai-thi-he-so-a-phai-khac-0-68b80daf.mp3",
     "final_audio": "de-f-x-la-tam-thuc-bac-hai-thi-he-so-a-phai-khac-0-68b80daf.mp3"
+  },
+  {
+    "input_text": "Ch\u00e0o m\u1eebng c\u00e1c em \u0111\u1ebfn v\u1edbi b\u00e0i h\u1ecdc Ch\u1ee7 \u0111\u1ec1 4: Tam th\u1ee9c b\u1eadc hai v\u00e0 H\u00e0m s\u1ed1 b\u1eadc hai.",
+    "input_data": {
+      "input_text": "Ch\u00e0o m\u1eebng c\u00e1c em \u0111\u1ebfn v\u1edbi b\u00e0i h\u1ecdc Ch\u1ee7 \u0111\u1ec1 4: Tam th\u1ee9c b\u1eadc hai v\u00e0 H\u00e0m s\u1ed1 b\u1eadc hai.",
+      "service": "gtts"
+    },
+    "original_audio": "chao-mung-cac-em-den-voi-bai-hoc-chu-de-4-tam-thuc-30ab31e9.mp3",
+    "final_audio": "chao-mung-cac-em-den-voi-bai-hoc-chu-de-4-tam-thuc-30ab31e9.mp3"
+  },
+  {
+    "input_text": "H\u00e0m s\u1ed1 b\u1eadc hai l\u00e0 h\u00e0m s\u1ed1 \u0111\u01b0\u1ee3c cho b\u1edfi c\u00f4ng th\u1ee9c y b\u1eb1ng a x b\u00ecnh c\u1ed9ng b x c\u1ed9ng c v\u1edbi a kh\u00e1c 0. T\u1eadp x\u00e1c \u0111\u1ecbnh l\u00e0 R.",
+    "input_data": {
+      "input_text": "H\u00e0m s\u1ed1 b\u1eadc hai l\u00e0 h\u00e0m s\u1ed1 \u0111\u01b0\u1ee3c cho b\u1edfi c\u00f4ng th\u1ee9c y b\u1eb1ng a x b\u00ecnh c\u1ed9ng b x c\u1ed9ng c v\u1edbi a kh\u00e1c 0. T\u1eadp x\u00e1c \u0111\u1ecbnh l\u00e0 R.",
+      "service": "gtts"
+    },
+    "original_audio": "ham-so-bac-hai-la-ham-so-duoc-cho-boi-cong-thuc-y-cede4e3b.mp3",
+    "final_audio": "ham-so-bac-hai-la-ham-so-duoc-cho-boi-cong-thuc-y-cede4e3b.mp3"
+  },
+  {
+    "input_text": "\u0110\u1ed3 th\u1ecb h\u00e0m s\u1ed1 l\u00e0 m\u1ed9t \u0111\u01b0\u1eddng Parabol c\u00f3 \u0111\u1ec9nh I v\u00e0 tr\u1ee5c \u0111\u1ed1i x\u1ee9ng x b\u1eb1ng tr\u1eeb b tr\u00ean 2a. N\u1ebfu a l\u1edbn h\u01a1n 0 b\u1ec1 l\u00f5m quay l\u00ean, a nh\u1ecf h\u01a1n 0 b\u1ec1 l\u00f5m quay xu\u1ed1ng.",
+    "input_data": {
+      "input_text": "\u0110\u1ed3 th\u1ecb h\u00e0m s\u1ed1 l\u00e0 m\u1ed9t \u0111\u01b0\u1eddng Parabol c\u00f3 \u0111\u1ec9nh I v\u00e0 tr\u1ee5c \u0111\u1ed1i x\u1ee9ng x b\u1eb1ng tr\u1eeb b tr\u00ean 2a. N\u1ebfu a l\u1edbn h\u01a1n 0 b\u1ec1 l\u00f5m quay l\u00ean, a nh\u1ecf h\u01a1n 0 b\u1ec1 l\u00f5m quay xu\u1ed1ng.",
+      "service": "gtts"
+    },
+    "original_audio": "do-thi-ham-so-la-mot-duong-parabol-co-dinh-i-va-ee76356c.mp3",
+    "final_audio": "do-thi-ham-so-la-mot-duong-parabol-co-dinh-i-va-ee76356c.mp3"
+  },
+  {
+    "input_text": "Ch\u00e0o m\u1eebng c\u00e1c em \u0111\u1ebfn v\u1edbi b\u00e0i h\u1ecdc Ch\u1ee7 \u0111\u1ec1 4: Tam th\u1ee9c b\u1eadc hai v\u00e0 H\u00e0m s\u1ed1 b\u1eadc hai.",
+    "input_data": {
+      "input_text": "Ch\u00e0o m\u1eebng c\u00e1c em \u0111\u1ebfn v\u1edbi b\u00e0i h\u1ecdc Ch\u1ee7 \u0111\u1ec1 4: Tam th\u1ee9c b\u1eadc hai v\u00e0 H\u00e0m s\u1ed1 b\u1eadc hai.",
+      "service": "gtts"
+    },
+    "original_audio": "chao-mung-cac-em-den-voi-bai-hoc-chu-de-4-tam-thuc-30ab31e9.mp3",
+    "final_audio": "chao-mung-cac-em-den-voi-bai-hoc-chu-de-4-tam-thuc-30ab31e9.mp3"
+  },
+  {
+    "input_text": "H\u00e0m s\u1ed1 b\u1eadc hai l\u00e0 h\u00e0m s\u1ed1 \u0111\u01b0\u1ee3c cho b\u1edfi c\u00f4ng th\u1ee9c y b\u1eb1ng a x b\u00ecnh c\u1ed9ng b x c\u1ed9ng c v\u1edbi a kh\u00e1c 0. T\u1eadp x\u00e1c \u0111\u1ecbnh l\u00e0 R.",
+    "input_data": {
+      "input_text": "H\u00e0m s\u1ed1 b\u1eadc hai l\u00e0 h\u00e0m s\u1ed1 \u0111\u01b0\u1ee3c cho b\u1edfi c\u00f4ng th\u1ee9c y b\u1eb1ng a x b\u00ecnh c\u1ed9ng b x c\u1ed9ng c v\u1edbi a kh\u00e1c 0. T\u1eadp x\u00e1c \u0111\u1ecbnh l\u00e0 R.",
+      "service": "gtts"
+    },
+    "original_audio": "ham-so-bac-hai-la-ham-so-duoc-cho-boi-cong-thuc-y-cede4e3b.mp3",
+    "final_audio": "ham-so-bac-hai-la-ham-so-duoc-cho-boi-cong-thuc-y-cede4e3b.mp3"
+  },
+  {
+    "input_text": "\u0110\u1ed3 th\u1ecb h\u00e0m s\u1ed1 l\u00e0 m\u1ed9t \u0111\u01b0\u1eddng Parabol c\u00f3 \u0111\u1ec9nh I v\u00e0 tr\u1ee5c \u0111\u1ed1i x\u1ee9ng x b\u1eb1ng tr\u1eeb b tr\u00ean 2a. N\u1ebfu a l\u1edbn h\u01a1n 0 b\u1ec1 l\u00f5m quay l\u00ean, a nh\u1ecf h\u01a1n 0 b\u1ec1 l\u00f5m quay xu\u1ed1ng.",
+    "input_data": {
+      "input_text": "\u0110\u1ed3 th\u1ecb h\u00e0m s\u1ed1 l\u00e0 m\u1ed9t \u0111\u01b0\u1eddng Parabol c\u00f3 \u0111\u1ec9nh I v\u00e0 tr\u1ee5c \u0111\u1ed1i x\u1ee9ng x b\u1eb1ng tr\u1eeb b tr\u00ean 2a. N\u1ebfu a l\u1edbn h\u01a1n 0 b\u1ec1 l\u00f5m quay l\u00ean, a nh\u1ecf h\u01a1n 0 b\u1ec1 l\u00f5m quay xu\u1ed1ng.",
+      "service": "gtts"
+    },
+    "original_audio": "do-thi-ham-so-la-mot-duong-parabol-co-dinh-i-va-ee76356c.mp3",
+    "final_audio": "do-thi-ham-so-la-mot-duong-parabol-co-dinh-i-va-ee76356c.mp3"
+  },
+  {
+    "input_text": "B\u00e2y gi\u1edd ch\u00fang ta c\u00f9ng h\u1ecdc quy t\u1eafc x\u00e9t d\u1ea5u c\u1ee7a tam th\u1ee9c b\u1eadc hai f(x) b\u1eb1ng a x b\u00ecnh c\u1ed9ng b x c\u1ed9ng c.",
+    "input_data": {
+      "input_text": "B\u00e2y gi\u1edd ch\u00fang ta c\u00f9ng h\u1ecdc quy t\u1eafc x\u00e9t d\u1ea5u c\u1ee7a tam th\u1ee9c b\u1eadc hai f(x) b\u1eb1ng a x b\u00ecnh c\u1ed9ng b x c\u1ed9ng c.",
+      "service": "gtts"
+    },
+    "original_audio": "bay-gio-chung-ta-cung-hoc-quy-tac-xet-dau-cua-tam-ceff3986.mp3",
+    "final_audio": "bay-gio-chung-ta-cung-hoc-quy-tac-xet-dau-cua-tam-ceff3986.mp3"
+  },
+  {
+    "input_text": "N\u1ebfu Delta nh\u1ecf h\u01a1n 0, f x lu\u00f4n c\u00f9ng d\u1ea5u v\u1edbi h\u1ec7 s\u1ed1 a. N\u1ebfu Delta b\u1eb1ng 0, f x c\u00f9ng d\u1ea5u v\u1edbi a tr\u1eeb \u0111i\u1ec3m nghi\u1ec7m k\u00e9p. N\u1ebfu Delta l\u1edbn h\u01a1n 0, f x c\u00f3 hai nghi\u1ec7m x1 v\u00e0 x2, quy t\u1eafc x\u00e9t d\u1ea5u l\u00e0 trong tr\u00e1i ngo\u00e0i c\u00f9ng.",
+    "input_data": {
+      "input_text": "N\u1ebfu Delta nh\u1ecf h\u01a1n 0, f x lu\u00f4n c\u00f9ng d\u1ea5u v\u1edbi h\u1ec7 s\u1ed1 a. N\u1ebfu Delta b\u1eb1ng 0, f x c\u00f9ng d\u1ea5u v\u1edbi a tr\u1eeb \u0111i\u1ec3m nghi\u1ec7m k\u00e9p. N\u1ebfu Delta l\u1edbn h\u01a1n 0, f x c\u00f3 hai nghi\u1ec7m x1 v\u00e0 x2, quy t\u1eafc x\u00e9t d\u1ea5u l\u00e0 trong tr\u00e1i ngo\u00e0i c\u00f9ng.",
+      "service": "gtts"
+    },
+    "original_audio": "neu-delta-nho-hon-0-f-x-luon-cung-dau-voi-he-so-a-66411092.mp3",
+    "final_audio": "neu-delta-nho-hon-0-f-x-luon-cung-dau-voi-he-so-a-66411092.mp3"
+  },
+  {
+    "input_text": "T\u1ee9c l\u00e0: Trong kho\u1ea3ng hai nghi\u1ec7m x1 x2 th\u00ec f x tr\u00e1i d\u1ea5u v\u1edbi a; ngo\u00e0i kho\u1ea3ng hai nghi\u1ec7m th\u00ec f x c\u00f9ng d\u1ea5u v\u1edbi a.",
+    "input_data": {
+      "input_text": "T\u1ee9c l\u00e0: Trong kho\u1ea3ng hai nghi\u1ec7m x1 x2 th\u00ec f x tr\u00e1i d\u1ea5u v\u1edbi a; ngo\u00e0i kho\u1ea3ng hai nghi\u1ec7m th\u00ec f x c\u00f9ng d\u1ea5u v\u1edbi a.",
+      "service": "gtts"
+    },
+    "original_audio": "tuc-la-trong-khoang-hai-nghiem-x1-x2-thi-f-x-trai-2159794f.mp3",
+    "final_audio": "tuc-la-trong-khoang-hai-nghiem-x1-x2-thi-f-x-trai-2159794f.mp3"
+  },
+  {
+    "input_text": "C\u00e2u 1: Tam th\u1ee9c b\u1eadc hai l\u00e0 bi\u1ec3u th\u1ee9c c\u00f3 d\u1ea1ng y b\u1eb1ng a x b\u00ecnh c\u1ed9ng b x c\u1ed9ng c v\u1edbi a kh\u00e1c 0. Do \u0111\u00f3 y b\u1eb1ng x b\u00ecnh l\u00e0 tam th\u1ee9c b\u1eadc hai. Ch\u1ecdn C.",
+    "input_data": {
+      "input_text": "C\u00e2u 1: Tam th\u1ee9c b\u1eadc hai l\u00e0 bi\u1ec3u th\u1ee9c c\u00f3 d\u1ea1ng y b\u1eb1ng a x b\u00ecnh c\u1ed9ng b x c\u1ed9ng c v\u1edbi a kh\u00e1c 0. Do \u0111\u00f3 y b\u1eb1ng x b\u00ecnh l\u00e0 tam th\u1ee9c b\u1eadc hai. Ch\u1ecdn C.",
+      "service": "gtts"
+    },
+    "original_audio": "cau-1-tam-thuc-bac-hai-la-bieu-thuc-co-dang-y-bang-ad3aa771.mp3",
+    "final_audio": "cau-1-tam-thuc-bac-hai-la-bieu-thuc-co-dang-y-bang-ad3aa771.mp3"
+  },
+  {
+    "input_text": "C\u00e2u 2: V\u1edbi m b\u1ea5t k\u1ef3, bi\u1ec3u th\u1ee9c y b\u1eb1ng x b\u00ecnh c\u1ed9ng m lu\u00f4n c\u00f3 h\u1ec7 s\u1ed1 a b\u1eb1ng 1 kh\u00e1c 0 n\u00ean l\u00e0 tam th\u1ee9c b\u1eadc hai. Ch\u1ecdn D.",
+    "input_data": {
+      "input_text": "C\u00e2u 2: V\u1edbi m b\u1ea5t k\u1ef3, bi\u1ec3u th\u1ee9c y b\u1eb1ng x b\u00ecnh c\u1ed9ng m lu\u00f4n c\u00f3 h\u1ec7 s\u1ed1 a b\u1eb1ng 1 kh\u00e1c 0 n\u00ean l\u00e0 tam th\u1ee9c b\u1eadc hai. Ch\u1ecdn D.",
+      "service": "gtts"
+    },
+    "original_audio": "cau-2-voi-m-bat-ky-bieu-thuc-y-bang-x-binh-cong-m-472bac35.mp3",
+    "final_audio": "cau-2-voi-m-bat-ky-bieu-thuc-y-bang-x-binh-cong-m-472bac35.mp3"
+  },
+  {
+    "input_text": "C\u00e2u 3: V\u00ec m b\u00ecnh c\u1ed9ng 1 lu\u00f4n l\u1edbn h\u01a1n ho\u1eb7c b\u1eb1ng 1 n\u00ean h\u1ec7 s\u1ed1 a lu\u00f4n kh\u00e1c 0 v\u1edbi m\u1ecdi m. Ch\u1ecdn C.",
+    "input_data": {
+      "input_text": "C\u00e2u 3: V\u00ec m b\u00ecnh c\u1ed9ng 1 lu\u00f4n l\u1edbn h\u01a1n ho\u1eb7c b\u1eb1ng 1 n\u00ean h\u1ec7 s\u1ed1 a lu\u00f4n kh\u00e1c 0 v\u1edbi m\u1ecdi m. Ch\u1ecdn C.",
+      "service": "gtts"
+    },
+    "original_audio": "cau-3-vi-m-binh-cong-1-luon-lon-hon-hoac-bang-1-13132983.mp3",
+    "final_audio": "cau-3-vi-m-binh-cong-1-luon-lon-hon-hoac-bang-1-13132983.mp3"
+  },
+  {
+    "input_text": "C\u00e2u 4: \u0110i\u1ec1u ki\u1ec7n \u0111\u1ec3 f x l\u00e0 tam th\u1ee9c b\u1eadc hai l\u00e0 h\u1ec7 s\u1ed1 a b\u1eb1ng m tr\u1eeb 2 ph\u1ea3i kh\u00e1c 0, t\u01b0\u01a1ng \u0111\u01b0\u01a1ng m kh\u00e1c 2. Ch\u1ecdn C.",
+    "input_data": {
+      "input_text": "C\u00e2u 4: \u0110i\u1ec1u ki\u1ec7n \u0111\u1ec3 f x l\u00e0 tam th\u1ee9c b\u1eadc hai l\u00e0 h\u1ec7 s\u1ed1 a b\u1eb1ng m tr\u1eeb 2 ph\u1ea3i kh\u00e1c 0, t\u01b0\u01a1ng \u0111\u01b0\u01a1ng m kh\u00e1c 2. Ch\u1ecdn C.",
+      "service": "gtts"
+    },
+    "original_audio": "cau-4-dieu-kien-de-f-x-la-tam-thuc-bac-hai-la-he-592aaedf.mp3",
+    "final_audio": "cau-4-dieu-kien-de-f-x-la-tam-thuc-bac-hai-la-he-592aaedf.mp3"
+  },
+  {
+    "input_text": "C\u00e2u 5: \u0110\u1ed3 th\u1ecb Parabol n\u1eb1m ph\u00eda d\u01b0\u1edbi tr\u1ee5c ho\u00e0nh tr\u00ean kho\u1ea3ng 1 \u0111\u1ebfn 2, n\u00ean f x nh\u1ecf h\u01a1n 0 v\u1edbi m\u1ecdi x thu\u1ed9c kho\u1ea3ng 1 \u0111\u1ebfn 2. Ch\u1ecdn D.",
+    "input_data": {
+      "input_text": "C\u00e2u 5: \u0110\u1ed3 th\u1ecb Parabol n\u1eb1m ph\u00eda d\u01b0\u1edbi tr\u1ee5c ho\u00e0nh tr\u00ean kho\u1ea3ng 1 \u0111\u1ebfn 2, n\u00ean f x nh\u1ecf h\u01a1n 0 v\u1edbi m\u1ecdi x thu\u1ed9c kho\u1ea3ng 1 \u0111\u1ebfn 2. Ch\u1ecdn D.",
+      "service": "gtts"
+    },
+    "original_audio": "cau-5-do-thi-parabol-nam-phia-duoi-truc-hoanh-tren-b040fc19.mp3",
+    "final_audio": "cau-5-do-thi-parabol-nam-phia-duoi-truc-hoanh-tren-b040fc19.mp3"
+  },
+  {
+    "input_text": "C\u00e2u 6: Tam th\u1ee9c c\u00f3 2 nghi\u1ec7m l\u00e0 0 v\u00e0 4, h\u1ec7 s\u1ed1 a l\u1edbn h\u01a1n 0. Do \u0111\u00f3 tam th\u1ee9c l\u00e0 y b\u1eb1ng x b\u00ecnh tr\u1eeb 4x. Ch\u1ecdn C.",
+    "input_data": {
+      "input_text": "C\u00e2u 6: Tam th\u1ee9c c\u00f3 2 nghi\u1ec7m l\u00e0 0 v\u00e0 4, h\u1ec7 s\u1ed1 a l\u1edbn h\u01a1n 0. Do \u0111\u00f3 tam th\u1ee9c l\u00e0 y b\u1eb1ng x b\u00ecnh tr\u1eeb 4x. Ch\u1ecdn C.",
+      "service": "gtts"
+    },
+    "original_audio": "cau-6-tam-thuc-co-2-nghiem-la-0-va-4-he-so-a-lon-584341b7.mp3",
+    "final_audio": "cau-6-tam-thuc-co-2-nghiem-la-0-va-4-he-so-a-lon-584341b7.mp3"
+  },
+  {
+    "input_text": "C\u00e2u 7: Tam th\u1ee9c c\u00f3 2 nghi\u1ec7m 0 v\u00e0 2, mang d\u1ea5u d\u01b0\u01a1ng trong kho\u1ea3ng hai nghi\u1ec7m n\u00ean h\u1ec7 s\u1ed1 a nh\u1ecf h\u01a1n 0. \u0110\u00f3 l\u00e0 y b\u1eb1ng tr\u1eeb x b\u00ecnh c\u1ed9ng 2x. Ch\u1ecdn B.",
+    "input_data": {
+      "input_text": "C\u00e2u 7: Tam th\u1ee9c c\u00f3 2 nghi\u1ec7m 0 v\u00e0 2, mang d\u1ea5u d\u01b0\u01a1ng trong kho\u1ea3ng hai nghi\u1ec7m n\u00ean h\u1ec7 s\u1ed1 a nh\u1ecf h\u01a1n 0. \u0110\u00f3 l\u00e0 y b\u1eb1ng tr\u1eeb x b\u00ecnh c\u1ed9ng 2x. Ch\u1ecdn B.",
+      "service": "gtts"
+    },
+    "original_audio": "cau-7-tam-thuc-co-2-nghiem-0-va-2-mang-dau-duong-a31471e1.mp3",
+    "final_audio": "cau-7-tam-thuc-co-2-nghiem-0-va-2-mang-dau-duong-a31471e1.mp3"
+  },
+  {
+    "input_text": "C\u00e2u 8 v\u00e0 9: Tam th\u1ee9c x b\u00ecnh tr\u1eeb 3x c\u1ed9ng 2 c\u00f3 hai nghi\u1ec7m l\u00e0 1 v\u00e0 2. Trong kho\u1ea3ng 1 \u0111\u1ebfn 2 f x \u00e2m, ngo\u00e0i kho\u1ea3ng f x d\u01b0\u01a1ng. Kh\u1eb3ng \u0111\u1ecbnh sai \u1edf c\u00e2u 9 l\u00e0 C.",
+    "input_data": {
+      "input_text": "C\u00e2u 8 v\u00e0 9: Tam th\u1ee9c x b\u00ecnh tr\u1eeb 3x c\u1ed9ng 2 c\u00f3 hai nghi\u1ec7m l\u00e0 1 v\u00e0 2. Trong kho\u1ea3ng 1 \u0111\u1ebfn 2 f x \u00e2m, ngo\u00e0i kho\u1ea3ng f x d\u01b0\u01a1ng. Kh\u1eb3ng \u0111\u1ecbnh sai \u1edf c\u00e2u 9 l\u00e0 C.",
+      "service": "gtts"
+    },
+    "original_audio": "cau-8-va-9-tam-thuc-x-binh-tru-3x-cong-2-co-hai-a1798d7a.mp3",
+    "final_audio": "cau-8-va-9-tam-thuc-x-binh-tru-3x-cong-2-co-hai-a1798d7a.mp3"
+  },
+  {
+    "input_text": "C\u00e2u 10: y c\u00f3 nghi\u1ec7m 0 v\u00e0 2, a nh\u1ecf h\u01a1n 0. Do \u0111\u00f3 y \u00e2m ngo\u00e0i kho\u1ea3ng hai nghi\u1ec7m, t\u1ee9c x thu\u1ed9c tr\u1eeb v\u00f4 c\u1ef1c \u0111\u1ebfn 0 h\u1ee3p v\u1edbi 2 \u0111\u1ebfn c\u1ed9ng v\u00f4 c\u1ef1c. Ch\u1ecdn B.",
+    "input_data": {
+      "input_text": "C\u00e2u 10: y c\u00f3 nghi\u1ec7m 0 v\u00e0 2, a nh\u1ecf h\u01a1n 0. Do \u0111\u00f3 y \u00e2m ngo\u00e0i kho\u1ea3ng hai nghi\u1ec7m, t\u1ee9c x thu\u1ed9c tr\u1eeb v\u00f4 c\u1ef1c \u0111\u1ebfn 0 h\u1ee3p v\u1edbi 2 \u0111\u1ebfn c\u1ed9ng v\u00f4 c\u1ef1c. Ch\u1ecdn B.",
+      "service": "gtts"
+    },
+    "original_audio": "cau-10-y-co-nghiem-0-va-2-a-nho-hon-0-do-do-y-am-eff1962e.mp3",
+    "final_audio": "cau-10-y-co-nghiem-0-va-2-a-nho-hon-0-do-do-y-am-eff1962e.mp3"
+  },
+  {
+    "input_text": "C\u00e2u 11: f x b\u1eb1ng x b\u00ecnh tr\u1eeb 2x d\u01b0\u01a1ng ngo\u00e0i kho\u1ea3ng hai nghi\u1ec7m 0 v\u00e0 2. Ch\u1ecdn B.",
+    "input_data": {
+      "input_text": "C\u00e2u 11: f x b\u1eb1ng x b\u00ecnh tr\u1eeb 2x d\u01b0\u01a1ng ngo\u00e0i kho\u1ea3ng hai nghi\u1ec7m 0 v\u00e0 2. Ch\u1ecdn B.",
+      "service": "gtts"
+    },
+    "original_audio": "cau-11-f-x-bang-x-binh-tru-2x-duong-ngoai-khoang-fb0bc716.mp3",
+    "final_audio": "cau-11-f-x-bang-x-binh-tru-2x-duong-ngoai-khoang-fb0bc716.mp3"
+  },
+  {
+    "input_text": "C\u00e2u 12 v\u00e0 13: Tam th\u1ee9c kh\u00f4ng \u0111\u1ed5i d\u1ea5u tr\u00ean R khi Delta nh\u1ecf h\u01a1n 0. Tam th\u1ee9c lu\u00f4n \u00e2m ch\u1ecdn C \u1edf c\u00e2u 12, lu\u00f4n d\u01b0\u01a1ng ch\u1ecdn A \u1edf c\u00e2u 13.",
+    "input_data": {
+      "input_text": "C\u00e2u 12 v\u00e0 13: Tam th\u1ee9c kh\u00f4ng \u0111\u1ed5i d\u1ea5u tr\u00ean R khi Delta nh\u1ecf h\u01a1n 0. Tam th\u1ee9c lu\u00f4n \u00e2m ch\u1ecdn C \u1edf c\u00e2u 12, lu\u00f4n d\u01b0\u01a1ng ch\u1ecdn A \u1edf c\u00e2u 13.",
+      "service": "gtts"
+    },
+    "original_audio": "cau-12-va-13-tam-thuc-khong-doi-dau-tren-r-khi-ea157ef3.mp3",
+    "final_audio": "cau-12-va-13-tam-thuc-khong-doi-dau-tren-r-khi-ea157ef3.mp3"
+  },
+  {
+    "input_text": "T\u1eeb c\u00e2u 14 \u0111\u1ebfn 17 x\u00e9t b\u1ea5t ph\u01b0\u01a1ng tr\u00ecnh x b\u00ecnh tr\u1eeb 2x tr\u1eeb 3. Ta c\u00f3 hai nghi\u1ec7m l\u00e0 tr\u1eeb 1 v\u00e0 3, h\u1ec7 s\u1ed1 a d\u01b0\u01a1ng. Suy ra nghi\u1ec7m f x d\u01b0\u01a1ng ngo\u00e0i kho\u1ea3ng, f x \u00e2m trong kho\u1ea3ng.",
+    "input_data": {
+      "input_text": "T\u1eeb c\u00e2u 14 \u0111\u1ebfn 17 x\u00e9t b\u1ea5t ph\u01b0\u01a1ng tr\u00ecnh x b\u00ecnh tr\u1eeb 2x tr\u1eeb 3. Ta c\u00f3 hai nghi\u1ec7m l\u00e0 tr\u1eeb 1 v\u00e0 3, h\u1ec7 s\u1ed1 a d\u01b0\u01a1ng. Suy ra nghi\u1ec7m f x d\u01b0\u01a1ng ngo\u00e0i kho\u1ea3ng, f x \u00e2m trong kho\u1ea3ng.",
+      "service": "gtts"
+    },
+    "original_audio": "tu-cau-14-den-17-xet-bat-phuong-trinh-x-binh-tru-42e8ba2c.mp3",
+    "final_audio": "tu-cau-14-den-17-xet-bat-phuong-trinh-x-binh-tru-42e8ba2c.mp3"
+  },
+  {
+    "input_text": "C\u00e1c c\u00e2u 18 \u0111\u1ebfn 20: Tam th\u1ee9c x b\u00ecnh tr\u1eeb x c\u1ed9ng 3 c\u00f3 Delta \u00e2m v\u00e0 a d\u01b0\u01a1ng n\u00ean lu\u00f4n d\u01b0\u01a1ng v\u1edbi m\u1ecdi x thu\u1ed9c R. Do \u0111\u00f3 b\u1ea5t ph\u01b0\u01a1ng tr\u00ecnh l\u1edbn h\u01a1n 0 c\u00f3 t\u1eadp nghi\u1ec7m l\u00e0 R, b\u1ea5t ph\u01b0\u01a1ng tr\u00ecnh nh\u1ecf h\u01a1n 0 v\u00f4 nghi\u1ec7m. Ch\u1ecdn A cho c\u00e2u 20.",
+    "input_data": {
+      "input_text": "C\u00e1c c\u00e2u 18 \u0111\u1ebfn 20: Tam th\u1ee9c x b\u00ecnh tr\u1eeb x c\u1ed9ng 3 c\u00f3 Delta \u00e2m v\u00e0 a d\u01b0\u01a1ng n\u00ean lu\u00f4n d\u01b0\u01a1ng v\u1edbi m\u1ecdi x thu\u1ed9c R. Do \u0111\u00f3 b\u1ea5t ph\u01b0\u01a1ng tr\u00ecnh l\u1edbn h\u01a1n 0 c\u00f3 t\u1eadp nghi\u1ec7m l\u00e0 R, b\u1ea5t ph\u01b0\u01a1ng tr\u00ecnh nh\u1ecf h\u01a1n 0 v\u00f4 nghi\u1ec7m. Ch\u1ecdn A cho c\u00e2u 20.",
+      "service": "gtts"
+    },
+    "original_audio": "cac-cau-18-den-20-tam-thuc-x-binh-tru-x-cong-3-co-1259184f.mp3",
+    "final_audio": "cac-cau-18-den-20-tam-thuc-x-binh-tru-x-cong-3-co-1259184f.mp3"
+  },
+  {
+    "input_text": "Ch\u00e0o m\u1eebng c\u00e1c em \u0111\u1ebfn v\u1edbi b\u00e0i h\u1ecdc Ch\u1ee7 \u0111\u1ec1 4: Tam th\u1ee9c b\u1eadc hai v\u00e0 H\u00e0m s\u1ed1 b\u1eadc hai.",
+    "input_data": {
+      "input_text": "Ch\u00e0o m\u1eebng c\u00e1c em \u0111\u1ebfn v\u1edbi b\u00e0i h\u1ecdc Ch\u1ee7 \u0111\u1ec1 4: Tam th\u1ee9c b\u1eadc hai v\u00e0 H\u00e0m s\u1ed1 b\u1eadc hai.",
+      "service": "gtts"
+    },
+    "original_audio": "chao-mung-cac-em-den-voi-bai-hoc-chu-de-4-tam-thuc-30ab31e9.mp3",
+    "final_audio": "chao-mung-cac-em-den-voi-bai-hoc-chu-de-4-tam-thuc-30ab31e9.mp3"
+  },
+  {
+    "input_text": "H\u00e0m s\u1ed1 b\u1eadc hai c\u00f3 d\u1ea1ng y b\u1eb1ng a x b\u00ecnh c\u1ed9ng b x c\u1ed9ng c v\u1edbi a kh\u00e1c 0. T\u1eadp x\u00e1c \u0111\u1ecbnh D b\u1eb1ng R.",
+    "input_data": {
+      "input_text": "H\u00e0m s\u1ed1 b\u1eadc hai c\u00f3 d\u1ea1ng y b\u1eb1ng a x b\u00ecnh c\u1ed9ng b x c\u1ed9ng c v\u1edbi a kh\u00e1c 0. T\u1eadp x\u00e1c \u0111\u1ecbnh D b\u1eb1ng R.",
+      "service": "gtts"
+    },
+    "original_audio": "ham-so-bac-hai-co-dang-y-bang-a-x-binh-cong-b-x-9b84d62d.mp3",
+    "final_audio": "ham-so-bac-hai-co-dang-y-bang-a-x-binh-cong-b-x-9b84d62d.mp3"
+  },
+  {
+    "input_text": "\u0110\u1ed3 th\u1ecb h\u00e0m s\u1ed1 l\u00e0 m\u1ed9t \u0111\u01b0\u1eddng Parabol c\u00f3 \u0111\u1ec9nh I v\u00e0 tr\u1ee5c \u0111\u1ed1i x\u1ee9ng x b\u1eb1ng tr\u1eeb b tr\u00ean 2a. N\u1ebfu a l\u1edbn h\u01a1n 0 b\u1ec1 l\u00f5m quay l\u00ean, a nh\u1ecf h\u01a1n 0 b\u1ec1 l\u00f5m quay xu\u1ed1ng.",
+    "input_data": {
+      "input_text": "\u0110\u1ed3 th\u1ecb h\u00e0m s\u1ed1 l\u00e0 m\u1ed9t \u0111\u01b0\u1eddng Parabol c\u00f3 \u0111\u1ec9nh I v\u00e0 tr\u1ee5c \u0111\u1ed1i x\u1ee9ng x b\u1eb1ng tr\u1eeb b tr\u00ean 2a. N\u1ebfu a l\u1edbn h\u01a1n 0 b\u1ec1 l\u00f5m quay l\u00ean, a nh\u1ecf h\u01a1n 0 b\u1ec1 l\u00f5m quay xu\u1ed1ng.",
+      "service": "gtts"
+    },
+    "original_audio": "do-thi-ham-so-la-mot-duong-parabol-co-dinh-i-va-ee76356c.mp3",
+    "final_audio": "do-thi-ham-so-la-mot-duong-parabol-co-dinh-i-va-ee76356c.mp3"
+  },
+  {
+    "input_text": "\u0110\u00e2y l\u00e0 B\u1ea3ng bi\u1ebfn thi\u00ean chi ti\u1ebft. Khi a l\u1edbn h\u01a1n 0, f x \u0111i xu\u1ed1ng r\u1ed3i \u0111i l\u00ean. Khi a nh\u1ecf h\u01a1n 0, f x \u0111i l\u00ean r\u1ed3i \u0111i xu\u1ed1ng.",
+    "input_data": {
+      "input_text": "\u0110\u00e2y l\u00e0 B\u1ea3ng bi\u1ebfn thi\u00ean chi ti\u1ebft. Khi a l\u1edbn h\u01a1n 0, f x \u0111i xu\u1ed1ng r\u1ed3i \u0111i l\u00ean. Khi a nh\u1ecf h\u01a1n 0, f x \u0111i l\u00ean r\u1ed3i \u0111i xu\u1ed1ng.",
+      "service": "gtts"
+    },
+    "original_audio": "day-la-bang-bien-thien-chi-tiet-khi-a-lon-hon-0-f-3a8df120.mp3",
+    "final_audio": "day-la-bang-bien-thien-chi-tiet-khi-a-lon-hon-0-f-3a8df120.mp3"
+  },
+  {
+    "input_text": "\u0110\u1ed1i v\u1edbi quy t\u1eafc x\u00e9t d\u1ea5u tam th\u1ee9c b\u1eadc hai khi Delta l\u1edbn h\u01a1n 0: Trong kho\u1ea3ng hai nghi\u1ec7m x1 x2 th\u00ec f x tr\u00e1i d\u1ea5u v\u1edbi a; ngo\u00e0i kho\u1ea3ng hai nghi\u1ec7m th\u00ec f x c\u00f9ng d\u1ea5u v\u1edbi a, g\u1ecdi t\u1eaft l\u00e0 trong tr\u00e1i ngo\u00e0i c\u00f9ng.",
+    "input_data": {
+      "input_text": "\u0110\u1ed1i v\u1edbi quy t\u1eafc x\u00e9t d\u1ea5u tam th\u1ee9c b\u1eadc hai khi Delta l\u1edbn h\u01a1n 0: Trong kho\u1ea3ng hai nghi\u1ec7m x1 x2 th\u00ec f x tr\u00e1i d\u1ea5u v\u1edbi a; ngo\u00e0i kho\u1ea3ng hai nghi\u1ec7m th\u00ec f x c\u00f9ng d\u1ea5u v\u1edbi a, g\u1ecdi t\u1eaft l\u00e0 trong tr\u00e1i ngo\u00e0i c\u00f9ng.",
+      "service": "gtts"
+    },
+    "original_audio": "doi-voi-quy-tac-xet-dau-tam-thuc-bac-hai-khi-delta-e31b2add.mp3",
+    "final_audio": "doi-voi-quy-tac-xet-dau-tam-thuc-bac-hai-khi-delta-e31b2add.mp3"
+  },
+  {
+    "input_text": "C\u00e2u 1: Tam th\u1ee9c b\u1eadc hai l\u00e0 bi\u1ec3u th\u1ee9c d\u1ea1ng y b\u1eb1ng a x b\u00ecnh c\u1ed9ng b x c\u1ed9ng c v\u1edbi a kh\u00e1c 0. Ch\u1ecdn C.",
+    "input_data": {
+      "input_text": "C\u00e2u 1: Tam th\u1ee9c b\u1eadc hai l\u00e0 bi\u1ec3u th\u1ee9c d\u1ea1ng y b\u1eb1ng a x b\u00ecnh c\u1ed9ng b x c\u1ed9ng c v\u1edbi a kh\u00e1c 0. Ch\u1ecdn C.",
+      "service": "gtts"
+    },
+    "original_audio": "cau-1-tam-thuc-bac-hai-la-bieu-thuc-dang-y-bang-a-076bcee0.mp3",
+    "final_audio": "cau-1-tam-thuc-bac-hai-la-bieu-thuc-dang-y-bang-a-076bcee0.mp3"
+  },
+  {
+    "input_text": "C\u00e2u 2: Bi\u1ec3u th\u1ee9c y b\u1eb1ng x b\u00ecnh c\u1ed9ng m lu\u00f4n c\u00f3 a b\u1eb1ng 1 kh\u00e1c 0 v\u1edbi m\u1ecdi m. Ch\u1ecdn D.",
+    "input_data": {
+      "input_text": "C\u00e2u 2: Bi\u1ec3u th\u1ee9c y b\u1eb1ng x b\u00ecnh c\u1ed9ng m lu\u00f4n c\u00f3 a b\u1eb1ng 1 kh\u00e1c 0 v\u1edbi m\u1ecdi m. Ch\u1ecdn D.",
+      "service": "gtts"
+    },
+    "original_audio": "cau-2-bieu-thuc-y-bang-x-binh-cong-m-luon-co-a-f77011c4.mp3",
+    "final_audio": "cau-2-bieu-thuc-y-bang-x-binh-cong-m-luon-co-a-f77011c4.mp3"
+  },
+  {
+    "input_text": "C\u00e2u 3: V\u00ec m b\u00ecnh c\u1ed9ng 1 lu\u00f4n l\u1edbn h\u01a1n ho\u1eb7c b\u1eb1ng 1 n\u00ean h\u1ec7 s\u1ed1 a lu\u00f4n kh\u00e1c 0. Ch\u1ecdn C.",
+    "input_data": {
+      "input_text": "C\u00e2u 3: V\u00ec m b\u00ecnh c\u1ed9ng 1 lu\u00f4n l\u1edbn h\u01a1n ho\u1eb7c b\u1eb1ng 1 n\u00ean h\u1ec7 s\u1ed1 a lu\u00f4n kh\u00e1c 0. Ch\u1ecdn C.",
+      "service": "gtts"
+    },
+    "original_audio": "cau-3-vi-m-binh-cong-1-luon-lon-hon-hoac-bang-1-da80bb11.mp3",
+    "final_audio": "cau-3-vi-m-binh-cong-1-luon-lon-hon-hoac-bang-1-da80bb11.mp3"
+  },
+  {
+    "input_text": "C\u00e2u 4: \u0110i\u1ec1u ki\u1ec7n \u0111\u1ec3 f x l\u00e0 tam th\u1ee9c b\u1eadc hai l\u00e0 h\u1ec7 s\u1ed1 a b\u1eb1ng m tr\u1eeb 2 kh\u00e1c 0, t\u1ee9c m kh\u00e1c 2. Ch\u1ecdn C.",
+    "input_data": {
+      "input_text": "C\u00e2u 4: \u0110i\u1ec1u ki\u1ec7n \u0111\u1ec3 f x l\u00e0 tam th\u1ee9c b\u1eadc hai l\u00e0 h\u1ec7 s\u1ed1 a b\u1eb1ng m tr\u1eeb 2 kh\u00e1c 0, t\u1ee9c m kh\u00e1c 2. Ch\u1ecdn C.",
+      "service": "gtts"
+    },
+    "original_audio": "cau-4-dieu-kien-de-f-x-la-tam-thuc-bac-hai-la-he-f7febd4a.mp3",
+    "final_audio": "cau-4-dieu-kien-de-f-x-la-tam-thuc-bac-hai-la-he-f7febd4a.mp3"
+  },
+  {
+    "input_text": "C\u00e2u 5: Quan s\u00e1t \u0111\u1ed3 th\u1ecb Parabol, ta th\u1ea5y trong kho\u1ea3ng x t\u1eeb 1 \u0111\u1ebfn 2, \u0111\u1ed3 th\u1ecb n\u1eb1m ho\u00e0n to\u00e0n ph\u00eda d\u01b0\u1edbi tr\u1ee5c ho\u00e0nh, t\u1ee9c l\u00e0 f x nh\u1ecf h\u01a1n 0 v\u1edbi m\u1ecdi x thu\u1ed9c kho\u1ea3ng 1 \u0111\u1ebfn 2. \u0110\u00e1p \u00e1n \u0111\u00fang l\u00e0 D.",
+    "input_data": {
+      "input_text": "C\u00e2u 5: Quan s\u00e1t \u0111\u1ed3 th\u1ecb Parabol, ta th\u1ea5y trong kho\u1ea3ng x t\u1eeb 1 \u0111\u1ebfn 2, \u0111\u1ed3 th\u1ecb n\u1eb1m ho\u00e0n to\u00e0n ph\u00eda d\u01b0\u1edbi tr\u1ee5c ho\u00e0nh, t\u1ee9c l\u00e0 f x nh\u1ecf h\u01a1n 0 v\u1edbi m\u1ecdi x thu\u1ed9c kho\u1ea3ng 1 \u0111\u1ebfn 2. \u0110\u00e1p \u00e1n \u0111\u00fang l\u00e0 D.",
+      "service": "gtts"
+    },
+    "original_audio": "cau-5-quan-sat-do-thi-parabol-ta-thay-trong-khoang-e47c3a07.mp3",
+    "final_audio": "cau-5-quan-sat-do-thi-parabol-ta-thay-trong-khoang-e47c3a07.mp3"
+  },
+  {
+    "input_text": "C\u00e2u 6: B\u1ea3ng x\u00e9t d\u1ea5u cho th\u1ea5y f x c\u00f3 2 nghi\u1ec7m l\u00e0 0 v\u00e0 4. Trong kho\u1ea3ng hai nghi\u1ec7m f x mang d\u1ea5u \u00e2m, t\u1ee9c tr\u00e1i d\u1ea5u v\u1edbi a, suy ra a l\u1edbn h\u01a1n 0. Tam th\u1ee9c th\u1ecfa m\u00e3n l\u00e0 y b\u1eb1ng x b\u00ecnh tr\u1eeb 4x. Ch\u1ecdn C.",
+    "input_data": {
+      "input_text": "C\u00e2u 6: B\u1ea3ng x\u00e9t d\u1ea5u cho th\u1ea5y f x c\u00f3 2 nghi\u1ec7m l\u00e0 0 v\u00e0 4. Trong kho\u1ea3ng hai nghi\u1ec7m f x mang d\u1ea5u \u00e2m, t\u1ee9c tr\u00e1i d\u1ea5u v\u1edbi a, suy ra a l\u1edbn h\u01a1n 0. Tam th\u1ee9c th\u1ecfa m\u00e3n l\u00e0 y b\u1eb1ng x b\u00ecnh tr\u1eeb 4x. Ch\u1ecdn C.",
+      "service": "gtts"
+    },
+    "original_audio": "cau-6-bang-xet-dau-cho-thay-f-x-co-2-nghiem-la-0-44ab6e08.mp3",
+    "final_audio": "cau-6-bang-xet-dau-cho-thay-f-x-co-2-nghiem-la-0-44ab6e08.mp3"
+  },
+  {
+    "input_text": "C\u00e2u 7: B\u1ea3ng x\u00e9t d\u1ea5u cho th\u1ea5y f x c\u00f3 2 nghi\u1ec7m l\u00e0 0 v\u00e0 2, mang d\u1ea5u d\u01b0\u01a1ng trong kho\u1ea3ng hai nghi\u1ec7m. Suy ra h\u1ec7 s\u1ed1 a nh\u1ecf h\u01a1n 0. \u0110\u00f3 l\u00e0 tam th\u1ee9c y b\u1eb1ng tr\u1eeb x b\u00ecnh c\u1ed9ng 2x. Ch\u1ecdn B.",
+    "input_data": {
+      "input_text": "C\u00e2u 7: B\u1ea3ng x\u00e9t d\u1ea5u cho th\u1ea5y f x c\u00f3 2 nghi\u1ec7m l\u00e0 0 v\u00e0 2, mang d\u1ea5u d\u01b0\u01a1ng trong kho\u1ea3ng hai nghi\u1ec7m. Suy ra h\u1ec7 s\u1ed1 a nh\u1ecf h\u01a1n 0. \u0110\u00f3 l\u00e0 tam th\u1ee9c y b\u1eb1ng tr\u1eeb x b\u00ecnh c\u1ed9ng 2x. Ch\u1ecdn B.",
+      "service": "gtts"
+    },
+    "original_audio": "cau-7-bang-xet-dau-cho-thay-f-x-co-2-nghiem-la-0-b885f631.mp3",
+    "final_audio": "cau-7-bang-xet-dau-cho-thay-f-x-co-2-nghiem-la-0-b885f631.mp3"
+  },
+  {
+    "input_text": "C\u00e2u 8 v\u00e0 9: Tam th\u1ee9c x b\u00ecnh tr\u1eeb 3x c\u1ed9ng 2 c\u00f3 hai nghi\u1ec7m l\u00e0 1 v\u00e0 2. Trong kho\u1ea3ng 1 \u0111\u1ebfn 2 f x \u00e2m, ngo\u00e0i kho\u1ea3ng f x d\u01b0\u01a1ng. Kh\u1eb3ng \u0111\u1ecbnh sai \u1edf c\u00e2u 9 l\u00e0 C.",
+    "input_data": {
+      "input_text": "C\u00e2u 8 v\u00e0 9: Tam th\u1ee9c x b\u00ecnh tr\u1eeb 3x c\u1ed9ng 2 c\u00f3 hai nghi\u1ec7m l\u00e0 1 v\u00e0 2. Trong kho\u1ea3ng 1 \u0111\u1ebfn 2 f x \u00e2m, ngo\u00e0i kho\u1ea3ng f x d\u01b0\u01a1ng. Kh\u1eb3ng \u0111\u1ecbnh sai \u1edf c\u00e2u 9 l\u00e0 C.",
+      "service": "gtts"
+    },
+    "original_audio": "cau-8-va-9-tam-thuc-x-binh-tru-3x-cong-2-co-hai-a1798d7a.mp3",
+    "final_audio": "cau-8-va-9-tam-thuc-x-binh-tru-3x-cong-2-co-hai-a1798d7a.mp3"
+  },
+  {
+    "input_text": "C\u00e2u 10: y c\u00f3 nghi\u1ec7m 0 v\u00e0 2, a nh\u1ecf h\u01a1n 0. Do \u0111\u00f3 y \u00e2m ngo\u00e0i kho\u1ea3ng hai nghi\u1ec7m, t\u1ee9c x thu\u1ed9c tr\u1eeb v\u00f4 c\u1ef1c \u0111\u1ebfn 0 h\u1ee3p v\u1edbi 2 \u0111\u1ebfn c\u1ed9ng v\u00f4 c\u1ef1c. Ch\u1ecdn B.",
+    "input_data": {
+      "input_text": "C\u00e2u 10: y c\u00f3 nghi\u1ec7m 0 v\u00e0 2, a nh\u1ecf h\u01a1n 0. Do \u0111\u00f3 y \u00e2m ngo\u00e0i kho\u1ea3ng hai nghi\u1ec7m, t\u1ee9c x thu\u1ed9c tr\u1eeb v\u00f4 c\u1ef1c \u0111\u1ebfn 0 h\u1ee3p v\u1edbi 2 \u0111\u1ebfn c\u1ed9ng v\u00f4 c\u1ef1c. Ch\u1ecdn B.",
+      "service": "gtts"
+    },
+    "original_audio": "cau-10-y-co-nghiem-0-va-2-a-nho-hon-0-do-do-y-am-eff1962e.mp3",
+    "final_audio": "cau-10-y-co-nghiem-0-va-2-a-nho-hon-0-do-do-y-am-eff1962e.mp3"
+  },
+  {
+    "input_text": "C\u00e2u 11: f x b\u1eb1ng x b\u00ecnh tr\u1eeb 2x d\u01b0\u01a1ng ngo\u00e0i kho\u1ea3ng hai nghi\u1ec7m 0 v\u00e0 2. Ch\u1ecdn B.",
+    "input_data": {
+      "input_text": "C\u00e2u 11: f x b\u1eb1ng x b\u00ecnh tr\u1eeb 2x d\u01b0\u01a1ng ngo\u00e0i kho\u1ea3ng hai nghi\u1ec7m 0 v\u00e0 2. Ch\u1ecdn B.",
+      "service": "gtts"
+    },
+    "original_audio": "cau-11-f-x-bang-x-binh-tru-2x-duong-ngoai-khoang-fb0bc716.mp3",
+    "final_audio": "cau-11-f-x-bang-x-binh-tru-2x-duong-ngoai-khoang-fb0bc716.mp3"
+  },
+  {
+    "input_text": "C\u00e2u 12 v\u00e0 13: Tam th\u1ee9c kh\u00f4ng \u0111\u1ed5i d\u1ea5u tr\u00ean R khi Delta nh\u1ecf h\u01a1n 0. Tam th\u1ee9c lu\u00f4n \u00e2m ch\u1ecdn C \u1edf c\u00e2u 12, lu\u00f4n d\u01b0\u01a1ng ch\u1ecdn A \u1edf c\u00e2u 13.",
+    "input_data": {
+      "input_text": "C\u00e2u 12 v\u00e0 13: Tam th\u1ee9c kh\u00f4ng \u0111\u1ed5i d\u1ea5u tr\u00ean R khi Delta nh\u1ecf h\u01a1n 0. Tam th\u1ee9c lu\u00f4n \u00e2m ch\u1ecdn C \u1edf c\u00e2u 12, lu\u00f4n d\u01b0\u01a1ng ch\u1ecdn A \u1edf c\u00e2u 13.",
+      "service": "gtts"
+    },
+    "original_audio": "cau-12-va-13-tam-thuc-khong-doi-dau-tren-r-khi-ea157ef3.mp3",
+    "final_audio": "cau-12-va-13-tam-thuc-khong-doi-dau-tren-r-khi-ea157ef3.mp3"
+  },
+  {
+    "input_text": "T\u1eeb c\u00e2u 14 \u0111\u1ebfn 17 x\u00e9t b\u1ea5t ph\u01b0\u01a1ng tr\u00ecnh x b\u00ecnh tr\u1eeb 2x tr\u1eeb 3. Ta c\u00f3 hai nghi\u1ec7m l\u00e0 tr\u1eeb 1 v\u00e0 3, h\u1ec7 s\u1ed1 a d\u01b0\u01a1ng. Suy ra nghi\u1ec7m f x d\u01b0\u01a1ng ngo\u00e0i kho\u1ea3ng, f x \u00e2m trong kho\u1ea3ng.",
+    "input_data": {
+      "input_text": "T\u1eeb c\u00e2u 14 \u0111\u1ebfn 17 x\u00e9t b\u1ea5t ph\u01b0\u01a1ng tr\u00ecnh x b\u00ecnh tr\u1eeb 2x tr\u1eeb 3. Ta c\u00f3 hai nghi\u1ec7m l\u00e0 tr\u1eeb 1 v\u00e0 3, h\u1ec7 s\u1ed1 a d\u01b0\u01a1ng. Suy ra nghi\u1ec7m f x d\u01b0\u01a1ng ngo\u00e0i kho\u1ea3ng, f x \u00e2m trong kho\u1ea3ng.",
+      "service": "gtts"
+    },
+    "original_audio": "tu-cau-14-den-17-xet-bat-phuong-trinh-x-binh-tru-42e8ba2c.mp3",
+    "final_audio": "tu-cau-14-den-17-xet-bat-phuong-trinh-x-binh-tru-42e8ba2c.mp3"
+  },
+  {
+    "input_text": "C\u00e1c c\u00e2u 18 \u0111\u1ebfn 20: Tam th\u1ee9c x b\u00ecnh tr\u1eeb x c\u1ed9ng 3 c\u00f3 Delta \u00e2m v\u00e0 a d\u01b0\u01a1ng n\u00ean lu\u00f4n d\u01b0\u01a1ng v\u1edbi m\u1ecdi x thu\u1ed9c R. Do \u0111\u00f3 b\u1ea5t ph\u01b0\u01a1ng tr\u00ecnh l\u1edbn h\u01a1n 0 c\u00f3 t\u1eadp nghi\u1ec7m l\u00e0 R, b\u1ea5t ph\u01b0\u01a1ng tr\u00ecnh nh\u1ecf h\u01a1n 0 v\u00f4 nghi\u1ec7m. Ch\u1ecdn A cho c\u00e2u 20.",
+    "input_data": {
+      "input_text": "C\u00e1c c\u00e2u 18 \u0111\u1ebfn 20: Tam th\u1ee9c x b\u00ecnh tr\u1eeb x c\u1ed9ng 3 c\u00f3 Delta \u00e2m v\u00e0 a d\u01b0\u01a1ng n\u00ean lu\u00f4n d\u01b0\u01a1ng v\u1edbi m\u1ecdi x thu\u1ed9c R. Do \u0111\u00f3 b\u1ea5t ph\u01b0\u01a1ng tr\u00ecnh l\u1edbn h\u01a1n 0 c\u00f3 t\u1eadp nghi\u1ec7m l\u00e0 R, b\u1ea5t ph\u01b0\u01a1ng tr\u00ecnh nh\u1ecf h\u01a1n 0 v\u00f4 nghi\u1ec7m. Ch\u1ecdn A cho c\u00e2u 20.",
+      "service": "gtts"
+    },
+    "original_audio": "cac-cau-18-den-20-tam-thuc-x-binh-tru-x-cong-3-co-1259184f.mp3",
+    "final_audio": "cac-cau-18-den-20-tam-thuc-x-binh-tru-x-cong-3-co-1259184f.mp3"
+  },
+  {
+    "input_text": "Ch\u00e0o m\u1eebng c\u00e1c em h\u1ecdc sinh \u0111\u1ebfn v\u1edbi B\u00e0i 1: T\u00ednh \u0111\u01a1n \u0111i\u1ec7u v\u00e0 c\u1ef1c tr\u1ecb c\u1ee7a h\u00e0m s\u1ed1 trong ch\u01b0\u01a1ng tr\u00ecnh \u0110\u1ea1i s\u1ed1 v\u00e0 Gi\u1ea3i t\u00edch 12.",
+    "input_data": {
+      "input_text": "Ch\u00e0o m\u1eebng c\u00e1c em h\u1ecdc sinh \u0111\u1ebfn v\u1edbi B\u00e0i 1: T\u00ednh \u0111\u01a1n \u0111i\u1ec7u v\u00e0 c\u1ef1c tr\u1ecb c\u1ee7a h\u00e0m s\u1ed1 trong ch\u01b0\u01a1ng tr\u00ecnh \u0110\u1ea1i s\u1ed1 v\u00e0 Gi\u1ea3i t\u00edch 12.",
+      "service": "gtts"
+    },
+    "original_audio": "chao-mung-cac-em-hoc-sinh-den-voi-bai-1-tinh-don-51311120.mp3",
+    "final_audio": "chao-mung-cac-em-hoc-sinh-den-voi-bai-1-tinh-don-51311120.mp3"
+  },
+  {
+    "input_text": "H\u00e0m s\u1ed1 f(x) \u0111\u1ed3ng bi\u1ebfn khi x t\u0103ng th\u00ec f(x) t\u0103ng, \u0111\u1ed3 th\u1ecb \u0111i l\u00ean t\u1eeb tr\u00e1i sang ph\u1ea3i. Ng\u01b0\u1ee3c l\u1ea1i, h\u00e0m s\u1ed1 ngh\u1ecbch bi\u1ebfn khi \u0111\u1ed3 th\u1ecb \u0111i xu\u1ed1ng t\u1eeb tr\u00e1i sang ph\u1ea3i. M\u1ed1i quan h\u1ec7 v\u1edbi \u0111\u1ea1o h\u00e0m: f' d\u01b0\u01a1ng th\u00ec \u0111\u1ed3ng bi\u1ebfn, f' \u00e2m th\u00ec ngh\u1ecbch bi\u1ebfn.",
+    "input_data": {
+      "input_text": "H\u00e0m s\u1ed1 f(x) \u0111\u1ed3ng bi\u1ebfn khi x t\u0103ng th\u00ec f(x) t\u0103ng, \u0111\u1ed3 th\u1ecb \u0111i l\u00ean t\u1eeb tr\u00e1i sang ph\u1ea3i. Ng\u01b0\u1ee3c l\u1ea1i, h\u00e0m s\u1ed1 ngh\u1ecbch bi\u1ebfn khi \u0111\u1ed3 th\u1ecb \u0111i xu\u1ed1ng t\u1eeb tr\u00e1i sang ph\u1ea3i. M\u1ed1i quan h\u1ec7 v\u1edbi \u0111\u1ea1o h\u00e0m: f' d\u01b0\u01a1ng th\u00ec \u0111\u1ed3ng bi\u1ebfn, f' \u00e2m th\u00ec ngh\u1ecbch bi\u1ebfn.",
+      "service": "gtts"
+    },
+    "original_audio": "ham-so-f-x-dong-bien-khi-x-tang-thi-f-x-tang-do-e85e8b25.mp3",
+    "final_audio": "ham-so-f-x-dong-bien-khi-x-tang-thi-f-x-tang-do-e85e8b25.mp3"
+  },
+  {
+    "input_text": "\u0110i\u1ec3m c\u1ef1c \u0111\u1ea1i l\u00e0 \u0111i\u1ec3m m\u00e0 t\u1ea1i \u0111\u00f3 \u0111\u1ea1o h\u00e0m f'(x) \u0111\u1ed5i d\u1ea5u t\u1eeb d\u01b0\u01a1ng sang \u00e2m khi qua x0. \u0110i\u1ec3m c\u1ef1c ti\u1ec3u l\u00e0 \u0111i\u1ec3m m\u00e0 t\u1ea1i \u0111\u00f3 f'(x) \u0111\u1ed5i d\u1ea5u t\u1eeb \u00e2m sang d\u01b0\u01a1ng khi qua x0.",
+    "input_data": {
+      "input_text": "\u0110i\u1ec3m c\u1ef1c \u0111\u1ea1i l\u00e0 \u0111i\u1ec3m m\u00e0 t\u1ea1i \u0111\u00f3 \u0111\u1ea1o h\u00e0m f'(x) \u0111\u1ed5i d\u1ea5u t\u1eeb d\u01b0\u01a1ng sang \u00e2m khi qua x0. \u0110i\u1ec3m c\u1ef1c ti\u1ec3u l\u00e0 \u0111i\u1ec3m m\u00e0 t\u1ea1i \u0111\u00f3 f'(x) \u0111\u1ed5i d\u1ea5u t\u1eeb \u00e2m sang d\u01b0\u01a1ng khi qua x0.",
+      "service": "gtts"
+    },
+    "original_audio": "diem-cuc-dai-la-diem-ma-tai-do-dao-ham-f-x-doi-dau-8da72d52.mp3",
+    "final_audio": "diem-cuc-dai-la-diem-ma-tai-do-dao-ham-f-x-doi-dau-8da72d52.mp3"
+  },
+  {
+    "input_text": "C\u00e2u 1: Ta ti\u1ebfn h\u00e0nh ph\u00e2n t\u00edch l\u1eddi gi\u1ea3i tr\u01b0\u1edbc. \u0110\u1ea1o h\u00e0m f'(x) b\u1eb1ng x b\u00ecnh c\u1ed9ng 1 lu\u00f4n l\u1edbn h\u01a1n ho\u1eb7c b\u1eb1ng 1, t\u1ee9c l\u00e0 f'(x) lu\u00f4n d\u01b0\u01a1ng v\u1edbi m\u1ecdi x thu\u1ed9c R. Do f'(x) lu\u00f4n d\u01b0\u01a1ng n\u00ean h\u00e0m s\u1ed1 \u0111\u1ed3ng bi\u1ebfn tr\u00ean R. V\u00ec v\u1eady, ta ch\u1ecdn \u0111\u00e1p \u00e1n B.",
+    "input_data": {
+      "input_text": "C\u00e2u 1: Ta ti\u1ebfn h\u00e0nh ph\u00e2n t\u00edch l\u1eddi gi\u1ea3i tr\u01b0\u1edbc. \u0110\u1ea1o h\u00e0m f'(x) b\u1eb1ng x b\u00ecnh c\u1ed9ng 1 lu\u00f4n l\u1edbn h\u01a1n ho\u1eb7c b\u1eb1ng 1, t\u1ee9c l\u00e0 f'(x) lu\u00f4n d\u01b0\u01a1ng v\u1edbi m\u1ecdi x thu\u1ed9c R. Do f'(x) lu\u00f4n d\u01b0\u01a1ng n\u00ean h\u00e0m s\u1ed1 \u0111\u1ed3ng bi\u1ebfn tr\u00ean R. V\u00ec v\u1eady, ta ch\u1ecdn \u0111\u00e1p \u00e1n B.",
+      "service": "gtts"
+    },
+    "original_audio": "cau-1-ta-tien-hanh-phan-tich-loi-giai-truoc-dao-72ff065d.mp3",
+    "final_audio": "cau-1-ta-tien-hanh-phan-tich-loi-giai-truoc-dao-72ff065d.mp3"
+  },
+  {
+    "input_text": "C\u00e2u 2: B\u01b0\u1edbc 1, t\u00ednh \u0111\u1ea1o h\u00e0m y' b\u1eb1ng tr\u1eeb 3x b\u00ecnh c\u1ed9ng 6x. Cho y' b\u1eb1ng 0 ta \u0111\u01b0\u1ee3c 2 nghi\u1ec7m x b\u1eb1ng 0 v\u00e0 x b\u1eb1ng 2. H\u1ec7 s\u1ed1 a b\u1eb1ng tr\u1eeb 3 \u00e2m, quy t\u1eafc trong tr\u00e1i ngo\u00e0i c\u00f9ng cho th\u1ea5y y' mang d\u1ea5u d\u01b0\u01a1ng tr\u00ean kho\u1ea3ng 0 \u0111\u1ebfn 2. Do \u0111\u00f3 h\u00e0m s\u1ed1 \u0111\u1ed3ng bi\u1ebfn tr\u00ean kho\u1ea3ng (0; 2). Ch\u00fang ta ch\u1ecdn \u0111\u00e1p \u00e1n B.",
+    "input_data": {
+      "input_text": "C\u00e2u 2: B\u01b0\u1edbc 1, t\u00ednh \u0111\u1ea1o h\u00e0m y' b\u1eb1ng tr\u1eeb 3x b\u00ecnh c\u1ed9ng 6x. Cho y' b\u1eb1ng 0 ta \u0111\u01b0\u1ee3c 2 nghi\u1ec7m x b\u1eb1ng 0 v\u00e0 x b\u1eb1ng 2. H\u1ec7 s\u1ed1 a b\u1eb1ng tr\u1eeb 3 \u00e2m, quy t\u1eafc trong tr\u00e1i ngo\u00e0i c\u00f9ng cho th\u1ea5y y' mang d\u1ea5u d\u01b0\u01a1ng tr\u00ean kho\u1ea3ng 0 \u0111\u1ebfn 2. Do \u0111\u00f3 h\u00e0m s\u1ed1 \u0111\u1ed3ng bi\u1ebfn tr\u00ean kho\u1ea3ng (0; 2). Ch\u00fang ta ch\u1ecdn \u0111\u00e1p \u00e1n B.",
+      "service": "gtts"
+    },
+    "original_audio": "cau-2-buoc-1-tinh-dao-ham-y-bang-tru-3x-binh-cong-90f19004.mp3",
+    "final_audio": "cau-2-buoc-1-tinh-dao-ham-y-bang-tru-3x-binh-cong-90f19004.mp3"
+  },
+  {
+    "input_text": "Ch\u00e0o m\u1eebng c\u00e1c em \u0111\u1ebfn v\u1edbi B\u00e0i h\u1ecdc Ph\u01b0\u01a1ng ph\u00e1p t\u1ecda \u0111\u1ed9 trong m\u1eb7t ph\u1eb3ng Oxy v\u00e0 ba \u0111\u01b0\u1eddng Conic.",
+    "input_data": {
+      "input_text": "Ch\u00e0o m\u1eebng c\u00e1c em \u0111\u1ebfn v\u1edbi B\u00e0i h\u1ecdc Ph\u01b0\u01a1ng ph\u00e1p t\u1ecda \u0111\u1ed9 trong m\u1eb7t ph\u1eb3ng Oxy v\u00e0 ba \u0111\u01b0\u1eddng Conic.",
+      "service": "gtts"
+    },
+    "original_audio": "chao-mung-cac-em-den-voi-bai-hoc-phuong-phap-toa-c8752edf.mp3",
+    "final_audio": "chao-mung-cac-em-den-voi-bai-hoc-phuong-phap-toa-c8752edf.mp3"
+  },
+  {
+    "input_text": "\u0110\u01b0\u1eddng th\u1eb3ng Delta trong m\u1eb7t ph\u1eb3ng Oxy c\u00f3 ph\u01b0\u01a1ng tr\u00ecnh t\u1ed5ng qu\u00e1t a x c\u1ed9ng b y c\u1ed9ng c b\u1eb1ng 0, v\u1edbi v\u00e9c t\u01a1 ph\u00e1p tuy\u1ebfn n b\u1eb1ng a b vu\u00f4ng g\u00f3c v\u1edbi \u0111\u01b0\u1eddng th\u1eb3ng.",
+    "input_data": {
+      "input_text": "\u0110\u01b0\u1eddng th\u1eb3ng Delta trong m\u1eb7t ph\u1eb3ng Oxy c\u00f3 ph\u01b0\u01a1ng tr\u00ecnh t\u1ed5ng qu\u00e1t a x c\u1ed9ng b y c\u1ed9ng c b\u1eb1ng 0, v\u1edbi v\u00e9c t\u01a1 ph\u00e1p tuy\u1ebfn n b\u1eb1ng a b vu\u00f4ng g\u00f3c v\u1edbi \u0111\u01b0\u1eddng th\u1eb3ng.",
+      "service": "gtts"
+    },
+    "original_audio": "duong-thang-delta-trong-mat-phang-oxy-co-phuong-e3fa1fdc.mp3",
+    "final_audio": "duong-thang-delta-trong-mat-phang-oxy-co-phuong-e3fa1fdc.mp3"
+  },
+  {
+    "input_text": "Ph\u01b0\u01a1ng tr\u00ecnh ch\u00ednh t\u1eafc c\u1ee7a Elip l\u00e0 x b\u00ecnh tr\u00ean a b\u00ecnh c\u1ed9ng y b\u00ecnh tr\u00ean b b\u00ecnh b\u1eb1ng 1, v\u1edbi 2 ti\u00eau \u0111i\u1ec3m F1 v\u00e0 F2 n\u1eb1m tr\u00ean tr\u1ee5c ho\u00e0nh.",
+    "input_data": {
+      "input_text": "Ph\u01b0\u01a1ng tr\u00ecnh ch\u00ednh t\u1eafc c\u1ee7a Elip l\u00e0 x b\u00ecnh tr\u00ean a b\u00ecnh c\u1ed9ng y b\u00ecnh tr\u00ean b b\u00ecnh b\u1eb1ng 1, v\u1edbi 2 ti\u00eau \u0111i\u1ec3m F1 v\u00e0 F2 n\u1eb1m tr\u00ean tr\u1ee5c ho\u00e0nh.",
+      "service": "gtts"
+    },
+    "original_audio": "phuong-trinh-chinh-tac-cua-elip-la-x-binh-tren-a-3c93d973.mp3",
+    "final_audio": "phuong-trinh-chinh-tac-cua-elip-la-x-binh-tren-a-3c93d973.mp3"
+  },
+  {
+    "input_text": "C\u00e2u 1: Ph\u01b0\u01a1ng tr\u00ecnh t\u1ed5ng qu\u00e1t c\u1ee7a \u0111\u01b0\u1eddng th\u1eb3ng \u0111i qua M x0 y0 v\u00e0 c\u00f3 v\u00e9c t\u01a1 ph\u00e1p tuy\u1ebfn n b\u1eb1ng a b l\u00e0 a nh\u00e2n x tr\u1eeb x0 c\u1ed9ng b nh\u00e2n y tr\u1eeb y0 b\u1eb1ng 0. Thay a b\u1eb1ng 2, b b\u1eb1ng tr\u1eeb 3 v\u00e0 \u0111i\u1ec3m M 1 2 ta \u0111\u01b0\u1ee3c: 2 nh\u00e2n x tr\u1eeb 1 tr\u1eeb 3 nh\u00e2n y tr\u1eeb 2 b\u1eb1ng 0, khai tri\u1ec3n \u0111\u01b0\u1ee3c 2x tr\u1eeb 3y c\u1ed9ng 4 b\u1eb1ng 0. V\u00ec v\u1eady, ta ch\u1ecdn \u0111\u00e1p \u00e1n A.",
+    "input_data": {
+      "input_text": "C\u00e2u 1: Ph\u01b0\u01a1ng tr\u00ecnh t\u1ed5ng qu\u00e1t c\u1ee7a \u0111\u01b0\u1eddng th\u1eb3ng \u0111i qua M x0 y0 v\u00e0 c\u00f3 v\u00e9c t\u01a1 ph\u00e1p tuy\u1ebfn n b\u1eb1ng a b l\u00e0 a nh\u00e2n x tr\u1eeb x0 c\u1ed9ng b nh\u00e2n y tr\u1eeb y0 b\u1eb1ng 0. Thay a b\u1eb1ng 2, b b\u1eb1ng tr\u1eeb 3 v\u00e0 \u0111i\u1ec3m M 1 2 ta \u0111\u01b0\u1ee3c: 2 nh\u00e2n x tr\u1eeb 1 tr\u1eeb 3 nh\u00e2n y tr\u1eeb 2 b\u1eb1ng 0, khai tri\u1ec3n \u0111\u01b0\u1ee3c 2x tr\u1eeb 3y c\u1ed9ng 4 b\u1eb1ng 0. V\u00ec v\u1eady, ta ch\u1ecdn \u0111\u00e1p \u00e1n A.",
+      "service": "gtts"
+    },
+    "original_audio": "cau-1-phuong-trinh-tong-quat-cua-duong-thang-di-60cc55a6.mp3",
+    "final_audio": "cau-1-phuong-trinh-tong-quat-cua-duong-thang-di-60cc55a6.mp3"
+  },
+  {
+    "input_text": "Ch\u00e0o m\u1eebng c\u00e1c em \u0111\u1ebfn v\u1edbi b\u00e0i h\u1ecdc H\u00ecnh h\u1ecdc kh\u00f4ng gian, g\u00f3c v\u00e0 kho\u1ea3ng c\u00e1ch trong kh\u00f4ng gian.",
+    "input_data": {
+      "input_text": "Ch\u00e0o m\u1eebng c\u00e1c em \u0111\u1ebfn v\u1edbi b\u00e0i h\u1ecdc H\u00ecnh h\u1ecdc kh\u00f4ng gian, g\u00f3c v\u00e0 kho\u1ea3ng c\u00e1ch trong kh\u00f4ng gian.",
+      "service": "gtts"
+    },
+    "original_audio": "chao-mung-cac-em-den-voi-bai-hoc-hinh-hoc-khong-890663ed.mp3",
+    "final_audio": "chao-mung-cac-em-den-voi-bai-hoc-hinh-hoc-khong-890663ed.mp3"
+  },
+  {
+    "input_text": "Trong h\u00ecnh h\u1ecdc kh\u00f4ng gian, ta quan s\u00e1t c\u00e1c h\u00ecnh ch\u00f3p, h\u00ecnh h\u1ed9p v\u00e0 quan h\u1ec7 vu\u00f4ng g\u00f3c gi\u1eefa \u0111\u01b0\u1eddng th\u1eb3ng v\u1edbi m\u1eb7t ph\u1eb3ng.",
+    "input_data": {
+      "input_text": "Trong h\u00ecnh h\u1ecdc kh\u00f4ng gian, ta quan s\u00e1t c\u00e1c h\u00ecnh ch\u00f3p, h\u00ecnh h\u1ed9p v\u00e0 quan h\u1ec7 vu\u00f4ng g\u00f3c gi\u1eefa \u0111\u01b0\u1eddng th\u1eb3ng v\u1edbi m\u1eb7t ph\u1eb3ng.",
+      "service": "gtts"
+    },
+    "original_audio": "trong-hinh-hoc-khong-gian-ta-quan-sat-cac-hinh-7f885c51.mp3",
+    "final_audio": "trong-hinh-hoc-khong-gian-ta-quan-sat-cac-hinh-7f885c51.mp3"
+  },
+  {
+    "input_text": "C\u00e2u 1: Theo \u0111\u1ecbnh l\u00fd vu\u00f4ng g\u00f3c trong kh\u00f4ng gian, n\u1ebfu m\u1ed9t \u0111\u01b0\u1eddng th\u1eb3ng vu\u00f4ng g\u00f3c v\u1edbi m\u1ed9t m\u1eb7t ph\u1eb3ng th\u00ec n\u00f3 s\u1ebd vu\u00f4ng g\u00f3c v\u1edbi m\u1ecdi \u0111\u01b0\u1eddng th\u1eb3ng n\u1eb1m trong m\u1eb7t ph\u1eb3ng \u0111\u00f3. Do SA vu\u00f4ng g\u00f3c v\u1edbi m\u1eb7t ph\u1eb3ng ABCD n\u00ean SA vu\u00f4ng g\u00f3c v\u1edbi m\u1ecdi \u0111\u01b0\u1eddng n\u1eb1m trong ABCD. V\u00ec v\u1eady ta ch\u1ecdn \u0111\u00e1p \u00e1n B.",
+    "input_data": {
+      "input_text": "C\u00e2u 1: Theo \u0111\u1ecbnh l\u00fd vu\u00f4ng g\u00f3c trong kh\u00f4ng gian, n\u1ebfu m\u1ed9t \u0111\u01b0\u1eddng th\u1eb3ng vu\u00f4ng g\u00f3c v\u1edbi m\u1ed9t m\u1eb7t ph\u1eb3ng th\u00ec n\u00f3 s\u1ebd vu\u00f4ng g\u00f3c v\u1edbi m\u1ecdi \u0111\u01b0\u1eddng th\u1eb3ng n\u1eb1m trong m\u1eb7t ph\u1eb3ng \u0111\u00f3. Do SA vu\u00f4ng g\u00f3c v\u1edbi m\u1eb7t ph\u1eb3ng ABCD n\u00ean SA vu\u00f4ng g\u00f3c v\u1edbi m\u1ecdi \u0111\u01b0\u1eddng n\u1eb1m trong ABCD. V\u00ec v\u1eady ta ch\u1ecdn \u0111\u00e1p \u00e1n B.",
+      "service": "gtts"
+    },
+    "original_audio": "cau-1-theo-dinh-ly-vuong-goc-trong-khong-gian-neu-a0402de1.mp3",
+    "final_audio": "cau-1-theo-dinh-ly-vuong-goc-trong-khong-gian-neu-a0402de1.mp3"
+  },
+  {
+    "input_text": "Ch\u00e0o m\u1eebng c\u00e1c em \u0111\u1ebfn v\u1edbi b\u00e0i h\u1ecdc H\u00e0m s\u1ed1 M\u0169 v\u00e0 H\u00e0m s\u1ed1 Logarit.",
+    "input_data": {
+      "input_text": "Ch\u00e0o m\u1eebng c\u00e1c em \u0111\u1ebfn v\u1edbi b\u00e0i h\u1ecdc H\u00e0m s\u1ed1 M\u0169 v\u00e0 H\u00e0m s\u1ed1 Logarit.",
+      "service": "gtts"
+    },
+    "original_audio": "chao-mung-cac-em-den-voi-bai-hoc-ham-so-mu-va-ham-86f60276.mp3",
+    "final_audio": "chao-mung-cac-em-den-voi-bai-hoc-ham-so-mu-va-ham-86f60276.mp3"
+  },
+  {
+    "input_text": "H\u00e0m s\u1ed1 m\u0169 y b\u1eb1ng 2 m\u0169 x v\u00e0 h\u00e0m s\u1ed1 logarit y b\u1eb1ng logarit c\u01a1 s\u1ed1 2 c\u1ee7a x l\u00e0 hai h\u00e0m s\u1ed1 ng\u01b0\u1ee3c nhau, c\u00f3 \u0111\u1ed3 th\u1ecb \u0111\u1ed1i x\u1ee9ng qua \u0111\u01b0\u1eddng th\u1eb3ng y b\u1eb1ng x.",
+    "input_data": {
+      "input_text": "H\u00e0m s\u1ed1 m\u0169 y b\u1eb1ng 2 m\u0169 x v\u00e0 h\u00e0m s\u1ed1 logarit y b\u1eb1ng logarit c\u01a1 s\u1ed1 2 c\u1ee7a x l\u00e0 hai h\u00e0m s\u1ed1 ng\u01b0\u1ee3c nhau, c\u00f3 \u0111\u1ed3 th\u1ecb \u0111\u1ed1i x\u1ee9ng qua \u0111\u01b0\u1eddng th\u1eb3ng y b\u1eb1ng x.",
+      "service": "gtts"
+    },
+    "original_audio": "ham-so-mu-y-bang-2-mu-x-va-ham-so-logarit-y-bang-2bf9386c.mp3",
+    "final_audio": "ham-so-mu-y-bang-2-mu-x-va-ham-so-logarit-y-bang-2bf9386c.mp3"
+  },
+  {
+    "input_text": "C\u00e2u 1: \u0110i\u1ec1u ki\u1ec7n x\u00e1c \u0111\u1ecbnh c\u1ee7a h\u00e0m s\u1ed1 logarit logarit c\u01a1 s\u1ed1 a c\u1ee7a u x l\u00e0 bi\u1ec3u th\u1ee9c d\u01b0\u1edbi d\u1ea5u logarit u x ph\u1ea3i d\u01b0\u01a1ng strictly l\u1edbn h\u01a1n 0. \u00c1p d\u1ee5ng \u0111i\u1ec1u ki\u1ec7n: x tr\u1eeb 2 l\u1edbn h\u01a1n 0, t\u01b0\u01a1ng \u0111\u01b0\u01a1ng x l\u1edbn h\u01a1n 2. Do \u0111\u00f3 t\u1eadp x\u00e1c \u0111\u1ecbnh l\u00e0 kho\u1ea3ng 2 \u0111\u1ebfn c\u1ed9ng v\u00f4 c\u1ef1c. Ch\u00fang ta ch\u1ecdn \u0111\u00e1p \u00e1n A.",
+    "input_data": {
+      "input_text": "C\u00e2u 1: \u0110i\u1ec1u ki\u1ec7n x\u00e1c \u0111\u1ecbnh c\u1ee7a h\u00e0m s\u1ed1 logarit logarit c\u01a1 s\u1ed1 a c\u1ee7a u x l\u00e0 bi\u1ec3u th\u1ee9c d\u01b0\u1edbi d\u1ea5u logarit u x ph\u1ea3i d\u01b0\u01a1ng strictly l\u1edbn h\u01a1n 0. \u00c1p d\u1ee5ng \u0111i\u1ec1u ki\u1ec7n: x tr\u1eeb 2 l\u1edbn h\u01a1n 0, t\u01b0\u01a1ng \u0111\u01b0\u01a1ng x l\u1edbn h\u01a1n 2. Do \u0111\u00f3 t\u1eadp x\u00e1c \u0111\u1ecbnh l\u00e0 kho\u1ea3ng 2 \u0111\u1ebfn c\u1ed9ng v\u00f4 c\u1ef1c. Ch\u00fang ta ch\u1ecdn \u0111\u00e1p \u00e1n A.",
+      "service": "gtts"
+    },
+    "original_audio": "cau-1-dieu-kien-xac-dinh-cua-ham-so-logarit-1ae6525a.mp3",
+    "final_audio": "cau-1-dieu-kien-xac-dinh-cua-ham-so-logarit-1ae6525a.mp3"
+  },
+  {
+    "input_text": "Ch\u00e0o m\u1eebng c\u00e1c em \u0111\u1ebfn v\u1edbi b\u00e0i h\u1ecdc C\u1ea5p s\u1ed1 c\u1ed9ng v\u00e0 C\u1ea5p s\u1ed1 nh\u00e2n.",
+    "input_data": {
+      "input_text": "Ch\u00e0o m\u1eebng c\u00e1c em \u0111\u1ebfn v\u1edbi b\u00e0i h\u1ecdc C\u1ea5p s\u1ed1 c\u1ed9ng v\u00e0 C\u1ea5p s\u1ed1 nh\u00e2n.",
+      "service": "gtts"
+    },
+    "original_audio": "chao-mung-cac-em-den-voi-bai-hoc-cap-so-cong-va-e881edd1.mp3",
+    "final_audio": "chao-mung-cac-em-den-voi-bai-hoc-cap-so-cong-va-e881edd1.mp3"
+  },
+  {
+    "input_text": "C\u1ea5p s\u1ed1 c\u1ed9ng c\u00f3 s\u1ed1 h\u1ea1ng t\u1ed5ng qu\u00e1t u n b\u1eb1ng u 1 c\u1ed9ng n tr\u1eeb 1 nh\u00e2n d. C\u1ea5p s\u1ed1 nh\u00e2n c\u00f3 s\u1ed1 h\u1ea1ng t\u1ed5ng qu\u00e1t u n b\u1eb1ng u 1 nh\u00e2n q m\u0169 n tr\u1eeb 1.",
+    "input_data": {
+      "input_text": "C\u1ea5p s\u1ed1 c\u1ed9ng c\u00f3 s\u1ed1 h\u1ea1ng t\u1ed5ng qu\u00e1t u n b\u1eb1ng u 1 c\u1ed9ng n tr\u1eeb 1 nh\u00e2n d. C\u1ea5p s\u1ed1 nh\u00e2n c\u00f3 s\u1ed1 h\u1ea1ng t\u1ed5ng qu\u00e1t u n b\u1eb1ng u 1 nh\u00e2n q m\u0169 n tr\u1eeb 1.",
+      "service": "gtts"
+    },
+    "original_audio": "cap-so-cong-co-so-hang-tong-quat-u-n-bang-u-1-cong-b8721c2d.mp3",
+    "final_audio": "cap-so-cong-co-so-hang-tong-quat-u-n-bang-u-1-cong-b8721c2d.mp3"
+  },
+  {
+    "input_text": "C\u00e2u 1: C\u00f4ng th\u1ee9c s\u1ed1 h\u1ea1ng t\u1ed5ng qu\u00e1t c\u1ee7a c\u1ea5p s\u1ed1 c\u1ed9ng l\u00e0 u n b\u1eb1ng u 1 c\u1ed9ng n tr\u1eeb 1 nh\u00e2n d. Thay n b\u1eb1ng 5, u 1 b\u1eb1ng 3 v\u00e0 c\u00f4ng sai d b\u1eb1ng 2: u 5 b\u1eb1ng 3 c\u1ed9ng 4 nh\u00e2n 2 b\u1eb1ng 3 c\u1ed9ng 8 b\u1eb1ng 11. Do \u0111\u00f3 u 5 b\u1eb1ng 11. Ch\u00fang ta ch\u1ecdn \u0111\u00e1p \u00e1n A.",
+    "input_data": {
+      "input_text": "C\u00e2u 1: C\u00f4ng th\u1ee9c s\u1ed1 h\u1ea1ng t\u1ed5ng qu\u00e1t c\u1ee7a c\u1ea5p s\u1ed1 c\u1ed9ng l\u00e0 u n b\u1eb1ng u 1 c\u1ed9ng n tr\u1eeb 1 nh\u00e2n d. Thay n b\u1eb1ng 5, u 1 b\u1eb1ng 3 v\u00e0 c\u00f4ng sai d b\u1eb1ng 2: u 5 b\u1eb1ng 3 c\u1ed9ng 4 nh\u00e2n 2 b\u1eb1ng 3 c\u1ed9ng 8 b\u1eb1ng 11. Do \u0111\u00f3 u 5 b\u1eb1ng 11. Ch\u00fang ta ch\u1ecdn \u0111\u00e1p \u00e1n A.",
+      "service": "gtts"
+    },
+    "original_audio": "cau-1-cong-thuc-so-hang-tong-quat-cua-cap-so-cong-32bb906d.mp3",
+    "final_audio": "cau-1-cong-thuc-so-hang-tong-quat-cua-cap-so-cong-32bb906d.mp3"
+  },
+  {
+    "input_text": "Ch\u00e0o m\u1eebng c\u00e1c em \u0111\u1ebfn v\u1edbi b\u00e0i h\u1ecdc B\u1ea5t ph\u01b0\u01a1ng tr\u00ecnh b\u1eadc nh\u1ea5t hai \u1ea9n v\u00e0 B\u00e0i to\u00e1n Quy ho\u1ea1ch tuy\u1ebfn t\u00ednh.",
+    "input_data": {
+      "input_text": "Ch\u00e0o m\u1eebng c\u00e1c em \u0111\u1ebfn v\u1edbi b\u00e0i h\u1ecdc B\u1ea5t ph\u01b0\u01a1ng tr\u00ecnh b\u1eadc nh\u1ea5t hai \u1ea9n v\u00e0 B\u00e0i to\u00e1n Quy ho\u1ea1ch tuy\u1ebfn t\u00ednh.",
+      "service": "gtts"
+    },
+    "original_audio": "chao-mung-cac-em-den-voi-bai-hoc-bat-phuong-trinh-0d8838ca.mp3",
+    "final_audio": "chao-mung-cac-em-den-voi-bai-hoc-bat-phuong-trinh-0d8838ca.mp3"
+  },
+  {
+    "input_text": "Mi\u1ec1n nghi\u1ec7m c\u1ee7a h\u1ec7 b\u1ea5t ph\u01b0\u01a1ng tr\u00ecnh b\u1eadc nh\u1ea5t hai \u1ea9n l\u00e0 m\u1ed9t \u0111a gi\u00e1c l\u1ed3i. Gi\u00e1 tr\u1ecb l\u1edbn nh\u1ea5t ho\u1eb7c nh\u1ecf nh\u1ea5t c\u1ee7a bi\u1ec3u th\u1ee9c F b\u1eb1ng a x c\u1ed9ng b y lu\u00f4n \u0111\u1ea1t \u0111\u01b0\u1ee3c t\u1ea1i c\u00e1c \u0111\u1ec9nh c\u1ee7a \u0111a gi\u00e1c n\u00e0y.",
+    "input_data": {
+      "input_text": "Mi\u1ec1n nghi\u1ec7m c\u1ee7a h\u1ec7 b\u1ea5t ph\u01b0\u01a1ng tr\u00ecnh b\u1eadc nh\u1ea5t hai \u1ea9n l\u00e0 m\u1ed9t \u0111a gi\u00e1c l\u1ed3i. Gi\u00e1 tr\u1ecb l\u1edbn nh\u1ea5t ho\u1eb7c nh\u1ecf nh\u1ea5t c\u1ee7a bi\u1ec3u th\u1ee9c F b\u1eb1ng a x c\u1ed9ng b y lu\u00f4n \u0111\u1ea1t \u0111\u01b0\u1ee3c t\u1ea1i c\u00e1c \u0111\u1ec9nh c\u1ee7a \u0111a gi\u00e1c n\u00e0y.",
+      "service": "gtts"
+    },
+    "original_audio": "mien-nghiem-cua-he-bat-phuong-trinh-bac-nhat-hai-9a0a78a4.mp3",
+    "final_audio": "mien-nghiem-cua-he-bat-phuong-trinh-bac-nhat-hai-9a0a78a4.mp3"
+  },
+  {
+    "input_text": "C\u00e2u 1: Thay tr\u1ef1c ti\u1ebfp c\u1eb7p s\u1ed1 x b\u1eb1ng 1 v\u00e0 y b\u1eb1ng 1 v\u00e0o bi\u1ec3u th\u1ee9c x tr\u1eeb 2y c\u1ed9ng 3: 1 tr\u1eeb 2 c\u1ed9ng 3 b\u1eb1ng 2 l\u1edbn h\u01a1n 0, l\u00e0 m\u1ed9t kh\u1eb3ng \u0111\u1ecbnh \u0111\u00fang. Nh\u01b0 v\u1eady c\u1eb7p s\u1ed1 (1; 1) th\u1ecfa m\u00e3n b\u1ea5t ph\u01b0\u01a1ng tr\u00ecnh. Ch\u00fang ta ch\u1ecdn \u0111\u00e1p \u00e1n A.",
+    "input_data": {
+      "input_text": "C\u00e2u 1: Thay tr\u1ef1c ti\u1ebfp c\u1eb7p s\u1ed1 x b\u1eb1ng 1 v\u00e0 y b\u1eb1ng 1 v\u00e0o bi\u1ec3u th\u1ee9c x tr\u1eeb 2y c\u1ed9ng 3: 1 tr\u1eeb 2 c\u1ed9ng 3 b\u1eb1ng 2 l\u1edbn h\u01a1n 0, l\u00e0 m\u1ed9t kh\u1eb3ng \u0111\u1ecbnh \u0111\u00fang. Nh\u01b0 v\u1eady c\u1eb7p s\u1ed1 (1; 1) th\u1ecfa m\u00e3n b\u1ea5t ph\u01b0\u01a1ng tr\u00ecnh. Ch\u00fang ta ch\u1ecdn \u0111\u00e1p \u00e1n A.",
+      "service": "gtts"
+    },
+    "original_audio": "cau-1-thay-truc-tiep-cap-so-x-bang-1-va-y-bang-1-684de64c.mp3",
+    "final_audio": "cau-1-thay-truc-tiep-cap-so-x-bang-1-va-y-bang-1-684de64c.mp3"
+  },
+  {
+    "input_text": "Ch\u00e0o m\u1eebng c\u00e1c em \u0111\u1ebfn v\u1edbi b\u00e0i gi\u1ea3ng l\u00fd thuy\u1ebft chuy\u00ean s\u00e2u v\u1ec1 Gi\u00e1 tr\u1ecb l\u1edbn nh\u1ea5t v\u00e0 gi\u00e1 tr\u1ecb nh\u1ecf nh\u1ea5t c\u1ee7a h\u00e0m s\u1ed1. \u1ede b\u00e0i h\u1ecdc n\u00e0y, ch\u00fang ta kh\u00f4ng ch\u1ec9 h\u1ecdc v\u1eb9t c\u00f4ng th\u1ee9c m\u00e0 s\u1ebd c\u00f9ng ph\u00e2n t\u00edch k\u1ef9 b\u1ea3n ch\u1ea5t to\u00e1n h\u1ecdc, ngu\u1ed3n g\u1ed1c c\u00e1c ph\u00e9p bi\u1ebfn \u0111\u1ed5i v\u00e0 c\u00e1c b\u1eaby th\u01b0\u1eddng g\u1eb7p trong \u0111\u1ec1 thi.",
+    "input_data": {
+      "input_text": "Ch\u00e0o m\u1eebng c\u00e1c em \u0111\u1ebfn v\u1edbi b\u00e0i gi\u1ea3ng l\u00fd thuy\u1ebft chuy\u00ean s\u00e2u v\u1ec1 Gi\u00e1 tr\u1ecb l\u1edbn nh\u1ea5t v\u00e0 gi\u00e1 tr\u1ecb nh\u1ecf nh\u1ea5t c\u1ee7a h\u00e0m s\u1ed1. \u1ede b\u00e0i h\u1ecdc n\u00e0y, ch\u00fang ta kh\u00f4ng ch\u1ec9 h\u1ecdc v\u1eb9t c\u00f4ng th\u1ee9c m\u00e0 s\u1ebd c\u00f9ng ph\u00e2n t\u00edch k\u1ef9 b\u1ea3n ch\u1ea5t to\u00e1n h\u1ecdc, ngu\u1ed3n g\u1ed1c c\u00e1c ph\u00e9p bi\u1ebfn \u0111\u1ed5i v\u00e0 c\u00e1c b\u1eaby th\u01b0\u1eddng g\u1eb7p trong \u0111\u1ec1 thi.",
+      "service": "gtts"
+    },
+    "original_audio": "chao-mung-cac-em-den-voi-bai-giang-ly-thuyet-b20839cd.mp3",
+    "final_audio": "chao-mung-cac-em-den-voi-bai-giang-ly-thuyet-b20839cd.mp3"
+  },
+  {
+    "input_text": "V\u1ec1 m\u1eb7t l\u00fd thuy\u1ebft, 1. \u0110\u1ecbnh ngh\u0129a \u0111\u00f3ng vai tr\u00f2 n\u1ec1n t\u1ea3ng. Khi x\u00e9t m\u1ed9t bi\u1ec3u th\u1ee9c hay \u0111\u1ed3 th\u1ecb, \u0111i\u1ec1u quan tr\u1ecdng nh\u1ea5t l\u00e0 c\u00e1c em ph\u1ea3i n\u1eafm r\u00f5 \u0111i\u1ec1u ki\u1ec7n t\u1ed3n t\u1ea1i, t\u1eadp x\u00e1c \u0111\u1ecbnh v\u00e0 s\u1ef1 ph\u1ee5 thu\u1ed9c gi\u1eefa c\u00e1c \u0111\u1ea1i l\u01b0\u1ee3ng.",
+    "input_data": {
+      "input_text": "V\u1ec1 m\u1eb7t l\u00fd thuy\u1ebft, 1. \u0110\u1ecbnh ngh\u0129a \u0111\u00f3ng vai tr\u00f2 n\u1ec1n t\u1ea3ng. Khi x\u00e9t m\u1ed9t bi\u1ec3u th\u1ee9c hay \u0111\u1ed3 th\u1ecb, \u0111i\u1ec1u quan tr\u1ecdng nh\u1ea5t l\u00e0 c\u00e1c em ph\u1ea3i n\u1eafm r\u00f5 \u0111i\u1ec1u ki\u1ec7n t\u1ed3n t\u1ea1i, t\u1eadp x\u00e1c \u0111\u1ecbnh v\u00e0 s\u1ef1 ph\u1ee5 thu\u1ed9c gi\u1eefa c\u00e1c \u0111\u1ea1i l\u01b0\u1ee3ng.",
+      "service": "gtts"
+    },
+    "original_audio": "ve-mat-ly-thuyet-1-dinh-nghia-dong-vai-tro-nen-8ce1b5a2.mp3",
+    "final_audio": "ve-mat-ly-thuyet-1-dinh-nghia-dong-vai-tro-nen-8ce1b5a2.mp3"
+  },
+  {
+    "input_text": "Ti\u1ebfp theo l\u00e0 ph\u1ea7n 2. T\u00ecm gi\u00e1 tr\u1ecb l\u1edbn nh\u1ea5t v\u00e0 nh\u1ecf nh\u1ea5t c\u1ee7a h\u00e0m s\u1ed1 li\u00ean t\u1ee5c. C\u00e1c em c\u1ea7n chia r\u00f5 c\u00e1c tr\u01b0\u1eddng h\u1ee3p x\u1ea3y ra. \u0110\u1eb7c bi\u1ec7t l\u01b0u \u00fd b\u1eaby \u0111\u1ec1 thi hay g\u00e0i b\u1eaby \u1edf \u0111i\u1ec1u ki\u1ec7n h\u1ec7 s\u1ed1 a kh\u00e1c 0 ho\u1eb7c t\u1eadp x\u00e1c \u0111\u1ecbnh D. Ch\u00fang ta ph\u1ea3i ki\u1ec3m tra k\u1ef9 \u0111i\u1ec1u ki\u1ec7n tr\u01b0\u1edbc khi k\u1ebft lu\u1eadn.",
+    "input_data": {
+      "input_text": "Ti\u1ebfp theo l\u00e0 ph\u1ea7n 2. T\u00ecm gi\u00e1 tr\u1ecb l\u1edbn nh\u1ea5t v\u00e0 nh\u1ecf nh\u1ea5t c\u1ee7a h\u00e0m s\u1ed1 li\u00ean t\u1ee5c. C\u00e1c em c\u1ea7n chia r\u00f5 c\u00e1c tr\u01b0\u1eddng h\u1ee3p x\u1ea3y ra. \u0110\u1eb7c bi\u1ec7t l\u01b0u \u00fd b\u1eaby \u0111\u1ec1 thi hay g\u00e0i b\u1eaby \u1edf \u0111i\u1ec1u ki\u1ec7n h\u1ec7 s\u1ed1 a kh\u00e1c 0 ho\u1eb7c t\u1eadp x\u00e1c \u0111\u1ecbnh D. Ch\u00fang ta ph\u1ea3i ki\u1ec3m tra k\u1ef9 \u0111i\u1ec1u ki\u1ec7n tr\u01b0\u1edbc khi k\u1ebft lu\u1eadn.",
+      "service": "gtts"
+    },
+    "original_audio": "tiep-theo-la-phan-2-tim-gia-tri-lon-nhat-va-nho-238c1c64.mp3",
+    "final_audio": "tiep-theo-la-phan-2-tim-gia-tri-lon-nhat-va-nho-238c1c64.mp3"
+  },
+  {
+    "input_text": "\u0110\u1ed1i v\u1edbi b\u00e0i t\u1eadp n\u00e0y, ch\u00fang ta ti\u1ebfn h\u00e0nh gi\u1ea3ng gi\u1ea3i chi ti\u1ebft nh\u01b0 sau: B\u01b0\u1edbc 1, ki\u1ec3m tra t\u1eadp x\u00e1c \u0111\u1ecbnh D v\u00e0 t\u00ednh li\u00ean t\u1ee5c c\u1ee7a h\u00e0m s\u1ed1. B\u01b0\u1edbc 2, ph\u00e2n t\u00edch k\u1ef9 h\u1ec7 s\u1ed1 v\u00e0 t\u00ednh to\u00e1n ch\u00ednh x\u00e1c. B\u01b0\u1edbc 3, lo\u1ea1i tr\u1eeb c\u00e1c \u0111\u00e1p \u00e1n B C D do vi ph\u1ea1m \u0111i\u1ec1u ki\u1ec7n t\u1ed3n t\u1ea1i. Sau khi \u0111\u00e3 ch\u1ee9ng minh ho\u00e0n to\u00e0n l\u00fd do, ch\u00fang ta ch\u1ecdn \u0111\u00e1p \u00e1n A.",
+    "input_data": {
+      "input_text": "\u0110\u1ed1i v\u1edbi b\u00e0i t\u1eadp n\u00e0y, ch\u00fang ta ti\u1ebfn h\u00e0nh gi\u1ea3ng gi\u1ea3i chi ti\u1ebft nh\u01b0 sau: B\u01b0\u1edbc 1, ki\u1ec3m tra t\u1eadp x\u00e1c \u0111\u1ecbnh D v\u00e0 t\u00ednh li\u00ean t\u1ee5c c\u1ee7a h\u00e0m s\u1ed1. B\u01b0\u1edbc 2, ph\u00e2n t\u00edch k\u1ef9 h\u1ec7 s\u1ed1 v\u00e0 t\u00ednh to\u00e1n ch\u00ednh x\u00e1c. B\u01b0\u1edbc 3, lo\u1ea1i tr\u1eeb c\u00e1c \u0111\u00e1p \u00e1n B C D do vi ph\u1ea1m \u0111i\u1ec1u ki\u1ec7n t\u1ed3n t\u1ea1i. Sau khi \u0111\u00e3 ch\u1ee9ng minh ho\u00e0n to\u00e0n l\u00fd do, ch\u00fang ta ch\u1ecdn \u0111\u00e1p \u00e1n A.",
+      "service": "gtts"
+    },
+    "original_audio": "doi-voi-bai-tap-nay-chung-ta-tien-hanh-giang-giai-c972271c.mp3",
+    "final_audio": "doi-voi-bai-tap-nay-chung-ta-tien-hanh-giang-giai-c972271c.mp3"
+  },
+  {
+    "input_text": "Ch\u00e0o m\u1eebng c\u00e1c em h\u1ecdc sinh! H\u00f4m nay ch\u00fang ta s\u1ebd c\u00f9ng nghi\u00ean c\u1ee9u to\u00e0n b\u1ed9 chuy\u00ean \u0111\u1ec1 H\u1ec7 th\u1ee9c l\u01b0\u1ee3ng trong tam gi\u00e1c v\u00e0 Gi\u00e1 tr\u1ecb l\u01b0\u1ee3ng gi\u00e1c c\u1ee7a m\u1ed9t g\u00f3c t\u1eeb 0 \u0111\u1ebfn 180 \u0111\u1ed9.",
+    "input_data": {
+      "input_text": "Ch\u00e0o m\u1eebng c\u00e1c em h\u1ecdc sinh! H\u00f4m nay ch\u00fang ta s\u1ebd c\u00f9ng nghi\u00ean c\u1ee9u to\u00e0n b\u1ed9 chuy\u00ean \u0111\u1ec1 H\u1ec7 th\u1ee9c l\u01b0\u1ee3ng trong tam gi\u00e1c v\u00e0 Gi\u00e1 tr\u1ecb l\u01b0\u1ee3ng gi\u00e1c c\u1ee7a m\u1ed9t g\u00f3c t\u1eeb 0 \u0111\u1ebfn 180 \u0111\u1ed9.",
+      "service": "gtts"
+    },
+    "original_audio": "chao-mung-cac-em-hoc-sinh-hom-nay-chung-ta-se-cung-aafe8559.mp3",
+    "final_audio": "chao-mung-cac-em-hoc-sinh-hom-nay-chung-ta-se-cung-aafe8559.mp3"
+  },
+  {
+    "input_text": "Trong m\u1eb7t ph\u1eb3ng t\u1ecda \u0111\u1ed9 Oxy, x\u00e9t n\u1eeda \u0111\u01b0\u1eddng tr\u00f2n \u0111\u01a1n v\u1ecb b\u00e1n k\u00ednh R b\u1eb1ng 1 n\u1eb1m ph\u00eda tr\u00ean tr\u1ee5c ho\u00e0nh. Cho tr\u01b0\u1edbc g\u00f3c alpha t\u1eeb 0 \u0111\u1ebfn 180 \u0111\u1ed9, c\u00f3 duy nh\u1ea5t \u0111i\u1ec3m M ho\u00e0nh \u0111\u1ed9 x0, tung \u0111\u1ed9 y0 sao cho g\u00f3c xOM b\u1eb1ng alpha. Khi \u0111\u00f3, tung \u0111\u1ed9 y0 \u0111\u01b0\u1ee3c \u0111\u1ecbnh ngh\u0129a l\u00e0 sin alpha, ho\u00e0nh \u0111\u1ed9 x0 l\u00e0 cosin alpha, t\u1ec9 s\u1ed1 y0 tr\u00ean x0 l\u00e0 tang alpha v\u00e0 t\u1ec9 s\u1ed1 x0 tr\u00ean y0 l\u00e0 c\u00f4tang alpha.",
+    "input_data": {
+      "input_text": "Trong m\u1eb7t ph\u1eb3ng t\u1ecda \u0111\u1ed9 Oxy, x\u00e9t n\u1eeda \u0111\u01b0\u1eddng tr\u00f2n \u0111\u01a1n v\u1ecb b\u00e1n k\u00ednh R b\u1eb1ng 1 n\u1eb1m ph\u00eda tr\u00ean tr\u1ee5c ho\u00e0nh. Cho tr\u01b0\u1edbc g\u00f3c alpha t\u1eeb 0 \u0111\u1ebfn 180 \u0111\u1ed9, c\u00f3 duy nh\u1ea5t \u0111i\u1ec3m M ho\u00e0nh \u0111\u1ed9 x0, tung \u0111\u1ed9 y0 sao cho g\u00f3c xOM b\u1eb1ng alpha. Khi \u0111\u00f3, tung \u0111\u1ed9 y0 \u0111\u01b0\u1ee3c \u0111\u1ecbnh ngh\u0129a l\u00e0 sin alpha, ho\u00e0nh \u0111\u1ed9 x0 l\u00e0 cosin alpha, t\u1ec9 s\u1ed1 y0 tr\u00ean x0 l\u00e0 tang alpha v\u00e0 t\u1ec9 s\u1ed1 x0 tr\u00ean y0 l\u00e0 c\u00f4tang alpha.",
+      "service": "gtts"
+    },
+    "original_audio": "trong-mat-phang-toa-do-oxy-xet-nua-duong-tron-don-d98dd366.mp3",
+    "final_audio": "trong-mat-phang-toa-do-oxy-xet-nua-duong-tron-don-d98dd366.mp3"
+  },
+  {
+    "input_text": "Quan s\u00e1t \u0111i\u1ec3m M di chuy\u1ec3n tr\u00ean n\u1eeda \u0111\u01b0\u1eddng tr\u00f2n \u0111\u01a1n v\u1ecb. Khi g\u00f3c alpha thay \u0111\u1ed5i, t\u1ecda \u0111\u1ed9 x0 v\u00e0 y0 thay \u0111\u1ed5i li\u00ean t\u1ee5c, t\u1ea1o n\u00ean c\u00e1c gi\u00e1 tr\u1ecb l\u01b0\u1ee3ng gi\u00e1c t\u01b0\u01a1ng \u1ee9ng.",
+    "input_data": {
+      "input_text": "Quan s\u00e1t \u0111i\u1ec3m M di chuy\u1ec3n tr\u00ean n\u1eeda \u0111\u01b0\u1eddng tr\u00f2n \u0111\u01a1n v\u1ecb. Khi g\u00f3c alpha thay \u0111\u1ed5i, t\u1ecda \u0111\u1ed9 x0 v\u00e0 y0 thay \u0111\u1ed5i li\u00ean t\u1ee5c, t\u1ea1o n\u00ean c\u00e1c gi\u00e1 tr\u1ecb l\u01b0\u1ee3ng gi\u00e1c t\u01b0\u01a1ng \u1ee9ng.",
+      "service": "gtts"
+    },
+    "original_audio": "quan-sat-diem-m-di-chuyen-tren-nua-duong-tron-don-34da2717.mp3",
+    "final_audio": "quan-sat-diem-m-di-chuyen-tren-nua-duong-tron-don-34da2717.mp3"
+  },
+  {
+    "input_text": "D\u01b0\u1edbi \u0111\u00e2y l\u00e0 b\u1ea3ng gi\u00e1 tr\u1ecb l\u01b0\u1ee3ng gi\u00e1c c\u1ee7a c\u00e1c g\u00f3c \u0111\u1eb7c bi\u1ec7t 0, 30, 45, 60, 90 v\u00e0 180 \u0111\u1ed9. C\u00e1c em c\u1ea7n ghi nh\u1edb c\u00e1c gi\u00e1 tr\u1ecb c\u0103n 2 tr\u00ean 2, c\u0103n 3 tr\u00ean 2 \u0111\u1ec3 l\u00e0m b\u00e0i nhanh ch\u00f3ng.",
+    "input_data": {
+      "input_text": "D\u01b0\u1edbi \u0111\u00e2y l\u00e0 b\u1ea3ng gi\u00e1 tr\u1ecb l\u01b0\u1ee3ng gi\u00e1c c\u1ee7a c\u00e1c g\u00f3c \u0111\u1eb7c bi\u1ec7t 0, 30, 45, 60, 90 v\u00e0 180 \u0111\u1ed9. C\u00e1c em c\u1ea7n ghi nh\u1edb c\u00e1c gi\u00e1 tr\u1ecb c\u0103n 2 tr\u00ean 2, c\u0103n 3 tr\u00ean 2 \u0111\u1ec3 l\u00e0m b\u00e0i nhanh ch\u00f3ng.",
+      "service": "gtts"
+    },
+    "original_audio": "duoi-day-la-bang-gia-tri-luong-giac-cua-cac-goc-65dda421.mp3",
+    "final_audio": "duoi-day-la-bang-gia-tri-luong-giac-cua-cac-goc-65dda421.mp3"
+  },
+  {
+    "input_text": "V\u1ec1 m\u1ed1i quan h\u1ec7 gi\u1eefa c\u00e1c g\u00f3c: Hai g\u00f3c b\u00f9 nhau c\u00f3 sin b\u1eb1ng nhau, cosin, tang v\u00e0 c\u00f4tang \u0111\u1ed1i nhau. Hai g\u00f3c ph\u1ee5 nhau c\u00f3 sin g\u00f3c n\u00e0y b\u1eb1ng cosin g\u00f3c kia. C\u00e1c h\u1ec7 th\u1ee9c c\u01a1 b\u1ea3n sin b\u00ecnh c\u1ed9ng cos b\u00ecnh b\u1eb1ng 1, 1 c\u1ed9ng tan b\u00ecnh b\u1eb1ng 1 tr\u00ean cos b\u00ecnh l\u00e0 nh\u1eefng c\u00f4ng th\u1ee9c c\u1ed1t l\u00f5i ph\u1ea3i thu\u1ed9c l\u00f2ng.",
+    "input_data": {
+      "input_text": "V\u1ec1 m\u1ed1i quan h\u1ec7 gi\u1eefa c\u00e1c g\u00f3c: Hai g\u00f3c b\u00f9 nhau c\u00f3 sin b\u1eb1ng nhau, cosin, tang v\u00e0 c\u00f4tang \u0111\u1ed1i nhau. Hai g\u00f3c ph\u1ee5 nhau c\u00f3 sin g\u00f3c n\u00e0y b\u1eb1ng cosin g\u00f3c kia. C\u00e1c h\u1ec7 th\u1ee9c c\u01a1 b\u1ea3n sin b\u00ecnh c\u1ed9ng cos b\u00ecnh b\u1eb1ng 1, 1 c\u1ed9ng tan b\u00ecnh b\u1eb1ng 1 tr\u00ean cos b\u00ecnh l\u00e0 nh\u1eefng c\u00f4ng th\u1ee9c c\u1ed1t l\u00f5i ph\u1ea3i thu\u1ed9c l\u00f2ng.",
+      "service": "gtts"
+    },
+    "original_audio": "ve-moi-quan-he-giua-cac-goc-hai-goc-bu-nhau-co-sin-34dd6075.mp3",
+    "final_audio": "ve-moi-quan-he-giua-cac-goc-hai-goc-bu-nhau-co-sin-34dd6075.mp3"
+  },
+  {
+    "input_text": "Ti\u1ebfp theo l\u00e0 ph\u1ea7n Gi\u1ea3i ph\u01b0\u01a1ng tr\u00ecnh l\u01b0\u1ee3ng gi\u00e1c. Ph\u01b0\u01a1ng tr\u00ecnh sin u b\u1eb1ng sin v c\u00f3 2 h\u1ecd nghi\u1ec7m v c\u1ed9ng k 2 pi v\u00e0 pi tr\u1eeb v c\u1ed9ng k 2 pi. Ph\u01b0\u01a1ng tr\u00ecnh cos u b\u1eb1ng cos v c\u00f3 2 h\u1ecd nghi\u1ec7m c\u1ed9ng tr\u1eeb v c\u1ed9ng k 2 pi. C\u00e1c tr\u01b0\u1eddng h\u1ee3p \u0111\u1eb7c bi\u1ec7t sin u, cos u b\u1eb1ng 0, b\u1eb1ng 1 ho\u1eb7c b\u1eb1ng tr\u1eeb 1 ch\u1ec9 c\u00f3 duy nh\u1ea5t 1 h\u1ecd nghi\u1ec7m g\u1ed9p c\u1ea7n ghi nh\u1edb ch\u00ednh x\u00e1c.",
+    "input_data": {
+      "input_text": "Ti\u1ebfp theo l\u00e0 ph\u1ea7n Gi\u1ea3i ph\u01b0\u01a1ng tr\u00ecnh l\u01b0\u1ee3ng gi\u00e1c. Ph\u01b0\u01a1ng tr\u00ecnh sin u b\u1eb1ng sin v c\u00f3 2 h\u1ecd nghi\u1ec7m v c\u1ed9ng k 2 pi v\u00e0 pi tr\u1eeb v c\u1ed9ng k 2 pi. Ph\u01b0\u01a1ng tr\u00ecnh cos u b\u1eb1ng cos v c\u00f3 2 h\u1ecd nghi\u1ec7m c\u1ed9ng tr\u1eeb v c\u1ed9ng k 2 pi. C\u00e1c tr\u01b0\u1eddng h\u1ee3p \u0111\u1eb7c bi\u1ec7t sin u, cos u b\u1eb1ng 0, b\u1eb1ng 1 ho\u1eb7c b\u1eb1ng tr\u1eeb 1 ch\u1ec9 c\u00f3 duy nh\u1ea5t 1 h\u1ecd nghi\u1ec7m g\u1ed9p c\u1ea7n ghi nh\u1edb ch\u00ednh x\u00e1c.",
+      "service": "gtts"
+    },
+    "original_audio": "tiep-theo-la-phan-giai-phuong-trinh-luong-giac-c5b5bc13.mp3",
+    "final_audio": "tiep-theo-la-phan-giai-phuong-trinh-luong-giac-c5b5bc13.mp3"
+  },
+  {
+    "input_text": "\u0110\u1ecbnh l\u00fd Cosin ph\u00e1t bi\u1ec3u: Trong tam gi\u00e1c ABC, b\u00ecnh ph\u01b0\u01a1ng m\u1ed9t c\u1ea1nh b\u1eb1ng t\u1ed5ng b\u00ecnh ph\u01b0\u01a1ng hai c\u1ea1nh c\u00f2n l\u1ea1i tr\u1eeb \u0111i hai l\u1ea7n t\u00edch hai c\u1ea1nh \u0111\u00f3 nh\u00e2n v\u1edbi cosin g\u00f3c k\u1eb9p gi\u1eefa. Ch\u1ee9ng minh c\u1ef1c k\u1ef3 \u0111\u01a1n gi\u1ea3n b\u1eb1ng t\u00edch v\u00f4 h\u01b0\u1edbng v\u00e9c t\u01a1: v\u00e9c t\u01a1 BC b\u1eb1ng AC tr\u1eeb AB, b\u00ecnh ph\u01b0\u01a1ng hai v\u1ebf ta thu \u0111\u01b0\u1ee3c a b\u00ecnh b\u1eb1ng b b\u00ecnh c\u1ed9ng c b\u00ecnh tr\u1eeb 2bc cos A. \u0110\u1ecbnh l\u00fd Sin ph\u00e1t bi\u1ec3u t\u1ef7 s\u1ed1 a tr\u00ean sin A b\u1eb1ng b tr\u00ean sin B b\u1eb1ng c tr\u00ean sin C b\u1eb1ng 2R.",
+    "input_data": {
+      "input_text": "\u0110\u1ecbnh l\u00fd Cosin ph\u00e1t bi\u1ec3u: Trong tam gi\u00e1c ABC, b\u00ecnh ph\u01b0\u01a1ng m\u1ed9t c\u1ea1nh b\u1eb1ng t\u1ed5ng b\u00ecnh ph\u01b0\u01a1ng hai c\u1ea1nh c\u00f2n l\u1ea1i tr\u1eeb \u0111i hai l\u1ea7n t\u00edch hai c\u1ea1nh \u0111\u00f3 nh\u00e2n v\u1edbi cosin g\u00f3c k\u1eb9p gi\u1eefa. Ch\u1ee9ng minh c\u1ef1c k\u1ef3 \u0111\u01a1n gi\u1ea3n b\u1eb1ng t\u00edch v\u00f4 h\u01b0\u1edbng v\u00e9c t\u01a1: v\u00e9c t\u01a1 BC b\u1eb1ng AC tr\u1eeb AB, b\u00ecnh ph\u01b0\u01a1ng hai v\u1ebf ta thu \u0111\u01b0\u1ee3c a b\u00ecnh b\u1eb1ng b b\u00ecnh c\u1ed9ng c b\u00ecnh tr\u1eeb 2bc cos A. \u0110\u1ecbnh l\u00fd Sin ph\u00e1t bi\u1ec3u t\u1ef7 s\u1ed1 a tr\u00ean sin A b\u1eb1ng b tr\u00ean sin B b\u1eb1ng c tr\u00ean sin C b\u1eb1ng 2R.",
+      "service": "gtts"
+    },
+    "original_audio": "dinh-ly-cosin-phat-bieu-trong-tam-giac-abc-binh-6df7dc6d.mp3",
+    "final_audio": "dinh-ly-cosin-phat-bieu-trong-tam-giac-abc-binh-6df7dc6d.mp3"
+  },
+  {
+    "input_text": "V\u1ec1 di\u1ec7n t\u00edch tam gi\u00e1c ABC: Ta c\u00f3 c\u00f4ng th\u1ee9c 1 ph\u1ea7n 2 t\u00edch hai c\u1ea1nh nh\u00e2n sin g\u00f3c k\u1eb9p gi\u1eefa. Thay sin A b\u1eb1ng a tr\u00ean 2R ta \u0111\u01b0\u1ee3c c\u00f4ng th\u1ee9c S b\u1eb1ng abc tr\u00ean 4R. C\u00f4ng th\u1ee9c S b\u1eb1ng p nh\u00e2n r v\u1edbi p l\u00e0 n\u1eeda chu vi gi\u00fap t\u00ednh b\u00e1n k\u00ednh \u0111\u01b0\u1eddng tr\u00f2n n\u1ed9i ti\u1ebfp r b\u1eb1ng S tr\u00ean p. C\u00f4ng th\u1ee9c Heron t\u00ednh di\u1ec7n t\u00edch khi bi\u1ebft 3 c\u1ea1nh v\u00e0 c\u00f4ng th\u1ee9c \u0111\u01b0\u1eddng trung tuy\u1ebfn m a b\u00ecnh b\u1eb1ng b b\u00ecnh c\u1ed9ng c b\u00ecnh tr\u00ean 2 tr\u1eeb a b\u00ecnh tr\u00ean 4.",
+    "input_data": {
+      "input_text": "V\u1ec1 di\u1ec7n t\u00edch tam gi\u00e1c ABC: Ta c\u00f3 c\u00f4ng th\u1ee9c 1 ph\u1ea7n 2 t\u00edch hai c\u1ea1nh nh\u00e2n sin g\u00f3c k\u1eb9p gi\u1eefa. Thay sin A b\u1eb1ng a tr\u00ean 2R ta \u0111\u01b0\u1ee3c c\u00f4ng th\u1ee9c S b\u1eb1ng abc tr\u00ean 4R. C\u00f4ng th\u1ee9c S b\u1eb1ng p nh\u00e2n r v\u1edbi p l\u00e0 n\u1eeda chu vi gi\u00fap t\u00ednh b\u00e1n k\u00ednh \u0111\u01b0\u1eddng tr\u00f2n n\u1ed9i ti\u1ebfp r b\u1eb1ng S tr\u00ean p. C\u00f4ng th\u1ee9c Heron t\u00ednh di\u1ec7n t\u00edch khi bi\u1ebft 3 c\u1ea1nh v\u00e0 c\u00f4ng th\u1ee9c \u0111\u01b0\u1eddng trung tuy\u1ebfn m a b\u00ecnh b\u1eb1ng b b\u00ecnh c\u1ed9ng c b\u00ecnh tr\u00ean 2 tr\u1eeb a b\u00ecnh tr\u00ean 4.",
+      "service": "gtts"
+    },
+    "original_audio": "ve-dien-tich-tam-giac-abc-ta-co-cong-thuc-1-phan-2-e97901cf.mp3",
+    "final_audio": "ve-dien-tich-tam-giac-abc-ta-co-cong-thuc-1-phan-2-e97901cf.mp3"
+  },
+  {
+    "input_text": "C\u00e2u 1: \u00c1p d\u1ee5ng \u0111\u1ecbnh l\u00fd Cosin t\u00ednh c\u1ea1nh AB. Ta c\u00f3 AB b\u00ecnh b\u1eb1ng BC b\u00ecnh c\u1ed9ng AC b\u00ecnh tr\u1eeb 2 BC nh\u00e2n AC nh\u00e2n cos C. Thay BC b\u1eb1ng 12, AC b\u1eb1ng 15 v\u00e0 cos 60 \u0111\u1ed9 b\u1eb1ng 1 ph\u1ea7n 2: AB b\u00ecnh b\u1eb1ng 144 c\u1ed9ng 225 tr\u1eeb 180 b\u1eb1ng 189. R\u00fat c\u0103n AB b\u1eb1ng c\u0103n 189 b\u1eb1ng 3 c\u0103n 7. Do \u0111\u00f3 ta ch\u1ecdn \u0111\u00e1p \u00e1n B.",
+    "input_data": {
+      "input_text": "C\u00e2u 1: \u00c1p d\u1ee5ng \u0111\u1ecbnh l\u00fd Cosin t\u00ednh c\u1ea1nh AB. Ta c\u00f3 AB b\u00ecnh b\u1eb1ng BC b\u00ecnh c\u1ed9ng AC b\u00ecnh tr\u1eeb 2 BC nh\u00e2n AC nh\u00e2n cos C. Thay BC b\u1eb1ng 12, AC b\u1eb1ng 15 v\u00e0 cos 60 \u0111\u1ed9 b\u1eb1ng 1 ph\u1ea7n 2: AB b\u00ecnh b\u1eb1ng 144 c\u1ed9ng 225 tr\u1eeb 180 b\u1eb1ng 189. R\u00fat c\u0103n AB b\u1eb1ng c\u0103n 189 b\u1eb1ng 3 c\u0103n 7. Do \u0111\u00f3 ta ch\u1ecdn \u0111\u00e1p \u00e1n B.",
+      "service": "gtts"
+    },
+    "original_audio": "cau-1-ap-dung-dinh-ly-cosin-tinh-canh-ab-ta-co-ab-b55d8088.mp3",
+    "final_audio": "cau-1-ap-dung-dinh-ly-cosin-tinh-canh-ab-ta-co-ab-b55d8088.mp3"
+  },
+  {
+    "input_text": "Ch\u00e0o m\u1eebng c\u00e1c em h\u1ecdc sinh! H\u00f4m nay ch\u00fang ta s\u1ebd c\u00f9ng nghi\u00ean c\u1ee9u to\u00e0n b\u1ed9 chuy\u00ean \u0111\u1ec1 H\u1ec7 th\u1ee9c l\u01b0\u1ee3ng trong tam gi\u00e1c v\u00e0 Gi\u00e1 tr\u1ecb l\u01b0\u1ee3ng gi\u00e1c c\u1ee7a m\u1ed9t g\u00f3c t\u1eeb 0 \u0111\u1ebfn 180 \u0111\u1ed9.",
+    "input_data": {
+      "input_text": "Ch\u00e0o m\u1eebng c\u00e1c em h\u1ecdc sinh! H\u00f4m nay ch\u00fang ta s\u1ebd c\u00f9ng nghi\u00ean c\u1ee9u to\u00e0n b\u1ed9 chuy\u00ean \u0111\u1ec1 H\u1ec7 th\u1ee9c l\u01b0\u1ee3ng trong tam gi\u00e1c v\u00e0 Gi\u00e1 tr\u1ecb l\u01b0\u1ee3ng gi\u00e1c c\u1ee7a m\u1ed9t g\u00f3c t\u1eeb 0 \u0111\u1ebfn 180 \u0111\u1ed9.",
+      "service": "gtts"
+    },
+    "original_audio": "chao-mung-cac-em-hoc-sinh-hom-nay-chung-ta-se-cung-aafe8559.mp3",
+    "final_audio": "chao-mung-cac-em-hoc-sinh-hom-nay-chung-ta-se-cung-aafe8559.mp3"
+  },
+  {
+    "input_text": "Trong m\u1eb7t ph\u1eb3ng t\u1ecda \u0111\u1ed9 Oxy, x\u00e9t n\u1eeda \u0111\u01b0\u1eddng tr\u00f2n \u0111\u01a1n v\u1ecb b\u00e1n k\u00ednh R b\u1eb1ng 1 n\u1eb1m ph\u00eda tr\u00ean tr\u1ee5c ho\u00e0nh. Cho tr\u01b0\u1edbc g\u00f3c alpha t\u1eeb 0 \u0111\u1ebfn 180 \u0111\u1ed9, c\u00f3 duy nh\u1ea5t \u0111i\u1ec3m M ho\u00e0nh \u0111\u1ed9 x0, tung \u0111\u1ed9 y0 sao cho g\u00f3c xOM b\u1eb1ng alpha. Khi \u0111\u00f3, tung \u0111\u1ed9 y0 \u0111\u01b0\u1ee3c \u0111\u1ecbnh ngh\u0129a l\u00e0 sin alpha, ho\u00e0nh \u0111\u1ed9 x0 l\u00e0 cosin alpha, t\u1ec9 s\u1ed1 y0 tr\u00ean x0 l\u00e0 tang alpha v\u00e0 t\u1ec9 s\u1ed1 x0 tr\u00ean y0 l\u00e0 c\u00f4tang alpha.",
+    "input_data": {
+      "input_text": "Trong m\u1eb7t ph\u1eb3ng t\u1ecda \u0111\u1ed9 Oxy, x\u00e9t n\u1eeda \u0111\u01b0\u1eddng tr\u00f2n \u0111\u01a1n v\u1ecb b\u00e1n k\u00ednh R b\u1eb1ng 1 n\u1eb1m ph\u00eda tr\u00ean tr\u1ee5c ho\u00e0nh. Cho tr\u01b0\u1edbc g\u00f3c alpha t\u1eeb 0 \u0111\u1ebfn 180 \u0111\u1ed9, c\u00f3 duy nh\u1ea5t \u0111i\u1ec3m M ho\u00e0nh \u0111\u1ed9 x0, tung \u0111\u1ed9 y0 sao cho g\u00f3c xOM b\u1eb1ng alpha. Khi \u0111\u00f3, tung \u0111\u1ed9 y0 \u0111\u01b0\u1ee3c \u0111\u1ecbnh ngh\u0129a l\u00e0 sin alpha, ho\u00e0nh \u0111\u1ed9 x0 l\u00e0 cosin alpha, t\u1ec9 s\u1ed1 y0 tr\u00ean x0 l\u00e0 tang alpha v\u00e0 t\u1ec9 s\u1ed1 x0 tr\u00ean y0 l\u00e0 c\u00f4tang alpha.",
+      "service": "gtts"
+    },
+    "original_audio": "trong-mat-phang-toa-do-oxy-xet-nua-duong-tron-don-d98dd366.mp3",
+    "final_audio": "trong-mat-phang-toa-do-oxy-xet-nua-duong-tron-don-d98dd366.mp3"
+  },
+  {
+    "input_text": "Quan s\u00e1t \u0111i\u1ec3m M di chuy\u1ec3n tr\u00ean n\u1eeda \u0111\u01b0\u1eddng tr\u00f2n \u0111\u01a1n v\u1ecb. Khi g\u00f3c alpha thay \u0111\u1ed5i, t\u1ecda \u0111\u1ed9 x0 v\u00e0 y0 thay \u0111\u1ed5i li\u00ean t\u1ee5c, t\u1ea1o n\u00ean c\u00e1c gi\u00e1 tr\u1ecb l\u01b0\u1ee3ng gi\u00e1c t\u01b0\u01a1ng \u1ee9ng.",
+    "input_data": {
+      "input_text": "Quan s\u00e1t \u0111i\u1ec3m M di chuy\u1ec3n tr\u00ean n\u1eeda \u0111\u01b0\u1eddng tr\u00f2n \u0111\u01a1n v\u1ecb. Khi g\u00f3c alpha thay \u0111\u1ed5i, t\u1ecda \u0111\u1ed9 x0 v\u00e0 y0 thay \u0111\u1ed5i li\u00ean t\u1ee5c, t\u1ea1o n\u00ean c\u00e1c gi\u00e1 tr\u1ecb l\u01b0\u1ee3ng gi\u00e1c t\u01b0\u01a1ng \u1ee9ng.",
+      "service": "gtts"
+    },
+    "original_audio": "quan-sat-diem-m-di-chuyen-tren-nua-duong-tron-don-34da2717.mp3",
+    "final_audio": "quan-sat-diem-m-di-chuyen-tren-nua-duong-tron-don-34da2717.mp3"
+  },
+  {
+    "input_text": "D\u01b0\u1edbi \u0111\u00e2y l\u00e0 b\u1ea3ng gi\u00e1 tr\u1ecb l\u01b0\u1ee3ng gi\u00e1c c\u1ee7a c\u00e1c g\u00f3c \u0111\u1eb7c bi\u1ec7t 0, 30, 45, 60, 90 v\u00e0 180 \u0111\u1ed9. C\u00e1c em c\u1ea7n ghi nh\u1edb k\u1ef9 c\u00e1c gi\u00e1 tr\u1ecb 1 ph\u1ea7n 2, c\u0103n 2 tr\u00ean 2, c\u0103n 3 tr\u00ean 2 \u0111\u1ec3 l\u00e0m t\u1ed1t c\u00e1c b\u00e0i t\u1eadp l\u01b0\u1ee3ng gi\u00e1c.",
+    "input_data": {
+      "input_text": "D\u01b0\u1edbi \u0111\u00e2y l\u00e0 b\u1ea3ng gi\u00e1 tr\u1ecb l\u01b0\u1ee3ng gi\u00e1c c\u1ee7a c\u00e1c g\u00f3c \u0111\u1eb7c bi\u1ec7t 0, 30, 45, 60, 90 v\u00e0 180 \u0111\u1ed9. C\u00e1c em c\u1ea7n ghi nh\u1edb k\u1ef9 c\u00e1c gi\u00e1 tr\u1ecb 1 ph\u1ea7n 2, c\u0103n 2 tr\u00ean 2, c\u0103n 3 tr\u00ean 2 \u0111\u1ec3 l\u00e0m t\u1ed1t c\u00e1c b\u00e0i t\u1eadp l\u01b0\u1ee3ng gi\u00e1c.",
+      "service": "gtts"
+    },
+    "original_audio": "duoi-day-la-bang-gia-tri-luong-giac-cua-cac-goc-d81a9587.mp3",
+    "final_audio": "duoi-day-la-bang-gia-tri-luong-giac-cua-cac-goc-d81a9587.mp3"
+  },
+  {
+    "input_text": "\u0110\u00e2y l\u00e0 h\u00ecnh v\u1ebd minh h\u1ecda tr\u1ef1c quan hai g\u00f3c b\u00f9 nhau alpha v\u00e0 180 \u0111\u1ed9 tr\u1eeb alpha tr\u00ean n\u1eeda \u0111\u01b0\u1eddng tr\u00f2n \u0111\u01a1n v\u1ecb. \u0110i\u1ec3m M \u0111\u1ea1i di\u1ec7n cho g\u00f3c alpha 30 \u0111\u1ed9, \u0111i\u1ec3m M ph\u1ea9y \u0111\u1ea1i di\u1ec7n cho g\u00f3c b\u00f9 150 \u0111\u1ed9. Do M v\u00e0 M ph\u1ea9y \u0111\u1ed1i x\u1ee9ng qua tr\u1ee5c tung Oy n\u00ean ch\u00fang c\u00f3 C\u00d9NG TUNG \u0110\u1ed8 y0. Do \u0111\u00f3, sin c\u1ee7a 180 \u0111\u1ed9 tr\u1eeb alpha B\u1eb0NG sin alpha, c\u00f2n cosin ho\u00e0nh \u0111\u1ed9 th\u00ec tr\u00e1i d\u1ea5u \u00e2m x0.",
+    "input_data": {
+      "input_text": "\u0110\u00e2y l\u00e0 h\u00ecnh v\u1ebd minh h\u1ecda tr\u1ef1c quan hai g\u00f3c b\u00f9 nhau alpha v\u00e0 180 \u0111\u1ed9 tr\u1eeb alpha tr\u00ean n\u1eeda \u0111\u01b0\u1eddng tr\u00f2n \u0111\u01a1n v\u1ecb. \u0110i\u1ec3m M \u0111\u1ea1i di\u1ec7n cho g\u00f3c alpha 30 \u0111\u1ed9, \u0111i\u1ec3m M ph\u1ea9y \u0111\u1ea1i di\u1ec7n cho g\u00f3c b\u00f9 150 \u0111\u1ed9. Do M v\u00e0 M ph\u1ea9y \u0111\u1ed1i x\u1ee9ng qua tr\u1ee5c tung Oy n\u00ean ch\u00fang c\u00f3 C\u00d9NG TUNG \u0110\u1ed8 y0. Do \u0111\u00f3, sin c\u1ee7a 180 \u0111\u1ed9 tr\u1eeb alpha B\u1eb0NG sin alpha, c\u00f2n cosin ho\u00e0nh \u0111\u1ed9 th\u00ec tr\u00e1i d\u1ea5u \u00e2m x0.",
+      "service": "gtts"
+    },
+    "original_audio": "day-la-hinh-ve-minh-hoa-truc-quan-hai-goc-bu-nhau-d5df330e.mp3",
+    "final_audio": "day-la-hinh-ve-minh-hoa-truc-quan-hai-goc-bu-nhau-d5df330e.mp3"
+  },
+  {
+    "input_text": "B\u00e2y gi\u1edd l\u00e0 h\u00ecnh v\u1ebd minh h\u1ecda hai g\u00f3c ph\u1ee5 nhau alpha 30 \u0111\u1ed9 v\u00e0 90 \u0111\u1ed9 tr\u1eeb alpha 60 \u0111\u1ed9. Hai \u0111i\u1ec3m M v\u00e0 N \u0111\u1ed1i x\u1ee9ng v\u1edbi nhau qua \u0111\u01b0\u1eddng ph\u00e2n gi\u00e1c y b\u1eb1ng x. T\u1ecda \u0111\u1ed9 \u0111i\u1ec3m N b\u1ecb ho\u00e1n \u0111\u1ed5i th\u00e0nh y0, x0. Do \u0111\u00f3, sin c\u1ee7a 90 \u0111\u1ed9 tr\u1eeb alpha B\u1eb0NG cosin alpha, v\u00e0 cosin c\u1ee7a 90 \u0111\u1ed9 tr\u1eeb alpha B\u1eb0NG sin alpha. Sin g\u00f3c n\u00e0y ch\u00ednh l\u00e0 Cosin g\u00f3c kia!",
+    "input_data": {
+      "input_text": "B\u00e2y gi\u1edd l\u00e0 h\u00ecnh v\u1ebd minh h\u1ecda hai g\u00f3c ph\u1ee5 nhau alpha 30 \u0111\u1ed9 v\u00e0 90 \u0111\u1ed9 tr\u1eeb alpha 60 \u0111\u1ed9. Hai \u0111i\u1ec3m M v\u00e0 N \u0111\u1ed1i x\u1ee9ng v\u1edbi nhau qua \u0111\u01b0\u1eddng ph\u00e2n gi\u00e1c y b\u1eb1ng x. T\u1ecda \u0111\u1ed9 \u0111i\u1ec3m N b\u1ecb ho\u00e1n \u0111\u1ed5i th\u00e0nh y0, x0. Do \u0111\u00f3, sin c\u1ee7a 90 \u0111\u1ed9 tr\u1eeb alpha B\u1eb0NG cosin alpha, v\u00e0 cosin c\u1ee7a 90 \u0111\u1ed9 tr\u1eeb alpha B\u1eb0NG sin alpha. Sin g\u00f3c n\u00e0y ch\u00ednh l\u00e0 Cosin g\u00f3c kia!",
+      "service": "gtts"
+    },
+    "original_audio": "bay-gio-la-hinh-ve-minh-hoa-hai-goc-phu-nhau-alpha-39f12690.mp3",
+    "final_audio": "bay-gio-la-hinh-ve-minh-hoa-hai-goc-phu-nhau-alpha-39f12690.mp3"
+  },
+  {
+    "input_text": "Ti\u1ebfp theo l\u00e0 ph\u1ea7n Gi\u1ea3i ph\u01b0\u01a1ng tr\u00ecnh l\u01b0\u1ee3ng gi\u00e1c. Ph\u01b0\u01a1ng tr\u00ecnh sin u b\u1eb1ng sin v c\u00f3 2 h\u1ecd nghi\u1ec7m v c\u1ed9ng k 2 pi v\u00e0 pi tr\u1eeb v c\u1ed9ng k 2 pi. Ph\u01b0\u01a1ng tr\u00ecnh cos u b\u1eb1ng cos v c\u00f3 2 h\u1ecd nghi\u1ec7m c\u1ed9ng tr\u1eeb v c\u1ed9ng k 2 pi. C\u00e1c tr\u01b0\u1eddng h\u1ee3p \u0111\u1eb7c bi\u1ec7t sin u, cos u b\u1eb1ng 0, b\u1eb1ng 1 ho\u1eb7c b\u1eb1ng tr\u1eeb 1 ch\u1ec9 c\u00f3 duy nh\u1ea5t 1 h\u1ecd nghi\u1ec7m g\u1ed9p c\u1ea7n ghi nh\u1edb ch\u00ednh x\u00e1c.",
+    "input_data": {
+      "input_text": "Ti\u1ebfp theo l\u00e0 ph\u1ea7n Gi\u1ea3i ph\u01b0\u01a1ng tr\u00ecnh l\u01b0\u1ee3ng gi\u00e1c. Ph\u01b0\u01a1ng tr\u00ecnh sin u b\u1eb1ng sin v c\u00f3 2 h\u1ecd nghi\u1ec7m v c\u1ed9ng k 2 pi v\u00e0 pi tr\u1eeb v c\u1ed9ng k 2 pi. Ph\u01b0\u01a1ng tr\u00ecnh cos u b\u1eb1ng cos v c\u00f3 2 h\u1ecd nghi\u1ec7m c\u1ed9ng tr\u1eeb v c\u1ed9ng k 2 pi. C\u00e1c tr\u01b0\u1eddng h\u1ee3p \u0111\u1eb7c bi\u1ec7t sin u, cos u b\u1eb1ng 0, b\u1eb1ng 1 ho\u1eb7c b\u1eb1ng tr\u1eeb 1 ch\u1ec9 c\u00f3 duy nh\u1ea5t 1 h\u1ecd nghi\u1ec7m g\u1ed9p c\u1ea7n ghi nh\u1edb ch\u00ednh x\u00e1c.",
+      "service": "gtts"
+    },
+    "original_audio": "tiep-theo-la-phan-giai-phuong-trinh-luong-giac-c5b5bc13.mp3",
+    "final_audio": "tiep-theo-la-phan-giai-phuong-trinh-luong-giac-c5b5bc13.mp3"
+  },
+  {
+    "input_text": "\u0110\u1ecbnh l\u00fd Cosin ph\u00e1t bi\u1ec3u: Trong tam gi\u00e1c ABC, b\u00ecnh ph\u01b0\u01a1ng m\u1ed9t c\u1ea1nh b\u1eb1ng t\u1ed5ng b\u00ecnh ph\u01b0\u01a1ng hai c\u1ea1nh c\u00f2n l\u1ea1i tr\u1eeb \u0111i hai l\u1ea7n t\u00edch hai c\u1ea1nh \u0111\u00f3 nh\u00e2n v\u1edbi cosin g\u00f3c k\u1eb9p gi\u1eefa. Ch\u1ee9ng minh c\u1ef1c k\u1ef3 \u0111\u01a1n gi\u1ea3n b\u1eb1ng t\u00edch v\u00f4 h\u01b0\u1edbng v\u00e9c t\u01a1: v\u00e9c t\u01a1 BC b\u1eb1ng AC tr\u1eeb AB, b\u00ecnh ph\u01b0\u01a1ng hai v\u1ebf ta thu \u0111\u01b0\u1ee3c a b\u00ecnh b\u1eb1ng b b\u00ecnh c\u1ed9ng c b\u00ecnh tr\u1eeb 2bc cos A. \u0110\u1ecbnh l\u00fd Sin ph\u00e1t bi\u1ec3u t\u1ef7 s\u1ed1 a tr\u00ean sin A b\u1eb1ng b tr\u00ean sin B b\u1eb1ng c tr\u00ean sin C b\u1eb1ng 2R.",
+    "input_data": {
+      "input_text": "\u0110\u1ecbnh l\u00fd Cosin ph\u00e1t bi\u1ec3u: Trong tam gi\u00e1c ABC, b\u00ecnh ph\u01b0\u01a1ng m\u1ed9t c\u1ea1nh b\u1eb1ng t\u1ed5ng b\u00ecnh ph\u01b0\u01a1ng hai c\u1ea1nh c\u00f2n l\u1ea1i tr\u1eeb \u0111i hai l\u1ea7n t\u00edch hai c\u1ea1nh \u0111\u00f3 nh\u00e2n v\u1edbi cosin g\u00f3c k\u1eb9p gi\u1eefa. Ch\u1ee9ng minh c\u1ef1c k\u1ef3 \u0111\u01a1n gi\u1ea3n b\u1eb1ng t\u00edch v\u00f4 h\u01b0\u1edbng v\u00e9c t\u01a1: v\u00e9c t\u01a1 BC b\u1eb1ng AC tr\u1eeb AB, b\u00ecnh ph\u01b0\u01a1ng hai v\u1ebf ta thu \u0111\u01b0\u1ee3c a b\u00ecnh b\u1eb1ng b b\u00ecnh c\u1ed9ng c b\u00ecnh tr\u1eeb 2bc cos A. \u0110\u1ecbnh l\u00fd Sin ph\u00e1t bi\u1ec3u t\u1ef7 s\u1ed1 a tr\u00ean sin A b\u1eb1ng b tr\u00ean sin B b\u1eb1ng c tr\u00ean sin C b\u1eb1ng 2R.",
+      "service": "gtts"
+    },
+    "original_audio": "dinh-ly-cosin-phat-bieu-trong-tam-giac-abc-binh-6df7dc6d.mp3",
+    "final_audio": "dinh-ly-cosin-phat-bieu-trong-tam-giac-abc-binh-6df7dc6d.mp3"
+  },
+  {
+    "input_text": "V\u1ec1 di\u1ec7n t\u00edch tam gi\u00e1c ABC: Ta c\u00f3 c\u00f4ng th\u1ee9c 1 ph\u1ea7n 2 t\u00edch hai c\u1ea1nh nh\u00e2n sin g\u00f3c k\u1eb9p gi\u1eefa. Thay sin A b\u1eb1ng a tr\u00ean 2R ta \u0111\u01b0\u1ee3c c\u00f4ng th\u1ee9c S b\u1eb1ng abc tr\u00ean 4R. C\u00f4ng th\u1ee9c S b\u1eb1ng p nh\u00e2n r v\u1edbi p l\u00e0 n\u1eeda chu vi gi\u00fap t\u00ednh b\u00e1n k\u00ednh \u0111\u01b0\u1eddng tr\u00f2n n\u1ed9i ti\u1ebfp r b\u1eb1ng S tr\u00ean p. C\u00f4ng th\u1ee9c Heron t\u00ednh di\u1ec7n t\u00edch khi bi\u1ebft 3 c\u1ea1nh v\u00e0 c\u00f4ng th\u1ee9c \u0111\u01b0\u1eddng trung tuy\u1ebfn m a b\u00ecnh b\u1eb1ng b b\u00ecnh c\u1ed9ng c b\u00ecnh tr\u00ean 2 tr\u1eeb a b\u00ecnh tr\u00ean 4.",
+    "input_data": {
+      "input_text": "V\u1ec1 di\u1ec7n t\u00edch tam gi\u00e1c ABC: Ta c\u00f3 c\u00f4ng th\u1ee9c 1 ph\u1ea7n 2 t\u00edch hai c\u1ea1nh nh\u00e2n sin g\u00f3c k\u1eb9p gi\u1eefa. Thay sin A b\u1eb1ng a tr\u00ean 2R ta \u0111\u01b0\u1ee3c c\u00f4ng th\u1ee9c S b\u1eb1ng abc tr\u00ean 4R. C\u00f4ng th\u1ee9c S b\u1eb1ng p nh\u00e2n r v\u1edbi p l\u00e0 n\u1eeda chu vi gi\u00fap t\u00ednh b\u00e1n k\u00ednh \u0111\u01b0\u1eddng tr\u00f2n n\u1ed9i ti\u1ebfp r b\u1eb1ng S tr\u00ean p. C\u00f4ng th\u1ee9c Heron t\u00ednh di\u1ec7n t\u00edch khi bi\u1ebft 3 c\u1ea1nh v\u00e0 c\u00f4ng th\u1ee9c \u0111\u01b0\u1eddng trung tuy\u1ebfn m a b\u00ecnh b\u1eb1ng b b\u00ecnh c\u1ed9ng c b\u00ecnh tr\u00ean 2 tr\u1eeb a b\u00ecnh tr\u00ean 4.",
+      "service": "gtts"
+    },
+    "original_audio": "ve-dien-tich-tam-giac-abc-ta-co-cong-thuc-1-phan-2-e97901cf.mp3",
+    "final_audio": "ve-dien-tich-tam-giac-abc-ta-co-cong-thuc-1-phan-2-e97901cf.mp3"
+  },
+  {
+    "input_text": "C\u00e2u 1: \u00c1p d\u1ee5ng \u0111\u1ecbnh l\u00fd Cosin t\u00ednh c\u1ea1nh AB. Ta c\u00f3 AB b\u00ecnh b\u1eb1ng BC b\u00ecnh c\u1ed9ng AC b\u00ecnh tr\u1eeb 2 BC nh\u00e2n AC nh\u00e2n cos C. Thay BC b\u1eb1ng 12, AC b\u1eb1ng 15 v\u00e0 cos 60 \u0111\u1ed9 b\u1eb1ng 1 ph\u1ea7n 2: AB b\u00ecnh b\u1eb1ng 144 c\u1ed9ng 225 tr\u1eeb 180 b\u1eb1ng 189. R\u00fat c\u0103n AB b\u1eb1ng c\u0103n 189 b\u1eb1ng 3 c\u0103n 7. Do \u0111\u00f3 ta ch\u1ecdn \u0111\u00e1p \u00e1n B.",
+    "input_data": {
+      "input_text": "C\u00e2u 1: \u00c1p d\u1ee5ng \u0111\u1ecbnh l\u00fd Cosin t\u00ednh c\u1ea1nh AB. Ta c\u00f3 AB b\u00ecnh b\u1eb1ng BC b\u00ecnh c\u1ed9ng AC b\u00ecnh tr\u1eeb 2 BC nh\u00e2n AC nh\u00e2n cos C. Thay BC b\u1eb1ng 12, AC b\u1eb1ng 15 v\u00e0 cos 60 \u0111\u1ed9 b\u1eb1ng 1 ph\u1ea7n 2: AB b\u00ecnh b\u1eb1ng 144 c\u1ed9ng 225 tr\u1eeb 180 b\u1eb1ng 189. R\u00fat c\u0103n AB b\u1eb1ng c\u0103n 189 b\u1eb1ng 3 c\u0103n 7. Do \u0111\u00f3 ta ch\u1ecdn \u0111\u00e1p \u00e1n B.",
+      "service": "gtts"
+    },
+    "original_audio": "cau-1-ap-dung-dinh-ly-cosin-tinh-canh-ab-ta-co-ab-b55d8088.mp3",
+    "final_audio": "cau-1-ap-dung-dinh-ly-cosin-tinh-canh-ab-ta-co-ab-b55d8088.mp3"
+  },
+  {
+    "input_text": "Ch\u00e0o m\u1eebng c\u00e1c em h\u1ecdc sinh! H\u00f4m nay ch\u00fang ta s\u1ebd c\u00f9ng nghi\u00ean c\u1ee9u to\u00e0n b\u1ed9 chuy\u00ean \u0111\u1ec1 H\u1ec7 th\u1ee9c l\u01b0\u1ee3ng trong tam gi\u00e1c v\u00e0 Gi\u00e1 tr\u1ecb l\u01b0\u1ee3ng gi\u00e1c c\u1ee7a m\u1ed9t g\u00f3c t\u1eeb 0 \u0111\u1ebfn 180 \u0111\u1ed9.",
+    "input_data": {
+      "input_text": "Ch\u00e0o m\u1eebng c\u00e1c em h\u1ecdc sinh! H\u00f4m nay ch\u00fang ta s\u1ebd c\u00f9ng nghi\u00ean c\u1ee9u to\u00e0n b\u1ed9 chuy\u00ean \u0111\u1ec1 H\u1ec7 th\u1ee9c l\u01b0\u1ee3ng trong tam gi\u00e1c v\u00e0 Gi\u00e1 tr\u1ecb l\u01b0\u1ee3ng gi\u00e1c c\u1ee7a m\u1ed9t g\u00f3c t\u1eeb 0 \u0111\u1ebfn 180 \u0111\u1ed9.",
+      "service": "gtts"
+    },
+    "original_audio": "chao-mung-cac-em-hoc-sinh-hom-nay-chung-ta-se-cung-aafe8559.mp3",
+    "final_audio": "chao-mung-cac-em-hoc-sinh-hom-nay-chung-ta-se-cung-aafe8559.mp3"
+  },
+  {
+    "input_text": "Trong m\u1eb7t ph\u1eb3ng t\u1ecda \u0111\u1ed9 Oxy, x\u00e9t n\u1eeda \u0111\u01b0\u1eddng tr\u00f2n \u0111\u01a1n v\u1ecb b\u00e1n k\u00ednh R b\u1eb1ng 1 n\u1eb1m ph\u00eda tr\u00ean tr\u1ee5c ho\u00e0nh. Cho tr\u01b0\u1edbc g\u00f3c alpha t\u1eeb 0 \u0111\u1ebfn 180 \u0111\u1ed9, c\u00f3 duy nh\u1ea5t \u0111i\u1ec3m M ho\u00e0nh \u0111\u1ed9 x0, tung \u0111\u1ed9 y0 sao cho g\u00f3c xOM b\u1eb1ng alpha. Khi \u0111\u00f3, tung \u0111\u1ed9 y0 \u0111\u01b0\u1ee3c \u0111\u1ecbnh ngh\u0129a l\u00e0 sin alpha, ho\u00e0nh \u0111\u1ed9 x0 l\u00e0 cosin alpha, t\u1ec9 s\u1ed1 y0 tr\u00ean x0 l\u00e0 tang alpha v\u00e0 t\u1ec9 s\u1ed1 x0 tr\u00ean y0 l\u00e0 c\u00f4tang alpha.",
+    "input_data": {
+      "input_text": "Trong m\u1eb7t ph\u1eb3ng t\u1ecda \u0111\u1ed9 Oxy, x\u00e9t n\u1eeda \u0111\u01b0\u1eddng tr\u00f2n \u0111\u01a1n v\u1ecb b\u00e1n k\u00ednh R b\u1eb1ng 1 n\u1eb1m ph\u00eda tr\u00ean tr\u1ee5c ho\u00e0nh. Cho tr\u01b0\u1edbc g\u00f3c alpha t\u1eeb 0 \u0111\u1ebfn 180 \u0111\u1ed9, c\u00f3 duy nh\u1ea5t \u0111i\u1ec3m M ho\u00e0nh \u0111\u1ed9 x0, tung \u0111\u1ed9 y0 sao cho g\u00f3c xOM b\u1eb1ng alpha. Khi \u0111\u00f3, tung \u0111\u1ed9 y0 \u0111\u01b0\u1ee3c \u0111\u1ecbnh ngh\u0129a l\u00e0 sin alpha, ho\u00e0nh \u0111\u1ed9 x0 l\u00e0 cosin alpha, t\u1ec9 s\u1ed1 y0 tr\u00ean x0 l\u00e0 tang alpha v\u00e0 t\u1ec9 s\u1ed1 x0 tr\u00ean y0 l\u00e0 c\u00f4tang alpha.",
+      "service": "gtts"
+    },
+    "original_audio": "trong-mat-phang-toa-do-oxy-xet-nua-duong-tron-don-d98dd366.mp3",
+    "final_audio": "trong-mat-phang-toa-do-oxy-xet-nua-duong-tron-don-d98dd366.mp3"
+  },
+  {
+    "input_text": "Quan s\u00e1t \u0111i\u1ec3m M di chuy\u1ec3n tr\u00ean n\u1eeda \u0111\u01b0\u1eddng tr\u00f2n \u0111\u01a1n v\u1ecb. Khi g\u00f3c alpha thay \u0111\u1ed5i, t\u1ecda \u0111\u1ed9 x0 v\u00e0 y0 thay \u0111\u1ed5i li\u00ean t\u1ee5c, t\u1ea1o n\u00ean c\u00e1c gi\u00e1 tr\u1ecb l\u01b0\u1ee3ng gi\u00e1c t\u01b0\u01a1ng \u1ee9ng.",
+    "input_data": {
+      "input_text": "Quan s\u00e1t \u0111i\u1ec3m M di chuy\u1ec3n tr\u00ean n\u1eeda \u0111\u01b0\u1eddng tr\u00f2n \u0111\u01a1n v\u1ecb. Khi g\u00f3c alpha thay \u0111\u1ed5i, t\u1ecda \u0111\u1ed9 x0 v\u00e0 y0 thay \u0111\u1ed5i li\u00ean t\u1ee5c, t\u1ea1o n\u00ean c\u00e1c gi\u00e1 tr\u1ecb l\u01b0\u1ee3ng gi\u00e1c t\u01b0\u01a1ng \u1ee9ng.",
+      "service": "gtts"
+    },
+    "original_audio": "quan-sat-diem-m-di-chuyen-tren-nua-duong-tron-don-34da2717.mp3",
+    "final_audio": "quan-sat-diem-m-di-chuyen-tren-nua-duong-tron-don-34da2717.mp3"
+  },
+  {
+    "input_text": "D\u01b0\u1edbi \u0111\u00e2y l\u00e0 b\u1ea3ng gi\u00e1 tr\u1ecb l\u01b0\u1ee3ng gi\u00e1c c\u1ee7a c\u00e1c g\u00f3c \u0111\u1eb7c bi\u1ec7t 0, 30, 45, 60, 90 v\u00e0 180 \u0111\u1ed9. C\u00e1c em c\u1ea7n ghi nh\u1edb k\u1ef9 c\u00e1c gi\u00e1 tr\u1ecb 1 ph\u1ea7n 2, c\u0103n 2 tr\u00ean 2, c\u0103n 3 tr\u00ean 2 \u0111\u1ec3 l\u00e0m t\u1ed1t c\u00e1c b\u00e0i t\u1eadp l\u01b0\u1ee3ng gi\u00e1c.",
+    "input_data": {
+      "input_text": "D\u01b0\u1edbi \u0111\u00e2y l\u00e0 b\u1ea3ng gi\u00e1 tr\u1ecb l\u01b0\u1ee3ng gi\u00e1c c\u1ee7a c\u00e1c g\u00f3c \u0111\u1eb7c bi\u1ec7t 0, 30, 45, 60, 90 v\u00e0 180 \u0111\u1ed9. C\u00e1c em c\u1ea7n ghi nh\u1edb k\u1ef9 c\u00e1c gi\u00e1 tr\u1ecb 1 ph\u1ea7n 2, c\u0103n 2 tr\u00ean 2, c\u0103n 3 tr\u00ean 2 \u0111\u1ec3 l\u00e0m t\u1ed1t c\u00e1c b\u00e0i t\u1eadp l\u01b0\u1ee3ng gi\u00e1c.",
+      "service": "gtts"
+    },
+    "original_audio": "duoi-day-la-bang-gia-tri-luong-giac-cua-cac-goc-d81a9587.mp3",
+    "final_audio": "duoi-day-la-bang-gia-tri-luong-giac-cua-cac-goc-d81a9587.mp3"
+  },
+  {
+    "input_text": "\u0110\u00e2y l\u00e0 h\u00ecnh v\u1ebd minh h\u1ecda tr\u1ef1c quan hai g\u00f3c b\u00f9 nhau alpha v\u00e0 180 \u0111\u1ed9 tr\u1eeb alpha tr\u00ean n\u1eeda \u0111\u01b0\u1eddng tr\u00f2n \u0111\u01a1n v\u1ecb. \u0110i\u1ec3m M \u0111\u1ea1i di\u1ec7n cho g\u00f3c alpha 30 \u0111\u1ed9, \u0111i\u1ec3m M ph\u1ea9y \u0111\u1ea1i di\u1ec7n cho g\u00f3c b\u00f9 150 \u0111\u1ed9. Do M v\u00e0 M ph\u1ea9y \u0111\u1ed1i x\u1ee9ng qua tr\u1ee5c tung Oy n\u00ean ch\u00fang c\u00f3 C\u00d9NG TUNG \u0110\u1ed8 y0. Do \u0111\u00f3, sin c\u1ee7a 180 \u0111\u1ed9 tr\u1eeb alpha B\u1eb0NG sin alpha, c\u00f2n cosin ho\u00e0nh \u0111\u1ed9 th\u00ec tr\u00e1i d\u1ea5u \u00e2m x0.",
+    "input_data": {
+      "input_text": "\u0110\u00e2y l\u00e0 h\u00ecnh v\u1ebd minh h\u1ecda tr\u1ef1c quan hai g\u00f3c b\u00f9 nhau alpha v\u00e0 180 \u0111\u1ed9 tr\u1eeb alpha tr\u00ean n\u1eeda \u0111\u01b0\u1eddng tr\u00f2n \u0111\u01a1n v\u1ecb. \u0110i\u1ec3m M \u0111\u1ea1i di\u1ec7n cho g\u00f3c alpha 30 \u0111\u1ed9, \u0111i\u1ec3m M ph\u1ea9y \u0111\u1ea1i di\u1ec7n cho g\u00f3c b\u00f9 150 \u0111\u1ed9. Do M v\u00e0 M ph\u1ea9y \u0111\u1ed1i x\u1ee9ng qua tr\u1ee5c tung Oy n\u00ean ch\u00fang c\u00f3 C\u00d9NG TUNG \u0110\u1ed8 y0. Do \u0111\u00f3, sin c\u1ee7a 180 \u0111\u1ed9 tr\u1eeb alpha B\u1eb0NG sin alpha, c\u00f2n cosin ho\u00e0nh \u0111\u1ed9 th\u00ec tr\u00e1i d\u1ea5u \u00e2m x0.",
+      "service": "gtts"
+    },
+    "original_audio": "day-la-hinh-ve-minh-hoa-truc-quan-hai-goc-bu-nhau-d5df330e.mp3",
+    "final_audio": "day-la-hinh-ve-minh-hoa-truc-quan-hai-goc-bu-nhau-d5df330e.mp3"
+  },
+  {
+    "input_text": "B\u00e2y gi\u1edd l\u00e0 h\u00ecnh v\u1ebd minh h\u1ecda hai g\u00f3c ph\u1ee5 nhau alpha 30 \u0111\u1ed9 v\u00e0 90 \u0111\u1ed9 tr\u1eeb alpha 60 \u0111\u1ed9. Hai \u0111i\u1ec3m M v\u00e0 N \u0111\u1ed1i x\u1ee9ng v\u1edbi nhau qua \u0111\u01b0\u1eddng ph\u00e2n gi\u00e1c y b\u1eb1ng x. T\u1ecda \u0111\u1ed9 \u0111i\u1ec3m N b\u1ecb ho\u00e1n \u0111\u1ed5i th\u00e0nh y0, x0. Do \u0111\u00f3, sin c\u1ee7a 90 \u0111\u1ed9 tr\u1eeb alpha B\u1eb0NG cosin alpha, v\u00e0 cosin c\u1ee7a 90 \u0111\u1ed9 tr\u1eeb alpha B\u1eb0NG sin alpha. Sin g\u00f3c n\u00e0y ch\u00ednh l\u00e0 Cosin g\u00f3c kia!",
+    "input_data": {
+      "input_text": "B\u00e2y gi\u1edd l\u00e0 h\u00ecnh v\u1ebd minh h\u1ecda hai g\u00f3c ph\u1ee5 nhau alpha 30 \u0111\u1ed9 v\u00e0 90 \u0111\u1ed9 tr\u1eeb alpha 60 \u0111\u1ed9. Hai \u0111i\u1ec3m M v\u00e0 N \u0111\u1ed1i x\u1ee9ng v\u1edbi nhau qua \u0111\u01b0\u1eddng ph\u00e2n gi\u00e1c y b\u1eb1ng x. T\u1ecda \u0111\u1ed9 \u0111i\u1ec3m N b\u1ecb ho\u00e1n \u0111\u1ed5i th\u00e0nh y0, x0. Do \u0111\u00f3, sin c\u1ee7a 90 \u0111\u1ed9 tr\u1eeb alpha B\u1eb0NG cosin alpha, v\u00e0 cosin c\u1ee7a 90 \u0111\u1ed9 tr\u1eeb alpha B\u1eb0NG sin alpha. Sin g\u00f3c n\u00e0y ch\u00ednh l\u00e0 Cosin g\u00f3c kia!",
+      "service": "gtts"
+    },
+    "original_audio": "bay-gio-la-hinh-ve-minh-hoa-hai-goc-phu-nhau-alpha-39f12690.mp3",
+    "final_audio": "bay-gio-la-hinh-ve-minh-hoa-hai-goc-phu-nhau-alpha-39f12690.mp3"
+  },
+  {
+    "input_text": "Ti\u1ebfp theo l\u00e0 ph\u1ea7n Gi\u1ea3i ph\u01b0\u01a1ng tr\u00ecnh l\u01b0\u1ee3ng gi\u00e1c. Ph\u01b0\u01a1ng tr\u00ecnh sin u b\u1eb1ng sin v c\u00f3 2 h\u1ecd nghi\u1ec7m v c\u1ed9ng k 2 pi v\u00e0 pi tr\u1eeb v c\u1ed9ng k 2 pi. Ph\u01b0\u01a1ng tr\u00ecnh cos u b\u1eb1ng cos v c\u00f3 2 h\u1ecd nghi\u1ec7m c\u1ed9ng tr\u1eeb v c\u1ed9ng k 2 pi. C\u00e1c tr\u01b0\u1eddng h\u1ee3p \u0111\u1eb7c bi\u1ec7t sin u, cos u b\u1eb1ng 0, b\u1eb1ng 1 ho\u1eb7c b\u1eb1ng tr\u1eeb 1 ch\u1ec9 c\u00f3 duy nh\u1ea5t 1 h\u1ecd nghi\u1ec7m g\u1ed9p c\u1ea7n ghi nh\u1edb ch\u00ednh x\u00e1c.",
+    "input_data": {
+      "input_text": "Ti\u1ebfp theo l\u00e0 ph\u1ea7n Gi\u1ea3i ph\u01b0\u01a1ng tr\u00ecnh l\u01b0\u1ee3ng gi\u00e1c. Ph\u01b0\u01a1ng tr\u00ecnh sin u b\u1eb1ng sin v c\u00f3 2 h\u1ecd nghi\u1ec7m v c\u1ed9ng k 2 pi v\u00e0 pi tr\u1eeb v c\u1ed9ng k 2 pi. Ph\u01b0\u01a1ng tr\u00ecnh cos u b\u1eb1ng cos v c\u00f3 2 h\u1ecd nghi\u1ec7m c\u1ed9ng tr\u1eeb v c\u1ed9ng k 2 pi. C\u00e1c tr\u01b0\u1eddng h\u1ee3p \u0111\u1eb7c bi\u1ec7t sin u, cos u b\u1eb1ng 0, b\u1eb1ng 1 ho\u1eb7c b\u1eb1ng tr\u1eeb 1 ch\u1ec9 c\u00f3 duy nh\u1ea5t 1 h\u1ecd nghi\u1ec7m g\u1ed9p c\u1ea7n ghi nh\u1edb ch\u00ednh x\u00e1c.",
+      "service": "gtts"
+    },
+    "original_audio": "tiep-theo-la-phan-giai-phuong-trinh-luong-giac-c5b5bc13.mp3",
+    "final_audio": "tiep-theo-la-phan-giai-phuong-trinh-luong-giac-c5b5bc13.mp3"
+  },
+  {
+    "input_text": "\u0110\u1ecbnh l\u00fd Cosin ph\u00e1t bi\u1ec3u: Trong tam gi\u00e1c ABC, b\u00ecnh ph\u01b0\u01a1ng m\u1ed9t c\u1ea1nh b\u1eb1ng t\u1ed5ng b\u00ecnh ph\u01b0\u01a1ng hai c\u1ea1nh c\u00f2n l\u1ea1i tr\u1eeb \u0111i hai l\u1ea7n t\u00edch hai c\u1ea1nh \u0111\u00f3 nh\u00e2n v\u1edbi cosin g\u00f3c k\u1eb9p gi\u1eefa. Ch\u1ee9ng minh c\u1ef1c k\u1ef3 \u0111\u01a1n gi\u1ea3n b\u1eb1ng t\u00edch v\u00f4 h\u01b0\u1edbng v\u00e9c t\u01a1: v\u00e9c t\u01a1 BC b\u1eb1ng AC tr\u1eeb AB, b\u00ecnh ph\u01b0\u01a1ng hai v\u1ebf ta thu \u0111\u01b0\u1ee3c a b\u00ecnh b\u1eb1ng b b\u00ecnh c\u1ed9ng c b\u00ecnh tr\u1eeb 2bc cos A. \u0110\u1ecbnh l\u00fd Sin ph\u00e1t bi\u1ec3u t\u1ef7 s\u1ed1 a tr\u00ean sin A b\u1eb1ng b tr\u00ean sin B b\u1eb1ng c tr\u00ean sin C b\u1eb1ng 2R.",
+    "input_data": {
+      "input_text": "\u0110\u1ecbnh l\u00fd Cosin ph\u00e1t bi\u1ec3u: Trong tam gi\u00e1c ABC, b\u00ecnh ph\u01b0\u01a1ng m\u1ed9t c\u1ea1nh b\u1eb1ng t\u1ed5ng b\u00ecnh ph\u01b0\u01a1ng hai c\u1ea1nh c\u00f2n l\u1ea1i tr\u1eeb \u0111i hai l\u1ea7n t\u00edch hai c\u1ea1nh \u0111\u00f3 nh\u00e2n v\u1edbi cosin g\u00f3c k\u1eb9p gi\u1eefa. Ch\u1ee9ng minh c\u1ef1c k\u1ef3 \u0111\u01a1n gi\u1ea3n b\u1eb1ng t\u00edch v\u00f4 h\u01b0\u1edbng v\u00e9c t\u01a1: v\u00e9c t\u01a1 BC b\u1eb1ng AC tr\u1eeb AB, b\u00ecnh ph\u01b0\u01a1ng hai v\u1ebf ta thu \u0111\u01b0\u1ee3c a b\u00ecnh b\u1eb1ng b b\u00ecnh c\u1ed9ng c b\u00ecnh tr\u1eeb 2bc cos A. \u0110\u1ecbnh l\u00fd Sin ph\u00e1t bi\u1ec3u t\u1ef7 s\u1ed1 a tr\u00ean sin A b\u1eb1ng b tr\u00ean sin B b\u1eb1ng c tr\u00ean sin C b\u1eb1ng 2R.",
+      "service": "gtts"
+    },
+    "original_audio": "dinh-ly-cosin-phat-bieu-trong-tam-giac-abc-binh-6df7dc6d.mp3",
+    "final_audio": "dinh-ly-cosin-phat-bieu-trong-tam-giac-abc-binh-6df7dc6d.mp3"
+  },
+  {
+    "input_text": "V\u1ec1 di\u1ec7n t\u00edch tam gi\u00e1c ABC: Ta c\u00f3 c\u00f4ng th\u1ee9c 1 ph\u1ea7n 2 t\u00edch hai c\u1ea1nh nh\u00e2n sin g\u00f3c k\u1eb9p gi\u1eefa. Thay sin A b\u1eb1ng a tr\u00ean 2R ta \u0111\u01b0\u1ee3c c\u00f4ng th\u1ee9c S b\u1eb1ng abc tr\u00ean 4R. C\u00f4ng th\u1ee9c S b\u1eb1ng p nh\u00e2n r v\u1edbi p l\u00e0 n\u1eeda chu vi gi\u00fap t\u00ednh b\u00e1n k\u00ednh \u0111\u01b0\u1eddng tr\u00f2n n\u1ed9i ti\u1ebfp r b\u1eb1ng S tr\u00ean p. C\u00f4ng th\u1ee9c Heron t\u00ednh di\u1ec7n t\u00edch khi bi\u1ebft 3 c\u1ea1nh v\u00e0 c\u00f4ng th\u1ee9c \u0111\u01b0\u1eddng trung tuy\u1ebfn m a b\u00ecnh b\u1eb1ng b b\u00ecnh c\u1ed9ng c b\u00ecnh tr\u00ean 2 tr\u1eeb a b\u00ecnh tr\u00ean 4.",
+    "input_data": {
+      "input_text": "V\u1ec1 di\u1ec7n t\u00edch tam gi\u00e1c ABC: Ta c\u00f3 c\u00f4ng th\u1ee9c 1 ph\u1ea7n 2 t\u00edch hai c\u1ea1nh nh\u00e2n sin g\u00f3c k\u1eb9p gi\u1eefa. Thay sin A b\u1eb1ng a tr\u00ean 2R ta \u0111\u01b0\u1ee3c c\u00f4ng th\u1ee9c S b\u1eb1ng abc tr\u00ean 4R. C\u00f4ng th\u1ee9c S b\u1eb1ng p nh\u00e2n r v\u1edbi p l\u00e0 n\u1eeda chu vi gi\u00fap t\u00ednh b\u00e1n k\u00ednh \u0111\u01b0\u1eddng tr\u00f2n n\u1ed9i ti\u1ebfp r b\u1eb1ng S tr\u00ean p. C\u00f4ng th\u1ee9c Heron t\u00ednh di\u1ec7n t\u00edch khi bi\u1ebft 3 c\u1ea1nh v\u00e0 c\u00f4ng th\u1ee9c \u0111\u01b0\u1eddng trung tuy\u1ebfn m a b\u00ecnh b\u1eb1ng b b\u00ecnh c\u1ed9ng c b\u00ecnh tr\u00ean 2 tr\u1eeb a b\u00ecnh tr\u00ean 4.",
+      "service": "gtts"
+    },
+    "original_audio": "ve-dien-tich-tam-giac-abc-ta-co-cong-thuc-1-phan-2-e97901cf.mp3",
+    "final_audio": "ve-dien-tich-tam-giac-abc-ta-co-cong-thuc-1-phan-2-e97901cf.mp3"
+  },
+  {
+    "input_text": "C\u00e2u 1: \u00c1p d\u1ee5ng \u0111\u1ecbnh l\u00fd Cosin t\u00ednh c\u1ea1nh AB. Ta c\u00f3 AB b\u00ecnh b\u1eb1ng BC b\u00ecnh c\u1ed9ng AC b\u00ecnh tr\u1eeb 2 BC nh\u00e2n AC nh\u00e2n cos C. Thay BC b\u1eb1ng 12, AC b\u1eb1ng 15 v\u00e0 cos 60 \u0111\u1ed9 b\u1eb1ng 1 ph\u1ea7n 2: AB b\u00ecnh b\u1eb1ng 144 c\u1ed9ng 225 tr\u1eeb 180 b\u1eb1ng 189. R\u00fat c\u0103n AB b\u1eb1ng c\u0103n 189 b\u1eb1ng 3 c\u0103n 7. Do \u0111\u00f3 ta ch\u1ecdn \u0111\u00e1p \u00e1n B.",
+    "input_data": {
+      "input_text": "C\u00e2u 1: \u00c1p d\u1ee5ng \u0111\u1ecbnh l\u00fd Cosin t\u00ednh c\u1ea1nh AB. Ta c\u00f3 AB b\u00ecnh b\u1eb1ng BC b\u00ecnh c\u1ed9ng AC b\u00ecnh tr\u1eeb 2 BC nh\u00e2n AC nh\u00e2n cos C. Thay BC b\u1eb1ng 12, AC b\u1eb1ng 15 v\u00e0 cos 60 \u0111\u1ed9 b\u1eb1ng 1 ph\u1ea7n 2: AB b\u00ecnh b\u1eb1ng 144 c\u1ed9ng 225 tr\u1eeb 180 b\u1eb1ng 189. R\u00fat c\u0103n AB b\u1eb1ng c\u0103n 189 b\u1eb1ng 3 c\u0103n 7. Do \u0111\u00f3 ta ch\u1ecdn \u0111\u00e1p \u00e1n B.",
+      "service": "gtts"
+    },
+    "original_audio": "cau-1-ap-dung-dinh-ly-cosin-tinh-canh-ab-ta-co-ab-b55d8088.mp3",
+    "final_audio": "cau-1-ap-dung-dinh-ly-cosin-tinh-canh-ab-ta-co-ab-b55d8088.mp3"
   }
 ]

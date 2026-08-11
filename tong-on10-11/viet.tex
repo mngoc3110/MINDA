@@ -1,0 +1,256 @@
+\documentclass[12pt,a4paper]{extarticle}
+\usepackage[utf8]{inputenc}
+\usepackage[T5]{fontenc}
+\usepackage{geometry}
+\geometry{a4paper, left=1.5cm, right=1cm, top=1.5cm, bottom=1.5cm, headheight=20pt, headsep=15pt, footskip=28pt}
+\usepackage{enumitem}
+% Gọi package nằm trong thư mục con template
+\usepackage{../template/mngocbox}
+
+\begin{document}
+
+% Sử dụng ngoặc vuông [...] để thay đổi linh hoạt các thông số
+\makeheadbox[headerright={Tổng ôn 10-11},chude={CHỦ ĐỀ 01},tieude={Vi-et},dinhdang={Đại số},lop={12 },gv={Nguyễn Lê Minh Ngọc}]
+
+\vspace{2em}
+\makeheading{I}{Tóm tắt lý thuyết}
+\section{Định nghĩa}
+\noindent Phương trình bậc hai một ẩn (nói cho gọn là phương trình bậc hai) là phương trình có dạng $ax^2+bx+c=0$ trong đó $x$ là ẩn và $a,b,c$ là những hệ số cho trước và $a\neq0$. 
+\section{Một số dạng đặc biệt}
+\noindent Có một số dạng đặc biệt như $ax^2 + bx = 0; ax^2 + c = 0$.
+Dùng phương pháp đặt nhân tử chung hoặc dùng hằng đẳng thức để đưa vế trái về một bình phương.
+
+\noindent\textbf{Lưu ý:}
+\begin{itemize}
+    \item Nếu $A \cdot B = 0$ thì $A = 0$ hoặc $B = 0$.
+    \item Nếu $A^2 = B$ ($B \geq 0$) thì $A = \sqrt{B}$ hoặc $A = -\sqrt{B}$.
+\end{itemize}
+\section{Công thức nghiệm của phương trình bậc hai}
+Xét phương trình bậc hai một ẩn $ax^2 + bx + c = 0$ ($a \neq 0$).
+
+\noindent Tính biệt thức $\Delta = b^2 - 4ac$.
+\begin{itemize}
+    \item Nếu $\Delta > 0$ thì phương trình có hai nghiệm phân biệt: $x_1 = \dfrac{-b + \sqrt{\Delta}}{2a}, x_2 = \dfrac{-b - \sqrt{\Delta}}{2a}$.
+    \item Nếu $\Delta = 0$ thì phương trình có nghiệm kép: $x_1 = x_2 = -\dfrac{b}{2a}$.
+    \item Nếu $\Delta < 0$ thì phương trình vô nghiệm.
+\end{itemize}
+
+\noindent{Chú ý:}
+
+\noindent Xét phương trình bậc hai $ax^2 + bx + c = 0$ ($a \neq 0$), với $b = 2b'$ và $\Delta' = b'^2 - ac$.
+\begin{itemize}
+    \item Nếu $\Delta' > 0$ thì phương trình có hai nghiệm phân biệt: $x_1 = \dfrac{-b' + \sqrt{\Delta'}}{a}, x_2 = \dfrac{-b' - \sqrt{\Delta'}}{a}$.
+    \item Nếu $\Delta' = 0$ thì phương trình có nghiệm kép: $x_1 = x_2 = -\dfrac{b'}{a}$.
+    \item Nếu $\Delta' < 0$ thì phương trình vô nghiệm.
+\end{itemize}
+\section{Định lý Vi-et}
+Ta có định lí Viète như sau:
+
+\noindent Nếu $x_1, x_2$ là hai nghiệm của phương trình $ax^2 + bx + c = 0$ ($a \neq 0$) thì $\begin{cases} x_1 + x_2 = -\dfrac{b}{a} \\[8pt] x_1x_2 = \dfrac{c}{a} \end{cases}$
+
+\subsection*{5. Áp dụng định lí Vi-et để tính nhẩm nghiệm}
+Xét phương trình $ax^2 + bx + c = 0$ ($a \neq 0$).
+
+\begin{itemize}
+    \item Nếu $a + b + c = 0$ thì phương trình có một nghiệm là $x_1 = 1$, còn nghiệm kia là $x_2 = \dfrac{c}{a}$.
+    \item Nếu $a - b + c = 0$ thì phương trình có một nghiệm là $x_1 = -1$, còn nghiệm kia là $x_2 = -\dfrac{c}{a}$.
+\end{itemize}
+\section{Áp dụng vi-et để tính nhẩm nghiệm}
+Xét phương trình $ax^2 + bx + c = 0$ ($a \neq 0$).
+
+\begin{itemize}
+    \item Nếu $a + b + c = 0$ thì phương trình có một nghiệm là $x_1 = 1$, còn nghiệm kia là $x_2 = \dfrac{c}{a}$.
+    \item Nếu $a - b + c = 0$ thì phương trình có một nghiệm là $x_1 = -1$, còn nghiệm kia là $x_2 = -\dfrac{c}{a}$.
+\end{itemize}
+\section{Tìm hai số khi biết tổng và tích của chúng}
+Nếu hai số có tổng bằng $S$ và tích bằng $P$ thì hai số đó là hai nghiệm của phương trình bậc hai:
+\[x^2 - Sx + P = 0\]
+Điều kiện để có hai số đó là $S^2 - 4P \geq 0$.
+
+\textbf{\large{\textcolor{red!80!black}{Lưu ý: Vi-et chỉ được áp dụng khi phương trình có hai nghiệm phân biệt}}}
+\section{Quy trình}
+\noindent\underline{\textbf{Bước 1.}} Tìm điều kiện để phương trình có hai nghiệm (phân biệt) $x_1, x_2$
+\begin{itemize}
+    \item $ax^2 + bx + c = 0$ ($a \neq 0$) có hai nghiệm $x_1, x_2 \iff \Delta \geq 0$ ($\Delta' \geq 0$)
+    \item $ax^2 + bx + c = 0$ ($a \neq 0$) có hai nghiệm phân biệt $x_1, x_2 \iff \Delta > 0$ ($\Delta' > 0$)
+\end{itemize}
+
+\noindent\underline{\textbf{Bước 2.}} Biến đổi biểu thức đối xứng đối với $x_1, x_2$ về tổng $x_1 + x_2$ và tích $x_1 \cdot x_2$
+
+\noindent\underline{\textbf{Bước 3.}} Sử dụng định lý Viet, ta có $x_1 + x_2 = -\dfrac{b}{a}$, $x_1x_2 = \dfrac{c}{a}$ và thay vào biểu thức chứa tổng $x_1 + x_2$ và tích $x_1x_2$ ở trên. Giải ra $m$, đối chiếu điều kiện ở bước 1.
+
+\noindent\underline{\textbf{{Một số phép biến đổi thường gặp}}}
+\begin{itemize}
+    \item $x_1^2 + x_2^2 = x_1^2 + x_2^2 + 2x_1x_2 - 2x_1x_2 = (x_1 + x_2)^2 - 2x_1x_2$
+    \item $x_1^3 + x_2^3 = (x_1 + x_2)(x_1^2 + x_2^2 - x_1x_2) = (x_1 + x_2)\left[(x_1 + x_2)^2 - 3x_1x_2\right]$ \\
+    Hoặc $x_1^3 + x_2^3 = (x_1 + x_2)^3 - 3x_1x_2(x_1 + x_2)$.
+    \item $x_1^4 + x_2^4 = \left(x_1^2\right)^2 + \left(x_2^2\right)^2 + 2x_1^2x_2^2 - 2x_1^2x_2^2 = \left(x_1^2 + x_2^2\right)^2 - 2x_1^2x_2^2$.
+    \item $|x_1 - x_2|$ thì xét $|x_1 - x_2|^2 = (x_1 - x_2)^2 = (x_1 + x_2)^2 - 4x_1x_2$.
+    \item $|x_1| + |x_2|$ thì xét $\left(|x_1| + |x_2|\right)^2 = |x_1|^2 + |x_2|^2 + 2|x_1| \cdot |x_2|$ \\
+    $= x_1^2 + x_2^2 + 2|x_1x_2| = (x_1 + x_2)^2 - 2x_1x_2 + 2|x_1x_2|$.
+\end{itemize}
+
+\noindent\underline{\textbf{Chú ý:}} $|A|^2 = A^2$, $|A \pm B|^2 = (A \pm B)^2$, $|A| \cdot |B| = |A.B|$.
+\section{Hệ quả}
+
+\vspace{0.5em}
+
+\noindent Cho phương trình $ax^2 + bx + c = 0$ ($a \neq 0$) có hai nghiệm $x_1, x_2$.
+
+\vspace{0.5em}
+\noindent\textbf{Định lý Viet:} $x_1 + x_2 = -\dfrac{b}{a}$, $x_1 \cdot x_2 = \dfrac{c}{a}$.
+
+\vspace{0.8em}
+\noindent\textbf{{Hệ quả 1.}} Nếu $x = 1$ là nghiệm của phương trình thì \\
+\indent $a.1^2 + b.1 + c = 0$ hay $a + b + c = 0$.
+
+\vspace{0.5em}
+\noindent Ngược lại, nếu $a + b + c = 0$ thì $x = 1$ là một nghiệm, nghiệm còn lại là $x = \dfrac{c}{a}$.
+
+\vspace{0.8em}
+\noindent\textbf{{Hệ quả 2.}} Nếu $x = -1$ là một nghiệm của phương trình thì \\
+\indent $a.(-1)^2 + b.(-1) + c = 0$ hay $a - b + c = 0$.
+
+\vspace{0.5em}
+\noindent Ngược lại, nếu $a - b + c = 0$ thì $x = -1$ là một nghiệm, nghiệm còn lại là $x = -\dfrac{c}{a}$.
+
+\vspace{0.8em}
+\noindent\textbf{{Hệ quả 3.}} Nếu $a$ và $c$ trái dấu thì phương trình luôn có hai nghiệm phân biệt, đồng thời hai nghiệm luôn trái dấu nhau.
+\noindent\textbf{{Hệ quả 4.}} Điều kiện để $x_1 > 0, x_2 > 0$ (cả hai nghiệm đều dương) là
+\[\begin{cases} x_1 + x_2 > 0 \\ x_1x_2 > 0 \end{cases}\]
+
+\noindent\textbf{{Hệ quả 5.}} Điều kiện để $x_1 < 0, x_2 < 0$ (cả hai nghiệm đều âm) là
+\[\begin{cases} x_1 + x_2 < 0 \\ x_1x_2 > 0 \end{cases}\]
+
+\noindent\textbf{{Hệ quả 6.}} Điều kiện để $x_1 < 0 < x_2$ (cả hai nghiệm trái dấu) là $x_1x_2 < 0$ hay $a$ và $c$ trái dấu.
+
+\section{Các dạng toán khác}
+\subsection{Có điều kiện phụ}
+\vspace{0.5em}
+
+\noindent Nếu bình phương hai vế ta cần thêm điều kiện phụ là hai vế lớn hơn hoặc bằng 0.
+
+\vspace{0.8em}
+\noindent Nếu có $\sqrt{x_1}, \sqrt{x_2}$ ta cần thêm điều kiện phụ là $x_1 \geq 0; x_2 \geq 0 \iff \begin{cases} x_1 + x_2 \geq 0 \\ x_1x_2 \geq 0 \end{cases}$
+
+\vspace{0.8em}
+\noindent Nếu $x_1, x_2$ là độ dài hai cạnh đa giác ta cần thêm điều kiện phụ là: $x_1 > 0, x_2 > 0 \iff \begin{cases} x_1 + x_2 > 0 \\ x_1x_2 > 0 \end{cases}$
+\subsection{So sánh nghiệm với số 0 và \texorpdfstring{$\alpha$}{alpha}}
+\vspace{0.5em}
+
+\noindent Cho phương trình $ax^2 + bx + c = 0$ ($a \neq 0$) có hai nghiệm $x_1, x_2$.
+
+\vspace{1em}
+\noindent $x_1 > 0, x_2 > 0 \iff \begin{cases} x_1 + x_2 > 0 \\ x_1x_2 > 0 \end{cases}$
+
+\vspace{1em}
+\noindent $x_1 < 0, x_2 < 0 \iff \begin{cases} x_1 + x_2 < 0 \\ x_1x_2 > 0 \end{cases}$
+
+\vspace{1em}
+\noindent $x_1 < 0 < x_2 \iff x_1x_2 < 0$
+
+\vspace{1em}
+\noindent $x_1 > \alpha, x_2 > \alpha \iff x_1 - \alpha > 0, x_2 - \alpha > 0 \iff \begin{cases} (x_1 - \alpha) + (x_2 - \alpha) > 0 \\ (x_1 - \alpha)(x_2 - \alpha) > 0 \end{cases}$
+
+\vspace{1em}
+\noindent $x_1 < \alpha, x_2 < \alpha \iff x_1 - \alpha < 0, x_2 - \alpha < 0 \iff \begin{cases} (x_1 - \alpha) + (x_2 - \alpha) < 0 \\ (x_1 - \alpha)(x_2 - \alpha) > 0 \end{cases}$
+
+\vspace{1em}
+\noindent $x_1 < \alpha < x_2 \iff x_1 - \alpha < 0, x_2 - \alpha > 0 \iff (x_1 - \alpha)(x_2 - \alpha) < 0$
+
+\vspace{1em}
+
+\makeheading{II}{Bài tập vận dụng}
+\vspace{1em}
+\begin{enumerate}
+    \item[\textbf{Câu 1:}] Giải phương trình sau: $x^2 + 2\sqrt{2}x = 6$
+    
+    \item[\textbf{Câu 2:}] Cho phương trình $3x^2 - 2x - 4 = 0 \quad (1)$. Biết phương trình có hai nghiệm phân biệt $x_1, x_2$. Tính giá trị biểu thức: $A = \frac{1}{x_1^2} + \frac{1}{x_2^2}$
+    
+    \item[\textbf{Câu 3:}] Gọi $x_1, x_2$ là hai nghiệm của phương trình $2x^2 - 3x - 4 = 0$. Không giải phương trình, hãy tính giá trị của biểu thức $A = (x_1 + x_2)^2 + x_1 x_2$.
+    
+    \item[\textbf{Câu 4:}] Cho phương trình $x^2 - 4\sqrt{3}x + 8 = 0$ có hai nghiệm $x_1, x_2$, không giải phương trình hãy tính giá trị biểu thức: $Q = x_1^3 + x_2^3$
+    
+    \item[\textbf{Câu 5:}] Cho phương trình $3x^2 + 5x - 6 = 0$ có hai nghiệm $x_1, x_2$. Không giải phương trình, tính:
+    \[ P = \frac{2x_1^2}{x_1 + x_2} + 2x_2 \]
+    
+    \item[\textbf{Câu 6:}] Cho phương trình $x^2 - 5x + a = 0$. Biết phương trình có một nghiệm là $x = \sqrt{6 - 2\sqrt{5}}$. Tính giá trị của biểu thức $A = x_1^3 - x_1 + x_2^3 - x_2 - 285$
+    
+    \item[\textbf{Câu 7:}] Cho phương trình $x^2 + 5x - 7 = 0$ có hai nghiệm là $x_1, x_2$. Không giải phương trình, hãy tính giá trị của biểu thức $A = x_1^2 + x_2^2 - 2x_1 x_2$.
+    
+    \item[\textbf{Câu 8:}] Cho phương trình $x^2 - 12x + 4 = 0$ có hai nghiệm dương phân biệt $x_1, x_2$. Không giải phương trình, hãy tính giá trị của biểu thức $T = \frac{x_1^2 + x_2^2}{\sqrt{x_1} + \sqrt{x_2}}$.
+    
+    \item[\textbf{Câu 9:}] Cho phương trình $-\sqrt{2}x^2 + 2x + 3 = 0$ có hai nghiệm phân biệt là $x_1, x_2$. Không giải phương trình, hãy tính giá trị của biểu thức $A = \frac{x_1 + 1}{1 - x_1} + \frac{x_2 + 1}{1 - x_2}$
+    
+    \item[\textbf{Câu 10:}] Cho phương trình: $2x^2 - 3x - 1 = 0$ có hai nghiệm $x_1, x_2$. Không giải phương trình, hãy tính giá trị biểu thức: $B = \frac{1}{x_1 - 1} + \frac{1}{x_2 - 1}$
+\end{enumerate}
+
+\begin{enumerate}
+    \item[\textbf{Câu 11:}] Cho phương trình bậc hai $x^2 - 6x + c = 0$ có hai nghiệm phân biệt là $x_1 = 2x_2$. Tính giá trị biểu thức $S = x_1^3 + x_2^3 + 3x_1x_2(x_1 + x_2)$.
+    
+    \item[\textbf{Câu 12:}] Cho phương trình $mx^2 + 2(m-2)x + m - 3 = 0$ ($m$ là tham số). Khi phương trình có nghiệm, tìm một hệ thức liên hệ giữa hai nghiệm của phương trình đã cho không phụ thuộc vào $m$.
+    
+    \item[\textbf{Câu 13:}] Cho phương trình $x^2 - (m+1)x - 1 = 0$ có nghiệm $x = 1 - \sqrt{2}$. Tính bình phương của hiệu hai nghiệm trong phương trình trên.
+    
+    \item[\textbf{Câu 14:}] Cho phương trình $x^2 - 6x - 2m + 3 = 0$. Tìm $m$ để phương trình có hai nghiệm $x_1, x_2$ thỏa mãn $x_1^2 + x_2^2 = 20$.
+    
+    \item[\textbf{Câu 15:}] Biết rằng phương trình bậc hai $x^2 - 2x + m = 0$ có một nghiệm là $x = \frac{2}{\sqrt{3}-1}$. Tính tổng nghịch đảo bình phương hai nghiệm của phương trình trên.
+    
+    \item[\textbf{Câu 16:}] Biết rằng phương trình bậc hai $x^2 - 5x + m = 0$ ($m$ là tham số). Tìm $m$ để phương trình có hai nghiệm phân biệt sao cho tổng các bình phương của hai nghiệm bằng $13$.
+    
+    \item[\textbf{Câu 17:}] Phương trình $x^2 + mx + 2m - 4 = 0$ có $x_1, x_2$ hai nghiệm và $x_1 = -1$, tính giá trị của biểu thức $N = \frac{1}{x_1 + 3} + \frac{1}{x_2 + 3}$.
+    
+    \item[\textbf{Câu 18:}] Cho phương trình: $x^2 - 2x + m - 1 = 0$ (1) với $m$ là tham số. Tìm tất cả các giá trị của $m$ để phương trình có hai nghiệm phân biệt thỏa mãn: $x_1x_2 - 1 = \frac{1}{x_1} + \frac{1}{x_2}$.
+    
+    \item[\textbf{Câu 19:}] Biết rằng phương trình bậc hai $2x^2 - 4x + m = 0$ có một nghiệm $x = \frac{2 + \sqrt{10}}{2}$. Tính tổng nghịch đảo hai nghiệm của phương trình trên.
+    
+    \item[\textbf{Câu 20:}] Cho phương trình $x^2 - 2(m+1)x + 4m - m^2 = 0$. Tìm $m$ để phương trình có hai nghiệm phân biệt $x_1, x_2$ sao cho biểu thức $A = |x_1 - x_2|$ đạt giá trị nhỏ nhất.
+\end{enumerate}
+\makeheading{III}{Bài tập làm thêm}
+\begin{enumerate}
+    \item[\textbf{Câu 1:}] Gọi $x_1, x_2$ là các nghiệm của phương trình $x^2 - 3x - 10 = 0$. Không giải phương trình, hãy tính giá trị của biểu thức: $A = \frac{x_1 + 1}{x_2} + \frac{x_2 + 1}{x_1}$
+    
+    \item[\textbf{Câu 2:}] Cho phương trình $3x^2 - 11x - 15 = 0$ có hai nghiệm là $x_1, x_2$. Không giải phương trình, hãy tính giá trị của biểu thức $A = \frac{3x_1}{x_2} + \frac{3x_2}{x_1}$
+    
+    \item[\textbf{Câu 3:}] Cho phương trình: $2x^2 - 4x - 3 = 0$ có hai nghiệm là $x_1, x_2$. Không giải phương trình, hãy tính giá trị của biểu thức: $A = (x_1 - x_2)^2$.
+    
+    \item[\textbf{Câu 4:}] Cho phương trình: $4x^2 - 5x - 3 = 0$ có hai nghiệm là $x_1, x_2$. Không giải phương trình, hãy tính giá trị của các biểu thức $S = x_1 + x_2$; $P = x_1 x_2$; $F = (x_1 + 1)(x_2 + 1) - (x_1 - x_2)^2$.
+    
+    \item[\textbf{Câu 5:}] 
+    \begin{enumerate}
+        \item[a)] Hãy tìm một phương trình bậc hai $ax^2 + bx + c = 0$ với các hệ số $a, b, c$ là số nguyên nhận $x = \frac{\sqrt{5} - 2}{3}$ làm nghiệm.
+        \item[b)] Tính tổng lập phương hai nghiệm của phương trình vừa tìm được ở câu a).
+    \end{enumerate}
+    
+    \item[\textbf{Câu 6:}] Gọi $x_1, x_2$ là hai nghiệm của phương trình: $3x^2 + 5x - 6 = 0$. Không giải phương trình, tính giá trị của biểu thức $D = \frac{x_1}{x_2 + 2} + \frac{x_2}{x_1 + 2}$.
+    
+    \item[\textbf{Câu 7:}] Cho phương trình $3x^2 - 12x - 5 = 0$ có hai nghiệm là $x_1, x_2$. Không giải phương trình, hãy tính giá trị của biểu thức: $T = \frac{x_1^2 + 4x_1 x_2 - x_1^2}{4x_1 + x_2^2 + x_1 x_2}$
+    
+    \item[\textbf{Câu 8:}] Cho phương trình $x^2 - x - 3 = 0$ có hai nghiệm $x_1, x_2$. Không giải phương trình, hãy tính giá trị của biểu thức $A = 3x_1 x_2^2 + x_1 + x_2(3x_1^2 + 1)$
+    
+    \item[\textbf{Câu 9:}] Cho phương trình $3x^2 + 7x - 4 = 0$ có hai nghiệm phân biệt $x_1, x_2$. Không giải phương trình, hãy tính giá trị của biểu thức: $A = (x_1 - x_2)^2$
+    
+    \item[\textbf{Câu 10:}] Cho phương trình: $x^2 - 4x - 3 = 0$ có hai nghiệm phân biệt $x_1, x_2$. Không giải phương trình, hãy tính giá trị của biểu thức: $T = (x_1^2 - 4x_1 + 1)(x_2^2 - 4x_2 + 1)$
+
+     \item[\textbf{Câu 11:}] Cho phương trình: $x^2 + 5x + m = 0$ (*) có một nghiệm là $\frac{-\sqrt{13}-5}{2}$. Tìm tổng bình phương hai nghiệm của phương trình trên.
+    
+    \item[\textbf{Câu 12:}] Biết phương trình $2x^2 + 4x + m = 0$ ($m$ là tham số) có 1 nghiệm bằng $1$. Tính tổng bình phương hai nghiệm của phương trình.
+    
+    \item[\textbf{Câu 13:}] Biết rằng phương trình $x^2 - 5x + a = 0$ có hai nghiệm $x_1, x_2$, biết $x_1 = \frac{5 - \sqrt{13}}{2}$. Tính giá trị của biểu thức $x_1^2 + x_2^2 - 2x_1x_2$.
+    
+    \item[\textbf{Câu 14:}] Tìm tất cả các giá trị của tham số $m$ để phương trình $x^2 - 2mx + 4m - 4 = 0$ có hai nghiệm $x_1, x_2$ thỏa mãn $x_1^2 + x_2^2 - 8 = 0$.
+    
+    \item[\textbf{Câu 15:}] Biết rằng phương trình bậc hai $x^2 + 6x + a = 0$ có một nghiệm là $x = -3 + \sqrt{14}$. Tìm tổng bình phương hai nghiệm của phương trình trên.
+    
+    \item[\textbf{Câu 16:}] Phương trình $x^2 - 2x - m + 1 = 0$ ($m$ là tham số) có một nghiệm là $x = 1 + \sqrt{7}$. Tính giá trị của biểu thức $A = x_1^2x_2 + x_2^2x_1$.
+    
+    \item[\textbf{Câu 17:}] Biết rằng phương trình bậc hai $x^2 + 4x + m = 0$ có một nghiệm là $x = \sqrt{3}$. Tìm tổng các nghịch đảo hai nghiệm của phương trình trên.
+    
+    \item[\textbf{Câu 18:}] Cho phương trình: $x^2 - 2(m-1)x - m - 3 = 0$. Tìm $m$ để biểu thức $A = x_1^2 + x_2^2$ đạt giá trị nhỏ nhất.
+    
+    \item[\textbf{Câu 19:}] Cho phương trình $x^2 - 2(m+3)x + m^2 + 3 = 0$. Tìm $m$ để phương trình có hai nghiệm phân biệt $x_1, x_2$ thỏa mãn $(2x_1 - 1)(2x_2 - 1) = 9$.
+
+    \item[\textbf{Câu 20:}] Cho phương trình $x^2 + mx - 3 = 0$. Tìm $m$ để phương trình có hai nghiệm phân biệt $x_1, x_2$ thỏa mãn $|x_1| + |x_2| = 4$.
+\end{enumerate}
+
+\end{document}

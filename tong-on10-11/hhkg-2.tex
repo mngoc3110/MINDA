@@ -1,0 +1,109 @@
+\documentclass[12pt,a4paper]{extarticle}
+\usepackage[utf8]{inputenc}
+\usepackage[T5]{fontenc}
+\usepackage{geometry}
+\geometry{a4paper, left=1.5cm, right=1cm, top=1.5cm, bottom=1.5cm, headheight=20pt, headsep=15pt, footskip=28pt}
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{diagbox}
+\usepackage[most]{tcolorbox}
+\newcommand{\khongxacdinh}{\text{KXĐ}}
+\newcommand{\blackbox}[1]{\texorpdfstring{\fcolorbox{black}{black}{\textcolor{white}{#1}}}{#1}}
+\usepackage{tikz}
+\definecolor{bookmagenta}{RGB}{58,90,172}
+\definecolor{book}{RGB}{58,90,172}
+\definecolor{myred}{RGB}{200,40,40}
+\newcommand{\bluecheck}{\textcolor{myblue}{\checkmark}}
+\newtcolorbox{formulaBox}{colback=gray!5,colframe=bookmagenta,boxrule=0.8pt,arc=2mm}
+\newtcolorbox{notebox}{colback=blue!3,colframe=myblue,boxrule=0.8pt,arc=2mm}
+\usetikzlibrary{patterns, patterns.meta} % Thêm patterns.meta vào đây
+% Gọi package nằm trong thư mục con template
+\usepackage{../template/mngocbox}
+
+\begin{document}
+
+% Sử dụng ngoặc vuông [...] để thay đổi linh hoạt các thông số
+\makeheadbox[headerright={Tổng ôn 10-11},chude={CHỦ ĐỀ 10},tieude={Hình học không gian},dinhdang={Hình học},lop={12 },gv={Nguyễn Lê Minh Ngọc}]
+
+\vspace{2em}
+\makeheading{III}{Bài tập Trắc nghiệm}
+
+\begin{enumerate}
+    % Câu 1
+    \item \textbf{Câu 1:} Trong hình học không gian
+    \begin{enumerate}
+        \item Qua ba điểm xác định một và chỉ một mặt phẳng.
+        \item Qua ba điểm phân biệt xác định một và chỉ một mặt phẳng.
+        \item Qua ba điểm phân biệt không thẳng hàng xác định một mặt phẳng.
+        \item Qua ba điểm phân biệt không thẳng hàng xác định một và chỉ một mặt phẳng.
+    \end{enumerate}
+    % Câu 2
+    \item \textbf{Câu 2:} Trong mặt phẳng $(\alpha)$, cho tứ giác $ABCD$ có $AB$ cắt $CD$ tại $E$, $AC$ cắt $BD$ tại $F$, $S$ là điểm không thuộc $(\alpha)$. Giao tuyến của $(SAB)$ và $(SCD)$ là:
+    \begin{multicols}{4}
+        \begin{enumerate}
+            \item $SF$.
+            \item $SD$.
+            \item $AC$.
+            \item $SE$.
+        \end{enumerate}
+    \end{multicols}
+    % Câu 3
+    \item \textbf{Câu 3:} Cho hình chóp $S.ABCD$ có đáy là hình thang $ABCD$ ($AB \parallel CD$). Khẳng định nào sau đây \textbf{sai}?
+    \begin{enumerate}
+        \item Hình chóp $S.ABCD$ có 4 mặt bên.
+        \item Giao tuyến của hai mặt phẳng $(SAC)$ và $(SBD)$ là $SO$ ($O$ là giao điểm của $AC$ và $BD$).
+        \item Giao tuyến của hai mặt phẳng $(SAD)$ và $(SBC)$ là $SI$ ($I$ là giao điểm của $AD$ và $BC$).
+        \item Giao tuyến của hai mặt phẳng $(SAB)$ và $(SAD)$ là đường trung bình của $ABCD$.
+    \end{enumerate}
+    % Câu 4
+    \item \textbf{Câu 4:} Cho hình chóp $S.ABCD$, đáy $ABCD$ là hình bình hành $ABCD$ tâm $O$. Giao tuyến của hai mặt phẳng $(SAC)$ và $(SAD)$ là
+    \begin{multicols}{4}
+        \begin{enumerate}
+            \item $SO$.
+            \item $SD$.
+            \item $SA$.
+            \item $SB$.
+        \end{enumerate}
+    \end{multicols}
+    % Câu 5
+    \item \textbf{Câu 5:} Cho tứ diện $ABCD$, $G$ là trọng tâm tam giác $BCD$. Giao tuyến của $(ACD)$ và $(GAB)$ là
+    \begin{enumerate}
+        \item $AM$ (với $M$ là trung điểm $AB$).
+        \item $AN$ (với $N$ là trung điểm $CD$).
+        \item $AK$ (với $K$ là hình chiếu của $C$ trên $BD$).
+        \item $AH$ (với $H$ là hình chiếu của $B$ trên $CD$).
+    \end{enumerate}
+    % Câu 6
+    \item \textbf{Câu 6:} Cho bốn điểm $A,B,C,D$ không đồng phẳng. Gọi $I,K$ lần lượt là trung điểm hai đoạn thẳng $AD$ và $BC$. $IK$ là giao tuyến của cặp mặt phẳng nào sau đây?
+    \begin{multicols}{2}
+        \begin{enumerate}
+            \item $(IBC)$ và $(KBD)$.
+            \item $(IBC)$ và $(KCD)$.
+            \item $(IBC)$ và $(KAD)$.
+            \item $(ABI)$ và $(KAD)$.
+        \end{enumerate}
+    \end{multicols}
+    % Câu 7
+    \item \textbf{Câu 7:} Cho tứ diện $ABCD$. Lấy điểm $M$ sao cho $AM = 2CM$ và $N$ là trung điểm $AD$. Gọi $O$ là một điểm thuộc miền trong của $\Delta BCD$. Giao điểm của $BC$ với $(OMN)$ là giao điểm của $BC$ với
+    \begin{multicols}{2}
+        \begin{enumerate}
+            \item $OM$.
+            \item $MN$.
+            \item $A,B$ đều đúng.
+            \item $A,B$ đều sai.
+        \end{enumerate}
+    \end{multicols}
+    % Câu 8
+    \item \textbf{Câu 8:} Cho hình chóp $S.ABCD$ đáy $ABCD$ là hình bình hành tâm $O$. Gọi $M$ là trung điểm của $SB$. Giao điểm của $DM$ và $(SAC)$ là
+    \begin{enumerate}
+        \item Giao điểm của $DM$ và $SA$.
+        \item Giao điểm của $DM$ và $SC$.
+        \item Giao điểm của $DM$ và $SO$.
+        \item Giao điểm của $DM$ và $BD$.
+    \end{enumerate}
+\end{enumerate}
+
+
+
+\end{document}

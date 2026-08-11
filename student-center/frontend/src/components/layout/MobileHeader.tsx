@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { Menu, X, ShieldAlert, BrainCircuit, Grid, Users, Settings, LogOut,
   LayoutDashboard, BookOpen, Radio, ClipboardCheck, Trophy, Wallet,
-  Dumbbell, User, Sun, Moon, UserCircle, FolderOpen, Heart } from "lucide-react";
+  Dumbbell, User, Sun, Moon, UserCircle, FolderOpen, Heart, Presentation, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useTheme } from "@/providers/ThemeProvider";
 
@@ -36,6 +36,8 @@ export default function MobileHeader() {
 
   const TEACHER_ITEMS = [
     { name: "Tổng quan", href: "/dashboard", icon: LayoutDashboard },
+    { name: "Bài Giảng Tương Tác", href: "/lesson-studio", icon: Presentation },
+    { name: "Ôn tập AI (Notebook)", href: "/revision", icon: Sparkles },
     { name: "Trang cá nhân", href: "/profile", icon: UserCircle },
     { name: "Hồ sơ CV", href: "/cv", icon: User },
     { name: "Khoá học", href: "/courses", icon: BookOpen },
@@ -49,6 +51,8 @@ export default function MobileHeader() {
 
   const STUDENT_ITEMS = [
     { name: "Tổng quan", href: "/dashboard", icon: LayoutDashboard },
+    { name: "Bài Giảng Tương Tác", href: "/lesson-studio", icon: Presentation },
+    { name: "Ôn tập AI (Notebook)", href: "/revision", icon: Sparkles },
     { name: "Thư viện Lớp học", href: "/courses", icon: BookOpen },
     { name: "Phòng học Live", href: "/live", icon: Radio },
     { name: "Phòng Luyện Thi", href: "/practice", icon: Dumbbell },

@@ -1,0 +1,79 @@
+\documentclass[12pt,a4paper]{extarticle}
+\usepackage[utf8]{inputenc}
+\usepackage[T5]{fontenc}
+\usepackage{geometry}
+\geometry{a4paper, left=1.5cm, right=1cm, top=1.5cm, bottom=1.5cm, headheight=20pt, headsep=15pt, footskip=28pt}
+\usepackage{enumitem}
+\usepackage{amssymb}
+\usepackage{tikz}
+\usetikzlibrary{patterns, patterns.meta} % Thêm patterns.meta vào đây
+% Gọi package nằm trong thư mục con template
+\usepackage{../template/mngocbox}
+
+\begin{document}
+
+% Sử dụng ngoặc vuông [...] để thay đổi linh hoạt các thông số
+\makeheadbox[headerright={Tổng ôn 10-11},chude={CHỦ ĐỀ 04},tieude={Tam thức bậc hai},dinhdang={Đại số},lop={12 },gv={Nguyễn Lê Minh Ngọc}]
+
+\vspace{2em}
+\makeheading{IV}{Đề kiểm tra}
+\noindent\textbf{Câu 1:} Xét dấu các tam thức bậc hai sau:
+\begin{center}
+\begin{tabular}{p{5cm} p{5cm} p{5cm}}
+a) $x^2 + x + 1$; & b) $-\dfrac{3}{2}x^2 + 9x - 27$; & c) $2x^2 + 6x - 8$.
+\end{tabular}
+\end{center}
+\noindent\textbf{Câu 2:} Xét dấu các tam thức bậc hai sau:
+\begin{center}
+\begin{tabular}{p{5cm} p{5cm} p{5cm}}
+a) $-3x^2 + x - \sqrt{2}$; & b) $x^2 + 8x + 16$; & c) $-2x^2 + 7x - 3$.
+\end{tabular}
+\end{center}
+\noindent\textbf{Câu 3:} Xét dấu biểu thức $f(x) = \dfrac{2x^2 - x - 1}{x^2 - 4}$.
+\vspace{0.8cm}
+\hrule
+\vspace{0.8cm}
+% --- PHẦN 2 ---
+% Tiêu đề
+
+\vspace{0.5cm}
+\noindent\textbf{Câu 4:} Tìm tất cả các giá trị của $x$ để biểu thức $f(x) = (3x - x^2)(x^2 - 6x + 9)$ nhận giá trị dương.
+\vspace{0.2cm}
+\noindent\textbf{Câu 5:} Xét dấu biểu thức $P(x) = x - \dfrac{x^2 - x + 6}{-x^2 + 3x + 4}$.\\
+\vspace{0.2cm}
+\noindent\textbf{Câu 6:} Giải các bất phương trình sau:
+\begin{center}
+\begin{tabular}{p{5cm} p{5cm} p{5cm}}
+a) $3x^2 + x + 5 \le 0$; & b) $-3x^2 + 2\sqrt{3}x - 1 \ge 0$; & c) $-x^2 + 2x + 1 > 0$.
+\end{tabular}
+\end{center}
+\noindent\textbf{Câu 7:} Giải các bất phương trình bậc hai sau:
+\begin{center}
+\begin{tabular}{p{7.5cm} p{7.5cm}}
+a) $x^2 - 1 \ge 0$; & b) $x^2 - 2x - 1 < 0$; \\
+c) $-3x^2 + 12x + 1 \le 0$; & d) $5x^2 + x + 1 \ge 0$.
+\end{tabular}
+\end{center}
+\noindent\textbf{Câu 8:} Tìm tập xác định của hàm số $y = \sqrt{x^2 - 2x + 5}$.\\
+\vspace{0.2cm}
+\noindent\textbf{Câu 9:} Giải bất phương trình $(x^2 - x)^2 + 3(x^2 - x) + 2 \ge 0$.\\
+\vspace{0.2cm}
+\noindent\textbf{Câu 10:} Giải bất phương trình: $\dfrac{x^2 + x - 1}{x - 2} > \dfrac{1}{x^2 - x} + \dfrac{x^3 - 2x}{x^2 - 3x + 2}$.\\
+\vspace{0.2cm}
+\noindent\textbf{Câu 11:} Giải bất phương trình: $(x^2 - 4)(x^2 + 2x) \le 3(x^2 + 4x + 4)$.\\
+\vspace{0.2cm}
+\noindent\textbf{Câu 12:} Giải hệ bất phương trình $\begin{cases} x^2 - 4x + 3 > 0 \\ x^2 - 6x + 8 > 0 \end{cases}$.
+\vspace{0.2cm}
+\noindent\textbf{Câu 13:} Tìm tập xác định của hàm số $y = \sqrt{x^2 - 3x + 2} + \dfrac{1}{\sqrt{x + 3}}$.\\
+\vspace{0.2cm}
+\noindent\textbf{Câu 14:} Giải hệ bất phương trình $\begin{cases} x^2 + 4x + 3 \ge 0 \\ 2x^2 - x - 10 \le 0 \\ 2x^2 - 5x + 3 > 0 \end{cases}$.\\
+\vspace{0.2cm}
+\noindent\textbf{Câu 15:} Tìm các giá trị của tham số $m$ để tam thức bậc hai $x^2 + (m+1)x + 2m + 3$ dương với mọi $x \in \mathbb{R}$.\\
+\vspace{0.2cm}
+\noindent\textbf{Câu 16:} Tìm các giá trị của tham số $m$ để bất phương trình $x^2 + 2(m-2)x + 2m - 1 \ge 0$ nghiệm đúng với mọi $x \in \mathbb{R}$.\\
+\vspace{0.2cm}
+\noindent\textbf{Câu 17:} Tìm tất cả các giá trị của $m$ để biểu thức $f(x) = -x^2 - 2x - m$ luôn âm.\\
+\vspace{0.2cm}
+\noindent\textbf{Câu 18:} Tìm tất cả các giá trị của tham số $m$ để bất phương trình $3x^2 - 2(m+1)x - 2m^2 + 3m - 2 \ge 0$ nghiệm đúng $\forall x \in \mathbb{R}$.
+
+\end{document}

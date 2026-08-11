@@ -1,0 +1,48 @@
+1
+00:00:00,000 --> 00:00:03,245
+Chào mừng các em đến với Bài học Phương pháp
+
+2
+00:00:03,345 --> 00:00:06,668
+tọa độ trong mặt phẳng Oxy và ba đường Conic.
+
+3
+00:00:06,733 --> 00:00:11,920
+Đường thẳng Delta trong mặt phẳng Oxy có phương trình tổng quát
+
+4
+00:00:12,020 --> 00:00:15,109
+a x cộng b y cộng c bằng 0, với véc tơ
+
+5
+00:00:15,209 --> 00:00:19,137
+pháp tuyến n bằng a b vuông góc với đường thẳng.
+
+6
+00:00:20,666 --> 00:00:26,550
+Phương trình chính tắc của Elip là x bình trên a bình cộng y bình trên
+
+7
+00:00:26,650 --> 00:00:31,678
+b bình bằng 1, với 2 tiêu điểm F1 và F2 nằm trên trục hoành.
+
+8
+00:00:33,200 --> 00:00:40,314
+Câu 1: Phương trình tổng quát của đường thẳng đi qua M x0 y0 và có véc
+
+9
+00:00:40,414 --> 00:00:46,189
+tơ pháp tuyến n bằng a b là a nhân x trừ x0 cộng b nhân y
+
+10
+00:00:46,289 --> 00:00:51,960
+trừ y0 bằng 0. Thay a bằng 2, b bằng trừ 3 và điểm M 1 2
+
+11
+00:00:52,060 --> 00:00:58,247
+ta được: 2 nhân x trừ 1 trừ 3 nhân y trừ 2 bằng 0, khai triển
+
+12
+00:00:58,347 --> 00:01:03,916
+được 2x trừ 3y cộng 4 bằng 0. Vì vậy, ta chọn đáp án A.
+

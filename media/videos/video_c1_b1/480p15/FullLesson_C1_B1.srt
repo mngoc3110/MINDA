@@ -1,0 +1,68 @@
+1
+00:00:00,000 --> 00:00:04,467
+Chào mừng các em học sinh đến với Bài 1: Tính đơn điệu và
+
+2
+00:00:04,567 --> 00:00:09,356
+cực trị của hàm số trong chương trình Đại số và Giải tích 12.
+
+3
+00:00:09,400 --> 00:00:14,424
+Hàm số f(x) đồng biến khi x tăng thì f(x) tăng, đồ thị
+
+4
+00:00:14,524 --> 00:00:20,023
+đi lên từ trái sang phải. Ngược lại, hàm số nghịch biến khi
+
+5
+00:00:20,123 --> 00:00:25,148
+đồ thị đi xuống từ trái sang phải. Mối quan hệ với đạo
+
+6
+00:00:25,248 --> 00:00:29,988
+hàm: f' dương thì đồng biến, f' âm thì nghịch biến.
+
+7
+00:00:31,533 --> 00:00:36,230
+Điểm cực đại là điểm mà tại đó đạo hàm f'(x) đổi dấu
+
+8
+00:00:36,330 --> 00:00:41,120
+từ dương sang âm khi qua x0. Điểm cực tiểu là điểm mà
+
+9
+00:00:41,220 --> 00:00:45,641
+tại đó f'(x) đổi dấu từ âm sang dương khi qua x0.
+
+10
+00:00:47,733 --> 00:00:53,497
+Câu 1: Ta tiến hành phân tích lời giải trước. Đạo hàm f'(x)
+
+11
+00:00:53,597 --> 00:00:58,567
+bằng x bình cộng 1 luôn lớn hơn hoặc bằng 1, tức là
+
+12
+00:00:58,667 --> 00:01:04,431
+f'(x) luôn dương với mọi x thuộc R. Do f'(x) luôn dương nên
+
+13
+00:01:04,531 --> 00:01:09,401
+hàm số đồng biến trên R. Vì vậy, ta chọn đáp án B.
+
+14
+00:01:12,466 --> 00:01:19,258
+Câu 2: Bước 1, tính đạo hàm y' bằng trừ 3x bình cộng 6x. Cho y' bằng 0
+
+15
+00:01:19,358 --> 00:01:25,263
+ta được 2 nghiệm x bằng 0 và x bằng 2. Hệ số a bằng trừ 3 âm,
+
+16
+00:01:25,363 --> 00:01:33,140
+quy tắc trong trái ngoài cùng cho thấy y' mang dấu dương trên khoảng 0 đến 2. Do
+
+17
+00:01:33,240 --> 00:01:39,342
+đó hàm số đồng biến trên khoảng (0; 2). Chúng ta chọn đáp án B.
+

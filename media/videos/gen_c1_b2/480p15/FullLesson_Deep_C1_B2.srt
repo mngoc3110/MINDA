@@ -1,0 +1,64 @@
+1
+00:00:00,000 --> 00:00:05,240
+Chào mừng các em đến với bài giảng lý thuyết chuyên sâu về Giá trị lớn
+
+2
+00:00:05,340 --> 00:00:10,275
+nhất và giá trị nhỏ nhất của hàm số. Ở bài học này, chúng ta không
+
+3
+00:00:10,375 --> 00:00:15,615
+chỉ học vẹt công thức mà sẽ cùng phân tích kỹ bản chất toán học, nguồn
+
+4
+00:00:15,715 --> 00:00:19,964
+gốc các phép biến đổi và các bẫy thường gặp trong đề thi.
+
+5
+00:00:20,000 --> 00:00:25,118
+Về mặt lý thuyết, 1. Định nghĩa đóng vai trò nền tảng. Khi xét một
+
+6
+00:00:25,218 --> 00:00:30,178
+biểu thức hay đồ thị, điều quan trọng nhất là các em phải nắm rõ
+
+7
+00:00:30,278 --> 00:00:35,476
+điều kiện tồn tại, tập xác định và sự phụ thuộc giữa các đại lượng.
+
+8
+00:00:37,533 --> 00:00:42,673
+Tiếp theo là phần 2. Tìm giá trị lớn nhất và nhỏ nhất của hàm số
+
+9
+00:00:42,773 --> 00:00:48,078
+liên tục. Các em cần chia rõ các trường hợp xảy ra. Đặc biệt lưu ý
+
+10
+00:00:48,178 --> 00:00:52,827
+bẫy đề thi hay gài bẫy ở điều kiện hệ số a khác 0 hoặc tập
+
+11
+00:00:52,927 --> 00:00:58,313
+xác định D. Chúng ta phải kiểm tra kỹ điều kiện trước khi kết luận.
+
+12
+00:01:00,400 --> 00:01:06,246
+Đối với bài tập này, chúng ta tiến hành giảng giải chi tiết như sau:
+
+13
+00:01:06,346 --> 00:01:11,493
+Bước 1, kiểm tra tập xác định D và tính liên tục của hàm số.
+
+14
+00:01:11,593 --> 00:01:17,002
+Bước 2, phân tích kỹ hệ số và tính toán chính xác. Bước 3, loại
+
+15
+00:01:17,102 --> 00:01:21,724
+trừ các đáp án B C D do vi phạm điều kiện tồn tại. Sau
+
+16
+00:01:21,824 --> 00:01:26,796
+khi đã chứng minh hoàn toàn lý do, chúng ta chọn đáp án A.
+

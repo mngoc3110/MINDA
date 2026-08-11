@@ -1,0 +1,140 @@
+\documentclass[12pt,a4paper]{extarticle}
+\usepackage[utf8]{inputenc}
+\usepackage[T5]{fontenc}
+\usepackage{geometry}
+\geometry{a4paper, left=1.5cm, right=1cm, top=1.5cm, bottom=1.5cm, headheight=20pt, headsep=15pt, footskip=28pt}
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{diagbox}
+\usepackage{colortbl} % Sửa lỗi \arrayrulecolor
+\usepackage{array}    % Hỗ trợ định dạng cột m{2cm}
+\usepackage[most]{tcolorbox}
+\newcommand{\khongxacdinh}{\text{KXĐ}}
+\newcommand{\blackbox}[1]{\texorpdfstring{\fcolorbox{black}{black}{\textcolor{white}{#1}}}{#1}}
+\usepackage{tikz}
+\definecolor{bookblue}{RGB}{58,90,172}
+\definecolor{book}{RGB}{58,90,172}
+\definecolor{myblue}{RGB}{200,40,40}
+\newcommand{\bluecheck}{\textcolor{myblue}{\checkmark}}
+\newtcolorbox{formulaBox}{colback=gray!5,colframe=bookblue,boxrule=0.8pt,arc=2mm}
+\newtcolorbox{notebox}{colback=blue!3,colframe=myblue,boxrule=0.8pt,arc=2mm}
+\usetikzlibrary{patterns, patterns.meta} % Thêm patterns.meta vào đây
+% Gọi package nằm trong thư mục con template
+\usepackage{../template/mngocbox}
+
+\begin{document}
+
+% Sử dụng ngoặc vuông [...] để thay đổi linh hoạt các thông số
+\makeheadbox[headerright={Chương 5},chude={Bài 2},tieude={Phương trình đường thẳng},dinhdang={Hình học},lop={12 },gv={Nguyễn Lê Minh Ngọc}]
+\vspace{2em}
+\section*{\color{myblue}{I. Phương trình đường thẳng}}
+\subsection*{\color{myblue}{1. Vectơ chỉ phương của đường thẳng}}
+\begin{tcolorbox}[colback=lightblue, colframe=myblue, arc=2mm]
+Cho đường thẳng $\Delta$ và vectơ $\vec{u} \neq \vec{0}$. Vectơ $\vec{u}$ được gọi là \textit{vectơ chỉ phương} của đường thẳng $\Delta$ nếu giá của $\vec{u}$ song song hoặc trùng với $\Delta$.
+\end{tcolorbox}
+\noindent $\star$ \textbf{Nhận xét:} Nếu $\vec{u}$ là vectơ chỉ phương của một đường thẳng thì $k\vec{u}$ ($k \neq 0$) cũng là vectơ chỉ phương của đường thẳng đó.
+\subsection*{\color{myblue}{2. Phương trình tham số của đường thẳng}}
+\begin{tcolorbox}[colback=lightblue, colframe=myblue, arc=2mm]
+Hệ phương trình:
+\[
+\begin{cases}
+x = x_0 + at \\
+y = y_0 + bt \\
+z = z_0 + ct
+\end{cases}
+\]
+trong đó $a, b, c$ không đồng thời bằng $0$, $t$ là tham số, được gọi là \textit{phương trình tham số} của đường thẳng $\Delta$ đi qua $M_0(x_0; y_0; z_0)$ và có vectơ chỉ phương $\vec{u} = (a; b; c)$.
+\end{tcolorbox}
+\subsection*{\color{myblue}{3. Phương trình chính tắc của đường thẳng}}
+\begin{tcolorbox}[colback=lightblue, colframe=myblue, arc=2mm]
+Nếu $abc \neq 0$ thì hệ phương trình:
+\[
+\frac{x - x_0}{a} = \frac{y - y_0}{b} = \frac{z - z_0}{c}
+\]
+được gọi là \textit{phương trình chính tắc} của đường thẳng $\Delta$ đi qua $M(x_0; y_0; z_0)$ và có vectơ chỉ phương $\vec{u} = (a; b; c)$.
+\end{tcolorbox}
+\subsection*{\color{myblue}{4. Lập phương trình đường thẳng đi qua hai điểm cho trước}}
+Đường thẳng $\Delta$ đi qua hai điểm $A(x_0; y_0; z_0), B(x_1; y_1; z_1)$ có:
+\begin{itemize}
+    \item[\textbf{•}] \textbf{Phương trình tham số:} 
+    \[
+    \begin{cases}
+    x = x_0 + (x_1 - x_0)t \\
+    y = y_0 + (y_1 - y_0)t \\
+    z = z_0 + (z_1 - z_0)t
+    \end{cases} \quad (t \text{ là tham số}).
+    \]
+    \item[\textbf{•}] \textbf{Phương trình chính tắc:} 
+    \[
+    \frac{x - x_0}{x_1 - x_0} = \frac{y - y_0}{y_1 - y_0} = \frac{z - z_0}{z_1 - z_0} \quad (\text{với } x_0 \neq x_1, y_0 \neq y_1, z_0 \neq z_1).
+    \]
+\end{itemize}
+\vspace{0.4cm}
+\section*{\color{myblue}{II. Vị trí tương đối của hai đường thẳng}}
+Cho đường thẳng $\Delta_1$ đi qua điểm $M_1$ có VTCP $\vec{u}_1$, và đường thẳng $\Delta_2$ đi qua điểm $M_2$ có VTCP $\vec{u}_2$.
+\begin{tcolorbox}[colback=lightblue, colframe=myblue, arc=2mm]
+\begin{itemize}
+    \item[\textbf{1.}] \textbf{Song song ($\Delta_1 \parallel \Delta_2$):}
+    \[
+    \Delta_1 \parallel \Delta_2 \iff 
+    \begin{cases}
+    \vec{u}_1, \vec{u}_2 \text{ cùng phương} \\
+    \vec{u}_1, \vec{M_1M_2} \text{ không cùng phương}
+    \end{cases}
+    \iff
+    \begin{cases}
+    [\vec{u}_1, \vec{u}_2] = \vec{0} \\
+    [\vec{u}_1, \vec{M_1M_2}] \neq \vec{0}
+    \end{cases}
+    \]
+    \item[\textbf{2.}] \textbf{Cắt nhau ($\Delta_1 \text{ cắt } \Delta_2$):}
+    \[
+    \Delta_1 \text{ cắt } \Delta_2 \iff 
+    \begin{cases}
+    \vec{u}_1, \vec{u}_2 \text{ không cùng phương} \\
+    \vec{u}_1, \vec{u}_2, \vec{M_1M_2} \text{ đồng phẳng}
+    \end{cases}
+    \iff
+    \begin{cases}
+    [\vec{u}_1, \vec{u}_2] \neq \vec{0} \\
+    [\vec{u}_1, \vec{u}_2] \cdot \vec{M_1M_2} = 0
+    \end{cases}
+    \]
+    \item[\textbf{3.}] \textbf{Chéo nhau ($\Delta_1$ và $\Delta_2$ chéo nhau):}
+    \[
+    \Delta_1 \text{ và } \Delta_2 \text{ chéo nhau} \iff [\vec{u}_1, \vec{u}_2] \cdot \vec{M_1M_2} \neq 0
+    \]
+\end{itemize}
+\end{tcolorbox}
+\noindent $\star$ \textbf{Chú ý:} Trong một số trường hợp, để xét vị trí tương đối của hai đường thẳng, ta có thể giải hệ phương trình được lập từ những phương trình xác định hai đường thẳng đó, sau đó xét cặp vectơ chỉ phương của hai đường thẳng đó có cùng phương hay không (nếu cần thiết).
+\section*{\color{myblue}{III. Góc}}
+\subsection*{\color{myblue}{1. Góc giữa hai đường thẳng}}
+\begin{tcolorbox}[colback=lightblue, colframe=myblue, arc=2mm]
+Trong không gian với hệ tọa độ $Oxyz$, cho hai đường thẳng $\Delta_1$ và $\Delta_2$ có vectơ chỉ phương lần lượt là $\vec{u}_1 = (a_1; b_1; c_1), \vec{u}_2 = (a_2; b_2; c_2)$. Khi đó, ta có:
+\[
+\cos(\Delta_1, \Delta_2) = \frac{|a_1a_2 + b_1b_2 + c_1c_2|}{\sqrt{a_1^2 + b_1^2 + c_1^2} \cdot \sqrt{a_2^2 + b_2^2 + c_2^2}}
+\]
+\end{tcolorbox}
+\noindent $\star$ \textbf{Nhận xét:} $\Delta_1 \perp \Delta_2 \iff a_1a_2 + b_1b_2 + c_1c_2 = 0$.
+\vspace{0.3cm}
+\subsection*{\color{myblue}{2. Góc giữa đường thẳng và mặt phẳng}}
+\begin{tcolorbox}[colback=lightblue, colframe=myblue, arc=2mm]
+Trong không gian với hệ tọa độ $Oxyz$, cho đường thẳng $\Delta$ có vectơ chỉ phương $\vec{u} = (a_1; b_1; c_1)$ và mặt phẳng $(P)$ có vectơ pháp tuyến $\vec{n} = (a_2; b_2; c_2)$. Gọi $(\Delta, (P))$ là góc giữa đường thẳng $\Delta$ và mặt phẳng $(P)$. Khi đó:
+\[
+\sin(\Delta, (P)) = |\cos(\vec{u}, \vec{n})| = \frac{|\vec{u} \cdot \vec{n}|}{|\vec{u}| \cdot |\vec{n}|} = \frac{|a_1a_2 + b_1b_2 + c_1c_2|}{\sqrt{a_1^2 + b_1^2 + c_1^2} \cdot \sqrt{a_2^2 + b_2^2 + c_2^2}}
+\]
+\end{tcolorbox}
+\vspace{0.3cm}
+\subsection*{\color{myblue}{3. Góc giữa hai mặt phẳng}}
+\textit{Góc giữa hai mặt phẳng $(P_1)$ và $(P_2)$ là góc giữa hai đường thẳng lần lượt vuông góc với hai mặt phẳng đó, ký hiệu là $((P_1), (P_2))$.}
+\vspace{0.2cm}
+\begin{tcolorbox}[colback=lightblue, colframe=myblue, arc=2mm]
+Trong không gian với hệ tọa độ $Oxyz$, cho hai mặt phẳng $(P_1), (P_2)$ có vectơ pháp tuyến lần lượt là $\vec{n}_1 = (A_1; B_1; C_1), \vec{n}_2 = (A_2; B_2; C_2)$. Khi đó, ta có:
+\[
+\cos((P_1), (P_2)) = \frac{|A_1A_2 + B_1B_2 + C_1C_2|}{\sqrt{A_1^2 + B_1^2 + C_1^2} \cdot \sqrt{A_2^2 + B_2^2 + C_2^2}}
+\]
+\end{tcolorbox}
+
+
+\end{document}

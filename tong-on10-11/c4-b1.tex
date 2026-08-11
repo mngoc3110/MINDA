@@ -1,0 +1,144 @@
+\documentclass[12pt,a4paper]{extarticle}
+\usepackage[utf8]{inputenc}
+\usepackage[T5]{fontenc}
+\usepackage{geometry}
+\geometry{a4paper, left=1.5cm, right=1cm, top=1.5cm, bottom=1.5cm, headheight=20pt, headsep=15pt, footskip=28pt}
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{diagbox}
+\usepackage{colortbl} % Sửa lỗi \arrayrulecolor
+\usepackage{array}    % Hỗ trợ định dạng cột m{2cm}
+\usepackage[most]{tcolorbox}
+\newcommand{\khongxacdinh}{\text{KXĐ}}
+\newcommand{\blackbox}[1]{\texorpdfstring{\fcolorbox{black}{black}{\textcolor{white}{#1}}}{#1}}
+\usepackage{tikz}
+\definecolor{bookblue}{RGB}{58,90,172}
+\definecolor{book}{RGB}{58,90,172}
+\definecolor{myblue}{RGB}{200,40,40}
+\newcommand{\bluecheck}{\textcolor{myblue}{\checkmark}}
+\newtcolorbox{formulaBox}{colback=gray!5,colframe=bookblue,boxrule=0.8pt,arc=2mm}
+\newtcolorbox{notebox}{colback=blue!3,colframe=myblue,boxrule=0.8pt,arc=2mm}
+\usetikzlibrary{patterns, patterns.meta} % Thêm patterns.meta vào đây
+% Gọi package nằm trong thư mục con template
+\usepackage{../template/mngocbox}
+
+\begin{document}
+
+% Sử dụng ngoặc vuông [...] để thay đổi linh hoạt các thông số
+\makeheadbox[headerright={Chương 4},chude={Bài 1},tieude={Nguyên hàm},dinhdang={Xác suất},lop={12 },gv={Nguyễn Lê Minh Ngọc}]
+\vspace{2em}
+\section*{\color{blue!80!black}1. NGUYÊN HÀM CỦA MỘT HÀM SỐ}
+\begin{tcolorbox}[
+    colback=blue!5!white,
+    colframe=blue!75!black,
+    sharp corners,
+    boxrule=0pt,
+    leftrule=3pt,
+    top=8pt,
+    bottom=8pt,
+    left=12pt
+]
+    Cho hàm số $f(x)$ xác định trên một khoảng $K$ (hoặc một đoạn, hoặc một nửa khoảng). Hàm số $F(x)$ được gọi là một \textbf{nguyên hàm} của hàm số $f(x)$ trên $K$ nếu $F'(x) = f(x)$ với mọi $x$ thuộc $K$.
+\end{tcolorbox}
+\vspace{0.5em}
+\noindent $\blacktriangleright$ \textbf{Chú ý:} Trường hợp $K = [a, b]$ thì các đẳng thức $F'(a) = f(a)$ và $F'(b) = f(b)$ được hiểu là đạo hàm bên phải tại điểm $x = a$ và đạo hàm bên trái tại điểm $x = b$ của hàm số $F(x)$, tức là:
+\[
+\lim_{x \to a^+} \frac{F(x) - F(a)}{x - a} = f(a) \quad \text{và} \quad \lim_{x \to b^-} \frac{F(x) - F(b)}{x - b} = f(b).
+\]
+\vspace{2em}
+\begin{tcolorbox}[
+    colback=blue!5!white,
+    colframe=blue!75!black,
+    sharp corners,
+    boxrule=0pt,
+    leftrule=3pt,
+    top=8pt,
+    bottom=8pt,
+    left=12pt
+]
+    Giả sử hàm số $F(x)$ là một nguyên hàm của $f(x)$ trên $K$. Khi đó:
+    \begin{enumerate}[label=\alph*), leftmargin=*, itemsep=0.4em]
+        \item Với mỗi hằng số $C$, hàm số $F(x) + C$ cũng là một nguyên hàm của $f(x)$ trên $K$;
+        \item Nếu hàm số $G(x)$ là một nguyên hàm của $f(x)$ trên $K$ thì tồn tại một hằng số $C$ sao cho $G(x) = F(x) + C$ với mọi $x \in K$.
+    \end{enumerate}
+    Như vậy, nếu $F(x)$ là một nguyên hàm của $f(x)$ trên $K$ thì mọi nguyên hàm của $f(x)$ trên $K$ đều có dạng $F(x) + C$ ($C$ là hằng số). Ta gọi $F(x) + C$ ($C \in \mathbb{R}$) là \textbf{họ các nguyên hàm} của $f(x)$ trên $K$, kí hiệu bởi:
+    \[
+    \int f(x)dx = F(x) + C
+    \]
+\end{tcolorbox}
+\vspace{1.5em}
+\noindent $\blacktriangleright$ \textbf{Chú ý:}
+\begin{center}
+    \begin{minipage}{0.58\textwidth}
+        \begin{enumerate}[label=\alph*), leftmargin=*, itemsep=0.8em]
+            \item Để tìm họ các nguyên hàm (gọi tắt là tìm nguyên hàm) của hàm số $f(x)$ trên $K$, ta chỉ cần tìm một nguyên hàm $F(x)$ của $f(x)$ trên $K$ và khi đó:
+            \[
+            \int f(x)dx = F(x) + C \quad (C \text{ là hằng số})
+            \]
+            \item Người ta chứng minh được rằng, nếu hàm số $f(x)$ liên tục trên khoảng $K$ thì $f(x)$ có nguyên hàm trên khoảng đó.
+            \item Biểu thức $f(x)dx$ gọi là vi phân của nguyên hàm $F(x)$, kí hiệu là $dF(x)$. Vậy:
+            \[
+            dF(x) = F'(x)dx = f(x)dx
+            \]
+            \item Khi tìm nguyên hàm của một hàm số mà không chỉ rõ tập $K$, ta hiểu là tìm nguyên hàm của hàm số đó trên tập xác định của nó.
+        \end{enumerate}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.38\textwidth}
+        \centering
+        \begin{tikzpicture}[scale=0.9, >=stealth]
+            % Nodes
+            \node[draw=blue!80!black, thick, minimum width=1.5cm, minimum height=1cm, rounded corners=3pt] (F) at (0,0) {$F(x)$};
+            \node[draw=blue!80!black, ellipse, minimum width=1.6cm, minimum height=1cm, thick] (f) at (4,0) {$f(x)$};
+            
+            % Arcs with labels
+            \draw[->, thick, blue!80!black] (F) to[bend left=30] node[above, black, font=\small\itshape] {Tính đạo hàm} (f);
+            \draw[->, thick, blue!80!black] (f) to[bend left=30] node[below, black, font=\small\itshape] {Tìm nguyên hàm} (F);
+        \end{tikzpicture}
+    \end{minipage}
+\end{center}
+\vspace{2.5em}
+
+\section*{\color{blue!80!black}2. TÍNH CHẤT CƠ BẢN CỦA NGUYÊN HÀM}
+
+\begin{itemize}[leftmargin=*, label={\color{blue!80!black}$\bullet$}, itemsep=0.8em]
+    \item $\displaystyle \int kf(x)dx = k\int f(x)dx \quad (k \neq 0)$.
+    \item $\displaystyle \int [f(x) + g(x)]dx = \int f(x)dx + \int g(x)dx$.
+    \item $\displaystyle \int [f(x) - g(x)]dx = \int f(x)dx - \int g(x)dx$.
+\end{itemize}
+
+\vspace{2.5em}
+
+\section*{\color{blue!80!black}3. NGUYÊN HÀM CỦA MỘT SỐ HÀM SỐ THƯỜNG GẶP}
+
+\noindent Ở lớp 11, ta đã biết đạo hàm của các hàm số $y = x^n$ ($n \in \mathbb{N}^*$) và $y = \sqrt{x}$ là:
+\[
+(x^n)' = nx^{n-1};
+\]
+\[
+(\sqrt{x})' = \frac{1}{2\sqrt{x}} \quad \text{hay} \quad \left(x^{\frac{1}{2}}\right)' = \frac{1}{2}x^{-\frac{1}{2}} \quad (x > 0).
+\]
+\noindent Tổng quát, người ta chứng minh được: Hàm số lũy thừa $y = x^\alpha$ ($\alpha \in \mathbb{R}$) có đạo hàm với mọi $x > 0$ và $(x^\alpha)' = \alpha x^{\alpha-1}$.
+
+\vspace{1.5em}
+\noindent Sau đây là bảng nguyên hàm của một số hàm số thường gặp:
+
+\begin{center}
+    \arrayrulecolor{blue!60!white}
+    \renewcommand{\arraystretch}{2.2}
+    \begin{tabular}{|c|c|}
+        \hline
+        $\displaystyle \int 0dx = C$ & $\displaystyle \int 1dx = x + C$ \\
+        \hline
+        $\displaystyle \int x^\alpha dx = \frac{x^{\alpha+1}}{\alpha + 1} + C \quad (\alpha \neq -1)$ & $\displaystyle \int \frac{1}{x}dx = \ln|x| + C$ \\
+        \hline
+        $\displaystyle \int e^x dx = e^x + C$ & $\displaystyle \int a^x dx = \frac{a^x}{\ln a} + C \quad (0 < a \neq 1)$ \\
+        \hline
+        $\displaystyle \int \cos x dx = \sin x + C$ & $\displaystyle \int \sin x dx = -\cos x + C$ \\
+        \hline
+        $\displaystyle \int \frac{1}{\cos^2 x}dx = \tan x + C$ & $\displaystyle \int \frac{1}{\sin^2 x}dx = -\cot x + C$ \\
+        \hline
+    \end{tabular}
+\end{center}
+\end{document}
