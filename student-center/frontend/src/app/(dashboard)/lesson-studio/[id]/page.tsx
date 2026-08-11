@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import confetti from "canvas-confetti";
@@ -22,12 +22,21 @@ import {
   Layers,
   Send,
   Loader2,
-  HardDrive
+  HardDrive,
+  Presentation,
+  Gamepad2,
+  FileSpreadsheet,
+  Plus,
+  StickyNote,
+  Tv
 } from "lucide-react";
 
 import { SAMPLE_LESSONS } from "@/data/sampleLessons";
+import { TIN10_BAI1_SLIDES } from "@/data/sampleSlides";
 import { InteractiveLesson, packageLessonToSCORMZip } from "@/lib/scormPackager";
 import { saveLessonToGoogleDrive } from "@/lib/driveExport";
+import { exportLessonToPPTX, SlideData } from "@/lib/pptxExporter";
+
 import InteractiveUnitScale from "@/components/lesson-studio/InteractiveUnitScale";
 import DragDropGame from "@/components/lesson-studio/DragDropGame";
 import PresenterToolkit from "@/components/lesson-studio/PresenterToolkit";
@@ -38,31 +47,47 @@ export default function LessonPlayerPage() {
   const router = useRouter();
 
   const [lesson, setLesson] = useState<InteractiveLesson | null>(null);
+  const [slides, setSlides] = useState<SlideData[]>(TIN10_BAI1_SLIDES);
+  const [currentSlideIdx, setCurrentSlideIdx] = useState<number>(0);
   const [currentActivityIdx, setCurrentActivityIdx] = useState<number>(0);
-  const [mode, setMode] = useState<"presenter" | "learner">("presenter");
-  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
 
-  // Export state
+  // View Mode: 'slides' (PowerPoint PPT view) vs 'activities' (Interactive 4-step view)
+  const [viewMode, setViewMode] = useState<"slides" | "activities">("slides");
+  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
+  const [showTeacherNotes, setShowTeacherNotes] = useState<boolean>(false);
+
+  // Export states
+  const [isExportingPPTX, setIsExportingPPTX] = useState<boolean>(false);
   const [isExportingSCORM, setIsExportingSCORM] = useState<boolean>(false);
   const [isSavingToDrive, setIsSavingToDrive] = useState<boolean>(false);
   const [driveMsg, setDriveMsg] = useState<{ text: string; url?: string; type: "success" | "error" } | null>(null);
 
-  // Sorter game state in Activity 1
-  const [classifiedItems, setClassifiedItems] = useState<Record<string, "digital" | "analog">>({});
-
-  // Quiz state in Activity 3
-  const [selectedAnswers, setSelectedAnswers] = useState<Record<number, number>>({});
-  const [quizSubmitted, setQuizSubmitted] = useState<boolean>(false);
-
-  // Discussion state in Activity 4
-  const [discussionInputs, setDiscussionInputs] = useState<Record<number, string>>({});
-  const [submittedDiscussion, setSubmittedDiscussion] = useState<Record<number, boolean>>({});
+  // Custom added slide modal
+  const [showAddSlideModal, setShowAddSlideModal] = useState<boolean>(false);
+  const [newSlideTopic, setNewSlideTopic] = useState<string>("");
 
   useEffect(() => {
-    // Find lesson in sample or localStorage
     const found = SAMPLE_LESSONS.find(l => l.id === id) || SAMPLE_LESSONS[0];
     setLesson(found);
   }, [id]);
+
+  // Keyboard navigation for PPT slides
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") {
+        e.preventDefault();
+        setCurrentSlideIdx(prev => Math.min(slides.length - 1, prev + 1));
+      } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
+        e.preventDefault();
+        setCurrentSlideIdx(prev => Math.max(0, prev - 1));
+      } else if (e.key.toLowerCase() === "f") {
+        toggleFullscreen();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [slides.length]);
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
@@ -72,6 +97,35 @@ export default function LessonPlayerPage() {
     }
   };
 
+  // 1. Export PowerPoint .pptx
+  const handleDownloadPPTX = async () => {
+    if (!lesson) return;
+    setIsExportingPPTX(true);
+    try {
+      const blob = await exportLessonToPPTX(
+        lesson.title,
+        lesson.subject,
+        lesson.grade,
+        lesson.author,
+        slides
+      );
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `MINDA_${lesson.id}_Presentation.pptx`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      confetti({ particleCount: 90, spread: 70, origin: { y: 0.6 } });
+    } catch (e: any) {
+      alert("Lỗi xuất PowerPoint: " + e.message);
+    } finally {
+      setIsExportingPPTX(false);
+    }
+  };
+
+  // 2. Export SCORM Zip
   const handleDownloadSCORM = async () => {
     if (!lesson) return;
     setIsExportingSCORM(true);
@@ -93,6 +147,7 @@ export default function LessonPlayerPage() {
     }
   };
 
+  // 3. Save to Google Drive
   const handleSaveToDrive = async () => {
     if (!lesson) return;
     setIsSavingToDrive(true);
@@ -112,6 +167,34 @@ export default function LessonPlayerPage() {
     }
   };
 
+  // Add custom expanded slide
+  const handleAddExpandedSlide = () => {
+    if (!newSlideTopic.trim()) return;
+    const newSlide: SlideData = {
+      id: `slide-custom-${Date.now()}`,
+      slideNumber: slides.length + 1,
+      activityType: "expansion",
+      badge: "🚀 Mở rộng Chuyên sâu",
+      title: newSlideTopic,
+      subtitle: "Chủ đề kiến thức bổ trợ và công nghệ thực tiễn",
+      cards: [
+        { title: "Khái niệm & Ứng dụng", desc: `Tìm hiểu sâu về ${newSlideTopic} và tác động đến chuyển đổi số toàn cầu.`, icon: "💡" },
+        { title: "Liên hệ thực tiễn", desc: "Ví dụ thực tế trong đời sống, doanh nghiệp và xu hướng công nghệ tương lai.", icon: "🌐" },
+        { title: "Bài tập tư duy", desc: "Thảo luận nhóm và phân tích các cơ hội / thách thức công nghệ.", icon: "🎯" }
+      ],
+      callout: {
+        title: "Điểm mở rộng",
+        content: `Nâng cao năng lực số với chủ đề: ${newSlideTopic}`
+      },
+      notes: `Giáo viên giảng giải chi tiết về ${newSlideTopic} và đặt câu hỏi mở cho học sinh.`
+    };
+    setSlides([...slides, newSlide]);
+    setCurrentSlideIdx(slides.length);
+    setNewSlideTopic("");
+    setShowAddSlideModal(false);
+    confetti({ particleCount: 60, spread: 60, origin: { y: 0.7 } });
+  };
+
   if (!lesson) {
     return (
       <div className="min-h-screen bg-bg-main flex items-center justify-center text-text-primary">
@@ -120,14 +203,13 @@ export default function LessonPlayerPage() {
     );
   }
 
-  const currentAct = lesson.activities[currentActivityIdx] || lesson.activities[0];
-  const progressPercent = Math.round(((currentActivityIdx + 1) / lesson.activities.length) * 100);
+  const currentSlide = slides[currentSlideIdx] || slides[0];
 
   return (
-    <div className="min-h-screen bg-bg-main text-text-primary flex flex-col font-outfit pb-24 relative">
+    <div className="min-h-screen bg-bg-main text-text-primary flex flex-col font-outfit pb-20 relative">
       
       {/* ── TOP CONTROL BAR ── */}
-      <header className="sticky top-0 z-30 bg-bg-card/90 backdrop-blur-xl border-b border-border-card px-4 sm:px-8 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
+      <header className="sticky top-0 z-30 bg-bg-card/90 backdrop-blur-xl border-b border-border-card px-4 sm:px-6 py-3 flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-sm">
         <div className="flex items-center gap-3">
           <button
             onClick={() => router.push("/lesson-studio")}
@@ -141,7 +223,7 @@ export default function LessonPlayerPage() {
               <span className="text-[10px] font-black uppercase tracking-widest text-rose-500 px-2 py-0.5 rounded-md bg-rose-500/10 border border-rose-500/20">
                 {lesson.subject} {lesson.grade}
               </span>
-              <span className="text-xs text-text-secondary truncate">{lesson.author}</span>
+              <span className="text-xs text-text-secondary truncate">{slides.length} Slide Bài Giảng</span>
             </div>
             <h1 className="text-base sm:text-lg font-black text-text-primary truncate mt-0.5">
               {lesson.title}
@@ -149,33 +231,66 @@ export default function LessonPlayerPage() {
           </div>
         </div>
 
-        {/* Action Buttons: SCORM & Google Drive */}
-        <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
+        {/* View Mode Switcher + Action Buttons */}
+        <div className="flex flex-wrap items-center gap-2 self-end md:self-auto shrink-0">
+          
+          {/* Switch View Mode: Slide PPT vs Activities */}
+          <div className="bg-bg-main border border-border-card p-1 rounded-xl flex items-center gap-1">
+            <button
+              onClick={() => setViewMode("slides")}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
+                viewMode === "slides" ? "bg-rose-500 text-white shadow-sm" : "text-text-secondary hover:text-text-primary"
+              }`}
+            >
+              <Presentation className="w-3.5 h-3.5" /> Slide PPT ({slides.length})
+            </button>
+            <button
+              onClick={() => setViewMode("activities")}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
+                viewMode === "activities" ? "bg-indigo-600 text-white shadow-sm" : "text-text-secondary hover:text-text-primary"
+              }`}
+            >
+              <Gamepad2 className="w-3.5 h-3.5" /> 4 Hoạt Động
+            </button>
+          </div>
+
+          {/* Download PPTX Button */}
+          <button
+            onClick={handleDownloadPPTX}
+            disabled={isExportingPPTX}
+            className="px-3 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:opacity-95 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-orange-500/20 disabled:opacity-50"
+            title="Tải bài giảng file PowerPoint .pptx thật"
+          >
+            {isExportingPPTX ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <FileSpreadsheet className="w-3.5 h-3.5" />}
+            <span>Xuất PPTX</span>
+          </button>
+
+          {/* Download SCORM */}
           <button
             onClick={handleDownloadSCORM}
             disabled={isExportingSCORM}
-            className="px-3.5 py-2 rounded-xl bg-bg-main border border-border-card hover:border-indigo-500/40 text-text-secondary hover:text-indigo-400 text-xs font-bold transition flex items-center gap-1.5 shadow-sm disabled:opacity-50"
-            title="Xuất bài giảng thành file SCORM 1.2 ZIP chuẩn LMS"
+            className="px-3 py-2 rounded-xl bg-bg-main border border-border-card hover:border-indigo-500/40 text-text-secondary hover:text-indigo-400 text-xs font-bold transition flex items-center gap-1.5 disabled:opacity-50"
+            title="Xuất file SCORM 1.2 ZIP chuẩn LMS"
           >
-            {isExportingSCORM ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5 text-indigo-400" />}
-            <span className="hidden sm:inline">Xuất gói SCORM (.zip)</span>
-            <span className="sm:hidden">SCORM</span>
+            {isExportingSCORM ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
+            <span className="hidden sm:inline">SCORM</span>
           </button>
 
+          {/* Save to Google Drive */}
           <button
             onClick={handleSaveToDrive}
             disabled={isSavingToDrive}
-            className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:opacity-95 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-indigo-500/20 disabled:opacity-50"
-            title="Lưu trực tiếp toàn bộ bài giảng vào Google Drive"
+            className="px-3 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:opacity-95 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-indigo-500/20 disabled:opacity-50"
+            title="Lưu trực tiếp vào Google Drive"
           >
             {isSavingToDrive ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Cloud className="w-3.5 h-3.5" />}
-            <span>Lưu Google Drive</span>
+            <span className="hidden sm:inline">Lưu Drive</span>
           </button>
 
           <button
             onClick={toggleFullscreen}
             className="p-2 rounded-xl bg-bg-main border border-border-card text-text-secondary hover:text-text-primary transition"
-            title="Toàn màn hình"
+            title="Toàn màn hình (Phím F)"
           >
             {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
           </button>
@@ -201,410 +316,339 @@ export default function LessonPlayerPage() {
         </div>
       )}
 
-      {/* ── ACTIVITIES 4-STEP TABS ── */}
-      <div className="bg-bg-card/50 border-b border-border-card px-4 sm:px-8 py-2.5 flex items-center justify-between gap-4">
-        <div className="flex gap-2 overflow-x-auto no-scrollbar py-0.5">
-          {[
-            { idx: 0, label: "1. 🎬 Khởi Động", color: "rose" },
-            { idx: 1, label: "2. 💡 Kiến Thức", color: "indigo" },
-            { idx: 2, label: "3. 🎮 Luyện Tập", color: "emerald" },
-            { idx: 3, label: "4. 🚀 Vận Dụng", color: "amber" },
-          ].map(tab => (
-            <button
-              key={tab.idx}
-              onClick={() => setCurrentActivityIdx(tab.idx)}
-              className={`px-4 py-2 rounded-xl text-xs font-black whitespace-nowrap transition-all flex items-center gap-1.5 shrink-0 ${
-                currentActivityIdx === tab.idx
-                  ? "bg-rose-500 text-white shadow-lg shadow-rose-500/30 scale-105"
-                  : "text-text-secondary hover:bg-bg-hover hover:text-text-primary"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Progress percent */}
-        <div className="hidden sm:flex items-center gap-3 shrink-0">
-          <span className="text-xs font-bold text-text-secondary font-mono">Tiến độ: {progressPercent}%</span>
-          <div className="w-28 h-2.5 bg-bg-main rounded-full overflow-hidden border border-border-card">
-            <div 
-              className="h-full bg-gradient-to-r from-rose-500 to-indigo-500 transition-all duration-500 rounded-full" 
-              style={{ width: `${progressPercent}%` }}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* ── MAIN ACTIVITY CONTENT VIEWPORT ── */}
-      <main className="max-w-5xl w-full mx-auto px-4 sm:px-8 py-6 sm:py-8 flex-1 flex flex-col gap-6">
-
-        {/* ── 1. KHỞI ĐỘNG (WARM-UP) ── */}
-        {currentActivityIdx === 0 && (
-          <div className="space-y-6 animate-in fade-in duration-300">
-            <div className="p-6 sm:p-8 rounded-3xl bg-bg-card border border-border-card shadow-2xl relative overflow-hidden">
-              <span className="px-3 py-1 rounded-full text-xs font-bold bg-rose-500/10 text-rose-500 border border-rose-500/20 uppercase tracking-widest">
-                Hoạt động 1: Khởi động & Gợi mở
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {/* ── VIEW MODE 1: MULTI-SLIDE POWERPOINT SLIDE DECK VIEW ── */}
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {viewMode === "slides" && (
+        <div className="flex-1 flex flex-col lg:flex-row gap-4 p-3 sm:p-6 max-w-7xl w-full mx-auto">
+          
+          {/* ── LEFT SIDEBAR: SLIDE THUMBNAILS LIST ── */}
+          <aside className="w-full lg:w-72 bg-bg-card border border-border-card rounded-3xl p-3 flex flex-col gap-2 shrink-0 max-h-[320px] lg:max-h-[750px] overflow-y-auto custom-scrollbar">
+            <div className="flex items-center justify-between px-2 py-1.5 border-b border-border-card">
+              <span className="text-[11px] font-black text-text-secondary uppercase tracking-wider">
+                Danh Sách Slide ({slides.length})
               </span>
-              <h2 className="text-2xl sm:text-3xl font-black text-text-primary mt-3">
-                {currentAct.title}
-              </h2>
-              <p className="text-sm sm:text-base text-text-secondary mt-2 leading-relaxed">
-                {currentAct.content}
-              </p>
+              <button
+                onClick={() => setShowAddSlideModal(true)}
+                className="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500 text-rose-400 hover:text-white transition flex items-center gap-1 text-[10px] font-bold"
+                title="Thêm chủ đề mở rộng ngoài SGK"
+              >
+                <Plus className="w-3.5 h-3.5" /> Thêm Slide
+              </button>
+            </div>
 
-              {/* Sorter Mini-game */}
-              <div className="mt-8 space-y-4">
+            <div className="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-x-visible pb-1">
+              {slides.map((s, idx) => {
+                const isActive = currentSlideIdx === idx;
+                return (
+                  <button
+                    key={s.id}
+                    onClick={() => setCurrentSlideIdx(idx)}
+                    className={`w-44 lg:w-full p-2.5 rounded-2xl border text-left transition-all shrink-0 flex flex-col gap-1.5 relative ${
+                      isActive
+                        ? "bg-rose-500/15 border-rose-500 shadow-md ring-1 ring-rose-500"
+                        : "bg-bg-main border-border-card hover:border-rose-500/40 hover:bg-bg-hover"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between text-[10px]">
+                      <span className="font-mono font-bold text-text-secondary">#{idx + 1}</span>
+                      <span className={`px-1.5 py-0.5 rounded-md font-bold truncate max-w-[120px] ${
+                        s.activityType === "expansion" ? "bg-purple-500/20 text-purple-400" : "bg-bg-card text-rose-400"
+                      }`}>
+                        {s.badge}
+                      </span>
+                    </div>
+                    <p className={`text-xs font-bold truncate ${isActive ? "text-rose-400" : "text-text-primary"}`}>
+                      {s.title}
+                    </p>
+                  </button>
+                );
+              })}
+            </div>
+          </aside>
+
+          {/* ── CENTER: PRESENTATION STAGE (16:9 SLIDE CANVAS) ── */}
+          <main className="flex-1 flex flex-col gap-3">
+            
+            {/* 16:9 Slide Screen */}
+            <div className="w-full aspect-[16/9] bg-slate-950 border border-slate-800 rounded-3xl p-6 sm:p-10 flex flex-col justify-between shadow-2xl relative overflow-hidden text-slate-100 selection:bg-rose-500/30">
+              <div className="absolute -top-24 -right-24 w-72 h-72 bg-rose-500/10 rounded-full blur-3xl pointer-events-none" />
+
+              {/* Slide Header */}
+              <div className="space-y-2 relative z-10">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm sm:text-base font-black text-text-primary flex items-center gap-2">
-                    <span>🎯</span> Đố vui: Bấm vào từng đồ vật để phân loại
-                  </h3>
-                  <span className="text-xs text-text-secondary font-mono">
-                    Đã phân loại: {Object.keys(classifiedItems).length} / 6
+                  <span className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest border ${
+                    currentSlide.activityType === "expansion"
+                      ? "bg-purple-500/20 border-purple-500/40 text-purple-300"
+                      : "bg-rose-500/20 border-rose-500/40 text-rose-400"
+                  }`}>
+                    {currentSlide.badge}
+                  </span>
+                  <span className="font-mono text-xs font-bold text-slate-500">
+                    Slide {currentSlideIdx + 1} / {slides.length}
                   </span>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
-                  {currentAct.interactiveData?.items?.map((item: any) => {
-                    const status = classifiedItems[item.id];
-                    return (
-                      <div
-                        key={item.id}
-                        onClick={() => {
-                          setClassifiedItems(prev => ({
-                            ...prev,
-                            [item.id]: item.type
-                          }));
-                          if (Object.keys(classifiedItems).length === 5) {
-                            confetti({ particleCount: 70, spread: 60, origin: { y: 0.7 } });
-                          }
-                        }}
-                        className={`p-4 rounded-2xl border transition-all cursor-pointer select-none text-left flex flex-col justify-between gap-3 ${
-                          status === "digital"
-                            ? "bg-emerald-500/10 border-emerald-500/40 text-emerald-400"
-                            : status === "analog"
-                            ? "bg-amber-500/10 border-amber-500/40 text-amber-400"
-                            : "bg-bg-main border-border-card hover:border-rose-500/50 hover:bg-bg-hover"
-                        }`}
-                      >
-                        <div className="flex items-start justify-between gap-2">
-                          <span className="text-3xl">{item.icon}</span>
-                          {status ? (
-                            <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-md ${
-                              status === "digital" ? "bg-emerald-500/20 text-emerald-400" : "bg-amber-500/20 text-amber-400"
-                            }`}>
-                              {status === "digital" ? "✅ Thiết bị số" : "📻 Thiết bị truyền thống"}
-                            </span>
-                          ) : (
-                            <span className="text-[10px] text-text-secondary font-bold">Chạm để xem</span>
-                          )}
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-sm text-text-primary">{item.name}</h4>
-                          <p className="text-xs text-text-secondary mt-0.5">{item.desc}</p>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Inquiry Prompt */}
-              <div className="mt-8 p-5 rounded-2xl bg-gradient-to-r from-rose-500/10 to-indigo-500/10 border border-rose-500/20 flex items-center gap-4">
-                <span className="text-3xl">💡</span>
-                <div>
-                  <h4 className="text-sm font-black text-rose-500">Vấn đề cần giải quyết:</h4>
-                  <p className="text-xs sm:text-sm text-text-secondary mt-0.5">
-                    Dữ liệu được chuyển thành thông tin trong máy tính như thế nào? Cùng bước vào Hoạt động 2 để tìm hiểu!
+                <h2 className="text-xl sm:text-3xl font-black text-white leading-tight">
+                  {currentSlide.title}
+                </h2>
+                {currentSlide.subtitle && (
+                  <p className="text-xs sm:text-sm text-slate-400 italic">
+                    {currentSlide.subtitle}
                   </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ── 2. HÌNH THÀNH KIẾN THỨC (KNOWLEDGE) ── */}
-        {currentActivityIdx === 1 && (
-          <div className="space-y-6 animate-in fade-in duration-300">
-            {/* 3 Bước Xử Lý Thông Tin */}
-            <div className="p-6 sm:p-8 rounded-3xl bg-bg-card border border-border-card shadow-2xl space-y-6">
-              <span className="px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 uppercase tracking-widest">
-                Hoạt động 2: Hình thành kiến thức
-              </span>
-              <h2 className="text-2xl sm:text-3xl font-black text-text-primary">
-                Quá trình Xử lý Thông tin & Đơn vị Đo lường
-              </h2>
-
-              {/* Sơ đồ 3 Bước */}
-              <div>
-                <h3 className="text-sm sm:text-base font-black text-indigo-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-                  <span>🧠</span> 1. Sơ đồ 3 Bước Xử lý Thông tin của Máy Tính
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-                  <div className="p-5 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 space-y-2">
-                    <div className="w-12 h-12 rounded-2xl bg-indigo-500 text-white font-black text-lg flex items-center justify-center mx-auto shadow-lg shadow-indigo-500/30">
-                      1
-                    </div>
-                    <h4 className="font-bold text-sm text-indigo-300">Tiếp nhận dữ liệu (Input)</h4>
-                    <p className="text-xs text-text-secondary leading-relaxed">
-                      Từ bàn phím, chuột, camera, máy quét... chuyển đổi thành các dãy bit (0 và 1).
-                    </p>
-                  </div>
-
-                  <div className="p-5 rounded-2xl bg-purple-500/10 border border-purple-500/30 space-y-2 scale-105 shadow-xl">
-                    <div className="w-12 h-12 rounded-2xl bg-purple-500 text-white font-black text-lg flex items-center justify-center mx-auto shadow-lg shadow-purple-500/30">
-                      2
-                    </div>
-                    <h4 className="font-bold text-sm text-purple-300">Xử lí dữ liệu (Processing)</h4>
-                    <p className="text-xs text-text-secondary leading-relaxed">
-                      CPU tính toán, biến đổi các dãy bit trong bộ nhớ RAM để rút ra thông tin hữu ích.
-                    </p>
-                  </div>
-
-                  <div className="p-5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 space-y-2">
-                    <div className="w-12 h-12 rounded-2xl bg-emerald-500 text-white font-black text-lg flex items-center justify-center mx-auto shadow-lg shadow-emerald-500/30">
-                      3
-                    </div>
-                    <h4 className="font-bold text-sm text-emerald-300">Đưa ra kết quả (Output)</h4>
-                    <p className="text-xs text-text-secondary leading-relaxed">
-                      Xuất ra màn hình, loa, máy in hoặc lưu trữ lâu dài vào ổ cứng, thẻ nhớ, Google Drive.
-                    </p>
-                  </div>
-                </div>
+                )}
               </div>
 
-              {/* Manim Animation Video Embed */}
-              <ManimVideoEmbed lessonTitle={lesson.title} />
+              {/* Slide Body Content */}
+              <div className="my-auto py-3 space-y-4 relative z-10 overflow-y-auto max-h-[60%] custom-scrollbar">
+                
+                {/* Bullet Points */}
+                {currentSlide.bulletPoints && (
+                  <ul className="space-y-2 text-xs sm:text-base text-slate-200">
+                    {currentSlide.bulletPoints.map((bp, i) => (
+                      <li key={i} className="flex items-start gap-2.5 leading-relaxed">
+                        <span className="text-rose-400 font-bold mt-1">▸</span>
+                        <span>{bp}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
 
-              {/* Phân Biệt Dữ Liệu vs Thông Tin */}
-              <div className="p-6 rounded-2xl bg-bg-main border border-border-card space-y-4">
-                <h3 className="text-sm sm:text-base font-black text-amber-400 flex items-center gap-2">
-                  <span>⚖️</span> 2. Phân biệt Dữ liệu và Thông tin (Tính toàn vẹn)
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs sm:text-sm">
-                  <div className="p-4 rounded-xl bg-bg-card border border-border-card space-y-1.5">
-                    <span className="font-bold text-rose-400">📄 Dữ liệu (Data):</span>
-                    <p className="text-text-secondary leading-relaxed">
-                      Là các yếu tố thô (chữ viết, con số, âm thanh, hình ảnh) được đưa vào máy tính dưới dạng bit. Ví dụ: Con số <strong>"39°C"</strong>.
-                    </p>
-                  </div>
-                  <div className="p-4 rounded-xl bg-bg-card border border-border-card space-y-1.5">
-                    <span className="font-bold text-emerald-400">💡 Thông tin (Information):</span>
-                    <p className="text-text-secondary leading-relaxed">
-                      Là ý nghĩa mà dữ liệu mang lại. "39°C" ở bản tin thời tiết mang thông tin <em>"Trời nóng"</em>; trong bệnh án y tế mang thông tin <em>"Sốt cao"</em>.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Interactive Unit Scale */}
-              <InteractiveUnitScale />
-
-              {/* 4 Ưu Điểm của Thiết Bị Số */}
-              <div className="space-y-4">
-                <h3 className="text-sm sm:text-base font-black text-text-primary uppercase tracking-wider">
-                  3. Bốn Ưu Điểm Vượt Trội Của Thiết Bị Số
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  {currentAct.interactiveData?.advantages?.map((adv: any, i: number) => (
-                    <div key={i} className="p-4 rounded-2xl bg-bg-main border border-border-card flex items-start gap-3.5">
-                      <span className="text-2xl">{adv.icon}</span>
-                      <div>
-                        <h4 className="font-bold text-xs sm:text-sm text-text-primary">{adv.title}</h4>
-                        <p className="text-xs text-text-secondary mt-0.5">{adv.desc}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ── 3. LUYỆN TẬP (PRACTICE) ── */}
-        {currentActivityIdx === 2 && (
-          <div className="space-y-6 animate-in fade-in duration-300">
-            {/* Drag Drop Game */}
-            <DragDropGame />
-
-            {/* Quiz Show 2 Câu Hỏi Chuẩn SGK */}
-            <div className="p-6 sm:p-8 rounded-3xl bg-bg-card border border-border-card shadow-2xl space-y-6">
-              <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase tracking-widest">
-                Đấu Trường Trắc Nghiệm
-              </span>
-              <h2 className="text-xl sm:text-2xl font-black text-text-primary">
-                Kiểm tra kiến thức cốt lõi (SGK Trang 8 & 10)
-              </h2>
-
-              <div className="space-y-6">
-                {currentAct.interactiveData?.quizQuestions?.map((q: any, qIdx: number) => {
-                  const selected = selectedAnswers[qIdx];
-                  const isCorrect = selected === q.correctIndex;
-                  return (
-                    <div key={qIdx} className="p-5 rounded-2xl bg-bg-main border border-border-card space-y-3">
-                      <h4 className="font-bold text-sm sm:text-base text-text-primary">
-                        Câu {qIdx + 1}: {q.question}
-                      </h4>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                        {q.options.map((opt: string, optIdx: number) => {
-                          const isThisSelected = selected === optIdx;
-                          return (
-                            <button
-                              key={optIdx}
-                              onClick={() => {
-                                setSelectedAnswers(prev => ({ ...prev, [qIdx]: optIdx }));
-                                if (optIdx === q.correctIndex) {
-                                  confetti({ particleCount: 40, spread: 50, origin: { y: 0.7 } });
-                                }
-                              }}
-                              className={`p-3.5 rounded-xl border text-xs font-semibold text-left transition-all ${
-                                isThisSelected
-                                  ? optIdx === q.correctIndex
-                                    ? "bg-emerald-500/20 border-emerald-500 text-emerald-400 font-bold shadow-md"
-                                    : "bg-red-500/20 border-red-500 text-red-400 font-bold shadow-md"
-                                  : "bg-bg-card border-border-card text-text-secondary hover:border-emerald-500/40 hover:text-text-primary"
-                              }`}
-                            >
-                              {opt}
-                            </button>
-                          );
-                        })}
-                      </div>
-
-                      {selected !== undefined && (
-                        <div className={`p-3 rounded-xl text-xs font-medium ${
-                          isCorrect ? "bg-emerald-500/10 text-emerald-400" : "bg-red-500/10 text-red-400"
-                        }`}>
-                          {isCorrect ? "✅ Chính xác! " : "❌ Chưa chính xác. "}
-                          {q.explanation}
+                {/* Cards Grid */}
+                {currentSlide.cards && (
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {currentSlide.cards.map((c, i) => (
+                      <div key={i} className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-1.5 shadow-md">
+                        <div className="flex items-center gap-2">
+                          <span className="text-2xl">{c.icon}</span>
+                          <h4 className="font-black text-xs sm:text-sm text-slate-100">{c.title}</h4>
                         </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ── 4. VẬN DỤNG (APPLICATION) ── */}
-        {currentActivityIdx === 3 && (
-          <div className="space-y-6 animate-in fade-in duration-300">
-            <div className="p-6 sm:p-8 rounded-3xl bg-bg-card border border-border-card shadow-2xl space-y-6">
-              <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20 uppercase tracking-widest">
-                Hoạt động 4: Vận dụng thực tế & Chuyển đổi số
-              </span>
-              <h2 className="text-2xl sm:text-3xl font-black text-text-primary">
-                Ứng dụng Thực tiễn & Thảo luận Mở
-              </h2>
-
-              {/* Case Studies 1 & 2 */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-5 rounded-2xl bg-bg-main border border-border-card space-y-2.5">
-                  <div className="flex items-center gap-2">
-                    <span className="text-2xl">🪪</span>
-                    <h3 className="font-bold text-sm sm:text-base text-amber-400">Thẻ Căn Cước Công Dân Gắn Chip</h3>
+                        <p className="text-[11px] sm:text-xs text-slate-300 leading-relaxed">{c.desc}</p>
+                      </div>
+                    ))}
                   </div>
-                  <p className="text-xs text-text-secondary leading-relaxed">
-                    • <strong>Mã QR code:</strong> Giúp camera điện thoại quét nhanh thông tin nhân thân cơ bản.<br />
-                    • <strong>Chip nhớ điện tử:</strong> Lưu trữ mã hóa bảo mật thông tin sinh trắc học (vân tay, khuôn mặt), chống làm giả và phục vụ xác thực mức độ cao.
-                  </p>
-                </div>
+                )}
 
-                <div className="p-5 rounded-2xl bg-bg-main border border-border-card space-y-2.5">
-                  <div className="flex items-center gap-2">
-                    <span className="text-2xl">📚</span>
-                    <h3 className="font-bold text-sm sm:text-base text-amber-400">Số Hóa 2.000 Cuốn Sách Thư Viện</h3>
-                  </div>
-                  <p className="text-xs text-text-secondary leading-relaxed">
-                    2.000 cuốn sách × 50 MB = 100.000 MB ≈ 97.65 GB.<br />
-                    <strong>Kết luận:</strong> Thẻ nhớ 256 GB hoàn toàn có thể lưu trữ toàn bộ thư viện sách của cả một trường học với giá thành cực rẻ!
-                  </p>
-                </div>
-              </div>
-
-              {/* Interactive Discussion Form */}
-              <div className="space-y-4 pt-4 border-t border-border-card">
-                <h3 className="text-sm sm:text-base font-black text-text-primary flex items-center gap-2">
-                  <span>💬</span> Diễn đàn Thảo luận tại Lớp & Trực tuyến
-                </h3>
-
-                {currentAct.interactiveData?.questions?.map((q: string, i: number) => (
-                  <div key={i} className="p-4 rounded-2xl bg-bg-main border border-border-card space-y-3">
-                    <p className="text-xs sm:text-sm font-bold text-text-primary">{q}</p>
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        value={discussionInputs[i] || ""}
-                        onChange={(e) => setDiscussionInputs(prev => ({ ...prev, [i]: e.target.value }))}
-                        placeholder="Nhập ý kiến thảo luận của em tại đây..."
-                        className="flex-1 px-4 py-2.5 rounded-xl bg-bg-card border border-border-card text-xs text-text-primary focus:outline-none focus:border-rose-500/50"
-                      />
-                      <button
-                        onClick={() => {
-                          if (!discussionInputs[i]?.trim()) return;
-                          setSubmittedDiscussion(prev => ({ ...prev, [i]: true }));
-                          confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
-                        }}
-                        className="px-4 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-rose-500/20"
-                      >
-                        <Send className="w-3.5 h-3.5" /> Gửi
-                      </button>
-                    </div>
-                    {submittedDiscussion[i] && (
-                      <p className="text-[11px] text-emerald-400 font-bold flex items-center gap-1">
-                        <CheckCircle2 className="w-3 h-3" /> Đã gửi câu trả lời lên màn hình bài giảng!
+                {/* Comparison Box */}
+                {currentSlide.comparison && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="p-4 sm:p-5 rounded-2xl bg-slate-900/90 border border-rose-500/40 space-y-2">
+                      <h4 className="font-black text-sm text-rose-400">{currentSlide.comparison.leftTitle}</h4>
+                      <p className="text-xs sm:text-sm text-slate-200 whitespace-pre-line leading-relaxed">
+                        {currentSlide.comparison.leftContent}
                       </p>
-                    )}
+                    </div>
+                    <div className="p-4 sm:p-5 rounded-2xl bg-slate-900/90 border border-emerald-500/40 space-y-2">
+                      <h4 className="font-black text-sm text-emerald-400">{currentSlide.comparison.rightTitle}</h4>
+                      <p className="text-xs sm:text-sm text-slate-200 whitespace-pre-line leading-relaxed">
+                        {currentSlide.comparison.rightContent}
+                      </p>
+                    </div>
                   </div>
-                ))}
+                )}
               </div>
 
-              {/* Finish Lesson Button */}
-              <div className="text-center pt-6">
+              {/* Callout Box Footer */}
+              {currentSlide.callout && (
+                <div className="p-3.5 rounded-2xl bg-indigo-950/70 border border-indigo-500/40 text-indigo-200 text-xs sm:text-sm flex items-center gap-2.5 relative z-10">
+                  <span className="text-lg">💡</span>
+                  <p><strong>{currentSlide.callout.title}:</strong> {currentSlide.callout.content}</p>
+                </div>
+              )}
+            </div>
+
+            {/* Slide Navigation Controller */}
+            <div className="flex items-center justify-between bg-bg-card border border-border-card p-3 rounded-2xl">
+              <button
+                onClick={() => setCurrentSlideIdx(prev => Math.max(0, prev - 1))}
+                disabled={currentSlideIdx === 0}
+                className="px-4 py-2 rounded-xl bg-bg-main hover:bg-bg-hover text-text-secondary disabled:opacity-30 text-xs font-bold transition flex items-center gap-1.5"
+              >
+                <ChevronLeft className="w-4 h-4" /> Slide Trước
+              </button>
+
+              <div className="flex items-center gap-3">
                 <button
-                  onClick={() => {
-                    confetti({ particleCount: 150, spread: 90, origin: { y: 0.6 } });
-                    alert("🎉 Chúc mừng bạn đã hoàn thành xuất sắc bài học Tin học 10 Bài 1!");
-                  }}
-                  className="px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-indigo-600 hover:opacity-95 text-white font-black text-sm shadow-xl shadow-emerald-500/30 transition hover:scale-105"
+                  onClick={() => setShowTeacherNotes(!showTeacherNotes)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+                    showTeacherNotes ? "bg-amber-500 text-white" : "bg-bg-main text-text-secondary hover:text-text-primary"
+                  }`}
                 >
-                  🎉 Hoàn Thành Bài Giảng & Lưu Điểm SCORM
+                  <StickyNote className="w-3.5 h-3.5" /> Ghi chú giáo viên
                 </button>
+                <span className="text-xs font-mono font-bold text-text-secondary">
+                  {currentSlideIdx + 1} / {slides.length}
+                </span>
+              </div>
+
+              <button
+                onClick={() => setCurrentSlideIdx(prev => Math.min(slides.length - 1, prev + 1))}
+                disabled={currentSlideIdx === slides.length - 1}
+                className="px-5 py-2 rounded-xl bg-rose-500 hover:bg-rose-600 disabled:opacity-30 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-rose-500/20"
+              >
+                Slide Tiếp <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Teacher Speaker Notes Display */}
+            {showTeacherNotes && currentSlide.notes && (
+              <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-300 animate-in fade-in space-y-1">
+                <span className="font-bold uppercase tracking-wider block">📝 Lời khuyên giảng dạy cho giáo viên:</span>
+                <p className="leading-relaxed">{currentSlide.notes}</p>
+              </div>
+            )}
+          </main>
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {/* ── VIEW MODE 2: 4-STEP INTERACTIVE ACTIVITIES VIEW ── */}
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {viewMode === "activities" && (
+        <div className="flex-1 flex flex-col gap-6 max-w-5xl w-full mx-auto px-4 sm:px-6 pt-4">
+          
+          {/* 4 Tabs */}
+          <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+            {[
+              { idx: 0, label: "1. 🎬 Khởi Động" },
+              { idx: 1, label: "2. 💡 Kiến Thức" },
+              { idx: 2, label: "3. 🎮 Luyện Tập" },
+              { idx: 3, label: "4. 🚀 Vận Dụng" },
+            ].map(tab => (
+              <button
+                key={tab.idx}
+                onClick={() => setCurrentActivityIdx(tab.idx)}
+                className={`px-4 py-2 rounded-xl text-xs font-black whitespace-nowrap transition-all flex items-center gap-1.5 shrink-0 ${
+                  currentActivityIdx === tab.idx
+                    ? "bg-rose-500 text-white shadow-lg shadow-rose-500/30 scale-105"
+                    : "bg-bg-card border border-border-card text-text-secondary hover:bg-bg-hover hover:text-text-primary"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Interactive Components */}
+          {currentActivityIdx === 0 && (
+            <div className="p-6 sm:p-8 rounded-3xl bg-bg-card border border-border-card shadow-2xl space-y-6 animate-in fade-in">
+              <span className="px-3 py-1 rounded-full text-xs font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20 uppercase tracking-widest">
+                Hoạt động 1: Khởi động
+              </span>
+              <h2 className="text-2xl font-black text-text-primary">Tình huống thực tế & Thiết bị số</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="p-4 rounded-2xl bg-bg-main border border-border-card text-center">
+                  <span className="text-3xl block mb-1">💾</span>
+                  <p className="text-xs font-bold text-emerald-400">Thẻ nhớ 1 TB</p>
+                  <p className="text-[10px] text-text-secondary mt-1">Thiết bị số</p>
+                </div>
+                <div className="p-4 rounded-2xl bg-bg-main border border-border-card text-center">
+                  <span className="text-3xl block mb-1">🕰️</span>
+                  <p className="text-xs font-bold text-amber-400">Đồng hồ cơ cót</p>
+                  <p className="text-[10px] text-text-secondary mt-1">Thiết bị truyền thống</p>
+                </div>
+                <div className="p-4 rounded-2xl bg-bg-main border border-border-card text-center">
+                  <span className="text-3xl block mb-1">📻</span>
+                  <p className="text-xs font-bold text-amber-400">Đĩa hát than</p>
+                  <p className="text-[10px] text-text-secondary mt-1">Thiết bị truyền thống</p>
+                </div>
               </div>
             </div>
-          </div>
-        )}
-      </main>
+          )}
 
-      {/* ── BOTTOM NAVIGATION CONTROLLER ── */}
-      <footer className="fixed bottom-0 left-0 right-0 z-30 bg-bg-card/95 backdrop-blur-xl border-t border-border-card px-4 sm:px-8 py-3 flex items-center justify-between shadow-2xl">
-        <button
-          onClick={() => setCurrentActivityIdx(i => Math.max(0, i - 1))}
-          disabled={currentActivityIdx === 0}
-          className="px-4 py-2 rounded-xl bg-bg-main hover:bg-bg-hover text-text-secondary disabled:opacity-30 text-xs font-bold transition flex items-center gap-1.5 border border-border-card"
-        >
-          <ChevronLeft className="w-4 h-4" /> Hoạt động trước
-        </button>
+          {currentActivityIdx === 1 && (
+            <div className="space-y-6 animate-in fade-in">
+              <ManimVideoEmbed lessonTitle={lesson.title} />
+              <InteractiveUnitScale />
+            </div>
+          )}
 
-        <span className="text-xs font-bold text-text-secondary hidden sm:inline font-mono">
-          Hoạt động {currentActivityIdx + 1} / {lesson.activities.length}
-        </span>
+          {currentActivityIdx === 2 && (
+            <div className="space-y-6 animate-in fade-in">
+              <DragDropGame />
+            </div>
+          )}
 
-        <button
-          onClick={() => setCurrentActivityIdx(i => Math.min(lesson.activities.length - 1, i + 1))}
-          disabled={currentActivityIdx === lesson.activities.length - 1}
-          className="px-5 py-2 rounded-xl bg-rose-500 hover:bg-rose-600 disabled:opacity-30 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-lg shadow-rose-500/20"
-        >
-          Tiếp theo <ChevronRight className="w-4 h-4" />
-        </button>
-      </footer>
+          {currentActivityIdx === 3 && (
+            <div className="p-6 sm:p-8 rounded-3xl bg-bg-card border border-border-card shadow-2xl space-y-6 animate-in fade-in">
+              <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20 uppercase tracking-widest">
+                Hoạt động 4: Vận dụng
+              </span>
+              <h2 className="text-2xl font-black text-text-primary">Ứng dụng Thẻ CCCD Gắn Chip & Chuyển đổi số</h2>
+              <p className="text-xs sm:text-sm text-text-secondary leading-relaxed">
+                Mã QR in trên mặt thẻ giúp quét nhanh thông tin nhân thân bằng smartphone; trong khi chip nhớ chìm lưu trữ dữ liệu sinh trắc học mã hóa mức độ cao, chống làm giả tuyệt đối.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
 
-      {/* ── FLOATING PRESENTER TOOLKIT (FOR OFFLINE / SMARTBOARD) ── */}
+      {/* ── FLOATING PRESENTER TOOLKIT (DRAWING, LASER, TIMER, WHEEL, SFX) ── */}
       <PresenterToolkit
         isFullscreen={isFullscreen}
         onToggleFullscreen={toggleFullscreen}
       />
+
+      {/* ── MODAL: ADD CUSTOM EXPANDED SLIDE ── */}
+      {showAddSlideModal && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="max-w-md w-full bg-bg-card border border-border-card rounded-3xl p-6 shadow-2xl space-y-5 animate-in zoom-in-95">
+            <div className="flex items-center justify-between border-b border-border-card pb-3">
+              <h3 className="text-base font-black text-text-primary flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-purple-400" /> Thêm Slide Mở Rộng Ngoài SGK
+              </h3>
+              <button onClick={() => setShowAddSlideModal(false)} className="text-text-secondary hover:text-text-primary">✕</button>
+            </div>
+
+            <div className="space-y-3">
+              <label className="text-xs font-bold text-text-secondary uppercase tracking-wider block">Chủ đề mở rộng</label>
+              <input
+                type="text"
+                value={newSlideTopic}
+                onChange={(e) => setNewSlideTopic(e.target.value)}
+                placeholder="VD: Máy tính lượng tử (Quantum Computing), Blockchain, Metaverse..."
+                className="w-full bg-bg-main border border-border-card rounded-xl px-4 py-2.5 text-xs text-text-primary focus:outline-none focus:border-rose-500/50"
+              />
+
+              {/* Quick suggestions */}
+              <div className="space-y-1.5 pt-1">
+                <span className="text-[10px] text-text-secondary font-bold uppercase tracking-wider block">Gợi ý chủ đề hot:</span>
+                <div className="flex flex-wrap gap-1.5">
+                  {[
+                    "Máy tính Lượng tử (Quantum Qubit)",
+                    "Blockchain & Hợp đồng thông minh",
+                    "Xe tự lái & Xử lý dữ liệu thời gian thực",
+                    "Internet vạn vật (IoT) trong Smart Home"
+                  ].map(sug => (
+                    <button
+                      key={sug}
+                      onClick={() => setNewSlideTopic(sug)}
+                      className="px-2.5 py-1 rounded-lg bg-bg-main hover:bg-purple-500/10 text-text-secondary hover:text-purple-400 text-[11px] font-semibold transition border border-border-card"
+                    >
+                      + {sug}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-2.5 pt-2">
+              <button
+                onClick={() => setShowAddSlideModal(false)}
+                className="flex-1 py-2.5 rounded-xl bg-bg-main hover:bg-bg-hover text-text-secondary text-xs font-bold"
+              >
+                Huỷ
+              </button>
+              <button
+                onClick={handleAddExpandedSlide}
+                className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs font-bold transition shadow-md shadow-purple-500/20"
+              >
+                ✨ Tạo Slide Ngay
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

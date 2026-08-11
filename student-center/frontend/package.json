@@ -48,6 +48,7 @@
     "pdfjs-dist": "^5.7.284",
     "peer": "^1.0.2",
     "peerjs": "^1.5.5",
+    "pptxgenjs": "^4.0.1",
     "react": "19.2.4",
     "react-big-calendar": "^1.19.4",
     "react-dom": "19.2.4",
