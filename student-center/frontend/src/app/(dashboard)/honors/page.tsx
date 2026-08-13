@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Award, Plus, Check, X, Loader2, Search, Trash2, Edit2 } from "lucide-react";
+import { Award, Plus, Check, X, Loader2, Search, Trash2, Edit2, User } from "lucide-react";
 
 interface Honor {
   id: number;
