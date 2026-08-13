@@ -503,17 +503,21 @@ export default function Home() {
                   className="bg-bg-main rounded-3xl p-6 border border-border-card hover:border-amber-500/50 transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-amber-500/10 group flex flex-col justify-between relative overflow-hidden"
                 >
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="px-2.5 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                    {/* Top Row: Year Pill & Large Uni Logo */}
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider bg-amber-500/10 text-amber-500 border border-amber-500/20">
                         {h.academic_year ? `Khóa ${h.academic_year}` : "Vinh Danh"}
                       </span>
+
+                      {/* Large University Logo Badge */}
                       {uniLogo && (
-                        <div className="w-7 h-7 rounded-lg bg-white p-0.5 border border-border-card shadow-sm flex items-center justify-center shrink-0">
-                          <img src={uniLogo} alt="Uni" className="w-full h-full object-contain" />
+                        <div className="w-14 h-14 rounded-2xl bg-white p-2 border-2 border-amber-500/30 shadow-md flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                          <img src={uniLogo} alt="University Logo" className="w-full h-full object-contain" />
                         </div>
                       )}
                     </div>
 
+                    {/* Student Info */}
                     <div className="flex items-center gap-3.5">
                       <div className="w-16 h-16 shrink-0 relative flex items-center justify-center">
                         <img 
@@ -532,8 +536,8 @@ export default function Home() {
                         </div>
                       </div>
 
-                      <div className="min-w-0">
-                        <h3 className="font-black text-base text-t-primary group-hover:text-amber-500 transition-colors truncate">
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-black text-base text-t-primary group-hover:text-amber-500 transition-colors">
                           {h.student_name}
                         </h3>
                         <p className="text-[11px] text-t-secondary truncate mt-0.5">
@@ -542,8 +546,16 @@ export default function Home() {
                       </div>
                     </div>
 
-                    <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs font-bold leading-tight line-clamp-2">
-                      {h.title}
+                    {/* University / Achievement Banner */}
+                    <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/25 flex items-center gap-3">
+                      {uniLogo && (
+                        <div className="w-10 h-10 rounded-xl bg-white p-1.5 border border-border-card shadow-sm shrink-0 flex items-center justify-center">
+                          <img src={uniLogo} alt="Uni" className="w-full h-full object-contain" />
+                        </div>
+                      )}
+                      <span className="text-xs font-black text-amber-500 leading-snug">
+                        {h.title}
+                      </span>
                     </div>
                   </div>
 

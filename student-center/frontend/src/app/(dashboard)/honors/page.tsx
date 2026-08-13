@@ -279,7 +279,7 @@ export default function HonorsPage() {
               
               <div className="flex-1 flex flex-col">
                 {honor.university_logo_url && (
-                   <div className="w-12 h-12 bg-white rounded-full p-1 shadow-sm border border-border-card overflow-hidden mb-2">
+                   <div className="w-16 h-16 bg-white rounded-2xl p-2 shadow-md border-2 border-amber-500/30 overflow-hidden mb-3 flex items-center justify-center">
                       <img src={getDirectImageUrl(honor.university_logo_url)} alt="University Logo" className="w-full h-full object-contain" />
                    </div>
                 )}

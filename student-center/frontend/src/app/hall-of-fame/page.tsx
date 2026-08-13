@@ -354,14 +354,15 @@ export default function HallOfFamePage() {
 
                   <div className="space-y-4">
                     
-                    {/* Top Row: Academic Year Pill & University Badge */}
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                    {/* Top Row: Academic Year Pill & Large University Logo */}
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider bg-amber-500/10 text-amber-500 border border-amber-500/25 shadow-sm">
                         {h.academic_year ? `Niên Khóa ${h.academic_year}` : "Vinh Danh"}
                       </span>
 
+                      {/* HUGE University Logo Spotlight */}
                       {uniLogo && (
-                        <div className="w-8 h-8 rounded-xl bg-white p-1 border border-border-card shadow-sm flex items-center justify-center shrink-0">
+                        <div className="w-16 h-16 rounded-2xl bg-white p-2 border-2 border-amber-500/40 shadow-lg flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                           <img src={uniLogo} alt="University Logo" className="w-full h-full object-contain" />
                         </div>
                       )}
@@ -393,11 +394,19 @@ export default function HallOfFamePage() {
                       </div>
                     </div>
 
-                    {/* Honor Title Ribbon */}
-                    <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20">
-                      <h4 className="text-xs sm:text-sm font-black text-amber-500 leading-snug">
-                        {h.title}
-                      </h4>
+                    {/* Prominent University & Achievement Ribbon */}
+                    <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/25 flex items-center gap-3">
+                      {uniLogo && (
+                        <div className="w-12 h-12 rounded-xl bg-white p-1.5 border border-border-card shadow-md shrink-0 flex items-center justify-center">
+                          <img src={uniLogo} alt="Uni Logo" className="w-full h-full object-contain" />
+                        </div>
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <span className="text-[10px] text-amber-500/90 font-black uppercase tracking-wider block">Trường Trúng Tuyển / Danh Hiệu</span>
+                        <h4 className="text-xs sm:text-sm font-black text-amber-500 leading-snug mt-0.5">
+                          {h.title}
+                        </h4>
+                      </div>
                     </div>
 
                     {/* Description Story */}
@@ -446,34 +455,37 @@ export default function HallOfFamePage() {
               </button>
             </div>
 
-            {/* Profile Spotlight */}
-            <div className="flex items-center gap-5 relative z-10">
-              <div className="w-20 h-20 shrink-0 relative rounded-2xl p-0.5 bg-gradient-to-br from-amber-400 to-yellow-600 shadow-lg shadow-amber-500/30">
-                <div className="w-full h-full rounded-[14px] overflow-hidden bg-bg-main">
-                  {selectedHonor.image_url ? (
-                    <img src={getDirectImageUrl(selectedHonor.image_url)} alt={selectedHonor.student_name} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-bg-main">
-                      <Award className="w-8 h-8 text-amber-500" />
-                    </div>
-                  )}
+            {/* Profile Spotlight & Huge University Logo */}
+            <div className="flex items-center justify-between gap-4 relative z-10">
+              <div className="flex items-center gap-4 min-w-0">
+                <div className="w-20 h-20 shrink-0 relative rounded-2xl p-0.5 bg-gradient-to-br from-amber-400 to-yellow-600 shadow-lg shadow-amber-500/30">
+                  <div className="w-full h-full rounded-[14px] overflow-hidden bg-bg-main">
+                    {selectedHonor.image_url ? (
+                      <img src={getDirectImageUrl(selectedHonor.image_url)} alt={selectedHonor.student_name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-bg-main">
+                        <Award className="w-8 h-8 text-amber-500" />
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="min-w-0">
+                  <h3 className="text-xl sm:text-2xl font-black text-t-primary">
+                    {selectedHonor.student_name}
+                  </h3>
+                  <p className="text-xs text-t-secondary mt-1">
+                    GV dẫn dắt: <strong className="text-t-primary">{selectedHonor.teacher_name}</strong>
+                  </p>
                 </div>
               </div>
 
-              <div>
-                <h3 className="text-2xl font-black text-t-primary">
-                  {selectedHonor.student_name}
-                </h3>
-                <p className="text-xs text-t-secondary mt-1">
-                  Giáo viên dẫn dắt: <strong className="text-t-primary">{selectedHonor.teacher_name}</strong>
-                </p>
-                {selectedHonor.university_logo_url && (
-                  <div className="flex items-center gap-2 mt-2">
-                    <img src={getDirectImageUrl(selectedHonor.university_logo_url)} alt="Logo" className="w-6 h-6 object-contain bg-white rounded p-0.5 border" />
-                    <span className="text-[11px] font-bold text-amber-500">Trúng tuyển Đại học</span>
-                  </div>
-                )}
-              </div>
+              {/* Large Uni Emblem in Modal */}
+              {selectedHonor.university_logo_url && (
+                <div className="w-20 h-20 rounded-2xl bg-white p-2.5 border-2 border-amber-500/40 shadow-xl flex items-center justify-center shrink-0">
+                  <img src={getDirectImageUrl(selectedHonor.university_logo_url)} alt="Logo" className="w-full h-full object-contain" />
+                </div>
+              )}
             </div>
 
             {/* Honor Award Title */}
