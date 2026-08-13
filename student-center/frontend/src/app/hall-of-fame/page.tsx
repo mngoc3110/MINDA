@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import confetti from "canvas-confetti";
 import { 
@@ -21,7 +21,15 @@ import {
   Users,
   Sun,
   Moon,
-  CheckCircle2
+  CheckCircle2,
+  Edit3,
+  Trash2,
+  Plus,
+  Upload,
+  Image as ImageIcon,
+  ShieldCheck,
+  Save,
+  Loader2
 } from "lucide-react";
 import { useTheme } from "@/providers/ThemeProvider";
 
@@ -35,6 +43,13 @@ interface HonorItem {
   academic_year: string | null;
   university_logo_url: string | null;
   created_at?: string;
+}
+
+interface CurrentUser {
+  id: number;
+  email: string;
+  full_name: string;
+  role: string;
 }
 
 const FALLBACK_HONORS: HonorItem[] = [
@@ -108,6 +123,29 @@ export default function HallOfFamePage() {
   const [selectedHonor, setSelectedHonor] = useState<HonorItem | null>(null);
   const { theme, toggleTheme } = useTheme();
 
+  // Auth & Admin Edit state
+  const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
+  const [isDarberAdmin, setIsDarberAdmin] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
+
+  // Editor Modal State
+  const [isEditorOpen, setIsEditorOpen] = useState(false);
+  const [editingHonor, setEditingHonor] = useState<HonorItem | null>(null);
+  const [formData, setFormData] = useState({
+    student_name: "",
+    title: "",
+    academic_year: "2025-2026",
+    description: "",
+    image_url: "",
+    university_logo_url: ""
+  });
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string>("");
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string>("");
+  const [saving, setSaving] = useState(false);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+
   const getDirectImageUrl = (url: string | null) => {
     if (!url) return "";
     const driveRegex = /drive\.google\.com\/file\/d\/([^/]+)/;
@@ -118,29 +156,146 @@ export default function HallOfFamePage() {
     return url;
   };
 
-  useEffect(() => {
-    const fetchPublicHonors = async () => {
-      try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/honors/public`);
-        if (res.ok) {
-          const data = await res.json();
-          if (Array.isArray(data) && data.length > 0) {
-            setHonors(data);
-          } else {
-            setHonors(FALLBACK_HONORS);
-          }
-        } else {
-          setHonors(FALLBACK_HONORS);
-        }
-      } catch (err) {
-        console.warn("Using fallback honors:", err);
-        setHonors(FALLBACK_HONORS);
-      } finally {
-        setLoading(false);
+  const openCreateModal = () => {
+    setEditingHonor(null);
+    setFormData({
+      student_name: "",
+      title: "",
+      academic_year: "2025-2026",
+      description: "",
+      image_url: "",
+      university_logo_url: ""
+    });
+    setAvatarFile(null);
+    setAvatarPreview("");
+    setLogoFile(null);
+    setLogoPreview("");
+    setIsEditorOpen(true);
+  };
+
+  const openEditModal = (honor: HonorItem, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setEditingHonor(honor);
+    setFormData({
+      student_name: honor.student_name,
+      title: honor.title,
+      academic_year: honor.academic_year || "2025-2026",
+      description: honor.description || "",
+      image_url: honor.image_url || "",
+      university_logo_url: honor.university_logo_url || ""
+    });
+    setAvatarFile(null);
+    setAvatarPreview(honor.image_url ? getDirectImageUrl(honor.image_url) : "");
+    setLogoFile(null);
+    setLogoPreview(honor.university_logo_url ? getDirectImageUrl(honor.university_logo_url) : "");
+    setIsEditorOpen(true);
+  };
+
+  const handleSaveHonor = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.student_name.trim()) {
+      alert("Vui lòng nhập họ tên học sinh!");
+      return;
+    }
+    if (!formData.title.trim()) {
+      alert("Vui lòng nhập trường trúng tuyển hoặc danh hiệu!");
+      return;
+    }
+    if (!token) {
+      alert("Bạn cần đăng nhập bằng tài khoản darber3110 / admin để lưu!");
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const data = new FormData();
+      data.append("custom_student_name", formData.student_name.trim());
+      data.append("title", formData.title.trim());
+      data.append("academic_year", formData.academic_year.trim());
+      data.append("description", formData.description.trim());
+      
+      if (avatarFile) {
+        data.append("image", avatarFile);
+      } else if (formData.image_url) {
+        data.append("image_url", formData.image_url.trim());
       }
-    };
-    fetchPublicHonors();
-  }, []);
+
+      if (logoFile) {
+        data.append("university_logo", logoFile);
+      } else if (formData.university_logo_url) {
+        data.append("university_logo_url", formData.university_logo_url.trim());
+      }
+
+      const isEdit = editingHonor && editingHonor.id < 100000;
+      const url = isEdit 
+        ? `${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/honors/${editingHonor.id}`
+        : `${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/honors/`;
+      const method = isEdit ? "PUT" : "POST";
+
+      const res = await fetch(url, {
+        method,
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        body: data
+      });
+
+      if (res.ok) {
+        setIsEditorOpen(false);
+        setEditingHonor(null);
+        await fetchPublicHonors();
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 }
+        });
+        alert("Đã lưu thông tin vinh danh thành công!");
+      } else {
+        const err = await res.json();
+        alert(`Lỗi khi lưu: ${err.detail || "Không thể cập nhật"}`);
+      }
+    } catch (err: any) {
+      console.error("Save honor error:", err);
+      alert(`Lỗi kết nối máy chủ: ${err.message || err}`);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeleteHonor = async (e: React.MouseEvent, honorId: number) => {
+    e.stopPropagation();
+    if (!confirm("Bạn có chắc chắn muốn xoá học sinh này khỏi Bảng Vàng Vinh Danh?")) {
+      return;
+    }
+    if (!token) {
+      alert("Vui lòng đăng nhập quyền darber3110 / admin để xoá!");
+      return;
+    }
+
+    setDeletingId(honorId);
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/honors/${honorId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      if (res.ok) {
+        setHonors(prev => prev.filter(h => h.id !== honorId));
+        if (selectedHonor?.id === honorId) setSelectedHonor(null);
+        if (editingHonor?.id === honorId) setIsEditorOpen(false);
+        alert("Đã xoá vinh danh thành công!");
+      } else {
+        const err = await res.json();
+        alert(`Lỗi khi xoá: ${err.detail || "Không thể xoá"}`);
+      }
+    } catch (err: any) {
+      console.error("Delete honor error:", err);
+      alert(`Lỗi kết nối máy chủ: ${err.message || err}`);
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   // Distinct academic years
   const availableYears = Array.from(
@@ -218,6 +373,34 @@ export default function HallOfFamePage() {
           </Link>
         </div>
       </header>
+
+      {/* ── ADMIN / DARBER3110 QUICK TOOLBAR ── */}
+      {isDarberAdmin && (
+        <div className="bg-gradient-to-r from-amber-500/20 via-yellow-500/15 to-amber-600/20 border-b border-amber-500/30 px-4 sm:px-8 py-2.5 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2 font-bold text-amber-500">
+            <ShieldCheck className="w-4 h-4 text-amber-500" />
+            <span>Chế độ Quản Trị Viên: <strong>{currentUser?.email || "darber3110"}</strong></span>
+            <span className="hidden sm:inline px-2 py-0.5 rounded-full bg-amber-500/20 text-[10px] uppercase font-black">Full Quyền Chỉnh Sửa</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={openCreateModal}
+              className="px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs transition shadow-md shadow-amber-500/20 flex items-center gap-1.5"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>+ Thêm Học Sinh Mới</span>
+            </button>
+
+            <Link
+              href="/honors"
+              className="px-3 py-1.5 rounded-xl border border-amber-500/40 bg-bg-card hover:bg-bg-hover text-amber-500 font-bold text-xs transition flex items-center gap-1.5"
+            >
+              <span>Trang Quản Lý Vinh Danh</span>
+            </Link>
+          </div>
+        </div>
+      )}
 
       {/* ── HERO BANNER: LUXURIOUS GOLDEN AUDITORIUM ── */}
       <section className="relative py-14 sm:py-20 px-4 sm:px-6 overflow-hidden border-b border-border-card bg-gradient-to-b from-amber-500/10 via-bg-card/60 to-bg-main">
@@ -308,16 +491,28 @@ export default function HallOfFamePage() {
             })}
           </div>
 
-          {/* Search Input */}
-          <div className="relative w-full md:w-72 shrink-0">
-            <Search className="w-4 h-4 text-t-secondary absolute left-3.5 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Tìm kiếm học sinh, trường ĐH..."
-              className="w-full bg-bg-card border border-border-card rounded-2xl pl-10 pr-4 py-2.5 text-xs text-t-primary placeholder:text-t-secondary focus:outline-none focus:border-amber-500/50 shadow-sm"
-            />
+          {/* Search Input & Add button if admin */}
+          <div className="flex items-center gap-2 w-full md:w-auto">
+            <div className="relative flex-1 md:w-64 shrink-0">
+              <Search className="w-4 h-4 text-t-secondary absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Tìm kiếm học sinh, trường ĐH..."
+                className="w-full bg-bg-card border border-border-card rounded-2xl pl-10 pr-4 py-2.5 text-xs text-t-primary placeholder:text-t-secondary focus:outline-none focus:border-amber-500/50 shadow-sm"
+              />
+            </div>
+
+            {isDarberAdmin && (
+              <button
+                onClick={openCreateModal}
+                className="p-2.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs transition shadow-md shadow-amber-500/20 shrink-0"
+                title="Thêm học sinh mới vào Bảng Vàng"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+            )}
           </div>
         </div>
       </section>
@@ -336,6 +531,14 @@ export default function HallOfFamePage() {
             <p className="text-xs text-t-secondary max-w-sm mx-auto">
               Không có kết quả phù hợp với bộ lọc năm học hoặc từ khoá tìm kiếm của bạn.
             </p>
+            {isDarberAdmin && (
+              <button
+                onClick={openCreateModal}
+                className="mt-3 px-4 py-2 rounded-2xl bg-amber-500 text-slate-950 font-black text-xs inline-flex items-center gap-1.5 shadow-md shadow-amber-500/25"
+              >
+                <Plus className="w-4 h-4" /> Thêm học sinh đầu tiên
+              </button>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
@@ -416,18 +619,41 @@ export default function HallOfFamePage() {
                   </div>
 
                   {/* Card Footer Actions */}
-                  <div className="pt-4 mt-4 border-t border-border-card/60 flex items-center justify-between gap-2">
-                    <button
-                      onClick={(e) => fireCheer(e, h)}
-                      className="px-3 py-1.5 rounded-xl bg-bg-main hover:bg-amber-500/15 text-amber-500 text-xs font-bold transition flex items-center gap-1.5 border border-border-card shadow-sm"
-                      title="Bắn pháo hoa chúc mừng"
-                    >
-                      <Sparkles className="w-3.5 h-3.5" /> Chúc Mừng 🎉
-                    </button>
+                  <div className="space-y-2 pt-4 mt-4 border-t border-border-card/60">
+                    <div className="flex items-center justify-between gap-2">
+                      <button
+                        onClick={(e) => fireCheer(e, h)}
+                        className="px-3 py-1.5 rounded-xl bg-bg-main hover:bg-amber-500/15 text-amber-500 text-xs font-bold transition flex items-center gap-1.5 border border-border-card shadow-sm"
+                        title="Bắn pháo hoa chúc mừng"
+                      >
+                        <Sparkles className="w-3.5 h-3.5" /> Chúc Mừng 🎉
+                      </button>
 
-                    <span className="text-xs font-bold text-t-secondary group-hover:text-t-primary transition flex items-center gap-1">
-                      Xem Chi Tiết <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-                    </span>
+                      <span className="text-xs font-bold text-t-secondary group-hover:text-t-primary transition flex items-center gap-1">
+                        Xem Chi Tiết <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                      </span>
+                    </div>
+
+                    {/* Admin Direct Action Buttons on Card */}
+                    {isDarberAdmin && (
+                      <div className="flex items-center gap-2 pt-2 border-t border-dashed border-amber-500/30">
+                        <button
+                          onClick={(e) => openEditModal(h, e)}
+                          className="flex-1 py-1.5 px-3 rounded-xl bg-amber-500/15 hover:bg-amber-500 text-amber-500 hover:text-slate-950 text-xs font-black transition border border-amber-500/30 flex items-center justify-center gap-1.5 shadow-sm"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" /> Sửa thông tin
+                        </button>
+                        <button
+                          onClick={(e) => handleDeleteHonor(e, h.id)}
+                          disabled={deletingId === h.id}
+                          className="p-1.5 px-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white text-xs font-bold transition border border-rose-500/30 flex items-center justify-center gap-1"
+                          title="Xoá vinh danh này"
+                        >
+                          {deletingId === h.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                          <span className="text-[11px] font-bold">Xoá</span>
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               );
@@ -504,14 +730,272 @@ export default function HallOfFamePage() {
               </p>
             </div>
 
-            <div className="flex gap-3 pt-2 relative z-10">
+            <div className="flex flex-col sm:flex-row gap-3 pt-2 relative z-10">
               <button
                 onClick={(e) => fireCheer(e, selectedHonor)}
                 className="flex-1 py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:opacity-95 text-slate-950 font-black text-xs transition shadow-lg shadow-amber-500/30 flex items-center justify-center gap-2"
               >
                 <Sparkles className="w-4 h-4" /> Bắn Pháo Hoa Chúc Mừng 🎉
               </button>
+
+              {isDarberAdmin && (
+                <button
+                  onClick={() => {
+                    const honorToEdit = selectedHonor;
+                    setSelectedHonor(null);
+                    openEditModal(honorToEdit);
+                  }}
+                  className="py-3 px-5 rounded-2xl bg-amber-500/20 hover:bg-amber-500 text-amber-500 hover:text-slate-950 font-black text-xs transition border border-amber-500/40 flex items-center justify-center gap-2 shadow-md"
+                >
+                  <Edit3 className="w-4 h-4" /> Sửa Thông Tin
+                </button>
+              )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── DARBER3110 / ADMIN QUICK EDITOR MODAL ── */}
+      {isEditorOpen && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+          <div className="max-w-2xl w-full bg-bg-card border-2 border-amber-500/50 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 relative my-8 animate-in zoom-in-95">
+            <div className="absolute top-0 right-0 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+
+            <div className="flex items-center justify-between border-b border-border-card pb-4 relative z-10">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-500 flex items-center justify-center border border-amber-500/30">
+                  <Edit3 className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-lg sm:text-xl font-black text-t-primary">
+                    {editingHonor ? "Chỉnh Sửa Thông Tin Vinh Danh" : "Thêm Học Sinh Mới Vào Bảng Vàng"}
+                  </h3>
+                  <p className="text-xs text-t-secondary font-medium">
+                    Quyền Admin: <strong className="text-amber-500">{currentUser?.email || "darber3110"}</strong>
+                  </p>
+                </div>
+              </div>
+
+              <button 
+                onClick={() => setIsEditorOpen(false)} 
+                className="p-2 rounded-xl bg-bg-main hover:bg-bg-hover text-t-secondary hover:text-t-primary transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveHonor} className="space-y-4 relative z-10 text-xs sm:text-sm">
+              
+              {/* Row 1: Student Name & Academic Year */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="font-bold text-t-primary flex items-center gap-1">
+                    <span>Họ và Tên Học Sinh</span>
+                    <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.student_name}
+                    onChange={(e) => setFormData({ ...formData, student_name: e.target.value })}
+                    placeholder="VD: Nguyễn Ngọc Khánh An"
+                    className="w-full bg-bg-main border border-border-card rounded-2xl px-4 py-3 text-t-primary focus:outline-none focus:border-amber-500 shadow-sm"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="font-bold text-t-primary flex items-center gap-1">
+                    <span>Niên Khóa</span>
+                    <span className="text-rose-500">*</span>
+                  </label>
+                  <div className="flex gap-1.5">
+                    <input
+                      type="text"
+                      required
+                      value={formData.academic_year}
+                      onChange={(e) => setFormData({ ...formData, academic_year: e.target.value })}
+                      placeholder="VD: 2025-2026"
+                      className="flex-1 bg-bg-main border border-border-card rounded-2xl px-4 py-3 text-t-primary focus:outline-none focus:border-amber-500 shadow-sm"
+                    />
+                    <select
+                      value={formData.academic_year}
+                      onChange={(e) => setFormData({ ...formData, academic_year: e.target.value })}
+                      className="bg-bg-main border border-border-card rounded-2xl px-3 py-3 text-t-primary focus:outline-none focus:border-amber-500 text-xs"
+                    >
+                      <option value="2025-2026">2025-2026</option>
+                      <option value="2024-2025">2024-2025</option>
+                      <option value="2023-2024">2023-2024</option>
+                      <option value="2022-2023">2022-2023</option>
+                      <option value="2021-2022">2021-2022</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Row 2: University / Title */}
+              <div className="space-y-1.5">
+                <label className="font-bold text-t-primary flex items-center gap-1">
+                  <span>Trường Trúng Tuyển / Danh Hiệu Vinh Danh</span>
+                  <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  placeholder="VD: Học viện Hàng không Việt Nam / Thủ Khoa Khối A00"
+                  className="w-full bg-bg-main border border-border-card rounded-2xl px-4 py-3 text-t-primary focus:outline-none focus:border-amber-500 shadow-sm"
+                />
+              </div>
+
+              {/* Row 3: Description / Story */}
+              <div className="space-y-1.5">
+                <label className="font-bold text-t-primary">
+                  <span>Hành trình, Điểm số & Lời chúc</span>
+                </label>
+                <textarea
+                  rows={3}
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  placeholder="VD: Cựu học sinh xuất sắc. Đỗ ngành Quản lý Hoạt động Bay với 27.5 điểm..."
+                  className="w-full bg-bg-main border border-border-card rounded-2xl px-4 py-3 text-t-primary focus:outline-none focus:border-amber-500 shadow-sm resize-none"
+                />
+              </div>
+
+              {/* Row 4: Student Avatar & University Logo Uploads */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                
+                {/* Avatar Input */}
+                <div className="p-4 rounded-2xl bg-bg-main border border-border-card space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-t-primary flex items-center gap-1.5">
+                      <ImageIcon className="w-4 h-4 text-amber-500" /> Ảnh Chân Dung
+                    </span>
+                    {avatarPreview && (
+                      <span className="text-[10px] text-emerald-500 font-bold">✓ Đã có ảnh</span>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <div className="w-14 h-14 rounded-2xl bg-bg-card border border-border-card overflow-hidden shrink-0 flex items-center justify-center shadow-inner">
+                      {avatarPreview ? (
+                        <img src={avatarPreview} alt="Preview" className="w-full h-full object-cover" />
+                      ) : (
+                        <Award className="w-6 h-6 text-t-secondary/40" />
+                      )}
+                    </div>
+
+                    <label className="flex-1 cursor-pointer py-2 px-3 rounded-xl bg-bg-card hover:bg-bg-hover border border-border-card text-center text-xs font-bold transition flex items-center justify-center gap-1.5">
+                      <Upload className="w-3.5 h-3.5 text-amber-500" />
+                      <span>Chọn file ảnh mới</span>
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        className="hidden" 
+                        onChange={(e) => {
+                          const f = e.target.files?.[0];
+                          if (f) {
+                            setAvatarFile(f);
+                            setAvatarPreview(URL.createObjectURL(f));
+                          }
+                        }} 
+                      />
+                    </label>
+                  </div>
+
+                  <input
+                    type="text"
+                    value={formData.image_url}
+                    onChange={(e) => {
+                      setFormData({ ...formData, image_url: e.target.value });
+                      if (!avatarFile) setAvatarPreview(getDirectImageUrl(e.target.value));
+                    }}
+                    placeholder="Hoặc dán Link ảnh Google Drive / Cloudinary..."
+                    className="w-full bg-bg-card border border-border-card rounded-xl px-3 py-2 text-xs text-t-primary focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+
+                {/* University Logo Input */}
+                <div className="p-4 rounded-2xl bg-bg-main border border-border-card space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-t-primary flex items-center gap-1.5">
+                      <School className="w-4 h-4 text-amber-500" /> Logo Đại Học (To & Rõ)
+                    </span>
+                    {logoPreview && (
+                      <span className="text-[10px] text-emerald-500 font-bold">✓ Đã có Logo</span>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <div className="w-14 h-14 rounded-2xl bg-white border border-border-card p-1.5 overflow-hidden shrink-0 flex items-center justify-center shadow-md">
+                      {logoPreview ? (
+                        <img src={logoPreview} alt="Logo Preview" className="w-full h-full object-contain" />
+                      ) : (
+                        <School className="w-6 h-6 text-slate-400" />
+                      )}
+                    </div>
+
+                    <label className="flex-1 cursor-pointer py-2 px-3 rounded-xl bg-bg-card hover:bg-bg-hover border border-border-card text-center text-xs font-bold transition flex items-center justify-center gap-1.5">
+                      <Upload className="w-3.5 h-3.5 text-amber-500" />
+                      <span>Chọn file Logo trường</span>
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        className="hidden" 
+                        onChange={(e) => {
+                          const f = e.target.files?.[0];
+                          if (f) {
+                            setLogoFile(f);
+                            setLogoPreview(URL.createObjectURL(f));
+                          }
+                        }} 
+                      />
+                    </label>
+                  </div>
+
+                  <input
+                    type="text"
+                    value={formData.university_logo_url}
+                    onChange={(e) => {
+                      setFormData({ ...formData, university_logo_url: e.target.value });
+                      if (!logoFile) setLogoPreview(getDirectImageUrl(e.target.value));
+                    }}
+                    placeholder="Hoặc dán Link Logo trường Đại học..."
+                    className="w-full bg-bg-card border border-border-card rounded-xl px-3 py-2 text-xs text-t-primary focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-border-card">
+                <button
+                  type="button"
+                  onClick={() => setIsEditorOpen(false)}
+                  disabled={saving}
+                  className="px-5 py-2.5 rounded-2xl border border-border-card hover:bg-bg-hover text-t-secondary font-bold transition"
+                >
+                  Huỷ Bỏ
+                </button>
+
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="px-6 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-slate-950 font-black transition shadow-lg shadow-amber-500/25 flex items-center gap-2 disabled:opacity-50"
+                >
+                  {saving ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Đang lưu lên hệ thống...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4" />
+                      <span>Lưu Thay Đổi Ngay</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
