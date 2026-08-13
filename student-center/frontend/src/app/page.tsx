@@ -503,15 +503,15 @@ export default function Home() {
                   className="bg-bg-main rounded-3xl p-6 border border-border-card hover:border-amber-500/50 transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-amber-500/10 group flex flex-col justify-between relative overflow-hidden"
                 >
                   <div className="space-y-4">
-                    {/* Top Row: Year Pill & Large Uni Logo */}
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                    {/* Top Row: Year Pill & ULTRA LARGE Uni Logo */}
+                    <div className="flex items-start justify-between gap-3">
+                      <span className="px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider bg-amber-500/10 text-amber-500 border border-amber-500/20 mt-1">
                         {h.academic_year ? `Khóa ${h.academic_year}` : "Vinh Danh"}
                       </span>
 
                       {/* Large University Logo Badge */}
                       {uniLogo && (
-                        <div className="w-14 h-14 rounded-2xl bg-white p-2 border-2 border-amber-500/30 shadow-md flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                        <div className="w-20 h-20 rounded-3xl bg-white p-2.5 border-2 border-amber-500/40 shadow-xl flex items-center justify-center shrink-0 group-hover:scale-105 transition-all">
                           <img src={uniLogo} alt="University Logo" className="w-full h-full object-contain" />
                         </div>
                       )}
@@ -547,15 +547,18 @@ export default function Home() {
                     </div>
 
                     {/* University / Achievement Banner */}
-                    <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/25 flex items-center gap-3">
+                    <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/25 flex items-center gap-3.5 shadow-sm">
                       {uniLogo && (
-                        <div className="w-10 h-10 rounded-xl bg-white p-1.5 border border-border-card shadow-sm shrink-0 flex items-center justify-center">
+                        <div className="w-14 h-14 rounded-2xl bg-white p-2 border border-border-card shadow-md shrink-0 flex items-center justify-center">
                           <img src={uniLogo} alt="Uni" className="w-full h-full object-contain" />
                         </div>
                       )}
-                      <span className="text-xs font-black text-amber-500 leading-snug">
-                        {h.title}
-                      </span>
+                      <div className="min-w-0 flex-1">
+                        <span className="text-[10px] text-amber-600 dark:text-amber-400 font-black uppercase tracking-wider block">Trường Trúng Tuyển / Danh Hiệu</span>
+                        <span className="text-xs sm:text-sm font-black text-amber-500 leading-snug block mt-0.5">
+                          {h.title}
+                        </span>
+                      </div>
                     </div>
                   </div>
 

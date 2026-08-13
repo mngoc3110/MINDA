@@ -354,15 +354,15 @@ export default function HallOfFamePage() {
 
                   <div className="space-y-4">
                     
-                    {/* Top Row: Academic Year Pill & Large University Logo */}
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider bg-amber-500/10 text-amber-500 border border-amber-500/25 shadow-sm">
+                    {/* Top Row: Academic Year Pill & ULTRA LARGE University Logo */}
+                    <div className="flex items-start justify-between gap-3">
+                      <span className="px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider bg-amber-500/10 text-amber-500 border border-amber-500/25 shadow-sm mt-1">
                         {h.academic_year ? `Niên Khóa ${h.academic_year}` : "Vinh Danh"}
                       </span>
 
-                      {/* HUGE University Logo Spotlight */}
+                      {/* ULTRA LARGE University Logo Badge (88px) */}
                       {uniLogo && (
-                        <div className="w-16 h-16 rounded-2xl bg-white p-2 border-2 border-amber-500/40 shadow-lg flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                        <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-3xl bg-white p-2.5 border-2 border-amber-500/50 shadow-xl flex items-center justify-center shrink-0 group-hover:scale-105 transition-all">
                           <img src={uniLogo} alt="University Logo" className="w-full h-full object-contain" />
                         </div>
                       )}
@@ -395,15 +395,15 @@ export default function HallOfFamePage() {
                     </div>
 
                     {/* Prominent University & Achievement Ribbon */}
-                    <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/25 flex items-center gap-3">
+                    <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center gap-3.5 shadow-sm">
                       {uniLogo && (
-                        <div className="w-12 h-12 rounded-xl bg-white p-1.5 border border-border-card shadow-md shrink-0 flex items-center justify-center">
+                        <div className="w-14 h-14 rounded-2xl bg-white p-2 border border-border-card shadow-md shrink-0 flex items-center justify-center">
                           <img src={uniLogo} alt="Uni Logo" className="w-full h-full object-contain" />
                         </div>
                       )}
                       <div className="min-w-0 flex-1">
-                        <span className="text-[10px] text-amber-500/90 font-black uppercase tracking-wider block">Trường Trúng Tuyển / Danh Hiệu</span>
-                        <h4 className="text-xs sm:text-sm font-black text-amber-500 leading-snug mt-0.5">
+                        <span className="text-[10px] text-amber-600 dark:text-amber-400 font-black uppercase tracking-wider block">Trường Trúng Tuyển / Danh Hiệu</span>
+                        <h4 className="text-sm font-black text-amber-500 leading-snug mt-0.5">
                           {h.title}
                         </h4>
                       </div>
@@ -455,7 +455,7 @@ export default function HallOfFamePage() {
               </button>
             </div>
 
-            {/* Profile Spotlight & Huge University Logo */}
+            {/* Profile Spotlight & GIANT University Logo */}
             <div className="flex items-center justify-between gap-4 relative z-10">
               <div className="flex items-center gap-4 min-w-0">
                 <div className="w-20 h-20 shrink-0 relative rounded-2xl p-0.5 bg-gradient-to-br from-amber-400 to-yellow-600 shadow-lg shadow-amber-500/30">
@@ -480,9 +480,9 @@ export default function HallOfFamePage() {
                 </div>
               </div>
 
-              {/* Large Uni Emblem in Modal */}
+              {/* GIANT Uni Emblem in Modal (96px) */}
               {selectedHonor.university_logo_url && (
-                <div className="w-20 h-20 rounded-2xl bg-white p-2.5 border-2 border-amber-500/40 shadow-xl flex items-center justify-center shrink-0">
+                <div className="w-24 h-24 rounded-3xl bg-white p-3 border-2 border-amber-500/50 shadow-2xl flex items-center justify-center shrink-0">
                   <img src={getDirectImageUrl(selectedHonor.university_logo_url)} alt="Logo" className="w-full h-full object-contain" />
                 </div>
               )}
