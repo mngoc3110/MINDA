@@ -1,6 +1,6 @@
 "use client";
 
-import { BrainCircuit, Video, BarChart3, ArrowRight, Star, Menu, X, Sun, Moon, Award, Sparkles, Trophy } from "lucide-react";
+import { BrainCircuit, Video, BarChart3, ArrowRight, Star, Menu, X, Sun, Moon, Award, Sparkles, Trophy, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
