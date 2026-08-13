@@ -205,61 +205,105 @@ export default function Home() {
     <div className={`min-h-screen ${theme === 'dark' ? 'dark' : ''} bg-bg-main font-outfit text-t-primary selection:bg-indigo-500/30 overflow-x-hidden`}>
       
       {/* Navigation */}
-      <nav className="fixed w-full z-50 transition-all duration-300 bg-bg-main/80 backdrop-blur-md border-b border-border-card">
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+      <nav className="fixed w-full z-50 transition-all duration-300 bg-bg-main/90 backdrop-blur-xl border-b border-border-card/80">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-18 flex items-center justify-between gap-4">
+          
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-2.5 shrink-0 hover:opacity-90 transition-opacity">
+             <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-purple-600 flex items-center justify-center shadow-md shadow-indigo-500/25">
                <span className="text-white font-black text-xl tracking-tighter">M</span>
              </div>
-             <span className="text-xl font-black tracking-tight text-t-primary">MINDA<span className="text-indigo-500">.EDU</span></span>
-          </div>
+             <span className="text-lg sm:text-xl font-black tracking-tight text-t-primary whitespace-nowrap">
+               MINDA<span className="text-indigo-500">.EDU</span>
+             </span>
+          </Link>
           
-          {/* Desktop Menu */}
-          <div className="hidden md:flex items-center gap-8">
-            <Link href="#classes" className="text-sm font-bold text-t-secondary hover:text-indigo-500 transition-colors uppercase tracking-wider">Các Lớp Học</Link>
-            <Link href="#features" className="text-sm font-bold text-t-secondary hover:text-indigo-500 transition-colors uppercase tracking-wider">Công nghệ AI</Link>
-            <Link href="/hall-of-fame" className="text-sm font-bold text-amber-500 hover:text-amber-400 transition-colors uppercase tracking-wider flex items-center gap-1">
-              <Trophy className="w-4 h-4" /> Bảng Vàng (Hall of Fame)
+          {/* Desktop Menu - Clean, compact & elegant */}
+          <div className="hidden lg:flex items-center gap-1 xl:gap-2">
+            <Link 
+              href="#classes" 
+              className="px-3.5 py-2 rounded-xl text-xs xl:text-sm font-bold text-t-secondary hover:text-indigo-500 hover:bg-indigo-500/5 transition whitespace-nowrap uppercase tracking-wider"
+            >
+              Lớp Học
+            </Link>
+            <Link 
+              href="#features" 
+              className="px-3.5 py-2 rounded-xl text-xs xl:text-sm font-bold text-t-secondary hover:text-indigo-500 hover:bg-indigo-500/5 transition whitespace-nowrap uppercase tracking-wider"
+            >
+              Công Nghệ AI
+            </Link>
+            <Link 
+              href="/hall-of-fame" 
+              className="px-3.5 py-2 rounded-xl text-xs xl:text-sm font-bold text-amber-500 hover:text-amber-400 bg-amber-500/10 hover:bg-amber-500/15 border border-amber-500/20 transition whitespace-nowrap uppercase tracking-wider flex items-center gap-1.5 shadow-sm"
+            >
+              <Trophy className="w-4 h-4 text-amber-500" />
+              <span>Bảng Vàng</span>
+            </Link>
+            <Link 
+              href="/yearbook/" 
+              className="px-3.5 py-2 rounded-xl text-xs xl:text-sm font-bold text-pink-500 hover:text-pink-400 bg-pink-500/10 hover:bg-pink-500/15 border border-pink-500/20 transition whitespace-nowrap uppercase tracking-wider flex items-center gap-1.5"
+            >
+              <Star className="w-3.5 h-3.5 fill-pink-500" />
+              <span>Kỷ Yếu</span>
             </Link>
           </div>
 
-          {/* Desktop Auth / User */}
-          <div className="hidden md:flex items-center gap-4">
+          {/* Desktop Auth / User Action Area */}
+          <div className="hidden md:flex items-center gap-3 shrink-0">
             {userName ? (
-              <div className="flex items-center gap-4">
-                <Link href="/yearbook/" className="px-4 py-2 rounded-xl bg-pink-50 border border-pink-200 text-pink-600 font-bold hover:bg-pink-100 transition-colors flex items-center gap-2 shadow-sm">
-                  <Star className="w-4 h-4 fill-pink-500" /> Kỷ Yếu Khóa Học
+              <div className="flex items-center gap-2.5">
+                <div className="hidden xl:flex flex-col text-right">
+                  <span className="text-[11px] text-t-secondary leading-none">Xin chào</span>
+                  <span className="text-xs font-black text-t-primary truncate max-w-[130px] leading-tight mt-0.5">{userName}</span>
+                </div>
+                <Link 
+                  href={role === "admin" ? "/admin" : "/dashboard"} 
+                  className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition shadow-md shadow-indigo-500/25 flex items-center gap-1.5 whitespace-nowrap"
+                >
+                  <span>Vào Lớp Học</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
                 </Link>
-                <span className="text-t-secondary text-sm">Xin chào, <span className="font-bold text-t-primary">{userName}</span></span>
-                <Link href={role === "admin" ? "/admin" : "/dashboard"} className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition-all shadow-[0_0_15px_rgba(79,70,229,0.3)]">
-                  Vào Lớp Học
-                </Link>
-                <button onClick={() => { localStorage.clear(); window.location.reload(); }} className="px-4 py-2.5 border border-border-card rounded-xl text-sm font-medium text-t-secondary hover:bg-bg-hover transition-colors">
+                <button 
+                  onClick={() => { localStorage.clear(); window.location.reload(); }} 
+                  className="px-3 py-2 border border-border-card rounded-xl text-xs font-semibold text-t-secondary hover:bg-bg-hover hover:text-rose-500 transition whitespace-nowrap"
+                >
                   Đăng xuất
                 </button>
               </div>
             ) : (
-              <div className="flex items-center gap-3">
-                <Link href="/yearbook/" className="px-4 py-2 rounded-xl bg-pink-50 border border-pink-200 text-pink-600 font-bold hover:bg-pink-100 transition-colors flex items-center gap-2 shadow-sm">
-                  <Star className="w-4 h-4 fill-pink-500" /> Viết Sổ Kỷ Yếu
+              <div className="flex items-center gap-2.5">
+                <Link 
+                  href="/login" 
+                  className="px-4 py-2 rounded-xl border border-border-card text-t-primary hover:bg-bg-hover text-xs font-bold transition whitespace-nowrap"
+                >
+                  Đăng nhập
                 </Link>
-                <Link href="/login" className="px-5 py-2.5 rounded-full border border-border-card text-t-primary hover:bg-bg-hover transition-colors font-bold">Đăng nhập</Link>
-                <Link href="/register" className="px-5 py-2.5 rounded-full bg-indigo-600 text-white hover:bg-indigo-500 transition-all font-black">XUẤT PHÁT NGAY</Link>
+                <Link 
+                  href="/register" 
+                  className="px-4 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-500 text-xs font-black transition shadow-md shadow-indigo-500/25 whitespace-nowrap uppercase tracking-wide"
+                >
+                  Bắt Đầu Ngay
+                </Link>
               </div>
             )}
-            {/* Desktop Theme Toggle */}
-            <button onClick={toggleTheme} className="ml-2 p-2.5 rounded-full border border-border-card hover:bg-bg-hover transition-colors" title={theme === 'dark' ? 'Chuyển sang sáng' : 'Chuyển sang tối'}>
-              {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-500" /> : <Moon className="w-4 h-4 text-t-secondary" />}
+            
+            {/* Theme Toggle */}
+            <button 
+              onClick={toggleTheme} 
+              className="p-2 rounded-xl border border-border-card hover:bg-bg-hover text-t-secondary transition shrink-0" 
+              title={theme === 'dark' ? 'Chuyển sang sáng' : 'Chuyển sang tối'}
+            >
+              {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-500" />}
             </button>
           </div>
 
           {/* Mobile Hamburger + Theme Toggle */}
           <div className="md:hidden flex items-center gap-2">
-            <button onClick={toggleTheme} className="p-2 rounded-full border border-border-card hover:bg-bg-hover transition-colors text-t-primary">
-              {theme === 'dark' ? <Sun className="w-5 h-5 text-amber-500" /> : <Moon className="w-5 h-5" />}
+            <button onClick={toggleTheme} className="p-2 rounded-xl border border-border-card hover:bg-bg-hover transition text-t-primary">
+              {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-500" />}
             </button>
-            <button className="text-t-primary p-2" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            <button className="p-2 rounded-xl border border-border-card text-t-primary" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
