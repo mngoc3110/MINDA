@@ -58,6 +58,7 @@ export default function MobileHeader() {
     { name: "Phòng Luyện Thi", href: "/practice", icon: Dumbbell },
     { name: "Cặp xách (Drive)", href: "/drive", icon: FolderOpen },
     { name: "Lưu Bút Kỷ Yếu", href: "/yearbook/", icon: Heart },
+    { name: "Bảng Vàng (Hall of Fame)", href: "/hall-of-fame", icon: Trophy },
     { name: "Bảng Thành tích", href: "/leaderboard", icon: Trophy },
     { name: "Học phí", href: "/tuition", icon: Wallet },
   ];

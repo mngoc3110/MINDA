@@ -18,6 +18,7 @@ const NAV_ITEMS = [
   { name: "MINDA Code", href: "/code", icon: Terminal, badge: "NEW" },
   { name: "Cặp xách (Drive)", href: "/drive", icon: Star },
   { name: "Lưu Bút Kỷ Yếu", href: "/yearbook/", icon: Heart },
+  { name: "Bảng Vàng (Hall of Fame)", href: "/hall-of-fame", icon: Trophy, badge: "HOT" },
   { name: "Bảng Thành tích", href: "/leaderboard", icon: Trophy },
   { name: "Học phí", href: "/tuition", icon: Wallet },
 ];

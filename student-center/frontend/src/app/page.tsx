@@ -1,6 +1,6 @@
 "use client";
 
-import { BrainCircuit, Video, BarChart3, ArrowRight, Star, Menu, X, Sun, Moon, Award, Sparkles } from "lucide-react";
+import { BrainCircuit, Video, BarChart3, ArrowRight, Star, Menu, X, Sun, Moon, Award, Sparkles, Trophy } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
@@ -218,6 +218,9 @@ export default function Home() {
           <div className="hidden md:flex items-center gap-8">
             <Link href="#classes" className="text-sm font-bold text-t-secondary hover:text-indigo-500 transition-colors uppercase tracking-wider">Các Lớp Học</Link>
             <Link href="#features" className="text-sm font-bold text-t-secondary hover:text-indigo-500 transition-colors uppercase tracking-wider">Công nghệ AI</Link>
+            <Link href="/hall-of-fame" className="text-sm font-bold text-amber-500 hover:text-amber-400 transition-colors uppercase tracking-wider flex items-center gap-1">
+              <Trophy className="w-4 h-4" /> Bảng Vàng (Hall of Fame)
+            </Link>
           </div>
 
           {/* Desktop Auth / User */}
@@ -266,6 +269,9 @@ export default function Home() {
           <div className="md:hidden bg-bg-main/98 backdrop-blur-xl border-t border-border-card px-6 py-6 flex flex-col gap-4">
             <Link href="#classes" onClick={() => setMobileMenuOpen(false)} className="text-t-primary font-bold uppercase tracking-wider text-sm py-2 border-b border-border-card">Các Lớp Học</Link>
             <Link href="#features" onClick={() => setMobileMenuOpen(false)} className="text-t-primary font-bold uppercase tracking-wider text-sm py-2 border-b border-border-card">Công nghệ AI</Link>
+            <Link href="/hall-of-fame" onClick={() => setMobileMenuOpen(false)} className="text-amber-500 font-bold uppercase tracking-wider text-sm py-2 border-b border-border-card flex items-center gap-2">
+              <Trophy className="w-4 h-4" /> Bảng Vàng (Hall of Fame)
+            </Link>
             
             {userName ? (
               <>
@@ -413,73 +419,100 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Honors Board Section */}
-      {honors.length > 0 && (
-        <section id="honors" className="py-24 relative z-10 border-t border-border-card bg-bg-card overflow-hidden">
-          {/* Decorative glow - Valedictorian Royal style */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-amber-500/10 blur-[120px] rounded-full pointer-events-none"></div>
-          <div className="absolute top-0 right-0 w-[400px] h-[300px] bg-red-500/10 blur-[100px] rounded-full pointer-events-none"></div>
-
-          <div className="max-w-7xl mx-auto px-6 relative z-10">
-            <div className="text-center mb-16 relative">
-              <div className="inline-flex items-center justify-center p-3 bg-amber-500/10 rounded-2xl mb-4 border border-amber-500/20">
-                 <Award className="w-8 h-8 text-amber-500" />
+      {/* Hall of Fame Showcase Teaser Section */}
+      <section id="honors" className="py-20 relative z-10 border-t border-border-card bg-gradient-to-b from-bg-card/80 via-bg-card to-bg-main overflow-hidden">
+        {/* Decorative ambient glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[350px] bg-amber-500/10 blur-[130px] rounded-full pointer-events-none" />
+        
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-500 text-xs font-black uppercase tracking-wider mb-3">
+                <Trophy className="w-3.5 h-3.5" /> MINDA Hall of Fame
               </div>
-              <h2 className="text-3xl md:text-5xl font-black mb-5 tracking-tight uppercase text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-yellow-500 to-red-500">Bảng Vinh Danh</h2>
-              <p className="text-t-secondary text-lg font-light max-w-2xl mx-auto">Tôn vinh những cá nhân xuất sắc nhất MINDA với thành tích vượt trội và sự nỗ lực không ngừng nghỉ.</p>
+              <h2 className="text-3xl md:text-5xl font-black tracking-tight uppercase text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-500">
+                Bảng Vàng Vinh Danh
+              </h2>
+              <p className="text-t-secondary text-base md:text-lg font-light max-w-2xl mt-2">
+                Tôn vinh các thế hệ học sinh xuất sắc nhất MINDA với thành tích Thủ khoa, Á khoa và đỗ vào các trường Đại học danh giá.
+              </p>
             </div>
 
-            <div className="flex overflow-x-auto gap-6 pb-10 snap-x snap-mandatory custom-scrollbar">
-              {honors.map((h, i) => (
-                <div key={h.id} className="w-[300px] md:w-[380px] shrink-0 snap-center bg-bg-main rounded-3xl p-1 relative group overflow-hidden border border-border-card hover:border-amber-500/50 transition-colors shadow-xl">
-                   {/* Gradient border effect */}
-                   <div className="absolute inset-0 bg-gradient-to-br from-amber-500/20 via-transparent to-red-500/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                   
-                   <div className="bg-bg-main w-full h-full rounded-[22px] p-6 relative z-10 flex flex-col">
-                      <div className="flex items-start gap-6 mb-6">
-                        <div className="w-24 h-24 shrink-0 relative flex items-center justify-center mt-1">
-                           {/* Rank Frame Layer (z-0 to stay behind avatar and act as a border since the image is a JPEG without transparency) */}
-                           <img src="/square_rank_frame.png" alt="rank frame" className="absolute inset-0 w-[125%] h-[125%] -top-[12.5%] -left-[12.5%] max-w-none z-0 pointer-events-none drop-shadow-[0_0_15px_rgba(245,158,11,0.5)] object-fill" />
-                           
-                           {/* Avatar Layer */}
-                           <div className="w-[80%] h-[80%] rounded-sm overflow-hidden relative z-10 shadow-inner bg-bg-main">
-                             {h.image_url ? (
-                                <img src={getDirectImageUrl(h.image_url)} alt={h.student_name} className="w-full h-full object-cover" />
-                             ) : (
-                                <div className="w-full h-full flex items-center justify-center bg-bg-main">
-                                  <Award className="w-8 h-8 text-amber-500/50" />
-                                </div>
-                             )}
-                           </div>
-                           
-                           {/* University Logo has been moved below */}
-                        </div>
-                        <div>
-                           <h3 className="font-black text-xl text-t-primary leading-tight mb-1">{h.student_name}</h3>
-                           {h.academic_year && <p className="text-xs text-t-secondary font-bold mb-1">Năm học: {h.academic_year}</p>}
-                           
-                           {/* University Logo positioned above the title */}
-                           {h.university_logo_url && (
-                             <div className="w-12 h-12 bg-white rounded-full p-1 shadow-sm border border-border-card overflow-hidden mt-3 mb-2">
-                                <img src={getDirectImageUrl(h.university_logo_url)} alt="University" className="w-full h-full object-contain" />
-                             </div>
-                           )}
-                           
-                           <div className="text-xs font-bold text-amber-500 uppercase tracking-widest bg-amber-500/10 px-3 py-2 rounded-lg inline-block border border-amber-500/20">
-                             {h.title}
-                           </div>
-                        </div>
-                      </div>
-                      <div className="text-[10px] text-t-secondary uppercase font-bold tracking-widest mt-auto pt-4 border-t border-border-card">
-                         Học sinh của: <span className="text-amber-500/80">{h.teacher_name}</span>
-                      </div>
-                   </div>
-                </div>
-              ))}
-            </div>
+            <Link
+              href="/hall-of-fame"
+              className="shrink-0 px-6 py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-sm transition shadow-lg shadow-amber-500/25 flex items-center gap-2 hover:scale-105"
+            >
+              <span>Xem Toàn Bộ Bảng Vàng</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
           </div>
-        </section>
-      )}
+
+          {/* 3 Spotlight Preview Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {honors.slice(0, 3).map((h) => {
+              const avatarImg = getDirectImageUrl(h.image_url);
+              const uniLogo = getDirectImageUrl(h.university_logo_url);
+              return (
+                <Link
+                  key={h.id}
+                  href="/hall-of-fame"
+                  className="bg-bg-main rounded-3xl p-6 border border-border-card hover:border-amber-500/50 transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-amber-500/10 group flex flex-col justify-between relative overflow-hidden"
+                >
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="px-2.5 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                        {h.academic_year ? `Khóa ${h.academic_year}` : "Vinh Danh"}
+                      </span>
+                      {uniLogo && (
+                        <div className="w-7 h-7 rounded-lg bg-white p-0.5 border border-border-card shadow-sm flex items-center justify-center shrink-0">
+                          <img src={uniLogo} alt="Uni" className="w-full h-full object-contain" />
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-3.5">
+                      <div className="w-16 h-16 shrink-0 relative flex items-center justify-center">
+                        <img 
+                          src="/square_rank_frame.png" 
+                          alt="Frame" 
+                          className="absolute inset-0 w-[125%] h-[125%] -top-[12.5%] -left-[12.5%] max-w-none pointer-events-none drop-shadow-[0_0_10px_rgba(245,158,11,0.5)] object-fill" 
+                        />
+                        <div className="w-[80%] h-[80%] rounded-md overflow-hidden relative z-10 bg-bg-card">
+                          {avatarImg ? (
+                            <img src={avatarImg} alt={h.student_name} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-bg-card">
+                              <Award className="w-6 h-6 text-amber-500" />
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="min-w-0">
+                        <h3 className="font-black text-base text-t-primary group-hover:text-amber-500 transition-colors truncate">
+                          {h.student_name}
+                        </h3>
+                        <p className="text-[11px] text-t-secondary truncate mt-0.5">
+                          GV: <strong>{h.teacher_name}</strong>
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs font-bold leading-tight line-clamp-2">
+                      {h.title}
+                    </div>
+                  </div>
+
+                  <div className="pt-3 mt-3 border-t border-border-card flex items-center justify-between text-xs text-t-secondary group-hover:text-amber-500 transition-colors">
+                    <span className="font-semibold">Xem chi tiết</span>
+                    <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      </section>
       
       {/* Teacher Showcase */}
       <section id="teachers" className="py-24 relative z-10 border-t border-border-card bg-bg-main">
