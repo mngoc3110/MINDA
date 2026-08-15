@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import confetti from "canvas-confetti";
 import { 
@@ -8,20 +8,13 @@ import {
   Trophy, 
   Sparkles, 
   Search, 
-  GraduationCap, 
-  Star, 
   ChevronRight, 
   ArrowLeft, 
   Calendar, 
   School, 
-  Heart, 
-  Flame, 
   X,
-  Medal,
-  Users,
   Sun,
   Moon,
-  CheckCircle2,
   Edit3,
   Trash2,
   Plus,
@@ -60,7 +53,7 @@ const FALLBACK_HONORS: HonorItem[] = [
     title: "Thủ Khoa Khối A00 (29.85 Điểm)",
     description: "Thủ khoa toàn quốc với Toán 10, Lý 10, Hoá 9.85. Tinh thần tự học bền bỉ, hoàn thành hơn 500 đề thi thử trên hệ thống MINDA.",
     image_url: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=600&auto=format&fit=crop&q=80",
-    academic_year: "2024-2025",
+    academic_year: "2025-2026",
     university_logo_url: "https://upload.wikimedia.org/wikipedia/commons/a/a1/Logo_HUST.png"
   },
   {
@@ -70,7 +63,7 @@ const FALLBACK_HONORS: HonorItem[] = [
     title: "Thủ Khoa ĐGNL ĐHQG (1165/1200)",
     description: "Top 1 kỳ thi Đánh giá Năng lực ĐHQG TP.HCM. Giải Nhất Tin học Trẻ cấp Tỉnh, đạt học bổng toàn phần ngành Kinh tế Đối ngoại.",
     image_url: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=600&auto=format&fit=crop&q=80",
-    academic_year: "2024-2025",
+    academic_year: "2025-2026",
     university_logo_url: "https://upload.wikimedia.org/wikipedia/vi/8/8c/Logo_FTU.png"
   },
   {
@@ -80,7 +73,7 @@ const FALLBACK_HONORS: HonorItem[] = [
     title: "Giải Nhất Quốc Gia Môn Toán",
     description: "Học sinh giỏi Quốc gia môn Toán lớp 12. Điểm số tuyệt đối môn Toán & Sinh học trong kỳ thi Tốt nghiệp THPT Quốc gia.",
     image_url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&auto=format&fit=crop&q=80",
-    academic_year: "2023-2024",
+    academic_year: "2024-2025",
     university_logo_url: "https://upload.wikimedia.org/wikipedia/vi/0/07/Logo_HMU.jpg"
   },
   {
@@ -90,7 +83,7 @@ const FALLBACK_HONORS: HonorItem[] = [
     title: "Á Khoa Khối D01 (29.2 Điểm)",
     description: "IELTS 8.0, Toán 9.8, Văn 9.5. Luôn giữ vị trí Top 1 Bảng xếp hạng thi thử hàng tuần trên nền tảng MINDA.",
     image_url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&auto=format&fit=crop&q=80",
-    academic_year: "2023-2024",
+    academic_year: "2024-2025",
     university_logo_url: "https://upload.wikimedia.org/wikipedia/vi/1/1b/Logo_NEU.png"
   },
   {
@@ -100,7 +93,7 @@ const FALLBACK_HONORS: HonorItem[] = [
     title: "Huy Chương Bạc Tin Học Quốc Tế",
     description: "Thành viên đội tuyển Olympic Tin học Quốc tế (IOI). Tác giả nhiều bài viết chia sẻ kinh nghiệm thuật toán trên MINDA Code.",
     image_url: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600&auto=format&fit=crop&q=80",
-    academic_year: "2022-2023",
+    academic_year: "2023-2024",
     university_logo_url: "https://upload.wikimedia.org/wikipedia/commons/e/e8/Logo-VNU.png"
   },
   {
@@ -110,7 +103,7 @@ const FALLBACK_HONORS: HonorItem[] = [
     title: "Điểm 10 Tuyệt Đối Môn Toán THPT",
     description: "Đạt điểm 10 tròn trịa môn Toán THPT Quốc gia. Bí quyết: Ôn tập có hệ thống với hệ sinh thái AI MINDA Copilot.",
     image_url: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=600&auto=format&fit=crop&q=80",
-    academic_year: "2022-2023",
+    academic_year: "2023-2024",
     university_logo_url: "https://upload.wikimedia.org/wikipedia/commons/a/a1/Logo_HUST.png"
   }
 ];
@@ -118,7 +111,7 @@ const FALLBACK_HONORS: HonorItem[] = [
 export default function HallOfFamePage() {
   const [honors, setHonors] = useState<HonorItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedYear, setSelectedYear] = useState<string>("total");
+  const [selectedYear, setSelectedYear] = useState<string>("2025-2026");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedHonor, setSelectedHonor] = useState<HonorItem | null>(null);
   const { theme, toggleTheme } = useTheme();
@@ -156,12 +149,66 @@ export default function HallOfFamePage() {
     return url;
   };
 
+  const fetchPublicHonors = async () => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/honors/public`);
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) {
+          setHonors(data);
+          // Default to latest year if current is not in data
+          const yearsInData = Array.from(new Set(data.map((h: HonorItem) => h.academic_year).filter(Boolean))).sort().reverse() as string[];
+          if (yearsInData.length > 0) {
+            setSelectedYear(prev => (yearsInData.includes(prev) ? prev : yearsInData[0]));
+          }
+        } else {
+          setHonors(FALLBACK_HONORS);
+        }
+      } else {
+        setHonors(FALLBACK_HONORS);
+      }
+    } catch (err) {
+      console.warn("Using fallback honors:", err);
+      setHonors(FALLBACK_HONORS);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPublicHonors();
+
+    // Check Current Logged-in User
+    if (typeof window !== "undefined") {
+      const storedToken = localStorage.getItem("minda_token");
+      if (storedToken) {
+        setToken(storedToken);
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/auth/me`, {
+          headers: { Authorization: `Bearer ${storedToken}` }
+        })
+          .then(res => res.ok ? res.json() : null)
+          .then(user => {
+            if (user) {
+              setCurrentUser(user);
+              const isDarber = 
+                user.email?.toLowerCase().includes("darber3110") || 
+                user.email?.toLowerCase().includes("darbar3110") ||
+                user.role === "admin" ||
+                localStorage.getItem("minda_role") === "admin";
+              setIsDarberAdmin(Boolean(isDarber));
+            }
+          })
+          .catch(e => console.warn("Auth check error:", e));
+      }
+    }
+  }, []);
+
   const openCreateModal = () => {
     setEditingHonor(null);
     setFormData({
       student_name: "",
       title: "",
-      academic_year: "2025-2026",
+      academic_year: selectedYear || "2025-2026",
       description: "",
       image_url: "",
       university_logo_url: ""
@@ -179,7 +226,7 @@ export default function HallOfFamePage() {
     setFormData({
       student_name: honor.student_name,
       title: honor.title,
-      academic_year: honor.academic_year || "2025-2026",
+      academic_year: honor.academic_year || selectedYear || "2025-2026",
       description: honor.description || "",
       image_url: honor.image_url || "",
       university_logo_url: honor.university_logo_url || ""
@@ -297,7 +344,7 @@ export default function HallOfFamePage() {
     }
   };
 
-  // Distinct academic years
+  // Distinct academic years (Strictly academic years, sorted newest first)
   const availableYears = Array.from(
     new Set([
       "2025-2026",
@@ -308,9 +355,9 @@ export default function HallOfFamePage() {
     ])
   ).sort().reverse() as string[];
 
-  // Filter honors
+  // Filter honors strictly by academic year and search query
   const filteredHonors = honors.filter(h => {
-    const matchYear = selectedYear === "total" || h.academic_year === selectedYear;
+    const matchYear = h.academic_year === selectedYear;
     const q = searchQuery.toLowerCase().trim();
     const matchQuery = !q || 
       h.student_name.toLowerCase().includes(q) ||
@@ -403,13 +450,12 @@ export default function HallOfFamePage() {
       )}
 
       {/* ── HERO BANNER: LUXURIOUS GOLDEN AUDITORIUM ── */}
-      <section className="relative py-14 sm:py-20 px-4 sm:px-6 overflow-hidden border-b border-border-card bg-gradient-to-b from-amber-500/10 via-bg-card/60 to-bg-main">
+      <section className="relative py-12 sm:py-16 px-4 sm:px-6 overflow-hidden border-b border-border-card bg-gradient-to-b from-amber-500/10 via-bg-card/60 to-bg-main">
         {/* Ambient radial glows */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[380px] bg-gradient-to-r from-amber-500/15 via-yellow-500/15 to-amber-600/10 blur-[140px] rounded-full pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[320px] bg-gradient-to-r from-amber-500/15 via-yellow-500/15 to-amber-600/10 blur-[140px] rounded-full pointer-events-none" />
         <div className="absolute top-0 right-0 w-96 h-96 bg-rose-500/10 blur-[100px] rounded-full pointer-events-none" />
 
-        <div className="max-w-5xl mx-auto text-center relative z-10 space-y-4">
-          
+        <div className="max-w-4xl mx-auto text-center relative z-10 space-y-3">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-500 text-xs font-black uppercase tracking-widest shadow-sm">
             <Sparkles className="w-4 h-4 text-amber-500" /> BẢNG VÀNG THÀNH TÍCH XUẤT SẮC
           </div>
@@ -421,52 +467,15 @@ export default function HallOfFamePage() {
           <p className="text-sm sm:text-base text-t-secondary max-w-2xl mx-auto leading-relaxed">
             Nơi ghi danh và vinh danh những cá nhân xuất sắc nhất MINDA — Những thủ khoa, á khoa, học sinh giỏi quốc gia và niềm tự hào của các thế hệ học viên.
           </p>
-
-          {/* Key Metrics Stats Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 max-w-3xl mx-auto pt-6">
-            <div className="p-4 rounded-3xl bg-bg-card/90 backdrop-blur-md border border-border-card shadow-lg text-center space-y-1 hover:border-amber-500/40 transition">
-              <span className="text-2xl sm:text-3xl font-black text-amber-500 font-mono">100%</span>
-              <p className="text-[11px] font-bold text-t-secondary uppercase tracking-wider">Đỗ Đại Học Top 1</p>
-            </div>
-            <div className="p-4 rounded-3xl bg-bg-card/90 backdrop-blur-md border border-border-card shadow-lg text-center space-y-1 hover:border-rose-500/40 transition">
-              <span className="text-2xl sm:text-3xl font-black text-rose-500 font-mono">25+</span>
-              <p className="text-[11px] font-bold text-t-secondary uppercase tracking-wider">Thủ Khoa & Á Khoa</p>
-            </div>
-            <div className="p-4 rounded-3xl bg-bg-card/90 backdrop-blur-md border border-border-card shadow-lg text-center space-y-1 hover:border-indigo-500/40 transition">
-              <span className="text-2xl sm:text-3xl font-black text-indigo-500 font-mono">1165</span>
-              <p className="text-[11px] font-bold text-t-secondary uppercase tracking-wider">Kỷ Lục ĐGNL ĐHQG</p>
-            </div>
-            <div className="p-4 rounded-3xl bg-bg-card/90 backdrop-blur-md border border-border-card shadow-lg text-center space-y-1 hover:border-emerald-500/40 transition">
-              <span className="text-2xl sm:text-3xl font-black text-emerald-500 font-mono">50+</span>
-              <p className="text-[11px] font-bold text-t-secondary uppercase tracking-wider">Điểm 10 Tuyệt Đối</p>
-            </div>
-          </div>
         </div>
       </section>
 
-      {/* ── FILTER BAR: TOTAL & ACADEMIC YEARS ── */}
+      {/* ── FILTER BAR: ACADEMIC YEARS ONLY ── */}
       <section className="sticky top-[69px] z-30 bg-bg-main/95 backdrop-blur-xl border-b border-border-card/80 py-3 px-4 sm:px-6 shadow-sm">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
           
-          {/* Category Tabs */}
+          {/* Category Tabs by Academic Year */}
           <div className="flex gap-2 overflow-x-auto no-scrollbar w-full md:w-auto pb-1 md:pb-0">
-            {/* Total Tab */}
-            <button
-              onClick={() => setSelectedYear("total")}
-              className={`px-4 py-2.5 rounded-2xl text-xs font-black whitespace-nowrap transition-all flex items-center gap-2 shrink-0 ${
-                selectedYear === "total"
-                  ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/25 scale-105"
-                  : "bg-bg-card border border-border-card text-t-secondary hover:text-t-primary hover:bg-bg-hover"
-              }`}
-            >
-              <Trophy className="w-3.5 h-3.5" />
-              <span>🏆 Tất cả (Total)</span>
-              <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-slate-950/20 font-mono font-bold">
-                {honors.length}
-              </span>
-            </button>
-
-            {/* Academic Year Tabs */}
             {availableYears.map(yr => {
               const count = honors.filter(h => h.academic_year === yr).length;
               return (
@@ -527,16 +536,16 @@ export default function HallOfFamePage() {
         ) : filteredHonors.length === 0 ? (
           <div className="py-20 text-center space-y-3 bg-bg-card rounded-3xl border border-border-card p-8">
             <Award className="w-12 h-12 text-t-secondary/40 mx-auto" />
-            <h3 className="text-lg font-bold text-t-primary">Chưa tìm thấy học sinh nào</h3>
+            <h3 className="text-lg font-bold text-t-primary">Chưa có học sinh nào trong Năm học {selectedYear}</h3>
             <p className="text-xs text-t-secondary max-w-sm mx-auto">
-              Không có kết quả phù hợp với bộ lọc năm học hoặc từ khoá tìm kiếm của bạn.
+              Không có kết quả phù hợp với niên khóa đã chọn hoặc từ khoá tìm kiếm của bạn.
             </p>
             {isDarberAdmin && (
               <button
                 onClick={openCreateModal}
                 className="mt-3 px-4 py-2 rounded-2xl bg-amber-500 text-slate-950 font-black text-xs inline-flex items-center gap-1.5 shadow-md shadow-amber-500/25"
               >
-                <Plus className="w-4 h-4" /> Thêm học sinh đầu tiên
+                <Plus className="w-4 h-4" /> Thêm học sinh vào niên khóa này
               </button>
             )}
           </div>
