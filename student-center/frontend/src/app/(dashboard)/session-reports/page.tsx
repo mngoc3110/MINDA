@@ -913,33 +913,40 @@ export default function SessionReportsPage() {
                       </div>
 
                       {isSaving ? (
-                        <div className="flex justify-end sm:justify-center py-1">
+                        <div className="flex justify-end sm:justify-center py-2">
                           <Loader2 className="w-5 h-5 animate-spin text-rose-400" />
                         </div>
                       ) : (
-                        <div className="flex items-center justify-between sm:justify-end gap-1.5 pt-2 sm:pt-0 border-t sm:border-t-0 border-border-card/50">
-                          <div className="grid grid-cols-4 sm:flex items-center gap-1.5 flex-1 sm:flex-initial">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between sm:justify-end gap-2 pt-2.5 sm:pt-0 border-t sm:border-t-0 border-border-card/50">
+                          {/* 4 Status Buttons: Grid 2x2 on small mobile, flex on desktop */}
+                          <div className="grid grid-cols-2 sm:flex items-center gap-1.5 flex-1 sm:flex-initial">
                             {[
-                              { s: "present" as const, label: "✅", title: "Có mặt" },
-                              { s: "late" as const, label: "⏰", title: "Muộn" },
-                              { s: "excused" as const, label: "📋", title: "Phép" },
-                              { s: "absent" as const, label: "❌", title: "Vắng" },
-                            ].map(({ s, label, title }) => (
-                              <button key={s} title={record?.status === s ? `Bấm để hoàn tác (${title})` : title}
-                                onClick={() => {
-                                  if (record?.status === s) {
-                                    undoCheckin(student.id);
-                                  } else {
-                                    manualCheckin(student.id, s);
-                                  }
-                                }}
-                                className={`h-9 sm:h-8 px-2 sm:w-8 rounded-xl sm:rounded-lg text-sm transition-all flex items-center justify-center border ${
-                                  record?.status === s ? "bg-rose-500 border-rose-500 shadow-lg shadow-rose-500/30 text-white" : "border-border-card hover:border-rose-500/30 hover:bg-bg-hover"
-                                }`}
-                              >
-                                {label}
-                              </button>
-                            ))}
+                              { s: "present" as const, label: "✅ Có mặt", activeClass: "bg-emerald-500 text-white border-emerald-400 shadow-md shadow-emerald-500/20" },
+                              { s: "late" as const, label: "⏰ Đi muộn", activeClass: "bg-amber-500 text-white border-amber-400 shadow-md shadow-amber-500/20" },
+                              { s: "excused" as const, label: "📋 Có phép", activeClass: "bg-blue-500 text-white border-blue-400 shadow-md shadow-blue-500/20" },
+                              { s: "absent" as const, label: "❌ Vắng mặt", activeClass: "bg-rose-500 text-white border-rose-400 shadow-md shadow-rose-500/20" },
+                            ].map(({ s, label, activeClass }) => {
+                              const isActive = record?.status === s;
+                              return (
+                                <button
+                                  key={s}
+                                  onClick={() => {
+                                    if (isActive) {
+                                      undoCheckin(student.id);
+                                    } else {
+                                      manualCheckin(student.id, s);
+                                    }
+                                  }}
+                                  className={`py-2 px-2.5 sm:py-1.5 sm:px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center border text-center ${
+                                    isActive
+                                      ? activeClass
+                                      : "border-border-card bg-bg-card/50 text-text-secondary hover:border-rose-500/30 hover:bg-bg-hover hover:text-text-primary"
+                                  }`}
+                                >
+                                  {label}
+                                </button>
+                              );
+                            })}
                           </div>
 
                           {record && (
@@ -947,9 +954,10 @@ export default function SessionReportsPage() {
                               type="button"
                               title="Hoàn tác điểm danh (Reset về Chưa điểm danh)"
                               onClick={() => undoCheckin(student.id)}
-                              className="h-9 w-9 sm:h-8 sm:w-8 rounded-xl sm:rounded-lg text-xs font-bold transition-all border border-amber-500/40 text-amber-400 bg-amber-500/10 hover:bg-amber-500 hover:text-white flex items-center justify-center shrink-0"
+                              className="py-2 px-3 sm:py-1.5 sm:px-2 rounded-xl text-xs font-bold transition-all border border-amber-500/40 text-amber-400 bg-amber-500/10 hover:bg-amber-500 hover:text-white flex items-center justify-center gap-1 shrink-0"
                             >
                               <RotateCcw className="w-3.5 h-3.5" />
+                              <span className="sm:hidden text-[11px]">Hoàn tác</span>
                             </button>
                           )}
                         </div>
@@ -959,7 +967,14 @@ export default function SessionReportsPage() {
                 })}
               </div>
 
-              <div className="mt-6 flex gap-3">
+              {/* Sticky Mobile Floating Action Bar */}
+              <div className="sticky bottom-4 z-30 mt-6 p-3 sm:p-4 rounded-2xl sm:rounded-3xl bg-bg-card/95 backdrop-blur-md border border-border-card shadow-2xl flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-xs sm:text-sm font-bold text-text-primary truncate">
+                    Đã điểm danh: <span className="text-rose-400 font-black">{roomStudents.filter(s => !!getStudentAttendance(s.id)).length}/{roomStudents.length}</span>
+                  </p>
+                  <p className="text-[10px] text-text-secondary hidden sm:block">Tự động đồng bộ realtime qua WebSocket</p>
+                </div>
                 <button
                   type="button"
                   onClick={() => {
@@ -970,9 +985,10 @@ export default function SessionReportsPage() {
                       loadReportsForSchedule(targetSchedule);
                     }
                   }}
-                  className="flex-1 py-3 rounded-2xl bg-rose-500 text-white font-bold hover:bg-rose-600 transition text-center shadow-lg shadow-rose-500/20"
+                  className="px-4 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-bold text-xs sm:text-sm transition shadow-lg shadow-rose-500/25 flex items-center gap-1.5 shrink-0 active:scale-95"
                 >
-                  Kết thúc & Viết báo cáo →
+                  <span>Kết thúc & Viết báo cáo</span>
+                  <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
             </div>
