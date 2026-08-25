@@ -7,6 +7,7 @@ from app.db.database import get_db
 from app.models.user import User, UserRole
 from app.models.course import Course, Enrollment, EnrollmentStatus
 from app.models.schedule import ScheduleItem, ScheduleType
+from app.models.session_report import AttendanceRecord, SessionReport
 from app.schemas.schedule import ScheduleItemCreate, ScheduleItemUpdate, ScheduleItemResponse
 from app.core.security import get_current_user
 
@@ -340,6 +341,19 @@ def get_schedule_students(
         ).all()
         for e in enrollments:
             student_ids.add(e.student_id)
+
+    # Bổ sung các học sinh đã có điểm danh hoặc báo cáo buổi trong lịch này
+    matching_ids = [s.id for s in matching_schedules] if matching_schedules else [schedule.id]
+    if schedule.id not in matching_ids:
+        matching_ids.append(schedule.id)
+
+    att_records = db.query(AttendanceRecord.student_id).filter(AttendanceRecord.schedule_id.in_(matching_ids)).all()
+    for r in att_records:
+        student_ids.add(r[0])
+
+    session_reps = db.query(SessionReport.student_id).filter(SessionReport.schedule_id.in_(matching_ids)).all()
+    for rep in session_reps:
+        student_ids.add(rep[0])
 
     # Trả về đúng danh sách học sinh của buổi học này
     if student_ids:

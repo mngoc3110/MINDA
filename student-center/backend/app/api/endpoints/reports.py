@@ -28,6 +28,8 @@ class SessionReportCreate(BaseModel):
     strengths: Optional[str] = None
     weaknesses: Optional[str] = None
     is_visible_to_parent: bool = True
+    attendance_status: Optional[AttendanceStatus] = None
+    attendance_note: Optional[str] = None
 
 class WeeklyReportCreate(BaseModel):
     student_id: int
@@ -47,14 +49,33 @@ class MonthlyReportCreate(BaseModel):
     is_visible_to_parent: bool = True
 
 
-def _fmt_session_report(r: SessionReport) -> dict:
+def _fmt_session_report(r: SessionReport, db: Optional[Session] = None) -> dict:
+    att_status = None
+    att_time = None
+    att_method = None
+    if db:
+        att = db.query(AttendanceRecord).filter(
+            AttendanceRecord.schedule_id == r.schedule_id,
+            AttendanceRecord.student_id == r.student_id
+        ).first()
+        if att:
+            att_status = att.status.value if hasattr(att.status, "value") else str(att.status)
+            att_time = att.checkin_time.isoformat() if att.checkin_time else None
+            att_method = att.method.value if hasattr(att.method, "value") else str(att.method)
+
     return {
         "id": r.id,
         "schedule_id": r.schedule_id,
+        "schedule_title": r.schedule.title if r.schedule else "",
+        "schedule_date": r.schedule.start_time.isoformat() if r.schedule and r.schedule.start_time else None,
         "student_id": r.student_id,
         "student_name": r.student.full_name if r.student else "",
+        "student_avatar": r.student.avatar_url if r.student else None,
         "teacher_id": r.teacher_id,
         "teacher_name": r.teacher.full_name if r.teacher else "",
+        "attendance_status": att_status,
+        "attendance_time": att_time,
+        "attendance_method": att_method,
         "content": r.content,
         "behavior_score": r.behavior_score,
         "progress_score": r.progress_score,
@@ -121,15 +142,17 @@ def upsert_session_report(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_role("teacher", "admin")),
 ):
-    """Tạo hoặc cập nhật báo cáo sau buổi học cho 1 học sinh"""
+    """Tạo hoặc cập nhật báo cáo sau buổi học cho 1 học sinh và tự động đồng bộ điểm danh bù"""
     existing = db.query(SessionReport).filter(
         SessionReport.schedule_id == data.schedule_id,
         SessionReport.student_id == data.student_id,
         SessionReport.teacher_id == current_user.id,
     ).first()
 
+    report_data = data.dict(exclude={"schedule_id", "student_id", "attendance_status", "attendance_note"})
+
     if existing:
-        for k, v in data.dict(exclude={"schedule_id", "student_id"}).items():
+        for k, v in report_data.items():
             setattr(existing, k, v)
         existing.updated_at = datetime.utcnow()
         report = existing
@@ -138,13 +161,50 @@ def upsert_session_report(
             schedule_id=data.schedule_id,
             student_id=data.student_id,
             teacher_id=current_user.id,
-            **data.dict(exclude={"schedule_id", "student_id"})
+            **report_data
         )
         db.add(report)
 
+    # Đồng bộ / Bổ sung điểm danh bù
+    att_existing = db.query(AttendanceRecord).filter(
+        AttendanceRecord.schedule_id == data.schedule_id,
+        AttendanceRecord.student_id == data.student_id,
+    ).first()
+
+    now = datetime.utcnow()
+    if data.attendance_status:
+        if att_existing:
+            att_existing.status = data.attendance_status
+            if data.attendance_note is not None:
+                att_existing.note = data.attendance_note
+            att_existing.updated_at = now
+        else:
+            att_rec = AttendanceRecord(
+                schedule_id=data.schedule_id,
+                student_id=data.student_id,
+                status=data.attendance_status,
+                method=AttendanceMethod.manual,
+                checkin_time=now,
+                note=data.attendance_note or "Điểm danh bổ sung khi lưu báo cáo",
+                created_by_id=current_user.id,
+            )
+            db.add(att_rec)
+    elif not att_existing:
+        # Nếu chưa từng điểm danh, tự động ghi nhận Có mặt khi lưu báo cáo
+        att_rec = AttendanceRecord(
+            schedule_id=data.schedule_id,
+            student_id=data.student_id,
+            status=AttendanceStatus.present,
+            method=AttendanceMethod.manual,
+            checkin_time=now,
+            note="Tự động ghi nhận có mặt khi viết báo cáo buổi",
+            created_by_id=current_user.id,
+        )
+        db.add(att_rec)
+
     db.commit()
     db.refresh(report)
-    return _fmt_session_report(report)
+    return _fmt_session_report(report, db=db)
 
 
 @router.get("/session/schedule/{schedule_id}")
@@ -158,7 +218,7 @@ def get_session_reports_by_schedule(
         SessionReport.schedule_id == schedule_id,
         SessionReport.teacher_id == current_user.id,
     ).all()
-    return [_fmt_session_report(r) for r in reports]
+    return [_fmt_session_report(r, db=db) for r in reports]
 
 
 @router.get("/session/{schedule_id}/student/{student_id}")
@@ -180,7 +240,7 @@ def get_session_report_for_student(
     report = query.first()
     if not report:
         raise HTTPException(status_code=404, detail="Chưa có báo cáo cho buổi này")
-    return _fmt_session_report(report)
+    return _fmt_session_report(report, db=db)
 
 
 @router.get("/my-session-reports")
@@ -195,7 +255,7 @@ def get_my_session_reports(
         SessionReport.student_id == current_user.id,
         SessionReport.is_visible_to_parent == True,
     ).order_by(SessionReport.created_at.desc()).offset(skip).limit(limit).all()
-    return [_fmt_session_report(r) for r in reports]
+    return [_fmt_session_report(r, db=db) for r in reports]
 
 
 def _get_student_schedules(db: Session, student_id: int, start_dt: datetime, end_dt: datetime):
@@ -272,16 +332,30 @@ def auto_generate_weekly(
         AttendanceRecord.schedule_id.in_(schedule_ids),
         AttendanceRecord.student_id == student_id,
     ).all() if schedule_ids else []
-
-    total = len(schedules)
-    attended = sum(1 for r in all_records if r.status == AttendanceStatus.present)
-    late = sum(1 for r in all_records if r.status == AttendanceStatus.late)
+    records_by_sch = {r.schedule_id: r for r in all_records}
 
     # Tính điểm TB từ SessionReport
     session_reports = db.query(SessionReport).filter(
         SessionReport.schedule_id.in_(schedule_ids),
         SessionReport.student_id == student_id,
     ).all() if schedule_ids else []
+    reports_by_sch = {r.schedule_id: r for r in session_reports}
+
+    total = len(schedules)
+    attended = 0
+    late = 0
+
+    for sch_id in schedule_ids:
+        rec = records_by_sch.get(sch_id)
+        if rec:
+            if rec.status == AttendanceStatus.present:
+                attended += 1
+            elif rec.status == AttendanceStatus.late:
+                late += 1
+                attended += 1
+        elif sch_id in reports_by_sch:
+            # Có báo cáo buổi nhưng chưa điểm danh -> Tự động tính là có mặt
+            attended += 1
 
     behavior_scores = [r.behavior_score for r in session_reports if r.behavior_score]
     progress_scores = [r.progress_score for r in session_reports if r.progress_score]
@@ -403,15 +477,26 @@ def auto_generate_monthly(
         AttendanceRecord.schedule_id.in_(schedule_ids),
         AttendanceRecord.student_id == student_id,
     ).all() if schedule_ids else []
-
-    total = len(schedules)
-    attended = sum(1 for r in all_records if r.status in [AttendanceStatus.present, AttendanceStatus.late])
-    attendance_rate = round(attended / total, 2) if total else 0
+    records_by_sch = {r.schedule_id: r for r in all_records}
 
     session_reports = db.query(SessionReport).filter(
         SessionReport.schedule_id.in_(schedule_ids),
         SessionReport.student_id == student_id,
     ).all() if schedule_ids else []
+    reports_by_sch = {r.schedule_id: r for r in session_reports}
+
+    total = len(schedules)
+    attended = 0
+    for sch_id in schedule_ids:
+        rec = records_by_sch.get(sch_id)
+        if rec:
+            if rec.status in [AttendanceStatus.present, AttendanceStatus.late]:
+                attended += 1
+        elif sch_id in reports_by_sch:
+            # Có báo cáo buổi học nhưng chưa điểm danh -> Tự động tính là có mặt
+            attended += 1
+
+    attendance_rate = round(attended / total, 2) if total else 0
 
     behavior_scores = [r.behavior_score for r in session_reports if r.behavior_score]
     progress_scores = [r.progress_score for r in session_reports if r.progress_score]
@@ -558,7 +643,7 @@ def get_all_reports(
     ).order_by(MonthlyReport.year.desc(), MonthlyReport.month.desc()).limit(3).all()
 
     return {
-        "session_reports": [_fmt_session_report(r) for r in session_reports],
+        "session_reports": [_fmt_session_report(r, db=db) for r in session_reports],
         "weekly_reports": [_fmt_weekly_report(r) for r in weekly_reports],
         "monthly_reports": [_fmt_monthly_report(r) for r in monthly_reports],
     }
