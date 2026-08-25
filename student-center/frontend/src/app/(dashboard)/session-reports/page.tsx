@@ -91,6 +91,8 @@ export default function SessionReportsPage() {
   const [wsConnected, setWsConnected] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
   const [checkingIn, setCheckingIn] = useState<number | null>(null);
+  const [liveFilter, setLiveFilter] = useState<"recent" | "today" | "week" | "month" | "all">("recent");
+  const [liveSearchQuery, setLiveSearchQuery] = useState("");
 
   // Session Report State
   const [reportSchedule, setReportSchedule] = useState<ScheduleItem | null>(null);
@@ -99,8 +101,8 @@ export default function SessionReportsPage() {
   const [expandedStudentIds, setExpandedStudentIds] = useState<Record<number, boolean>>({});
   const [batchCheckingIn, setBatchCheckingIn] = useState(false);
 
-  // Session selector filter & search
-  const [sessionFilter, setSessionFilter] = useState<"all" | "missing" | "completed" | "today" | "week">("all");
+  // Session selector filter & search (Default: recent)
+  const [sessionFilter, setSessionFilter] = useState<"recent" | "all" | "missing" | "completed" | "today" | "week" | "month">("recent");
   const [sessionSearchQuery, setSessionSearchQuery] = useState("");
   const [studentSearchInSession, setStudentSearchInSession] = useState("");
 
@@ -462,13 +464,52 @@ export default function SessionReportsPage() {
     updateReport(studentId, "content", newContent);
   };
 
+  // ── Filtered Schedules for Live Attendance ───────────────────────────────
+  const getFilteredLiveSchedules = () => {
+    const now = new Date();
+    const todayStr = now.toISOString().split("T")[0];
+    const mondayStr = getMondayDate();
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).getTime();
+    const sevenDaysAhead = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).getTime();
+
+    const filtered = schedules.filter((s) => {
+      const schTime = new Date(s.start_time).getTime();
+      const schDate = new Date(s.start_time).toISOString().split("T")[0];
+
+      if (liveSearchQuery.trim()) {
+        const q = liveSearchQuery.toLowerCase();
+        const matchTitle = s.title.toLowerCase().includes(q);
+        const matchDate = schDate.includes(q);
+        if (!matchTitle && !matchDate) return false;
+      }
+
+      if (liveFilter === "today") return schDate === todayStr;
+      if (liveFilter === "week") return schDate >= mondayStr;
+      if (liveFilter === "recent") return schTime >= sevenDaysAgo && schTime <= sevenDaysAhead;
+      if (liveFilter === "month") {
+        const schDateObj = new Date(s.start_time);
+        return schDateObj.getMonth() === now.getMonth() && schDateObj.getFullYear() === now.getFullYear();
+      }
+      return true;
+    });
+
+    // Fallback: nếu chọn 'recent' mà không có ca nào trong 7 ngày và chưa search, hiển thị 10 ca mới nhất
+    if (liveFilter === "recent" && filtered.length === 0 && !liveSearchQuery.trim()) {
+      return schedules.slice(0, 10);
+    }
+    return filtered;
+  };
+
   // ── Filtered Schedules for Session Reports ─────────────────────────────────
   const getFilteredSchedules = () => {
     const now = new Date();
     const todayStr = now.toISOString().split("T")[0];
     const mondayStr = getMondayDate();
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).getTime();
+    const sevenDaysAhead = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).getTime();
 
-    return schedules.filter((s) => {
+    const filtered = schedules.filter((s) => {
+      const schTime = new Date(s.start_time).getTime();
       const schDate = new Date(s.start_time).toISOString().split("T")[0];
       if (sessionSearchQuery.trim()) {
         const q = sessionSearchQuery.toLowerCase();
@@ -479,8 +520,18 @@ export default function SessionReportsPage() {
 
       if (sessionFilter === "today") return schDate === todayStr;
       if (sessionFilter === "week") return schDate >= mondayStr;
+      if (sessionFilter === "recent") return schTime >= sevenDaysAgo && schTime <= sevenDaysAhead;
+      if (sessionFilter === "month") {
+        const schDateObj = new Date(s.start_time);
+        return schDateObj.getMonth() === now.getMonth() && schDateObj.getFullYear() === now.getFullYear();
+      }
       return true;
     });
+
+    if (sessionFilter === "recent" && filtered.length === 0 && !sessionSearchQuery.trim()) {
+      return schedules.slice(0, 10);
+    }
+    return filtered;
   };
 
   // ── Auto-generate weekly/monthly ───────────────────────────────────────────
@@ -641,29 +692,141 @@ export default function SessionReportsPage() {
       {tab === "live" && (
         <div className="space-y-6">
           {!selectedSchedule ? (
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-bold text-text-primary">Chọn ca học để mở phòng điểm danh</h2>
-                <span className="text-xs text-text-secondary">{schedules.length} buổi học</span>
+            <div className="space-y-4">
+              {/* Header with Title, Count & Search */}
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                <div>
+                  <h2 className="text-lg font-bold text-text-primary flex items-center gap-2">
+                    <span>Chọn ca học để mở phòng điểm danh</span>
+                  </h2>
+                  <p className="text-xs text-text-secondary mt-0.5">
+                    Hiển thị <strong className="text-rose-400 font-bold">{getFilteredLiveSchedules().length}</strong> / {schedules.length} buổi học
+                  </p>
+                </div>
+
+                {/* Quick Search */}
+                <div className="relative w-full md:w-72">
+                  <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-text-secondary" />
+                  <input
+                    type="text"
+                    value={liveSearchQuery}
+                    onChange={(e) => setLiveSearchQuery(e.target.value)}
+                    placeholder="Tìm theo lớp, môn (Toán 10, 2k11...)"
+                    className="w-full pl-9 pr-8 py-2 bg-bg-card border border-border-card rounded-xl text-xs text-text-primary focus:outline-none focus:border-rose-500 transition placeholder:text-text-secondary/60 shadow-sm"
+                  />
+                  {liveSearchQuery && (
+                    <button
+                      onClick={() => setLiveSearchQuery("")}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-text-secondary hover:text-text-primary"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[500px] overflow-y-auto">
-                {schedules.map((s) => (
-                  <button key={s.id} onClick={() => openLiveRoom(s)}
-                    className="flex items-center justify-between p-4 rounded-2xl border border-border-card bg-bg-card hover:bg-bg-hover hover:border-rose-500/40 transition group text-left shadow-sm"
+
+              {/* Filter Pills */}
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+                {[
+                  { id: "recent" as const, label: "🔥 7 ngày gần đây" },
+                  { id: "today" as const, label: "⚡ Hôm nay" },
+                  { id: "week" as const, label: "📅 Tuần này" },
+                  { id: "month" as const, label: "📆 Tháng này" },
+                  { id: "all" as const, label: `🗂️ Tất cả (${schedules.length})` },
+                ].map((f) => (
+                  <button
+                    key={f.id}
+                    onClick={() => setLiveFilter(f.id)}
+                    className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap border flex items-center gap-1.5 ${
+                      liveFilter === f.id
+                        ? "bg-rose-500 border-rose-500 text-white shadow-md shadow-rose-500/20"
+                        : "border-border-card bg-bg-card text-text-secondary hover:bg-bg-hover hover:text-text-primary"
+                    }`}
                   >
-                    <div className="min-w-0 flex-1 pr-3">
-                      <p className="font-bold text-text-primary truncate">{s.title}</p>
-                      <p className="text-xs text-text-secondary mt-1 flex items-center gap-1.5">
-                        <Clock className="w-3.5 h-3.5 text-rose-400" />
-                        {new Date(s.start_time).toLocaleString("vi-VN", { weekday: "short", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs px-2.5 py-1 rounded-xl bg-rose-500/10 text-rose-400 font-bold border border-rose-500/20">Vào phòng</span>
-                      <ChevronRight className="w-4 h-4 text-text-secondary group-hover:text-rose-500 transition-colors" />
-                    </div>
+                    <span>{f.label}</span>
                   </button>
                 ))}
+              </div>
+
+              {/* Schedules Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[520px] overflow-y-auto pr-1">
+                {getFilteredLiveSchedules().map((s) => {
+                  const startTime = new Date(s.start_time).getTime();
+                  const endTime = new Date(s.end_time || s.start_time).getTime();
+                  const now = Date.now();
+                  const isLiveNow = now >= startTime && now <= (endTime > startTime ? endTime : startTime + 2 * 3600 * 1000);
+                  const isToday = new Date(s.start_time).toDateString() === new Date().toDateString();
+                  const isPast = startTime < now && !isLiveNow;
+
+                  return (
+                    <button
+                      key={s.id}
+                      onClick={() => openLiveRoom(s)}
+                      className={`flex items-center justify-between p-4 rounded-2xl border transition group text-left shadow-sm relative overflow-hidden ${
+                        isLiveNow
+                          ? "bg-rose-950/20 border-rose-500/50 hover:bg-rose-950/30"
+                          : "border-border-card bg-bg-card hover:bg-bg-hover hover:border-rose-500/40"
+                      }`}
+                    >
+                      <div className="min-w-0 flex-1 pr-3">
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="font-bold text-text-primary truncate">{s.title}</p>
+                          {isLiveNow ? (
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-rose-500 text-white flex items-center gap-1 animate-pulse shrink-0">
+                              <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" /> Đang học
+                            </span>
+                          ) : isToday ? (
+                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30 shrink-0">
+                              Hôm nay
+                            </span>
+                          ) : isPast ? (
+                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-zinc-800 text-zinc-400 border border-zinc-700 shrink-0">
+                              Đã qua
+                            </span>
+                          ) : (
+                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-blue-500/20 text-blue-300 border border-blue-500/30 shrink-0">
+                              Sắp tới
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-text-secondary flex items-center gap-1.5">
+                          <Clock className="w-3.5 h-3.5 text-rose-400" />
+                          {new Date(s.start_time).toLocaleString("vi-VN", {
+                            weekday: "short",
+                            day: "2-digit",
+                            month: "2-digit",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className={`text-xs px-3 py-1.5 rounded-xl font-bold border transition ${
+                          isLiveNow
+                            ? "bg-rose-500 text-white border-rose-400 shadow-md shadow-rose-500/30"
+                            : "bg-rose-500/10 text-rose-400 border-rose-500/20 group-hover:bg-rose-500 group-hover:text-white"
+                        }`}>
+                          Vào phòng →
+                        </span>
+                      </div>
+                    </button>
+                  );
+                })}
+
+                {getFilteredLiveSchedules().length === 0 && (
+                  <div className="col-span-full text-center py-12 text-text-secondary border border-dashed border-border-card rounded-2xl p-6 space-y-2">
+                    <Calendar className="w-10 h-10 mx-auto text-rose-400/50 mb-2" />
+                    <p className="text-sm font-semibold text-text-primary">Không có ca học nào trong khoảng thời gian này</p>
+                    <p className="text-xs text-text-secondary">Bạn có thể chọn xem 7 ngày gần đây hoặc bấm xem tất cả ca học.</p>
+                    <button
+                      onClick={() => { setLiveFilter("all"); setLiveSearchQuery(""); }}
+                      className="mt-3 px-4 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500 hover:text-white text-rose-400 text-xs font-bold border border-rose-500/20 transition"
+                    >
+                      Xem tất cả ({schedules.length} buổi)
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           ) : (
@@ -850,9 +1013,11 @@ export default function SessionReportsPage() {
                 {/* Filter chips */}
                 <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
                   {[
-                    { id: "all" as const, label: "Tất cả" },
-                    { id: "today" as const, label: "Hôm nay" },
-                    { id: "week" as const, label: "Tuần này" },
+                    { id: "recent" as const, label: "🔥 7 ngày gần đây" },
+                    { id: "today" as const, label: "⚡ Hôm nay" },
+                    { id: "week" as const, label: "📅 Tuần này" },
+                    { id: "month" as const, label: "📆 Tháng này" },
+                    { id: "all" as const, label: `🗂️ Tất cả (${schedules.length})` },
                   ].map((f) => (
                     <button
                       key={f.id}
