@@ -130,6 +130,8 @@ class SessionReport(Base):
     teacher_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
     content = Column(String, nullable=True)             # Nhận xét tự do
+    lesson_content = Column(String, nullable=True)      # Nội dung bài học hôm nay / Kiến thức đã học
+    next_lesson_plan = Column(String, nullable=True)    # Nội dung sẽ học ở buổi sau / Chuẩn bị bài tới
     behavior_score = Column(Integer, nullable=True)     # 1–5: Thái độ học tập
     progress_score = Column(Integer, nullable=True)     # 1–5: Tiến bộ
     homework_status = Column(SAEnum(HomeworkStatus), nullable=True)

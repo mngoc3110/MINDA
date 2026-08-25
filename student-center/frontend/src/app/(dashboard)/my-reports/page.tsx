@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import {
   BookOpen, Calendar, Star, CheckCircle2, XCircle, Clock,
   BarChart3, TrendingUp, Award, Target, ChevronLeft, ChevronRight,
-  Loader2, AlertCircle, Home, User, Activity
+  Loader2, AlertCircle, Home, User, Activity, Sparkles
 } from "lucide-react";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "https://minda.io.vn";
@@ -224,6 +224,30 @@ export default function MyReportsPage() {
                   </div>
 
                   <div className="p-4 space-y-4">
+                    {/* 1. Bài học hôm nay & 2. Bài học buổi sau */}
+                    {(report.lesson_content || report.next_lesson_plan) && (
+                      <div className="p-3.5 rounded-2xl bg-indigo-500/5 border border-indigo-500/20 space-y-3">
+                        {report.lesson_content && (
+                          <div>
+                            <p className="text-xs text-indigo-400 font-bold mb-1 flex items-center gap-1.5">
+                              <BookOpen className="w-3.5 h-3.5" />
+                              <span>📘 Nội dung bài học hôm nay</span>
+                            </p>
+                            <p className="text-xs sm:text-sm text-text-primary leading-relaxed whitespace-pre-line">{report.lesson_content}</p>
+                          </div>
+                        )}
+                        {report.next_lesson_plan && (
+                          <div>
+                            <p className="text-xs text-purple-400 font-bold mb-1 flex items-center gap-1.5">
+                              <Sparkles className="w-3.5 h-3.5" />
+                              <span>🚀 Nội dung sẽ học ở buổi sau & Chuẩn bị</span>
+                            </p>
+                            <p className="text-xs sm:text-sm text-text-primary leading-relaxed whitespace-pre-line">{report.next_lesson_plan}</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
                     {/* Content */}
                     {report.content && (
                       <div className="p-3 rounded-xl bg-bg-main border border-border-card/50">

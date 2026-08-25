@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import {
   Shield, Star, CheckCircle2, XCircle, Clock, BookOpen,
   Calendar, BarChart3, TrendingUp, Award, Target, User,
-  Loader2, AlertCircle, ChevronLeft, ChevronRight, Eye, Activity, Sun, Moon
+  Loader2, AlertCircle, ChevronLeft, ChevronRight, Eye, Activity, Sun, Moon, Sparkles
 } from "lucide-react";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "https://minda.io.vn";
@@ -298,6 +298,30 @@ export default function ParentPortalPage() {
 
                 {currentSession && (
                   <div className={`rounded-2xl border ${cardClass} overflow-hidden space-y-0`}>
+                    {/* 1. Bài học hôm nay & 2. Bài học buổi sau */}
+                    {(currentSession.lesson_content || currentSession.next_lesson_plan) && (
+                      <div className={`p-4 border-b ${borderClass} space-y-3.5 bg-indigo-500/5`}>
+                        {currentSession.lesson_content && (
+                          <div>
+                            <p className="text-xs text-indigo-400 font-bold mb-1 flex items-center gap-1.5">
+                              <BookOpen className="w-3.5 h-3.5" />
+                              <span>📘 Nội dung bài học hôm nay</span>
+                            </p>
+                            <p className={`text-xs sm:text-sm leading-relaxed whitespace-pre-line ${subTextClass}`}>{currentSession.lesson_content}</p>
+                          </div>
+                        )}
+                        {currentSession.next_lesson_plan && (
+                          <div>
+                            <p className="text-xs text-purple-400 font-bold mb-1 flex items-center gap-1.5">
+                              <Sparkles className="w-3.5 h-3.5" />
+                              <span>🚀 Nội dung sẽ học ở buổi sau & Chuẩn bị</span>
+                            </p>
+                            <p className={`text-xs sm:text-sm leading-relaxed whitespace-pre-line ${subTextClass}`}>{currentSession.next_lesson_plan}</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
                     {currentSession.content && (
                       <div className={`p-4 border-b ${borderClass}`}>
                         <p className="text-xs text-rose-400 font-bold mb-1.5 flex items-center gap-1"><User className="w-3 h-3" /> Nhận xét giáo viên</p>

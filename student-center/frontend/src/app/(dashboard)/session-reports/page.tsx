@@ -20,6 +20,7 @@ interface Student { id: number; full_name: string; avatar_url?: string; email?: 
 interface ScheduleItem {
   id: number; title: string; start_time: string; end_time: string;
   description?: string; student_id?: number; course_id?: number;
+  lesson_content?: string; next_lesson_plan?: string;
 }
 interface AttendanceRecord {
   id: number; student_id: number; student_name: string; student_avatar?: string;
@@ -28,8 +29,9 @@ interface AttendanceRecord {
   checkin_time?: string; note?: string;
 }
 interface SessionReport {
-  id?: number; student_id: number; student_name: string;
-  content?: string; behavior_score?: number; progress_score?: number;
+  id?: number; student_id: number; student_name?: string;
+  content?: string; lesson_content?: string; next_lesson_plan?: string;
+  behavior_score?: number; progress_score?: number;
   homework_status?: "done" | "partial" | "missing";
   strengths?: string; weaknesses?: string; is_visible_to_parent: boolean;
   attendance_status?: string; attendance_time?: string; attendance_method?: string;
@@ -100,6 +102,9 @@ export default function SessionReportsPage() {
   const [savingReport, setSavingReport] = useState<number | null>(null);
   const [expandedStudentIds, setExpandedStudentIds] = useState<Record<number, boolean>>({});
   const [batchCheckingIn, setBatchCheckingIn] = useState(false);
+  const [classLessonContent, setClassLessonContent] = useState("");
+  const [classNextLessonPlan, setClassNextLessonPlan] = useState("");
+  const [savingClassLesson, setSavingClassLesson] = useState(false);
 
   // Session selector filter & search (Default: recent)
   const [sessionFilter, setSessionFilter] = useState<"recent" | "all" | "missing" | "completed" | "today" | "week" | "month">("recent");
@@ -368,6 +373,8 @@ export default function SessionReportsPage() {
   const loadReportsForSchedule = async (schedule: ScheduleItem | null) => {
     if (!schedule || !schedule.id) return;
     setReportSchedule(schedule);
+    setClassLessonContent(schedule.lesson_content || "");
+    setClassNextLessonPlan(schedule.next_lesson_plan || "");
     const headers = { Authorization: `Bearer ${getToken()}` };
     try {
       const [repRes, stuRes, attRes] = await Promise.all([
@@ -378,13 +385,57 @@ export default function SessionReportsPage() {
       if (repRes.ok) {
         const data = await repRes.json();
         const map: Record<number, SessionReport> = {};
-        data.forEach((r: SessionReport) => { map[r.student_id] = r; });
+        data.forEach((r: SessionReport) => {
+          map[r.student_id] = r;
+          if (!schedule.lesson_content && r.lesson_content) {
+            setClassLessonContent(r.lesson_content);
+          }
+          if (!schedule.next_lesson_plan && r.next_lesson_plan) {
+            setClassNextLessonPlan(r.next_lesson_plan);
+          }
+        });
         setSessionReports(map);
       }
       if (stuRes.ok) setRoomStudents(await stuRes.json());
       if (attRes.ok) setAttendanceRecords(await attRes.json());
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const saveClassLessonInfo = async () => {
+    if (!reportSchedule) return;
+    setSavingClassLesson(true);
+    try {
+      const res = await fetch(`${API}/api/reports/schedule-lesson-plan`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${getToken()}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          schedule_id: reportSchedule.id,
+          lesson_content: classLessonContent,
+          next_lesson_plan: classNextLessonPlan,
+          apply_to_all_students: true,
+        }),
+      });
+      if (res.ok) {
+        setSessionReports((prev) => {
+          const updated = { ...prev };
+          for (const stu of roomStudents) {
+            updated[stu.id] = {
+              ...(updated[stu.id] || { student_id: stu.id, student_name: stu.full_name, is_visible_to_parent: true }),
+              lesson_content: classLessonContent,
+              next_lesson_plan: classNextLessonPlan,
+            };
+          }
+          return updated;
+        });
+        alert("✅ Đã lưu và áp dụng nội dung bài học hôm nay & buổi sau cho cả lớp!");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Lỗi khi lưu nội dung bài học!");
+    } finally {
+      setSavingClassLesson(false);
     }
   };
 
@@ -400,6 +451,8 @@ export default function SessionReportsPage() {
         schedule_id: reportSchedule.id,
         student_id: studentId,
         content: report.content || "",
+        lesson_content: report.lesson_content !== undefined ? report.lesson_content : (classLessonContent || ""),
+        next_lesson_plan: report.next_lesson_plan !== undefined ? report.next_lesson_plan : (classNextLessonPlan || ""),
         behavior_score: report.behavior_score || null,
         progress_score: report.progress_score || null,
         homework_status: report.homework_status || null,
@@ -1165,6 +1218,61 @@ export default function SessionReportsPage() {
                 </div>
               </div>
 
+              {/* ── CARD: NỘI DUNG BÀI HỌC HÔM NAY & KẾ HOẠCH BUỔI SAU (ÁP DỤNG CẢ LỚP) ── */}
+              <div className="p-4 sm:p-5 rounded-3xl border border-indigo-500/30 bg-gradient-to-br from-indigo-950/30 via-bg-card to-purple-950/20 shadow-md space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border-card/60 pb-3">
+                  <div>
+                    <h3 className="font-bold text-sm sm:text-base text-text-primary flex items-center gap-2">
+                      <BookOpen className="w-4 h-4 text-indigo-400" />
+                      <span>Nội Dung Bài Học & Kế Hoạch Buổi Sau (Chung cho ca học)</span>
+                    </h3>
+                    <p className="text-xs text-text-secondary mt-0.5">
+                      Điền 1 lần tại đây để tự động gửi thông tin này cho phụ huynh và học sinh toàn bộ lớp
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={saveClassLessonInfo}
+                    disabled={savingClassLesson}
+                    className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-indigo-600/25 transition disabled:opacity-50 shrink-0 self-start sm:self-auto active:scale-95"
+                  >
+                    {savingClassLesson ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+                    <span>Lưu & Áp dụng cho cả lớp</span>
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* 1. Nội dung bài học hôm nay */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-indigo-300 flex items-center gap-1.5">
+                      <span>📘 1. Nội dung bài học hôm nay (Đã học những gì):</span>
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={classLessonContent}
+                      onChange={(e) => setClassLessonContent(e.target.value)}
+                      placeholder="Ví dụ: Ôn tập Hàm số bậc hai, xét dấu tam thức bậc hai và giải bất phương trình bậc hai một ẩn..."
+                      className="w-full bg-bg-main border border-border-card rounded-2xl p-3 text-xs sm:text-sm text-text-primary placeholder:text-text-secondary/50 focus:outline-none focus:border-indigo-500/50 resize-none leading-relaxed shadow-inner"
+                    />
+                  </div>
+
+                  {/* 2. Nội dung sẽ học ở buổi sau */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-purple-300 flex items-center gap-1.5">
+                      <span>🚀 2. Nội dung sẽ học ở buổi sau & Yêu cầu chuẩn bị:</span>
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={classNextLessonPlan}
+                      onChange={(e) => setClassNextLessonPlan(e.target.value)}
+                      placeholder="Ví dụ: Buổi sau: Bất phương trình chứa ẩn ở mẫu & Hệ phương trình bậc nhất 3 ẩn. Yêu cầu xem trước bài 4 trong SGK..."
+                      className="w-full bg-bg-main border border-border-card rounded-2xl p-3 text-xs sm:text-sm text-text-primary placeholder:text-text-secondary/50 focus:outline-none focus:border-purple-500/50 resize-none leading-relaxed shadow-inner"
+                    />
+                  </div>
+                </div>
+              </div>
+
               {/* Student Filter in session if many */}
               {roomStudents.length > 4 && (
                 <div className="relative mb-4">
@@ -1288,6 +1396,36 @@ export default function SessionReportsPage() {
                                   <p className="text-[10px] opacity-70 mt-0.5">{desc}</p>
                                 </button>
                               ))}
+                            </div>
+                          </div>
+
+                          {/* Nội dung bài học riêng cho học sinh */}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 rounded-2xl bg-bg-card border border-border-card">
+                            <div>
+                              <label className="text-[11px] font-bold text-indigo-300 mb-1 flex items-center gap-1">
+                                <BookOpen className="w-3.5 h-3.5 text-indigo-400" />
+                                <span>📘 Bài học hôm nay (riêng em này nếu có):</span>
+                              </label>
+                              <input
+                                type="text"
+                                value={report.lesson_content !== undefined ? report.lesson_content : (classLessonContent || "")}
+                                onChange={(e) => updateReport(student.id, "lesson_content", e.target.value)}
+                                placeholder="Dùng chung theo lớp hoặc ghi riêng..."
+                                className="w-full bg-bg-main border border-border-card rounded-xl px-3 py-2 text-xs text-text-primary placeholder:text-text-secondary/50 focus:outline-none focus:border-indigo-500/50"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-[11px] font-bold text-purple-300 mb-1 flex items-center gap-1">
+                                <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+                                <span>🚀 Bài học buổi sau & Nhiệm vụ:</span>
+                              </label>
+                              <input
+                                type="text"
+                                value={report.next_lesson_plan !== undefined ? report.next_lesson_plan : (classNextLessonPlan || "")}
+                                onChange={(e) => updateReport(student.id, "next_lesson_plan", e.target.value)}
+                                placeholder="Dùng chung theo lớp hoặc ghi riêng..."
+                                className="w-full bg-bg-main border border-border-card rounded-xl px-3 py-2 text-xs text-text-primary placeholder:text-text-secondary/50 focus:outline-none focus:border-purple-500/50"
+                              />
                             </div>
                           </div>
 

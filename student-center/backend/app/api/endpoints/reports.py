@@ -14,7 +14,26 @@ from app.models.session_report import (
 from app.models.schedule import ScheduleItem
 from app.core.security import get_current_user, require_role
 
-router = APIRouter()
+from app.db.database import engine
+from sqlalchemy import text
+
+# Auto-migration: Đảm bảo bảng session_reports và schedule_items có đủ 2 cột mới
+def init_report_columns():
+    try:
+        with engine.begin() as conn:
+            for col in ["lesson_content", "next_lesson_plan"]:
+                try:
+                    conn.execute(text(f"ALTER TABLE session_reports ADD COLUMN {col} VARCHAR;"))
+                except Exception:
+                    pass
+                try:
+                    conn.execute(text(f"ALTER TABLE schedule_items ADD COLUMN {col} VARCHAR;"))
+                except Exception:
+                    pass
+    except Exception:
+        pass
+
+init_report_columns()
 
 # ─── Schemas ──────────────────────────────────────────────────────────────────
 
@@ -22,6 +41,8 @@ class SessionReportCreate(BaseModel):
     schedule_id: int
     student_id: int
     content: Optional[str] = None
+    lesson_content: Optional[str] = None
+    next_lesson_plan: Optional[str] = None
     behavior_score: Optional[int] = None
     progress_score: Optional[int] = None
     homework_status: Optional[HomeworkStatus] = None
@@ -30,6 +51,12 @@ class SessionReportCreate(BaseModel):
     is_visible_to_parent: bool = True
     attendance_status: Optional[AttendanceStatus] = None
     attendance_note: Optional[str] = None
+
+class ScheduleLessonPlanUpdate(BaseModel):
+    schedule_id: int
+    lesson_content: Optional[str] = None
+    next_lesson_plan: Optional[str] = None
+    apply_to_all_students: bool = True
 
 class WeeklyReportCreate(BaseModel):
     student_id: int
@@ -63,6 +90,10 @@ def _fmt_session_report(r: SessionReport, db: Optional[Session] = None) -> dict:
             att_time = att.checkin_time.isoformat() if att.checkin_time else None
             att_method = att.method.value if hasattr(att.method, "value") else str(att.method)
 
+    # Fallback to schedule lesson_content / next_lesson_plan if not customized per student
+    sch_lesson = r.schedule.lesson_content if r.schedule else None
+    sch_next = r.schedule.next_lesson_plan if r.schedule else None
+
     return {
         "id": r.id,
         "schedule_id": r.schedule_id,
@@ -77,6 +108,8 @@ def _fmt_session_report(r: SessionReport, db: Optional[Session] = None) -> dict:
         "attendance_time": att_time,
         "attendance_method": att_method,
         "content": r.content,
+        "lesson_content": r.lesson_content or sch_lesson,
+        "next_lesson_plan": r.next_lesson_plan or sch_next,
         "behavior_score": r.behavior_score,
         "progress_score": r.progress_score,
         "homework_status": r.homework_status.value if r.homework_status else None,
@@ -205,6 +238,36 @@ def upsert_session_report(
     db.commit()
     db.refresh(report)
     return _fmt_session_report(report, db=db)
+
+
+@router.post("/schedule-lesson-plan")
+def update_schedule_lesson_plan(
+    data: ScheduleLessonPlanUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role("teacher", "admin")),
+):
+    """Cập nhật nội dung bài học hôm nay & nội dung buổi sau cho ca học và đồng bộ học sinh"""
+    schedule = db.query(ScheduleItem).filter(ScheduleItem.id == data.schedule_id).first()
+    if not schedule:
+        raise HTTPException(status_code=404, detail="Không tìm thấy ca học.")
+
+    schedule.lesson_content = data.lesson_content
+    schedule.next_lesson_plan = data.next_lesson_plan
+
+    if data.apply_to_all_students:
+        reports = db.query(SessionReport).filter(SessionReport.schedule_id == data.schedule_id).all()
+        for rep in reports:
+            rep.lesson_content = data.lesson_content
+            rep.next_lesson_plan = data.next_lesson_plan
+            rep.updated_at = datetime.utcnow()
+
+    db.commit()
+    return {
+        "status": "success",
+        "schedule_id": schedule.id,
+        "lesson_content": schedule.lesson_content,
+        "next_lesson_plan": schedule.next_lesson_plan
+    }
 
 
 @router.get("/session/schedule/{schedule_id}")

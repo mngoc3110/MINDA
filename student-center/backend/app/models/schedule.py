@@ -32,6 +32,9 @@ class ScheduleItem(Base):
     location = Column(String, nullable=True)
     color = Column(String, nullable=True) # Optional hex color for custom styling
     
+    lesson_content = Column(String, nullable=True)     # Nội dung bài học của ca học
+    next_lesson_plan = Column(String, nullable=True)   # Nội dung buổi học kế tiếp
+    
     created_at = Column(DateTime, default=datetime.utcnow)
 
     course = relationship("Course")
