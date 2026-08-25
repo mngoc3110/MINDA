@@ -1,12 +1,13 @@
 "use client";
 
-import { BrainCircuit, Mail, Lock, ArrowRight } from "lucide-react";
+import { BrainCircuit, Mail, Lock, ArrowRight, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -14,7 +15,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const formData = new URLSearchParams();
-      formData.append("username", email);
+      formData.append("username", email.trim().toLowerCase());
       formData.append("password", password);
       
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://minda.io.vn'}/api/auth/login`, {
@@ -38,10 +39,11 @@ export default function LoginPage() {
           window.location.href = "/dashboard";
         }
       } else {
-        alert("Tài khoản hoặc mật khẩu không đúng!");
+        const errData = await res.json().catch(() => null);
+        alert(errData?.detail || "Tài khoản hoặc mật khẩu không đúng!");
       }
     } catch (err) {
-      alert("Lỗi máy chủ.");
+      alert("Lỗi kết nối máy chủ. Vui lòng kiểm tra lại mạng!");
     } finally {
       setLoading(false);
     }
@@ -103,12 +105,20 @@ export default function LoginPage() {
                   <Lock className="w-5 h-5 text-text-muted" />
                 </div>
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-transparent border border-border-card rounded-xl focus:outline-none focus:border-indigo-500/50 focus:bg-bg-main transition-colors text-text-primary placeholder-gray-500"
+                  className="w-full pl-10 pr-11 py-3 bg-transparent border border-border-card rounded-xl focus:outline-none focus:border-indigo-500/50 focus:bg-bg-main transition-colors text-text-primary placeholder-gray-500"
                   placeholder="••••••••"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-text-secondary hover:text-text-primary transition"
+                  title={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
             </div>
 
