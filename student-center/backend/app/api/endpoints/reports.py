@@ -35,6 +35,8 @@ def init_report_columns():
 
 init_report_columns()
 
+router = APIRouter()
+
 # ─── Schemas ──────────────────────────────────────────────────────────────────
 
 class SessionReportCreate(BaseModel):
