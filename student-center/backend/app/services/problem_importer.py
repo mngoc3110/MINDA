@@ -8,6 +8,12 @@ import json
 from sqlalchemy.orm import Session
 from app.models.code_problem import CodeProblem, CodingExam
 
+BLANK_STARTER_CODE = {
+    "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    // Viết code giải bài toán tại đây\n    \n    return 0;\n}",
+    "python": "# Viết code giải bài toán tại đây\n\n",
+    "javascript": "// Viết code giải bài toán tại đây\n\n"
+}
+
 CURATED_PROBLEMS = [
     # ─── 1. TIN HỌC CƠ BẢN: NHẬP / XUẤT & TOÁN HỌC ──────────────────────────────
     {
@@ -38,14 +44,9 @@ Viết chương trình in ra màn hình dòng chữ `Hello, World!` chính xác 
         ],
         "hints": [
             "Trong C++ dùng `cout << \"Hello, World!\" << endl;`",
-            "Trong Python dùng `print(\"Hello, World!\")`",
-            "Trong JavaScript dùng `console.log(\"Hello, World!\");`"
+            "Trong Python dùng `print(\"Hello, World!\")`"
         ],
-        "starter_code": {
-            "python": "# In ra Hello, World!\nprint(\"Hello, World!\")\n",
-            "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"Hello, World!\" << endl;\n    return 0;\n}",
-            "javascript": "console.log(\"Hello, World!\");\n"
-        },
+        "starter_code": BLANK_STARTER_CODE,
         "test_cases": [
             {"input": "", "output": "Hello, World!\n", "is_hidden": False}
         ],
@@ -88,11 +89,7 @@ Cho hai số nguyên $a$ và $b$. Hãy tính và in ra tổng $a + b$.
             "Đọc vào hai biến $a$ và $b$ kiểu `long long` trong C++ để tránh tràn số.",
             "In ra `a + b`."
         ],
-        "starter_code": {
-            "python": "a, b = map(int, input().split())\nprint(a + b)\n",
-            "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    long long a, b;\n    if (cin >> a >> b) {\n        cout << a + b << endl;\n    }\n    return 0;\n}",
-            "javascript": "const fs = require('fs');\nconst input = fs.readFileSync(0, 'utf-8').trim().split(/\\s+/);\nif (input.length >= 2) {\n    console.log(BigInt(input[0]) + BigInt(input[1]));\n}\n"
-        },
+        "starter_code": BLANK_STARTER_CODE,
         "test_cases": [
             {"input": "3 5", "output": "8\n", "is_hidden": False},
             {"input": "-10 25", "output": "15\n", "is_hidden": False},
@@ -133,10 +130,7 @@ Cho bán kính $r$ của hình tròn. Hãy tính chu vi và diện tích của h
             }
         ],
         "hints": ["Sử dụng công thức `C = 2 * 3.14 * r` và `S = 3.14 * r * r`. Trong C++ dùng `fixed << setprecision(2)`."],
-        "starter_code": {
-            "cpp": "#include <iostream>\n#include <iomanip>\nusing namespace std;\n\nint main() {\n    double r;\n    if (cin >> r) {\n        double c = 2 * 3.14 * r;\n        double s = 3.14 * r * r;\n        cout << \"Chu vi la: \" << fixed << setprecision(2) << c << endl;\n        cout << \"Dien tich la: \" << fixed << setprecision(2) << s << endl;\n    }\n    return 0;\n}",
-            "python": "r = float(input())\nc = 2 * 3.14 * r\ns = 3.14 * r * r\nprint(f\"Chu vi la: {c:.2f}\")\nprint(f\"Dien tich la: {s:.2f}\")\n"
-        },
+        "starter_code": BLANK_STARTER_CODE,
         "test_cases": [
             {"input": "10", "output": "Chu vi la: 62.80\nDien tich la: 314.00\n", "is_hidden": False},
             {"input": "5.5", "output": "Chu vi la: 34.54\nDien tich la: 94.99\n", "is_hidden": True},
@@ -171,10 +165,7 @@ Nhập vào một số nguyên dương $N$ có đúng $4$ chữ số. Hãy tính
             }
         ],
         "hints": ["Dùng phép chia lấy dư `% 10` và chia nguyên `/ 10` để tách từng chữ số hàng nghìn, trăm, chục, đơn vị."],
-        "starter_code": {
-            "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int n;\n    if (cin >> n) {\n        int sum = (n / 1000) + (n / 100 % 10) + (n / 10 % 10) + (n % 10);\n        cout << sum << endl;\n    }\n    return 0;\n}",
-            "python": "n = int(input())\nprint(sum(int(c) for c in str(n)))\n"
-        },
+        "starter_code": BLANK_STARTER_CODE,
         "test_cases": [
             {"input": "2314", "output": "10\n", "is_hidden": False},
             {"input": "1111", "output": "4\n", "is_hidden": True},
@@ -214,10 +205,7 @@ Cho một mốc thời gian được đo bằng tổng số giây $s$. Hãy đ�
             }
         ],
         "hints": ["Giờ = `s / 3600`, Phút = `(s % 3600) / 60`, Giây = `s % 60`."],
-        "starter_code": {
-            "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    long long s;\n    if (cin >> s) {\n        long long h = s / 3600;\n        long long m = (s % 3600) / 60;\n        long long sec = s % 60;\n        cout << h << \" gio \" << m << \" phut \" << sec << \" giay\" << endl;\n    }\n    return 0;\n}",
-            "python": "s = int(input())\nh = s // 3600\nm = (s % 3600) // 60\nsec = s % 60\nprint(f\"{h} gio {m} phut {sec} giay\")\n"
-        },
+        "starter_code": BLANK_STARTER_CODE,
         "test_cases": [
             {"input": "3311", "output": "0 gio 55 phut 11 giay\n", "is_hidden": False},
             {"input": "4000", "output": "1 gio 6 phut 40 giay\n", "is_hidden": False},
@@ -257,10 +245,7 @@ $$a^2 = b^2 + c^2 \\implies a = \\sqrt{b^2 + c^2}$$
             }
         ],
         "hints": ["Sử dụng thư viện `<cmath>` với hàm `sqrt(b*b + c*c)`."],
-        "starter_code": {
-            "cpp": "#include <iostream>\n#include <cmath>\n#include <iomanip>\nusing namespace std;\n\nint main() {\n    double b, c;\n    if (cin >> b >> c) {\n        double a = sqrt(b * b + c * c);\n        cout << \"Do dai canh huyen la \" << fixed << setprecision(2) << a << endl;\n    }\n    return 0;\n}",
-            "python": "import math\nb, c = map(float, input().split())\na = math.sqrt(b*b + c*c)\nprint(f\"Do dai canh huyen la {a:.2f}\")\n"
-        },
+        "starter_code": BLANK_STARTER_CODE,
         "test_cases": [
             {"input": "3 4", "output": "Do dai canh huyen la 5.00\n", "is_hidden": False},
             {"input": "6 8", "output": "Do dai canh huyen la 10.00\n", "is_hidden": True},
@@ -300,10 +285,7 @@ $$S = \\sqrt{p(p - a)(p - b)(p - c)}$$
             }
         ],
         "hints": ["Tính nửa chu vi $p = (a + b + c) / 2$, sau đó tính $S = \\sqrt{p(p-a)(p-b)(p-c)}$."],
-        "starter_code": {
-            "cpp": "#include <iostream>\n#include <cmath>\n#include <iomanip>\nusing namespace std;\n\nint main() {\n    double a, b, c;\n    if (cin >> a >> b >> c) {\n        double p = (a + b + c) / 2.0;\n        double s = sqrt(p * (p - a) * (p - b) * (p - c));\n        cout << \"Chu vi la: \" << fixed << setprecision(2) << (a + b + c) << endl;\n        cout << \"Dien tich la: \" << fixed << setprecision(2) << s << endl;\n    }\n    return 0;\n}",
-            "python": "import math\na, b, c = map(float, input().split())\np = (a + b + c) / 2\ns = math.sqrt(p * (p - a) * (p - b) * (p - c))\nprint(f\"Chu vi la: {(a+b+c):.2f}\")\nprint(f\"Dien tich la: {s:.2f}\")\n"
-        },
+        "starter_code": BLANK_STARTER_CODE,
         "test_cases": [
             {"input": "3 4 5", "output": "Chu vi la: 12.00\nDien tich la: 6.00\n", "is_hidden": False},
             {"input": "6 8 10", "output": "Chu vi la: 24.00\nDien tich la: 24.00\n", "is_hidden": True}
@@ -341,10 +323,7 @@ Một ma trận được gọi là đối xứng chuẩn nếu số 1 nằm ở 
             }
         ],
         "hints": ["Khoảng cách Manhattan từ $(x, y)$ đến $(3, 3)$ là `abs(x - 3) + abs(y - 3)`."],
-        "starter_code": {
-            "cpp": "#include <iostream>\n#include <cmath>\nusing namespace std;\n\nint main() {\n    int x, y;\n    if (cin >> x >> y) {\n        cout << abs(x - 3) + abs(y - 3) << endl;\n    }\n    return 0;\n}",
-            "python": "x, y = map(int, input().split())\nprint(abs(x - 3) + abs(y - 3))\n"
-        },
+        "starter_code": BLANK_STARTER_CODE,
         "test_cases": [
             {"input": "2 5", "output": "3\n", "is_hidden": False},
             {"input": "3 3", "output": "0\n", "is_hidden": True},
@@ -387,10 +366,7 @@ $$a + b > c \\quad \\text{và} \\quad b + c > a \\quad \\text{và} \\quad c + a 
             }
         ],
         "hints": ["Sử dụng câu lệnh `if (a + b > c && a + c > b && b + c > a)`."],
-        "starter_code": {
-            "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    long long a, b, c;\n    if (cin >> a >> b >> c) {\n        if (a + b > c && a + c > b && b + c > a) cout << \"duoc\" << endl;\n        else cout << \"khong\" << endl;\n    }\n    return 0;\n}",
-            "python": "a, b, c = map(int, input().split())\nif a + b > c and a + c > b and b + c > a:\n    print(\"duoc\")\nelse:\n    print(\"khong\")\n"
-        },
+        "starter_code": BLANK_STARTER_CODE,
         "test_cases": [
             {"input": "3 4 5", "output": "duoc\n", "is_hidden": False},
             {"input": "2 2 5", "output": "khong\n", "is_hidden": False},
@@ -433,10 +409,7 @@ $$(r_1 + c_1) \\pmod 2 = (r_2 + c_2) \\pmod 2$$
             }
         ],
         "hints": ["So sánh `(r1 + c1) % 2 == (r2 + c2) % 2`."],
-        "starter_code": {
-            "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int r1, c1, r2, c2;\n    if (cin >> r1 >> c1 >> r2 >> c2) {\n        if ((r1 + c1) % 2 == (r2 + c2) % 2) cout << \"Trung mau\" << endl;\n        else cout << \"Khong trung mau\" << endl;\n    }\n    return 0;\n}",
-            "python": "r1, c1, r2, c2 = map(int, input().split())\nif (r1 + c1) % 2 == (r2 + c2) % 2:\n    print(\"Trung mau\")\nelse:\n    print(\"Khong trung mau\")\n"
-        },
+        "starter_code": BLANK_STARTER_CODE,
         "test_cases": [
             {"input": "1 1 3 3", "output": "Trung mau\n", "is_hidden": False},
             {"input": "3 5 4 1", "output": "Khong trung mau\n", "is_hidden": False}
@@ -483,10 +456,7 @@ Tiền điện được tính theo biểu giá lũy tiến bậc thang:
             }
         ],
         "hints": ["Tính lần lượt từng bậc: min(kw, 60), min(max(0, kw-60), 60), ..."],
-        "starter_code": {
-            "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    long long tn, tt;\n    if (cin >> tn >> tt) {\n        long long kw = tn - tt;\n        long long cost = 0;\n        if (kw <= 60) cost = kw * 1000;\n        else if (kw <= 120) cost = 60 * 1000 + (kw - 60) * 1200;\n        else if (kw <= 300) cost = 60 * 1000 + 60 * 1200 + (kw - 120) * 2000;\n        else cost = 60 * 1000 + 60 * 1200 + 180 * 2000 + (kw - 300) * 4000;\n        cout << kw << endl << cost << endl;\n    }\n    return 0;\n}",
-            "python": "tn, tt = map(int, input().split())\nkw = tn - tt\nif kw <= 60:\n    cost = kw * 1000\nelif kw <= 120:\n    cost = 60*1000 + (kw - 60)*1200\nelif kw <= 300:\n    cost = 60*1000 + 60*1200 + (kw - 120)*2000\nelse:\n    cost = 60*1000 + 60*1200 + 180*2000 + (kw - 300)*4000\nprint(kw)\nprint(cost)\n"
-        },
+        "starter_code": BLANK_STARTER_CODE,
         "test_cases": [
             {"input": "750 300", "output": "450\n1092000\n", "is_hidden": False},
             {"input": "600 500", "output": "100\n108000\n", "is_hidden": False},
@@ -525,10 +495,7 @@ Hỏi sau bao nhiêu năm nữa thì tuổi cha sẽ **gấp đôi** tuổi con?
             }
         ],
         "hints": ["Đặt phương trình $T_{cha} + x = 2(T_{con} + x) \\implies x = T_{cha} - 2 T_{con}$ hoặc dùng vòng lặp."],
-        "starter_code": {
-            "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int cha, con;\n    if (cin >> cha >> con) {\n        cout << cha - 2 * con << endl;\n    }\n    return 0;\n}",
-            "python": "cha, con = map(int, input().split())\nprint(cha - 2 * con)\n"
-        },
+        "starter_code": BLANK_STARTER_CODE,
         "test_cases": [
             {"input": "40 4", "output": "32\n", "is_hidden": False},
             {"input": "35 5", "output": "25\n", "is_hidden": True}
@@ -564,10 +531,7 @@ Một tờ giấy ban đầu có độ dày là $x$ mm. Mỗi lần gấp đôi 
             }
         ],
         "hints": ["Đổi $y$ ra mm: `target = y * 1000`. Dùng vòng lặp `while (x <= target)` nhân đôi $x$ và tăng biến đếm."],
-        "starter_code": {
-            "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    double x, y;\n    if (cin >> x >> y) {\n        double target = y * 1000.0;\n        int count = 0;\n        while (x <= target) {\n            x *= 2.0;\n            count++;\n        }\n        cout << count << endl;\n    }\n    return 0;\n}",
-            "python": "x, y = map(float, input().split())\ntarget = y * 1000\ncount = 0\nwhile x <= target:\n    x *= 2\n    count += 1\nprint(count)\n"
-        },
+        "starter_code": BLANK_STARTER_CODE,
         "test_cases": [
             {"input": "0.1 1", "output": "14\n", "is_hidden": False},
             {"input": "1 1", "output": "10\n", "is_hidden": True}
@@ -609,10 +573,7 @@ Ví dụ: $1, 2, 4, 8, 16, 32, 64, 128, \\dots$ là các số lũy thừa của 
             }
         ],
         "hints": ["Kiểm tra `(N > 0) && ((N & (N - 1)) == 0)` hoặc chia liên tục cho 2."],
-        "starter_code": {
-            "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    long long n;\n    if (cin >> n) {\n        if (n > 0 && (n & (n - 1)) == 0) cout << \"true\" << endl;\n        else cout << \"false\" << endl;\n    }\n    return 0;\n}",
-            "python": "n = int(input())\nif n > 0 and (n & (n - 1)) == 0:\n    print(\"true\")\nelse:\n    print(\"false\")\n"
-        },
+        "starter_code": BLANK_STARTER_CODE,
         "test_cases": [
             {"input": "128", "output": "true\n", "is_hidden": False},
             {"input": "1000", "output": "false\n", "is_hidden": False},
@@ -652,10 +613,7 @@ Biết ban đầu luôn có sẵn $1$ đơn vị độ dài. Với $K$ đơn v�
             }
         ],
         "hints": ["Đi ngược từ $K$ về 1: Nếu $K$ chẵn và $K > 1$, chia đôi tốn 4 NL. Nếu $K$ lẻ, trừ 1 tốn 2 NL."],
-        "starter_code": {
-            "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    long long k;\n    if (cin >> k) {\n        long long energy = 0;\n        while (k > 1) {\n            if (k % 2 == 0) {\n                k /= 2;\n                energy += 4;\n            } else {\n                k -= 1;\n                energy += 2;\n            }\n        }\n        cout << energy << endl;\n    }\n    return 0;\n}",
-            "python": "k = int(input())\nenergy = 0\nwhile k > 1:\n    if k % 2 == 0:\n        k //= 2\n        energy += 4\n    else:\n        k -= 1\n        energy += 2\nprint(energy)\n"
-        },
+        "starter_code": BLANK_STARTER_CODE,
         "test_cases": [
             {"input": "10", "output": "12\n", "is_hidden": False},
             {"input": "1", "output": "0\n", "is_hidden": True},
@@ -698,10 +656,7 @@ Ví dụ: $1234321$ là số đối xứng, còn $2345321$ không phải.
             }
         ],
         "hints": ["Đọc $N$ dưới dạng xâu ký tự và kiểm tra xâu đảo ngược."],
-        "starter_code": {
-            "cpp": "#include <iostream>\n#include <string>\n#include <algorithm>\nusing namespace std;\n\nint main() {\n    string s;\n    if (cin >> s) {\n        string rev = s;\n        reverse(rev.begin(), rev.end());\n        cout << (s == rev ? 1 : 0) << endl;\n    }\n    return 0;\n}",
-            "python": "s = input().strip()\nprint(1 if s == s[::-1] else 0)\n"
-        },
+        "starter_code": BLANK_STARTER_CODE,
         "test_cases": [
             {"input": "1234321", "output": "1\n", "is_hidden": False},
             {"input": "2345321", "output": "0\n", "is_hidden": False},
@@ -741,10 +696,7 @@ Cho số tự nhiên $n$ ($1 \\leq n \\leq 10$). Hãy tính và in ra giá trị
             }
         ],
         "hints": ["Tính lũy tích giai thừa và lũy thừa $i^i$ trong vòng lặp."],
-        "starter_code": {
-            "cpp": "#include <iostream>\n#include <cmath>\n#include <iomanip>\nusing namespace std;\n\nint main() {\n    int n;\n    if (cin >> n) {\n        long long s1 = 0, fact = 1;\n        long long s2 = 0;\n        double s3 = 0.0;\n        long long sum_i = 0;\n        for (int i = 1; i <= n; ++i) {\n            fact *= i;\n            s1 += fact;\n            long long p = 1;\n            for (int j = 1; j <= i; ++j) p *= i;\n            s2 += p;\n            sum_i += i;\n            s3 += 1.0 / sum_i;\n        }\n        cout << \"S1 = \" << s1 << endl;\n        cout << \"S2 = \" << s2 << endl;\n        cout << \"S3 = \" << fixed << setprecision(2) << s3 << endl;\n    }\n    return 0;\n}",
-            "python": "n = int(input())\ns1 = 0\nfact = 1\ns2 = 0\ns3 = 0.0\nsum_i = 0\nfor i in range(1, n + 1):\n    fact *= i\n    s1 += fact\n    s2 += i ** i\n    sum_i += i\n    s3 += 1.0 / sum_i\nprint(f\"S1 = {s1}\")\nprint(f\"S2 = {s2}\")\nprint(f\"S3 = {s3:.2f}\")\n"
-        },
+        "starter_code": BLANK_STARTER_CODE,
         "test_cases": [
             {"input": "4", "output": "S1 = 33\nS2 = 288\nS3 = 1.60\n", "is_hidden": False},
             {"input": "1", "output": "S1 = 1\nS2 = 1\nS3 = 1.00\n", "is_hidden": True}
@@ -786,10 +738,7 @@ Ví dụ với $n = 4$:
             }
         ],
         "hints": ["Phần tử tại hàng $i$, cột $j$ là `(i - 1 + j - 1) % n + 1`."],
-        "starter_code": {
-            "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int n;\n    if (cin >> n) {\n        for (int i = 1; i <= n; ++i) {\n            for (int j = 1; j <= n; ++j) {\n                int val = (i - 1 + j - 1) % n + 1;\n                cout << val << (j == n ? \"\" : \" \");\n            }\n            cout << endl;\n        }\n    }\n    return 0;\n}",
-            "python": "n = int(input())\nfor i in range(1, n + 1):\n    row = [(i - 1 + j - 1) % n + 1 for j in range(1, n + 1)]\n    print(\" \".join(map(str, row)))\n"
-        },
+        "starter_code": BLANK_STARTER_CODE,
         "test_cases": [
             {"input": "4", "output": "1 2 3 4\n2 3 4 1\n3 4 1 2\n4 1 2 3\n", "is_hidden": False},
             {"input": "2", "output": "1 2\n2 1\n", "is_hidden": True}
@@ -826,10 +775,7 @@ $$S = a^{b \\times c} + b^{a \\times c} - c^{a \\times b}$$
             }
         ],
         "hints": ["Viết hàm lũy thừa `power(base, exp)`."],
-        "starter_code": {
-            "cpp": "#include <iostream>\nusing namespace std;\n\nlong long power(long long base, long long exp) {\n    long long res = 1;\n    for (int i = 0; i < exp; ++i) res *= base;\n    return res;\n}\n\nint main() {\n    long long a, b, c;\n    if (cin >> a >> b >> c) {\n        long long s = power(a, b * c) + power(b, a * c) - power(c, a * b);\n        cout << s << endl;\n    }\n    return 0;\n}",
-            "python": "a, b, c = map(int, input().split())\ns = (a ** (b * c)) + (b ** (a * c)) - (c ** (a * b))\nprint(s)\n"
-        },
+        "starter_code": BLANK_STARTER_CODE,
         "test_cases": [
             {"input": "2 3 4", "output": "6561\n", "is_hidden": False},
             {"input": "1 1 1", "output": "1\n", "is_hidden": True}
@@ -870,10 +816,7 @@ Quy tắc vẽ tam giác cân rỗng chiều cao $h$:
             }
         ],
         "hints": ["Viết một hàm `draw_triangle(int h)`."],
-        "starter_code": {
-            "cpp": "#include <iostream>\n#include <vector>\nusing namespace std;\n\nvoid draw(int h) {\n    if (h == 1) { cout << \"*\\n\"; return; }\n    for (int j = 0; j < h - 1; ++j) cout << \" \";\n    cout << \"*\\n\";\n    for (int i = 2; i < h; ++i) {\n        for (int j = 0; j < h - i; ++j) cout << \" \";\n        cout << \"*\";\n        for (int j = 0; j < 2 * i - 3; ++j) cout << \" \";\n        cout << \"*\\n\";\n    }\n    for (int j = 0; j < 2 * h - 1; ++j) cout << \"*\";\n    cout << \"\\n\";\n}\n\nint main() {\n    int n;\n    if (cin >> n) {\n        for (int i = 0; i < n; ++i) {\n            int h; cin >> h;\n            draw(h);\n            if (i < n - 1) cout << \"\\n\";\n        }\n    }\n    return 0;\n}",
-            "python": "def draw(h):\n    if h == 1:\n        print(\"*\")\n        return\n    print(\" \" * (h - 1) + \"*\")\n    for i in range(2, h):\n        print(\" \" * (h - i) + \"*\" + \" \" * (2 * i - 3) + \"*\")\n    print(\"*\" * (2 * h - 1))\n\nn = int(input())\narr = list(map(int, input().split()))\nfor idx, h in enumerate(arr):\n    draw(h)\n    if idx < n - 1:\n        print()\n"
-        },
+        "starter_code": BLANK_STARTER_CODE,
         "test_cases": [
             {"input": "4\n3 2 1 4", "output": "  *\n * *\n*****\n\n *\n***\n\n*\n\n   *\n  * *\n *   *\n*******\n", "is_hidden": False}
         ],

@@ -91,9 +91,9 @@ export default function CodingExamRunnerPage() {
           const initialCodes: Record<number, Record<string, string>> = {};
           (data.problems || []).forEach((p: any) => {
             initialCodes[p.id] = {
-              cpp: p.starter_code?.cpp || `#include <iostream>\nusing namespace std;\n\nint main() {\n    // Code giải bài toán ${p.title}\n    \n    return 0;\n}`,
-              python: p.starter_code?.python || `# Code Python giải bài toán ${p.title}\n\n`,
-              javascript: p.starter_code?.javascript || `// Code JavaScript giải bài toán ${p.title}\n\n`
+              cpp: p.starter_code?.cpp || `#include <iostream>\nusing namespace std;\n\nint main() {\n    // Viết code giải bài toán tại đây\n    \n    return 0;\n}`,
+              python: p.starter_code?.python || `# Viết code giải bài toán tại đây\n\n`,
+              javascript: p.starter_code?.javascript || `// Viết code giải bài toán tại đây\n\n`
             };
           });
           setCodes(initialCodes);
