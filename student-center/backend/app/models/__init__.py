@@ -2,6 +2,9 @@
 from app.models.user import User, UserRole
 from app.models.course import Course, Enrollment, CourseChapter, Lesson, LessonProgress
 from app.models.assignment import Assignment, AssignmentSubmission
+from app.models.assignment_folder import AssignmentFolder
+from app.models.honor import HonorBoard
+from app.models.testimonial import Testimonial
 from app.models.emotion import EmotionLog
 from app.models.exam import Exam, ExamQuestion, ExamSubmission
 from app.models.file import FileItem
