@@ -1,0 +1,462 @@
+\documentclass[11pt,a4paper]{article}
+
+% ─── PACKAGES & ENCODING ───────────────────────────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage[vietnamese]{babel}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{geometry}
+\geometry{a4paper, total={175mm,257mm}, left=18mm, right=18mm, top=20mm, bottom=20mm}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=indigo,
+    filecolor=magenta,      
+    urlcolor=teal,
+    citecolor=blue,
+    pdftitle={Cam Nang Cu Phap & Co Che Lap Trinh Thi Dau C++},
+    pdfpagemode=FullScreen,
+}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+\usepackage{booktabs}
+\usepackage{microtype}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{enumitem}
+
+% ─── COLOR PALETTE ─────────────────────────────────────────────────────────────
+\definecolor{codegreen}{rgb}{0.13,0.55,0.13}
+\definecolor{codegray}{rgb}{0.45,0.45,0.45}
+\definecolor{codepurple}{rgb}{0.55,0.0,0.6}
+\definecolor{backcolour}{rgb}{0.97,0.97,0.99}
+\definecolor{bordercolour}{rgb}{0.85,0.88,0.95}
+\definecolor{indigo}{rgb}{0.29, 0.0, 0.51}
+\definecolor{deepblue}{rgb}{0.08, 0.28, 0.52}
+\definecolor{darkamber}{rgb}{0.75, 0.45, 0.0}
+
+% ─── LISTINGS CONFIGURATION FOR C++ ───────────────────────────────────────────
+\lstdefinestyle{cppstyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen}\itshape,
+    keywordstyle=\color{deepblue}\bfseries,
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=7pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=4,
+    frame=single,
+    framerule=0.6pt,
+    rulecolor=\color{bordercolour},
+    xleftmargin=12pt,
+    framexleftmargin=8pt
+}
+\lstset{style=cppstyle}
+
+% ─── CUSTOM BOXES (TCOLORBOX) ──────────────────────────────────────────────────
+\newtcolorbox{conceptbox}[2][]{
+    enhanced,
+    breakable,
+    colback=blue!3!white,
+    colframe=deepblue,
+    coltitle=white,
+    fonttitle=\bfseries\sffamily,
+    title={#2},
+    sharp corners=downhill,
+    arc=4mm,
+    boxrule=0.9pt,
+    #1
+}
+
+\newtcolorbox{warningbox}[2][]{
+    enhanced,
+    breakable,
+    colback=red!3!white,
+    colframe=red!70!black,
+    coltitle=white,
+    fonttitle=\bfseries\sffamily,
+    title={#2},
+    sharp corners=downhill,
+    arc=4mm,
+    boxrule=0.9pt,
+    #1
+}
+
+\newtcolorbox{tipbox}[2][]{
+    enhanced,
+    breakable,
+    colback=emerald!3!white,
+    colframe=teal!70!black,
+    coltitle=white,
+    fonttitle=\bfseries\sffamily,
+    title={#2},
+    sharp corners=downhill,
+    arc=4mm,
+    boxrule=0.9pt,
+    #1
+}
+
+% ─── HEADER & FOOTER ───────────────────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textsf{\small \textbf{MINDA Academic}} | Cẩm Nang Cú Pháp \& Cơ Chế C++ Thi Đấu}
+\fancyhead[R]{\textsf{\small Chuyên Tin \& Lập Trình Thi Đấu}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.5pt}
+
+% ─── DOCUMENT START ───────────────────────────────────────────────────────────
+\begin{document}
+
+\begin{center}
+    {\LARGE \textbf{\textsf{CẨM NANG TOÀN DIỆN VỀ CÚ PHÁP \& CƠ CHẾ C++}}}\\[4pt]
+    {\Large \textbf{\textsf{DÀNH CHO HỌC SINH CHUYÊN TIN \& LẬP TRÌNH THI ĐẤU (CP)}}}\\[8pt]
+    {\normalsize \textsf{Tác giả: \textbf{MINDA Learning Systems} | Dành cho HSG Tin Học 8, Chuyên Tin \& Olympic}}\\[12pt]
+    \rule{\linewidth}{1pt}
+\end{center}
+
+\tableofcontents
+\vspace{10pt}
+\rule{\linewidth}{0.5pt}
+\vspace{15pt}
+
+% ═══════════════════════════════════════════════════════════════════════════════
+\section{Tối Ưu Hóa Nhập/Xuất \& Cơ Chế Đệm (Fast I/O \& Buffer Flush)}
+% ═══════════════════════════════════════════════════════════════════════════════
+
+Trong các kỳ thi lập trình (HSG, VNOI, VOI, Codeforces), khối lượng dữ liệu đầu vào và đầu ra thường lên đến $10^5 - 10^6$ số hoặc dòng. Việc không hiểu rõ cơ chế đệm (I/O Buffer) là nguyên nhân hàng đầu khiến thuật toán có độ phức tạp đúng nhưng vẫn bị \textbf{Time Limit Exceeded (TLE)}.
+
+\subsection{Khái Niệm Bộ Đệm (Buffer) \& Lệnh Flush Là Gì?}
+
+\begin{conceptbox}{Cơ chế hoạt động của I/O Buffer trong Hệ Điều Hành}
+    \begin{itemize}[leftmargin=*]
+        \item \textbf{I/O Buffer (Bộ nhớ đệm):} Nhập/xuất trực tiếp ra màn hình console hoặc file đĩa cứng là một thao tác phần cứng rất chậm (tốn hàng ngàn chu kỳ CPU vì cần chuyển quyền kiểm soát từ \textit{User Space} sang \textit{Kernel Space} thông qua \textit{System Call} \texttt{write()}).
+        \item Để tối ưu, thư viện C++ gom các dữ liệu cần in vào một vùng nhớ tạm trên RAM gọi là \textbf{Output Buffer} (thường có kích thước 4KB hoặc 8KB). Khi buffer này bị đầy, hệ điều hành mới xả toàn bộ dữ liệu ra màn hình/file một lần duy nhất.
+        \item \textbf{Flush Buffer:} Là hành động \textbf{ép buộc} hệ điều hành phải đẩy dữ liệu hiện có trong buffer ra đĩa/màn hình ngay lập tức, bất kể buffer đã đầy hay chưa.
+    \end{itemize}
+\end{conceptbox}
+
+\subsection{Tại Sao \texttt{std::endl} Lại Gây Ra Lỗi TLE?}
+
+Rất nhiều bạn có thói quen viết: \texttt{cout << ans << endl;}. 
+Bản chất trong thư viện C++:
+$$\texttt{std::endl} \equiv \texttt{'\textbackslash n'} + \texttt{std::flush};$$
+
+Nếu bài toán yêu cầu in ra $10^5$ dòng kết quả:
+\begin{itemize}
+    \item Dùng \texttt{'\textbackslash n'}: Dữ liệu được lưu trong RAM buffer, chỉ xả đĩa khoảng $\approx 20 - 30$ lần. Thời gian thực thi: $\approx 0.02$ giây.
+    \item Dùng \texttt{endl}: Bạn kích hoạt \textbf{$100.000$ lần system call \texttt{flush()}}. CPU liên tục bị ngắt quãng. Thời gian thực thi tăng vọt lên: $\approx 1.5 - 2.5$ giây $\to$ \textbf{Bị TLE oan uổng!}
+\end{itemize}
+
+\subsection{Bộ 3 Lệnh Thần Thánh: \texttt{sync\_with\_stdio} \& \texttt{cin.tie}}
+
+\begin{lstlisting}[language=C++]
+void setupFastIO() {
+    // 1. Ngat dong bo giua C++ stream (cin/cout) va C stream (scanf/printf)
+    ios_base::sync_with_stdio(false);
+    
+    // 2. Huy lien ket tu dong giua cin va cout
+    cin.tie(NULL);
+    cout.tie(NULL);
+}
+\end{lstlisting}
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{\texttt{sync\_with\_stdio(false)}:} Mặc định C++ đồng bộ luồng \texttt{cin/cout} với \texttt{scanf/printf} để lập trình viên có thể dùng lẫn lộn cả hai. Việc duy trì tính đồng bộ này tốn rất nhiều thời gian quản lý con trỏ đệm. Khi tắt đi, tốc độ \texttt{cin/cout} sẽ nhanh ngang ngửa hoặc vượt \texttt{scanf/printf}. (\textit{Lưu ý: Sau khi tắt, không được dùng lẫn \texttt{printf/scanf} trong cùng chương trình}).
+    \item \textbf{\texttt{cin.tie(NULL)}:} Mặc định, mỗi khi gọi \texttt{cin}, C++ sẽ tự động flush \texttt{cout} để đảm bảo màn hình đã in hết các dòng nhắc lệnh (prompt). Trong lập trình thi đấu, máy chấm chỉ so khớp output cuối cùng nên việc flush này là hoàn toàn dư thừa.
+\end{itemize}
+
+\subsection{Xử Lý Đọc/Ghi File Chuẩn Đề Thi (\texttt{.INP} / \texttt{.OUT})}
+
+\begin{lstlisting}[language=C++]
+#define TASK "BAI1"
+
+void setupFile() {
+    #ifndef ONLINE_JUDGE
+        if (fopen(TASK ".INP", "r")) {
+            freopen(TASK ".INP", "r", stdin);
+            freopen(TASK ".OUT", "w", stdout);
+        }
+    #endif
+}
+\end{lstlisting}
+Đoạn mã trên tự động kiểm tra nếu có file \texttt{BAI1.INP} trong thư mục thì chuyển hướng luồng đọc từ file, còn khi nộp lên các trang Online Judge (như Codeforces/VNOI) thì tự động dùng bàn phím chuẩn \texttt{stdin/stdout}.
+
+\vspace{15pt}
+% ═══════════════════════════════════════════════════════════════════════════════
+\section{Kiểu Dữ Liệu, Tràn Số \& Khái Niệm Sai Số Epsilon ($\epsilon$)}
+% ═══════════════════════════════════════════════════════════════════════════════
+
+\subsection{Các Kiểu Số Nguyên \& Giới Hạn Bộ Nhớ}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llcc@{}}
+\toprule
+\textbf{Kiểu dữ liệu} & \textbf{Kích thước} & \textbf{Miền giá trị (Xấp xỉ)} & \textbf{Ứng dụng trong thi đấu} \\ \midrule
+\texttt{int} & 32-bit (4 bytes) & $[-2.14 \times 10^9, 2.14 \times 10^9]$ & Đếm, chỉ số mảng, giá trị $\le 10^9$ \\
+\texttt{long long} & 64-bit (8 bytes) & $[-9.22 \times 10^{18}, 9.22 \times 10^{18}]$ & Tính tổng, tích, khoảng cách, quy hoạch động \\
+\texttt{\_\_int128\_t} & 128-bit (16 bytes) & $\approx [-1.7 \times 10^{38}, 1.7 \times 10^{38}]$ & Nhân 2 số 64-bit tránh tràn trước khi modulo \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\begin{warningbox}{Lỗi Tràn Số Trung Gian (Implicit Intermediate Overflow)}
+    Xét đoạn mã sau:
+\begin{lstlisting}[language=C++]
+int a = 1000000;
+int b = 1000000;
+long long c = a * b; // SAI! a * b tinh theo kieu int (bi tran so truoc khi gan vao c)
+\end{lstlisting}
+    \textbf{Cách sửa chuẩn:} Bắt buộc ép kiểu toán hạng sang 64-bit bằng hằng số \texttt{1LL}:
+\begin{lstlisting}[language=C++]
+long long c = 1LL * a * b; // DUNG! 1LL ep phep nhan tinh toan o kieu long long
+\end{lstlisting}
+\end{warningbox}
+
+\subsection{Số Thực Chuẩn IEEE 754 \& Khái Niệm Sai Số Epsilon ($\epsilon$)}
+
+\begin{conceptbox}{Bản chất số thực trong máy tính \& Tại sao $0.1 + 0.2 \neq 0.3$?}
+    \begin{itemize}[leftmargin=*]
+        \item Máy tính lưu trữ số thực bằng hệ nhị phân (chuẩn IEEE 754). Nhiều phân số thập phân quen thuộc (như $0.1 = \frac{1}{10}$) khi đổi sang hệ nhị phân sẽ trở thành \textbf{số tuần hoàn vô hạn}:
+        $$0.1_{10} = 0.0001100110011..._2$$
+        \item Do số bit lưu trữ có hạn (53 bit phần định trị với \texttt{double}), số bị cắt cụt dẫn đến sai số làm tròn (\textit{round-off error}).
+        \item Vì vậy, trong C++, biểu thức \texttt{(0.1 + 0.2 == 0.3)} sẽ trả về \textbf{\texttt{false}}!
+    \end{itemize}
+\end{conceptbox}
+
+\subsubsection{Quy Tắc So Sánh Số Thực Bằng Epsilon ($\epsilon$)}
+
+\textbf{Epsilon ($\epsilon$)} là một hằng số cực nhỏ (thường chọn $\epsilon = 10^{-9}$), biểu thị ngưỡng sai số có thể chấp nhận được.
+
+\begin{lstlisting}[language=C++]
+const double EPS = 1e-9;
+
+// 1. Kiem tra a bang b (a == b)
+bool isEqual(double a, double b) {
+    return abs(a - b) < EPS;
+}
+
+// 2. Kiem tra a lon hon b (a > b)
+bool isGreater(double a, double b) {
+    return a > b + EPS;
+}
+
+// 3. Kiem tra a nho hon hoac bang b (a <= b)
+bool isLessOrEqual(double a, double b) {
+    return a < b + EPS;
+}
+\end{lstlisting}
+
+\subsubsection{Định Dạng In Số Thực Đúng Chuẩn}
+Để in số thực với đúng $k$ chữ số sau dấu phẩy (không bị hiển thị dạng khoa học $1.23e+06$):
+\begin{lstlisting}[language=C++]
+#include <iomanip>
+cout << fixed << setprecision(2) << ans << '\n'; // In 2 chu so thap phan
+\end{lstlisting}
+
+\vspace{15pt}
+% ═══════════════════════════════════════════════════════════════════════════════
+\section{Đại Số Modulo \& Phép Chia Trong Trường Thặng Dư $\mathbb{Z}_p$}
+% ═══════════════════════════════════════════════════════════════════════════════
+
+Modulo ($a \pmod m$) là phép toán lấy phần dư của phép chia nguyên $a$ cho $m$. Hầu hết các bài toán đếm tổ hợp yêu cầu kết quả theo modulo $10^9 + 7$ hoặc $998244353$.
+
+\subsection{Các Tính Chất Cơ Bản Của Phép Modulo}
+\begin{enumerate}
+    \item $(a + b) \pmod m = ((a \pmod m) + (b \pmod m)) \pmod m$
+    \item $(a - b) \pmod m = ((a \pmod m) - (b \pmod m) + m) \pmod m$ \quad (\textit{Cộng thêm $m$ để chống kết quả âm trong C++})
+    \item $(a \times b) \pmod m = ((a \pmod m) \times (b \pmod m)) \pmod m$
+    \item \textbf{CẢNH BÁO:} Phép chia \textbf{KHÔNG} có tính chất phân phối: $(a / b) \pmod m \neq ((a \pmod m) / (b \pmod m)) \pmod m$.
+\end{enumerate}
+
+\subsection{Phép Chia Modulo \& Nghịch Đảo Nhân (Modular Inverse)}
+
+Để tính $\frac{a}{b} \pmod m$, ta chuyển phép chia thành phép nhân với \textbf{nghịch đảo modulo}:
+$$\frac{a}{b} \pmod m \iff a \times b^{-1} \pmod m$$
+
+\begin{conceptbox}{Định Lý Nhỏ Fermat (Fermat's Little Theorem)}
+    Nếu $m$ là một số nguyên tố và $b$ không chia hết cho $m$, thì:
+    $$b^{m-1} \equiv 1 \pmod m \implies b \times b^{m-2} \equiv 1 \pmod m$$
+    Do đó, nghịch đảo modulo của $b$ theo modulo nguyên tố $m$ chính là:
+    $$\mathbf{b^{-1} \equiv b^{m-2} \pmod m}$$
+\end{conceptbox}
+
+\subsection{Cài Đặt Bộ Hàm Toán Modulo Chuẩn Mực}
+
+\begin{lstlisting}[language=C++]
+const int MOD = 1e9 + 7;
+
+// Cong modulo
+int add(int a, int b) { 
+    return (a + b >= MOD) ? (a + b - MOD) : (a + b); 
+}
+
+// Tru modulo (chong so am)
+int sub(int a, int b) { 
+    return (a - b < 0) ? (a - b + MOD) : (a - b); 
+}
+
+// Nhan modulo (chong tran 64-bit)
+int mul(int a, int b) { 
+    return (1LL * a * b) % MOD; 
+}
+
+// Luy thua nhi phan nhanh a^b % MOD trong O(log b)
+long long power(long long a, long long b) {
+    long long res = 1;
+    a %= MOD;
+    while (b > 0) {
+        if (b & 1) res = (1LL * res * a) % MOD;
+        a = (1LL * a * a) % MOD;
+        b >>= 1;
+    }
+    return res;
+}
+
+// Chia modulo: a / b % MOD
+long long divMod(long long a, long long b) {
+    return mul(a, power(b, MOD - 2));
+}
+\end{lstlisting}
+
+\vspace{15pt}
+% ═══════════════════════════════════════════════════════════════════════════════
+\section{Phân Bổ Bộ Nhớ (Stack vs Data Segment) \& Mẹo Tối Ưu RAM}
+% ═══════════════════════════════════════════════════════════════════════════════
+
+\begin{figure}[h!]
+\centering
+\begin{conceptbox}{Bố Cục Bộ Nhớ Của Tiến Trình C++ (Process Memory Layout)}
+    \begin{itemize}
+        \item \textbf{Stack Segment:} Lưu trữ các biến cục bộ trong hàm, tham số truyền vào hàm và lời gọi đệ quy. Dung lượng mặc định rất nhỏ (thường chỉ \textbf{8MB}).
+        \item \textbf{BSS / Data Segment (Bộ nhớ toàn cục):} Lưu trữ các biến và mảng toàn cục (\textit{Global Scope}). Dung lượng có thể chiếm trọn bộ nhớ RAM được cấp cho bài thi (ví dụ \textbf{256MB - 512MB}).
+        \item \textbf{Heap Segment:} Cấp phát động (\texttt{new}, \texttt{malloc}, \texttt{std::vector}).
+    \end{itemize}
+\end{conceptbox}
+\end{figure}
+
+\begin{warningbox}{Lỗi Tràn Ngăn Xếp (Stack Overflow / SIGSEGV)}
+    Nếu khai báo mảng $10^6$ phần tử bên trong hàm \texttt{main()}:
+\begin{lstlisting}[language=C++]
+int main() {
+    int a[1000000]; // 4MB - Rất dễ làm tràn Stack nếu có thêm đệ quy -> CRASH ngay khi chạy!
+}
+\end{lstlisting}
+    \textbf{Quy tắc vàng:} Mọi mảng có kích thước $> 10^5$ \textbf{BẮT BUỘC} phải khai báo toàn cục (Global Scope) bên ngoài hàm \texttt{main()}!
+\end{warningbox}
+
+\subsection{Kỹ Thuật Padding Mảng \& Cấu Trúc \texttt{std::bitset}}
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Padding mảng (\texttt{MAXN + 7}):} Khi làm việc với mảng 1-indexed (từ $1$ đến $N$), luôn cộng thêm $5$ đến $7$ phần tử để tránh lỗi truy cập tràn biên (\textit{Out of bounds}):
+    \begin{lstlisting}[language=C++]
+    const int MAXN = 1e6 + 7;
+    int a[MAXN]; // Khai bao toan cuc, tu dong khoi tao gia tri 0
+    \end{lstlisting}
+    \item \textbf{\texttt{std::bitset} - Tiết kiệm $8\times$ RAM:} Kiểu \texttt{bool} trong C++ chiếm 1 byte ($8$ bits) cho mỗi phần tử. Trong khi đó, \texttt{std::bitset} nén mỗi trạng thái boolean thành đúng $1$ bit:
+    \begin{lstlisting}[language=C++]
+    bitset<100000000> is_prime; // Sang nguyen to den 10^8 chi ton ~12 MB RAM thay vi 100 MB!
+    \end{lstlisting}
+\end{enumerate}
+
+\vspace{15pt}
+% ═══════════════════════════════════════════════════════════════════════════════
+\section{Các Hàm Tích Hợp Phần Cứng \& STL Tối Ưu Tốc Độ}
+% ═══════════════════════════════════════════════════════════════════════════════
+
+\subsection{Hàm Thao Tác Bit Tối Ưu Bằng Chỉ Thị Phần Cứng (GCC Built-ins)}
+Các hàm này được trình biên dịch dịch trực tiếp thành \textbf{1 lệnh CPU duy nhất} ($\mathcal{O}(1)$):
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Hàm C++} & \textbf{Ý nghĩa} & \textbf{Ví dụ} \\ \midrule
+\texttt{\_\_builtin\_popcount(x)} & Đếm số lượng bit 1 của số 32-bit & $\texttt{\_\_builtin\_popcount}(13) = 3$ ($13 = 1101_2$) \\
+\texttt{\_\_builtin\_popcountll(x)} & Đếm số lượng bit 1 của số 64-bit & Dùng cho biến \texttt{long long} \\
+\texttt{\_\_builtin\_clz(x)} & Đếm số bit 0 liên tiếp ở đầu (\textit{leading zeros}) & Dùng tính $\lfloor \log_2(x) \rfloor = 31 - \texttt{\_\_builtin\_clz}(x)$ \\
+\texttt{\_\_builtin\_ctz(x)} & Đếm số bit 0 liên tiếp ở cuối (\textit{trailing zeros}) & Dùng tìm vị trí bit 1 nhỏ nhất ($2^k$) \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Tìm Kiếm Nhị Phân Trong Mảng Đã Sắp Xếp}
+\begin{itemize}
+    \item \texttt{lower\_bound(a, a + n, x)}: Trả về con trỏ/iterator tới phần tử đầu tiên $\ge x$.
+    \item \texttt{upper\_bound(a, a + n, x)}: Trả về con trỏ/iterator tới phần tử đầu tiên $> x$.
+    \item Số lượng phần tử có giá trị bằng $x$ trong đoạn: \texttt{upper\_bound(...) - lower\_bound(...)}.
+\end{itemize}
+
+\vspace{15pt}
+% ═══════════════════════════════════════════════════════════════════════════════
+\section{Khung Mã Nguồn C++ Chuẩn Dành Cho Thi Đấu}
+% ═══════════════════════════════════════════════════════════════════════════════
+
+\begin{lstlisting}[language=C++, caption={Competitive Programming Master Template}]
+/**
+ * Author: MINDA Competitive Programming Handbook
+ * Task:   Standard Multi-Purpose CP Template
+ */
+#include <bits/stdc++.h>
+using namespace std;
+
+// ─── MACROS & SHORTHANDS ───────────────────────────────────────────
+#define TASK        "PROBLEM"
+#define all(x)      (x).begin(), (x).end()
+#define sz(x)       (int)((x).size())
+#define fi          first
+#define se          second
+#define pb          push_back
+#define FOR(i,a,b)  for (int i = (a); i <= (b); ++i)
+#define FOD(i,a,b)  for (int i = (a); i >= (b); --i)
+
+typedef long long ll;
+typedef pair<int, int> pii;
+typedef vector<int> vi;
+
+const int INF = 1e9 + 7;
+const ll  LINF = 1e18 + 7;
+const int MOD = 1e9 + 7;
+const double EPS = 1e-9;
+
+// ─── FAST I/O & FILE REDIRECTION ──────────────────────────────────
+void setupIO() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
+
+    #ifndef ONLINE_JUDGE
+        if (fopen(TASK ".INP", "r")) {
+            freopen(TASK ".INP", "r", stdin);
+            freopen(TASK ".OUT", "w", stdout);
+        }
+    #endif
+}
+
+// ─── MAIN ALGORITHM SOLVER ────────────────────────────────────────
+void solve() {
+    // Viet thuat toan giai quyet tai day
+    
+}
+
+int main() {
+    setupIO();
+
+    int testCount = 1;
+    // cin >> testCount; // Mo comment neu bai toan co nhieu test cases
+    while (testCount--) {
+        solve();
+    }
+
+    return 0;
+}
+\end{lstlisting}
+
+\end{document}

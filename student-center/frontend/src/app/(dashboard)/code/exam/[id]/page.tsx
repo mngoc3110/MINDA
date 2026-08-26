@@ -301,6 +301,17 @@ export default function CodingExamRunnerPage() {
 
         {/* Right Stats & Timer */}
         <div className="flex items-center gap-3">
+          {/* Cẩm Nang C++ Button */}
+          <a
+            href="/competitive_programming_handbook.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/25 text-indigo-600 dark:text-indigo-300 text-xs font-bold transition"
+            title="Mở cẩm nang cú pháp & cơ chế C++"
+          >
+            <BookOpen className="w-3.5 h-3.5" /> <span>Cẩm Nang C++ (PDF)</span>
+          </a>
+
           {/* Progress badge */}
           <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-bg-main border border-border-card text-xs">
             <Trophy className="w-4 h-4 text-amber-500" />

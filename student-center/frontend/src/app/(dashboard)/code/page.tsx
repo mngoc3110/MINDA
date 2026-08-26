@@ -586,6 +586,38 @@ export default function CodePage() {
         {/* ══════════════ TAB 2: ĐỀ THI & KỲ THI LẬP TRÌNH ══════════════ */}
         {viewTab === "exams" && (
           <div className="space-y-6">
+            {/* Cẩm Nang Lập Trình Thi Đấu PDF Banner */}
+            <div className="p-6 rounded-3xl bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10 border border-indigo-500/30 flex flex-col md:flex-row items-start md:items-center justify-between gap-5 shadow-sm">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-indigo-600/15 border border-indigo-500/30 flex items-center justify-center shrink-0 text-2xl shadow-inner">
+                  📘
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
+                      TÀI LIỆU ÔN THI CHUYÊN TIN
+                    </span>
+                    <span className="text-xs text-text-muted">7 Trang PDF Học Thuật</span>
+                  </div>
+                  <h3 className="text-base font-bold text-text-primary mb-1">
+                    Cẩm Nang Cú Pháp & Cơ Chế Lập Trình Thi Đấu C++
+                  </h3>
+                  <p className="text-xs text-text-secondary leading-relaxed max-w-2xl">
+                    Hướng dẫn toàn diện về <strong>Fast I/O & Xử lý Flush Buffer</strong>, <strong>Sai số Epsilon ($\epsilon$) cho số thực</strong>, <strong>Nghịch đảo nhân Modulo</strong>, <strong>Quản lý Stack/RAM chống tràn</strong> và các chỉ thị phần cứng GCC Built-ins. Đọc kỹ trước khi bắt đầu làm bài thi!
+                  </p>
+                </div>
+              </div>
+
+              <a
+                href="/competitive_programming_handbook.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white text-xs font-bold shadow-md shadow-indigo-600/25 flex items-center gap-2 shrink-0 transition"
+              >
+                <BookOpen className="w-4 h-4" /> Đọc Cẩm Nang PDF →
+              </a>
+            </div>
+
             {loadingExams ? (
               <div className="p-12 text-center text-text-muted text-sm">
                 Đang nạp danh sách đề thi lập trình...

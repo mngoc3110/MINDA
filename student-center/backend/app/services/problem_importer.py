@@ -1,7 +1,7 @@
 """
 Importer Service: Crawls and parses programming problemsets into MINDA PostgreSQL database.
 Chuẩn hóa chi tiết đề bài theo chuẩn VNOI / LeetCode / Codeforces.
-Tích hợp Đề thi HSG Tin 8 từ thư mục coding-problem/.
+Tích hợp Đề thi HSG Tin 8 từ thư mục coding-problem/ với bộ Test Cases Lập Trình Thi Đấu chuẩn mực.
 """
 import re
 import json
@@ -43,7 +43,7 @@ Viết chương trình in ra màn hình dòng chữ `Hello, World!` chính xác 
             }
         ],
         "hints": [
-            "Trong C++ dùng `cout << \"Hello, World!\" << endl;`",
+            "Trong C++ dùng `cout << \"Hello, World!\" << '\\n';`",
             "Trong Python dùng `print(\"Hello, World!\")`"
         ],
         "starter_code": BLANK_STARTER_CODE,
@@ -94,6 +94,7 @@ Cho hai số nguyên $a$ và $b$. Hãy tính và in ra tổng $a + b$.
             {"input": "3 5", "output": "8\n", "is_hidden": False},
             {"input": "-10 25", "output": "15\n", "is_hidden": False},
             {"input": "1000000000 1000000000", "output": "2000000000\n", "is_hidden": True},
+            {"input": "-1000000000 -1000000000", "output": "-2000000000\n", "is_hidden": True},
             {"input": "0 0", "output": "0\n", "is_hidden": True}
         ],
         "source": "MINDA Code"
@@ -133,8 +134,10 @@ Cho bán kính $r$ của hình tròn. Hãy tính chu vi và diện tích của h
         "starter_code": BLANK_STARTER_CODE,
         "test_cases": [
             {"input": "10", "output": "Chu vi la: 62.80\nDien tich la: 314.00\n", "is_hidden": False},
+            {"input": "1", "output": "Chu vi la: 6.28\nDien tich la: 3.14\n", "is_hidden": True},
             {"input": "5.5", "output": "Chu vi la: 34.54\nDien tich la: 94.99\n", "is_hidden": True},
-            {"input": "1", "output": "Chu vi la: 6.28\nDien tich la: 3.14\n", "is_hidden": True}
+            {"input": "12.34", "output": "Chu vi la: 77.50\nDien tich la: 478.14\n", "is_hidden": True},
+            {"input": "10000", "output": "Chu vi la: 62800.00\nDien tich la: 314000000.00\n", "is_hidden": True}
         ],
         "source": "Đề Luyện Thi HSG Tin 8 - Level 01"
     },
@@ -168,7 +171,10 @@ Nhập vào một số nguyên dương $N$ có đúng $4$ chữ số. Hãy tính
         "starter_code": BLANK_STARTER_CODE,
         "test_cases": [
             {"input": "2314", "output": "10\n", "is_hidden": False},
+            {"input": "1000", "output": "1\n", "is_hidden": True},
             {"input": "1111", "output": "4\n", "is_hidden": True},
+            {"input": "5005", "output": "10\n", "is_hidden": True},
+            {"input": "9090", "output": "18\n", "is_hidden": True},
             {"input": "9999", "output": "36\n", "is_hidden": True}
         ],
         "source": "Đề Luyện Thi HSG Tin 8 - Level 01"
@@ -209,7 +215,10 @@ Cho một mốc thời gian được đo bằng tổng số giây $s$. Hãy đ�
         "test_cases": [
             {"input": "3311", "output": "0 gio 55 phut 11 giay\n", "is_hidden": False},
             {"input": "4000", "output": "1 gio 6 phut 40 giay\n", "is_hidden": False},
-            {"input": "86400", "output": "24 gio 0 phut 0 giay\n", "is_hidden": True}
+            {"input": "0", "output": "0 gio 0 phut 0 giay\n", "is_hidden": True},
+            {"input": "3600", "output": "1 gio 0 phut 0 giay\n", "is_hidden": True},
+            {"input": "86400", "output": "24 gio 0 phut 0 giay\n", "is_hidden": True},
+            {"input": "100000000", "output": "27777 gio 46 phut 40 giay\n", "is_hidden": True}
         ],
         "source": "Đề Luyện Thi HSG Tin 8 - Level 01"
     },
@@ -249,7 +258,9 @@ $$a^2 = b^2 + c^2 \\implies a = \\sqrt{b^2 + c^2}$$
         "test_cases": [
             {"input": "3 4", "output": "Do dai canh huyen la 5.00\n", "is_hidden": False},
             {"input": "6 8", "output": "Do dai canh huyen la 10.00\n", "is_hidden": True},
-            {"input": "5 12", "output": "Do dai canh huyen la 13.00\n", "is_hidden": True}
+            {"input": "5 12", "output": "Do dai canh huyen la 13.00\n", "is_hidden": True},
+            {"input": "1.5 2.0", "output": "Do dai canh huyen la 2.50\n", "is_hidden": True},
+            {"input": "30000 40000", "output": "Do dai canh huyen la 50000.00\n", "is_hidden": True}
         ],
         "source": "Đề Luyện Thi HSG Tin 8 - Level 01"
     },
@@ -288,7 +299,9 @@ $$S = \\sqrt{p(p - a)(p - b)(p - c)}$$
         "starter_code": BLANK_STARTER_CODE,
         "test_cases": [
             {"input": "3 4 5", "output": "Chu vi la: 12.00\nDien tich la: 6.00\n", "is_hidden": False},
-            {"input": "6 8 10", "output": "Chu vi la: 24.00\nDien tich la: 24.00\n", "is_hidden": True}
+            {"input": "6 8 10", "output": "Chu vi la: 24.00\nDien tich la: 24.00\n", "is_hidden": True},
+            {"input": "5 5 6", "output": "Chu vi la: 16.00\nDien tich la: 12.00\n", "is_hidden": True},
+            {"input": "10 10 10", "output": "Chu vi la: 30.00\nDien tich la: 43.30\n", "is_hidden": True}
         ],
         "source": "Đề Luyện Thi HSG Tin 8 - Level 01"
     },
@@ -327,7 +340,10 @@ Một ma trận được gọi là đối xứng chuẩn nếu số 1 nằm ở 
         "test_cases": [
             {"input": "2 5", "output": "3\n", "is_hidden": False},
             {"input": "3 3", "output": "0\n", "is_hidden": True},
-            {"input": "1 1", "output": "4\n", "is_hidden": True}
+            {"input": "1 1", "output": "4\n", "is_hidden": True},
+            {"input": "5 5", "output": "4\n", "is_hidden": True},
+            {"input": "1 3", "output": "2\n", "is_hidden": True},
+            {"input": "3 5", "output": "2\n", "is_hidden": True}
         ],
         "source": "Đề Luyện Thi HSG Tin 8 - Level 01"
     },
@@ -365,12 +381,15 @@ $$a + b > c \\quad \\text{và} \\quad b + c > a \\quad \\text{và} \\quad c + a 
                 "explanation": "2 + 2 = 4 < 5 -> Khong tao thanh tam giac."
             }
         ],
-        "hints": ["Sử dụng câu lệnh `if (a + b > c && a + c > b && b + c > a)`."],
+        "hints": ["Sử dụng câu lệnh `if (a + b > c && a + c > b && b + c > a)` và chú ý kiểu `long long` khi cộng."],
         "starter_code": BLANK_STARTER_CODE,
         "test_cases": [
             {"input": "3 4 5", "output": "duoc\n", "is_hidden": False},
             {"input": "2 2 5", "output": "khong\n", "is_hidden": False},
-            {"input": "10 10 10", "output": "duoc\n", "is_hidden": True}
+            {"input": "2 3 5", "output": "khong\n", "is_hidden": True},
+            {"input": "100 100 100", "output": "duoc\n", "is_hidden": True},
+            {"input": "1 100 1", "output": "khong\n", "is_hidden": True},
+            {"input": "1000000000 1000000000 1000000000", "output": "duoc\n", "is_hidden": True}
         ],
         "source": "Đề Luyện Thi HSG Tin 8 - Level 01"
     },
@@ -412,7 +431,10 @@ $$(r_1 + c_1) \\pmod 2 = (r_2 + c_2) \\pmod 2$$
         "starter_code": BLANK_STARTER_CODE,
         "test_cases": [
             {"input": "1 1 3 3", "output": "Trung mau\n", "is_hidden": False},
-            {"input": "3 5 4 1", "output": "Khong trung mau\n", "is_hidden": False}
+            {"input": "3 5 4 1", "output": "Khong trung mau\n", "is_hidden": False},
+            {"input": "4 4 4 4", "output": "Trung mau\n", "is_hidden": True},
+            {"input": "1 1 1 2", "output": "Khong trung mau\n", "is_hidden": True},
+            {"input": "1 1 8 8", "output": "Trung mau\n", "is_hidden": True}
         ],
         "source": "Đề Luyện Thi HSG Tin 8 - Level 01"
     },
@@ -460,7 +482,10 @@ Tiền điện được tính theo biểu giá lũy tiến bậc thang:
         "test_cases": [
             {"input": "750 300", "output": "450\n1092000\n", "is_hidden": False},
             {"input": "600 500", "output": "100\n108000\n", "is_hidden": False},
-            {"input": "1200 1150", "output": "50\n50000\n", "is_hidden": True}
+            {"input": "1200 1150", "output": "50\n50000\n", "is_hidden": True},
+            {"input": "1060 1000", "output": "60\n60000\n", "is_hidden": True},
+            {"input": "1120 1000", "output": "120\n132000\n", "is_hidden": True},
+            {"input": "5000 4000", "output": "1000\n3292000\n", "is_hidden": True}
         ],
         "source": "Đề Luyện Thi HSG Tin 8 - Level 01"
     },
@@ -498,7 +523,10 @@ Hỏi sau bao nhiêu năm nữa thì tuổi cha sẽ **gấp đôi** tuổi con?
         "starter_code": BLANK_STARTER_CODE,
         "test_cases": [
             {"input": "40 4", "output": "32\n", "is_hidden": False},
-            {"input": "35 5", "output": "25\n", "is_hidden": True}
+            {"input": "35 5", "output": "25\n", "is_hidden": True},
+            {"input": "50 10", "output": "30\n", "is_hidden": True},
+            {"input": "60 15", "output": "30\n", "is_hidden": True},
+            {"input": "100 10", "output": "80\n", "is_hidden": True}
         ],
         "source": "Đề Luyện Thi HSG Tin 8 - Level 02"
     },
@@ -534,7 +562,10 @@ Một tờ giấy ban đầu có độ dày là $x$ mm. Mỗi lần gấp đôi 
         "starter_code": BLANK_STARTER_CODE,
         "test_cases": [
             {"input": "0.1 1", "output": "14\n", "is_hidden": False},
-            {"input": "1 1", "output": "10\n", "is_hidden": True}
+            {"input": "1000 0.5", "output": "0\n", "is_hidden": True},
+            {"input": "1000 1", "output": "1\n", "is_hidden": True},
+            {"input": "1 1", "output": "10\n", "is_hidden": True},
+            {"input": "0.05 10", "output": "18\n", "is_hidden": True}
         ],
         "source": "Đề Luyện Thi HSG Tin 8 - Level 02"
     },
@@ -578,7 +609,11 @@ Ví dụ: $1, 2, 4, 8, 16, 32, 64, 128, \\dots$ là các số lũy thừa của 
             {"input": "128", "output": "true\n", "is_hidden": False},
             {"input": "1000", "output": "false\n", "is_hidden": False},
             {"input": "1", "output": "true\n", "is_hidden": True},
-            {"input": "1048576", "output": "true\n", "is_hidden": True}
+            {"input": "2", "output": "true\n", "is_hidden": True},
+            {"input": "3", "output": "false\n", "is_hidden": True},
+            {"input": "1048576", "output": "true\n", "is_hidden": True},
+            {"input": "1048575", "output": "false\n", "is_hidden": True},
+            {"input": "536870912", "output": "true\n", "is_hidden": True}
         ],
         "source": "Đề Luyện Thi HSG Tin 8 - Level 02"
     },
@@ -617,7 +652,11 @@ Biết ban đầu luôn có sẵn $1$ đơn vị độ dài. Với $K$ đơn v�
         "test_cases": [
             {"input": "10", "output": "12\n", "is_hidden": False},
             {"input": "1", "output": "0\n", "is_hidden": True},
-            {"input": "16", "output": "16\n", "is_hidden": True}
+            {"input": "2", "output": "2\n", "is_hidden": True},
+            {"input": "4", "output": "6\n", "is_hidden": True},
+            {"input": "16", "output": "14\n", "is_hidden": True},
+            {"input": "20", "output": "16\n", "is_hidden": True},
+            {"input": "31", "output": "24\n", "is_hidden": True}
         ],
         "source": "Đề Luyện Thi HSG Tin 8 - Level 02"
     },
@@ -660,7 +699,11 @@ Ví dụ: $1234321$ là số đối xứng, còn $2345321$ không phải.
         "test_cases": [
             {"input": "1234321", "output": "1\n", "is_hidden": False},
             {"input": "2345321", "output": "0\n", "is_hidden": False},
-            {"input": "7", "output": "1\n", "is_hidden": True}
+            {"input": "7", "output": "1\n", "is_hidden": True},
+            {"input": "123321", "output": "1\n", "is_hidden": True},
+            {"input": "100", "output": "0\n", "is_hidden": True},
+            {"input": "123456789987654321", "output": "1\n", "is_hidden": True},
+            {"input": "123456789123456789", "output": "0\n", "is_hidden": True}
         ],
         "source": "Đề Luyện Thi HSG Tin 8 - Level 02"
     },
@@ -699,7 +742,10 @@ Cho số tự nhiên $n$ ($1 \\leq n \\leq 10$). Hãy tính và in ra giá trị
         "starter_code": BLANK_STARTER_CODE,
         "test_cases": [
             {"input": "4", "output": "S1 = 33\nS2 = 288\nS3 = 1.60\n", "is_hidden": False},
-            {"input": "1", "output": "S1 = 1\nS2 = 1\nS3 = 1.00\n", "is_hidden": True}
+            {"input": "1", "output": "S1 = 1\nS2 = 1\nS3 = 1.00\n", "is_hidden": True},
+            {"input": "2", "output": "S1 = 3\nS2 = 5\nS3 = 1.33\n", "is_hidden": True},
+            {"input": "3", "output": "S1 = 9\nS2 = 36\nS3 = 1.50\n", "is_hidden": True},
+            {"input": "10", "output": "S1 = 4037913\nS2 = 10405071317\nS3 = 1.82\n", "is_hidden": True}
         ],
         "source": "Đề Luyện Thi HSG Tin 8 - Level 02"
     },
@@ -741,7 +787,10 @@ Ví dụ với $n = 4$:
         "starter_code": BLANK_STARTER_CODE,
         "test_cases": [
             {"input": "4", "output": "1 2 3 4\n2 3 4 1\n3 4 1 2\n4 1 2 3\n", "is_hidden": False},
-            {"input": "2", "output": "1 2\n2 1\n", "is_hidden": True}
+            {"input": "1", "output": "1\n", "is_hidden": True},
+            {"input": "2", "output": "1 2\n2 1\n", "is_hidden": True},
+            {"input": "3", "output": "1 2 3\n2 3 1\n3 1 2\n", "is_hidden": True},
+            {"input": "5", "output": "1 2 3 4 5\n2 3 4 5 1\n3 4 5 1 2\n4 5 1 2 3\n5 1 2 3 4\n", "is_hidden": True}
         ],
         "source": "Đề Luyện Thi HSG Tin 8 - Level 02"
     },
@@ -778,7 +827,9 @@ $$S = a^{b \\times c} + b^{a \\times c} - c^{a \\times b}$$
         "starter_code": BLANK_STARTER_CODE,
         "test_cases": [
             {"input": "2 3 4", "output": "6561\n", "is_hidden": False},
-            {"input": "1 1 1", "output": "1\n", "is_hidden": True}
+            {"input": "1 1 1", "output": "1\n", "is_hidden": True},
+            {"input": "2 2 2", "output": "16\n", "is_hidden": True},
+            {"input": "3 2 2", "output": "81\n", "is_hidden": True}
         ],
         "source": "Đề Luyện Thi HSG Tin 8 - Level 02"
     },
@@ -818,7 +869,10 @@ Quy tắc vẽ tam giác cân rỗng chiều cao $h$:
         "hints": ["Viết một hàm `draw_triangle(int h)`."],
         "starter_code": BLANK_STARTER_CODE,
         "test_cases": [
-            {"input": "4\n3 2 1 4", "output": "  *\n * *\n*****\n\n *\n***\n\n*\n\n   *\n  * *\n *   *\n*******\n", "is_hidden": False}
+            {"input": "4\n3 2 1 4", "output": "  *\n * *\n*****\n\n *\n***\n\n*\n\n   *\n  * *\n *   *\n*******\n", "is_hidden": False},
+            {"input": "1\n1", "output": "*\n", "is_hidden": True},
+            {"input": "1\n2", "output": " *\n***\n", "is_hidden": True},
+            {"input": "3\n1 2 3", "output": "*\n\n *\n***\n\n  *\n * *\n*****\n", "is_hidden": True}
         ],
         "source": "Đề Luyện Thi HSG Tin 8 - Level 02"
     }
