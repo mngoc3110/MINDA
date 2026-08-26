@@ -154,25 +154,42 @@ export default function CodingExamRunnerPage() {
     setIsTerminalOpen(true);
 
     try {
-      const res = await fetch(`${API}/api/code/run`, {
+      const token = localStorage.getItem("minda_token");
+      const testInput = customInput.trim() ? customInput : (currentProblem.examples?.[0]?.input || "");
+      const res = await fetch(`${API}/api/problems/${currentProblem.id}/test-custom`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
         body: JSON.stringify({
           language: lang,
           code: currentCode,
-          stdin_input: customInput || currentProblem.examples?.[0]?.input || ""
+          custom_input: testInput
         })
       });
       const data = await res.json();
-      setConsoleOutput({
-        stdout: data.stdout || "",
-        stderr: data.stderr || "",
-        time: data.execution_time || "12ms",
-        memory: data.memory_used || "3.1MB",
-        exit_code: data.exit_code ?? 0,
-        status: data.exit_code === 0 ? "Thực thi thành công" : "Lỗi thực thi",
-        timestamp: new Date().toLocaleTimeString()
-      });
+      const now = new Date().toLocaleTimeString();
+      if (res.ok) {
+        setConsoleOutput({
+          stdout: data.stdout || "",
+          stderr: data.stderr || "",
+          time: data.execution_time || "12ms",
+          memory: data.memory_used || "3.1MB",
+          exit_code: data.exit_code ?? 0,
+          status: data.status === "success" && (data.exit_code === 0 || data.exit_code === undefined) ? "Thực thi thành công" : "Lỗi thực thi / Compilation Error",
+          timestamp: now
+        });
+      } else {
+        setConsoleOutput({
+          stderr: data.detail || "Lỗi kết nối máy chủ thực thi Sandbox.",
+          status: "Lỗi thực thi",
+          time: "0ms",
+          memory: "0MB",
+          exit_code: -1,
+          timestamp: now
+        });
+      }
     } catch (err: any) {
       setConsoleOutput({
         stderr: err?.message || "Không thể kết nối đến trình chấm máy chủ!",
@@ -193,7 +210,7 @@ export default function CodingExamRunnerPage() {
 
     try {
       const token = localStorage.getItem("minda_token");
-      const res = await fetch(`${API}/api/code/judge/${currentProblem.id}`, {
+      const res = await fetch(`${API}/api/problems/${currentProblem.id}/submit`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
