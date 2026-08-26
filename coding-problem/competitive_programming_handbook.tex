@@ -463,4 +463,188 @@ int main() {
 }
 \end{lstlisting}
 
+\vspace{15pt}
+% ═══════════════════════════════════════════════════════════════════════════════
+\section{Bài Toán Mẫu Thực Hành \& Minh Họa Chi Tiết}
+% ═══════════════════════════════════════════════════════════════════════════════
+
+Để giúp học sinh hình dung cách kết hợp toàn bộ các kiến thức trên vào một bài thi thực tế, chúng ta xét bài toán kinh điển sau:
+
+\begin{conceptbox}{Bài Toán Minh Họa: PAIRPROD - Cặp Số \& Tổng Tích Modulo}
+    \textbf{Tên file bài làm:} \texttt{PAIRPROD.INP} và \texttt{PAIRPROD.OUT}\\
+    \textbf{Giới hạn thời gian:} $1.0$ giây \quad | \quad \textbf{Giới hạn bộ nhớ:} $256$ MB\\
+    
+    \textbf{Đề bài:} Cho dãy $N$ số nguyên $a_1, a_2, \dots, a_N$ và một số thực $K$. Hãy thực hiện 3 yêu cầu:
+    \begin{enumerate}[leftmargin=*]
+        \item \textbf{Yêu cầu 1:} Đếm số lượng cặp chỉ số $(i, j)$ với $1 \le i < j \le N$ sao cho trung bình cộng $\frac{a_i + a_j}{2} \ge K$.
+        \item \textbf{Yêu cầu 2:} Tính tổng tích của tất cả các cặp phân biệt trong dãy theo modulo $10^9 + 7$:
+        $$S = \sum_{1 \le i < j \le N} (a_i \times a_j) \pmod{10^9 + 7}$$
+        \item \textbf{Yêu cầu 3:} In ra giá trị trung bình cộng lớn nhất của một cặp bất kỳ, làm tròn đúng $2$ chữ số thập phân.
+    \end{enumerate}
+    
+    \textbf{Dữ liệu vào (Input - \texttt{PAIRPROD.INP}):}
+    \begin{itemize}[leftmargin=*]
+        \item Dòng 1: Gồm số nguyên $N$ ($2 \le N \le 2 \times 10^5$) và số thực $K$ ($-10^9 \le K \le 10^9$).
+        \item Dòng 2: Gồm $N$ số nguyên $a_1, a_2, \dots, a_N$ ($-10^9 \le a_i \le 10^9$).
+    \end{itemize}
+    
+    \textbf{Dữ liệu ra (Output - \texttt{PAIRPROD.OUT}):}
+    \begin{itemize}[leftmargin=*]
+        \item Dòng 1: Ghi số nguyên duy nhất là số lượng cặp thỏa mãn Yêu cầu 1.
+        \item Dòng 2: Ghi một số nguyên duy nhất là giá trị $S \pmod{10^9 + 7}$ (Yêu cầu 2).
+        \item Dòng 3: Ghi số thực là trung bình cộng lớn nhất làm tròn 2 chữ số thập phân (Yêu cầu 3).
+    \end{itemize}
+\end{conceptbox}
+
+\subsection{Phân Tích Kỹ Thuật \& Các Bẫy Lập Trình Thi Đấu}
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Kích thước dữ liệu lớn ($N = 2 \cdot 10^5$):}
+    \begin{itemize}
+        \item Số thao tác I/O lớn $\to$ Bắt buộc dùng \texttt{setupIO()} với \texttt{sync\_with\_stdio(false)} và in bằng \texttt{'\textbackslash n'}.
+        \item Mảng $200.000$ phần tử $\to$ Khai báo toàn cục \texttt{a[MAXN]} với \texttt{MAXN = 2e5 + 7}.
+    \end{itemize}
+    \item \textbf{Yêu cầu 1 (Đếm cặp có $\frac{a_i + a_j}{2} \ge K \iff a_i + a_j \ge 2K$):}
+    \begin{itemize}
+        \item Thuật toán ngây thơ $\mathcal{O}(N^2)$ duyệt 2 vòng lặp lồng nhau sẽ tốn $\frac{(2\cdot 10^5)^2}{2} = 2 \times 10^{10}$ phép tính $\to$ \textbf{Bị TLE chắc chắn!}
+        \item \textbf{Cách tối ưu $\mathcal{O}(N \log N)$:} Sắp xếp mảng tăng dần. Với mỗi $a_i$, ta cần tìm số lượng phần tử $a_j$ ($j > i$) thỏa mãn $a_j \ge 2K - a_i - \epsilon$. Dùng hàm tìm kiếm nhị phân \texttt{lower\_bound} có sẵn của STL.
+    \end{itemize}
+    \item \textbf{Yêu cầu 2 (Tổng tích Modulo):}
+    \begin{itemize}
+        \item Áp dụng hằng đẳng thức đại số:
+        $$\left(\sum_{i=1}^N a_i\right)^2 = \sum_{i=1}^N a_i^2 + 2 \sum_{1 \le i < j \le N} a_i a_j \implies S = \frac{\left(\sum a_i\right)^2 - \sum a_i^2}{2} \pmod{10^9 + 7}$$
+        \item Phép tính chỉ mất $\mathcal{O}(N)$!
+        \item \textbf{Xử lý Modulo an toàn:} Phép trừ có thể ra số âm $\to$ dùng hàm \texttt{sub()}. Phép chia cho 2 $\to$ nhân với nghịch đảo modulo của 2 là $2^{MOD - 2} \pmod{MOD}$ thông qua hàm \texttt{divMod(..., 2)}.
+    \end{itemize}
+    \item \textbf{Yêu cầu 3 (Số thực \& Epsilon):}
+    \begin{itemize}
+        \item Sau khi sắp xếp mảng tăng dần, 2 phần tử lớn nhất là $a_N$ và $a_{N-1}$.
+        \item Trung bình cộng lớn nhất: $\frac{a_N + a_{N-1}}{2.0}$. In ra với \texttt{fixed << setprecision(2)}.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Mã Nguồn C++ Hoàn Chỉnh Chuẩn Thi Đấu}
+
+\begin{lstlisting}[language=C++, caption={Chương trình giải bài toán PAIRPROD chuẩn phong cách CP}]
+/**
+ * Problem: PAIRPROD - Cặp Số & Tổng Tích Modulo
+ * Demonstration of: Fast I/O, File Redirection, Epsilon, Modulo Inverse, STL Binary Search
+ */
+#include <bits/stdc++.h>
+using namespace std;
+
+#define TASK "PAIRPROD"
+typedef long long ll;
+
+const int MAXN = 2e5 + 7;
+const int MOD  = 1e9 + 7;
+const double EPS = 1e-9;
+
+// Khai bao mang o pham vi toan cuc (Global Scope)
+int n;
+double k;
+ll a[MAXN];
+
+// ─── 1. FAST I/O & FILE REDIRECTION ────────────────────────────────
+void setupIO() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
+
+    #ifndef ONLINE_JUDGE
+        if (fopen(TASK ".INP", "r")) {
+            freopen(TASK ".INP", "r", stdin);
+            freopen(TASK ".OUT", "w", stdout);
+        }
+    #endif
+}
+
+// ─── 2. CAC HAM TOAN MODULO CHUAN ──────────────────────────────────
+ll add(ll x, ll y) { 
+    return (x + y) % MOD; 
+}
+
+ll sub(ll x, ll y) { 
+    return (x - y % MOD + MOD) % MOD; 
+}
+
+ll mul(ll x, ll y) { 
+    return ((x % MOD + MOD) % MOD) * ((y % MOD + MOD) % MOD) % MOD; 
+}
+
+ll power(ll base, ll exp) {
+    ll res = 1;
+    base %= MOD;
+    while (exp > 0) {
+        if (exp & 1) res = mul(res, base);
+        base = mul(base, base);
+        exp >>= 1;
+    }
+    return res;
+}
+
+ll divMod(ll x, ll y) {
+    return mul(x, power(y, MOD - 2));
+}
+
+// ─── 3. THUAT TOAN CHINH ───────────────────────────────────────────
+void solve() {
+    if (!(cin >> n >> k)) return;
+
+    for (int i = 1; i <= n; ++i) {
+        cin >> a[i];
+    }
+
+    // Sap xep mang tang dan O(N log N)
+    sort(a + 1, a + n + 1);
+
+    // ── YEU CAU 1: Dem so cap co trung binh cong >= K ──
+    ll countPairs = 0;
+    for (int i = 1; i < n; ++i) {
+        // Can tim a[j] >= 2*K - a[i]
+        double target = 2.0 * k - (double)a[i] - EPS;
+        ll minValNeeded = (ll)ceil(target);
+
+        // Binary search tim vi tri dau tien >= minValNeeded trong doan [i + 1, n]
+        auto it = lower_bound(a + i + 1, a + n + 1, minValNeeded);
+        int pos = it - a;
+        if (pos <= n) {
+            countPairs += (n - pos + 1);
+        }
+    }
+    cout << countPairs << '\n';
+
+    // ── YEU CAU 2: Tinh tong tich modulo 10^9 + 7 ──
+    ll sumA = 0;
+    ll sumA2 = 0;
+    for (int i = 1; i <= n; ++i) {
+        sumA = add(sumA, (a[i] % MOD + MOD) % MOD);
+        sumA2 = add(sumA2, mul(a[i], a[i]));
+    }
+
+    // S = ((sumA)^2 - sumA2) / 2 % MOD
+    ll totalSumSquared = mul(sumA, sumA);
+    ll numerator = sub(totalSumSquared, sumA2);
+    ll ansS = divMod(numerator, 2);
+    cout << ansS << '\n';
+
+    // ── YEU CAU 3: Trung binh cong lon nhat (2 chu so thap phan) ──
+    double maxAvg = (a[n] + a[n - 1]) / 2.0;
+    cout << fixed << setprecision(2) << maxAvg << '\n';
+}
+
+int main() {
+    setupIO();
+
+    int testCases = 1;
+    // cin >> testCases;
+    while (testCases--) {
+        solve();
+    }
+
+    return 0;
+}
+\end{lstlisting}
+
 \end{document}
+
