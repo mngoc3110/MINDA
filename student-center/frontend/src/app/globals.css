@@ -34,42 +34,57 @@
 }
 
 /* ═══════════════════════════
-   LIGHT MODE — Beige Ấm (Mặc định)
+   LIGHT MODE — Sáng Sạch Sẽ, Tương Phản Cao
    ═══════════════════════════ */
 :root {
-  --c-bg-main:        #F7F3EE;   /* Nền chính: beige sáng */
-  --c-bg-card:        #FFFFFF;   /* Thẻ: trắng sạch */
-  --c-bg-hover:       #EEE9E1;   /* Hover: beige nhạt hơn */
-  --c-bg-input:       #F0EBE4;   /* Input field */
-  --c-border-card:    #E2D9CE;   /* Viền: beige trung */
-  --c-text-primary:   #1A1410;   /* Chữ chính: nâu đen */
-  --c-text-secondary: #5C4F42;   /* Chữ phụ: nâu trung */
-  --c-text-muted:     #9C8C80;   /* Chữ mờ */
-  --c-accent:         #4f46e5;   /* Indigo accent */
+  --c-bg-main:        #F8FAFC;   /* Nền chính: Slate 50 sáng tinh tươm */
+  --c-bg-card:        #FFFFFF;   /* Thẻ: Trắng tinh */
+  --c-bg-hover:       #F1F5F9;   /* Hover: Slate 100 */
+  --c-bg-input:       #F8FAFC;   /* Input: Slate 50 */
+  --c-border-card:    #E2E8F0;   /* Viền: Slate 200 */
+  --c-text-primary:   #0F172A;   /* Chữ chính: Slate 900 - Đen đậm, cực kỳ rõ nét */
+  --c-text-secondary: #334155;   /* Chữ phụ: Slate 700 - Đậm rõ ràng, không bị mờ */
+  --c-text-muted:     #64748B;   /* Chữ mờ: Slate 500 */
+  --c-accent:         #4F46E5;   /* Indigo accent */
   --c-accent-soft:    #EEF2FF;   /* Indigo soft bg */
 }
 
 /* ═══════════════════════════
-   DARK MODE — Tối Hoàn toàn
+   DARK MODE — Tối Chuyên Nghiệp, Chữ Sáng Sắc Nét (100% không chìm)
    ═══════════════════════════ */
 :root[data-theme='dark'] {
-  --c-bg-main:        #0a0a0a;   /* Nền chính: đen gần hoàn toàn */
-  --c-bg-card:        #1a1a1a;   /* Thẻ: xám đen */
-  --c-bg-hover:       #252525;   /* Hover: xám đậm */
-  --c-bg-input:       #222222;   /* Input field */
-  --c-border-card:    #333333;   /* Viền: xám tối */
-  --c-text-primary:   #F0EBE4;   /* Chữ chính: gần trắng ấm */
-  --c-text-secondary: #B0A89E;   /* Chữ phụ: xám sáng */
-  --c-text-muted:     #6B6259;   /* Chữ mờ */
+  --c-bg-main:        #0B0F17;   /* Nền chính: Deep Slate / Đen sâu hiện đại */
+  --c-bg-card:        #151D2A;   /* Thẻ: Slate 900+ nổi bật trên nền */
+  --c-bg-hover:       #1E293B;   /* Hover: Slate 800 */
+  --c-bg-input:       #0F172A;   /* Input: Slate 900 */
+  --c-border-card:    #263346;   /* Viền: Slate 700 rõ ràng */
+  --c-text-primary:   #F8FAFC;   /* Chữ chính: Slate 50 - Trắng sáng 100% không chìm */
+  --c-text-secondary: #CBD5E1;   /* Chữ phụ: Slate 300 - Sáng rõ ràng */
+  --c-text-muted:     #94A3B8;   /* Chữ mờ: Slate 400 - Đọc tốt */
   --c-accent:         #818cf8;   /* Indigo sáng trong dark */
-  --c-accent-soft:    #1e1b4b;   /* Indigo soft dark */
+  --c-accent-soft:    rgba(99, 102, 241, 0.15); /* Indigo soft dark */
 }
 
 body {
   background-color: var(--c-bg-main);
   color: var(--c-text-primary);
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: background-color 0.25s ease, color 0.25s ease;
   font-family: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* KaTeX & MathText Global Styling */
+.katex {
+  color: inherit !important;
+  font-size: 1.05em;
+}
+
+.math-text-wrapper {
+  color: var(--c-text-primary);
+}
+
+.math-text-wrapper p, 
+.math-text-wrapper li {
+  color: var(--c-text-primary) !important;
 }
 
 /* ═══════════════════════════

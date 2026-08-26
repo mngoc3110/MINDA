@@ -198,7 +198,7 @@ function MarkdownBlock({ content }: { content: string }) {
     if (trimmed.startsWith("### ")) {
       flushList(`list-${idx}`);
       elements.push(
-        <h3 key={idx} className="text-base font-black text-indigo-300 mt-5 mb-2 flex items-center gap-2 border-b border-indigo-500/20 pb-1.5">
+        <h3 key={idx} className="text-base font-black text-indigo-600 dark:text-indigo-400 mt-5 mb-2 flex items-center gap-2 border-b border-indigo-500/20 pb-1.5">
           <InlineMarkdownLatex text={trimmed.slice(4)} />
         </h3>
       );
@@ -208,7 +208,7 @@ function MarkdownBlock({ content }: { content: string }) {
       flushList(`list-${idx}`);
       elements.push(
         <h4 key={idx} className="text-sm font-bold text-text-primary mt-4 mb-1.5 flex items-center gap-1.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 inline-block" />
+          <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 inline-block" />
           <InlineMarkdownLatex text={trimmed.slice(5)} />
         </h4>
       );
@@ -216,9 +216,9 @@ function MarkdownBlock({ content }: { content: string }) {
     // Bullet item: - Item or * Item
     else if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
       currentList.push(
-        <li key={idx} className="flex items-start gap-2 text-xs text-text-secondary leading-relaxed">
-          <span className="text-indigo-400 shrink-0 mt-0.5">•</span>
-          <div>
+        <li key={idx} className="flex items-start gap-2 text-sm text-text-primary leading-relaxed">
+          <span className="text-indigo-500 font-bold shrink-0 mt-0.5">•</span>
+          <div className="flex-1 text-text-primary">
             <InlineMarkdownLatex text={trimmed.slice(2)} />
           </div>
         </li>
@@ -228,7 +228,7 @@ function MarkdownBlock({ content }: { content: string }) {
     else {
       flushList(`list-${idx}`);
       elements.push(
-        <p key={idx} className="text-xs text-text-secondary leading-relaxed mb-2.5">
+        <p key={idx} className="text-sm text-text-primary leading-relaxed mb-3">
           <InlineMarkdownLatex text={trimmed} />
         </p>
       );

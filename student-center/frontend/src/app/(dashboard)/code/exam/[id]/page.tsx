@@ -15,6 +15,7 @@ import {
   Flame, Award
 } from "lucide-react";
 import MathText from "@/components/MathText";
+import { useTheme } from "@/providers/ThemeProvider";
 
 // Monaco dynamic load client-side
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), { ssr: false });
@@ -29,9 +30,9 @@ const LANGS = [
 type LangKey = typeof LANGS[number]["key"];
 
 const DIFF_STYLE: Record<string, string> = {
-  easy:   "text-emerald-400 bg-emerald-500/10 border-emerald-500/30",
-  medium: "text-amber-400 bg-amber-500/10 border-amber-500/30",
-  hard:   "text-red-400 bg-red-500/10 border-red-500/30",
+  easy:   "text-emerald-500 bg-emerald-500/10 border-emerald-500/30",
+  medium: "text-amber-500 bg-amber-500/10 border-amber-500/30",
+  hard:   "text-red-500 bg-red-500/10 border-red-500/30",
 };
 const DIFF_LABEL: Record<string, string> = { easy: "Dễ", medium: "Trung bình", hard: "Khó" };
 
@@ -39,6 +40,7 @@ export default function CodingExamRunnerPage() {
   const params = useParams();
   const router = useRouter();
   const rawId = params?.id ? (Array.isArray(params.id) ? params.id[0] : params.id) : "";
+  const { theme } = useTheme();
 
   const [exam, setExam] = useState<any>(null);
   const [problems, setProblems] = useState<any[]>([]);
@@ -244,7 +246,7 @@ export default function CodingExamRunnerPage() {
     return (
       <div className="min-h-screen bg-bg-main flex items-center justify-center">
         <div className="flex flex-col items-center gap-3 text-text-muted">
-          <Loader2 className="w-8 h-8 animate-spin text-indigo-400" />
+          <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
           <p className="text-sm">Đang tải đề thi lập trình...</p>
         </div>
       </div>
@@ -254,9 +256,9 @@ export default function CodingExamRunnerPage() {
   if (!exam) {
     return (
       <div className="min-h-screen bg-bg-main flex items-center justify-center p-6">
-        <div className="p-8 rounded-3xl bg-bg-card border border-border-card text-center max-w-md">
-          <AlertCircle className="w-12 h-12 text-rose-400 mx-auto mb-3" />
-          <h2 className="text-xl font-bold mb-2">Không tìm thấy đề thi</h2>
+        <div className="p-8 rounded-3xl bg-bg-card border border-border-card text-center max-w-md shadow-xl">
+          <AlertCircle className="w-12 h-12 text-rose-500 mx-auto mb-3" />
+          <h2 className="text-xl font-bold mb-2 text-text-primary">Không tìm thấy đề thi</h2>
           <p className="text-text-secondary text-sm mb-6">Đề thi này không tồn tại hoặc đã bị gỡ bỏ.</p>
           <Link
             href="/code"
@@ -270,52 +272,52 @@ export default function CodingExamRunnerPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0d1117] text-gray-200 flex flex-col font-sans selection:bg-indigo-500/30">
+    <div className="min-h-screen bg-bg-main text-text-primary flex flex-col font-sans selection:bg-indigo-500/30">
       
       {/* ── Top Bar: Exam Title, Timer, Progress, Actions ────────── */}
-      <header className="h-16 border-b border-white/10 bg-[#161b22]/90 backdrop-blur-md px-6 flex items-center justify-between shrink-0 z-30">
+      <header className="h-16 border-b border-border-card bg-bg-card/95 backdrop-blur-md px-6 flex items-center justify-between shrink-0 z-30">
         <div className="flex items-center gap-4">
           <Link
             href="/code"
-            className="flex items-center gap-2 text-xs font-semibold text-gray-400 hover:text-white px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition"
+            className="flex items-center gap-2 text-xs font-semibold text-text-secondary hover:text-text-primary px-3 py-1.5 rounded-xl bg-bg-main border border-border-card hover:bg-bg-hover transition"
           >
             <ArrowLeft className="w-4 h-4" /> Rời phòng thi
           </Link>
-          <div className="h-5 w-px bg-white/10" />
+          <div className="h-5 w-px bg-border-card" />
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+              <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
                 {exam.track?.toUpperCase() || "HSG TIN 8"}
               </span>
-              <h1 className="font-bold text-sm text-white truncate max-w-[300px] md:max-w-md">
+              <h1 className="font-bold text-sm text-text-primary truncate max-w-[300px] md:max-w-md">
                 {exam.title}
               </h1>
             </div>
-            <p className="text-[11px] text-gray-400 hidden sm:block truncate">
+            <p className="text-[11px] text-text-muted hidden sm:block truncate">
               {exam.description || "Kỳ thi thử bồi dưỡng Học sinh giỏi Tin học"}
             </p>
           </div>
         </div>
 
         {/* Right Stats & Timer */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           {/* Progress badge */}
-          <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs">
-            <Trophy className="w-4 h-4 text-amber-400" />
-            <span>Đã hoàn thành: <strong className="text-white">{solvedProblemsCount}/{problems.length}</strong> bài</span>
-            <span className="text-indigo-400 font-bold">({totalScore}đ)</span>
+          <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-bg-main border border-border-card text-xs">
+            <Trophy className="w-4 h-4 text-amber-500" />
+            <span>Đã hoàn thành: <strong className="text-text-primary">{solvedProblemsCount}/{problems.length}</strong> bài</span>
+            <span className="text-indigo-600 dark:text-indigo-400 font-bold">({totalScore}đ)</span>
           </div>
 
           {/* Countdown Clock */}
-          <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-indigo-950/40 border border-indigo-500/30 text-indigo-300 text-xs font-mono font-bold shadow-inner">
-            <Clock className="w-4 h-4 text-indigo-400 animate-pulse" />
+          <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-indigo-500/10 border border-indigo-500/30 text-indigo-600 dark:text-indigo-300 text-xs font-mono font-bold shadow-inner">
+            <Clock className="w-4 h-4 text-indigo-500 animate-pulse" />
             <span>{formatTimer(timeLeft)}</span>
           </div>
         </div>
       </header>
 
       {/* ── Problem Navigation Tabs (Bài 1, Bài 2, ...) ──────────── */}
-      <div className="border-b border-white/10 bg-[#0d1117] px-6 py-2 flex items-center gap-2 overflow-x-auto shrink-0 scrollbar-none">
+      <div className="border-b border-border-card bg-bg-main px-6 py-2 flex items-center gap-2 overflow-x-auto shrink-0 scrollbar-none">
         {problems.map((p, idx) => {
           const status = problemStatus[p.id];
           const isSelected = selectedProblemIdx === idx;
@@ -328,19 +330,19 @@ export default function CodingExamRunnerPage() {
               onClick={() => setSelectedProblemIdx(idx)}
               className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium transition shrink-0 border ${
                 isSelected
-                  ? "bg-indigo-600 text-white border-indigo-500 shadow-md shadow-indigo-600/30"
-                  : "bg-[#161b22] text-gray-300 border-white/10 hover:bg-white/5 hover:border-white/20"
+                  ? "bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-600/25"
+                  : "bg-bg-card text-text-secondary border-border-card hover:bg-bg-hover hover:text-text-primary"
               }`}
             >
               {isAC ? (
-                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
               ) : isFailed ? (
-                <XCircle className="w-4 h-4 text-rose-400 shrink-0" />
+                <XCircle className="w-4 h-4 text-rose-500 shrink-0" />
               ) : (
-                <span className="w-2 h-2 rounded-full bg-gray-500 shrink-0" />
+                <span className="w-2 h-2 rounded-full bg-text-muted shrink-0" />
               )}
               <span>Bài {idx + 1}: {p.title.replace(/^\[.*?\]\s*/, "")}</span>
-              {isAC && <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.2 rounded">100đ</span>}
+              {isAC && <span className="text-[10px] bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 px-1.5 py-0.2 rounded font-bold">100đ</span>}
             </button>
           );
         })}
@@ -350,7 +352,7 @@ export default function CodingExamRunnerPage() {
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
         
         {/* Left Column: Problem Statement */}
-        <div className="w-full lg:w-1/2 flex flex-col border-r border-white/10 bg-[#0d1117] overflow-y-auto p-6 scrollbar-thin scrollbar-thumb-white/10">
+        <div className="w-full lg:w-1/2 flex flex-col border-r border-border-card bg-bg-main overflow-y-auto p-6 scrollbar-thin">
           {currentProblem ? (
             <div className="space-y-6 max-w-2xl">
               <div>
@@ -358,23 +360,23 @@ export default function CodingExamRunnerPage() {
                   <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${DIFF_STYLE[currentProblem.difficulty || "easy"]}`}>
                     {DIFF_LABEL[currentProblem.difficulty || "easy"]}
                   </span>
-                  <span className="text-xs text-gray-400">Độ khó Elo: {currentProblem.rating || 800}</span>
+                  <span className="text-xs text-text-muted">Độ khó Elo: {currentProblem.rating || 800}</span>
                 </div>
-                <h2 className="text-2xl font-black text-white tracking-tight">
+                <h2 className="text-2xl font-black text-text-primary tracking-tight">
                   {currentProblem.title}
                 </h2>
               </div>
 
               {/* Statement Description with LaTeX */}
-              <div className="prose prose-invert prose-sm text-gray-300 leading-relaxed space-y-4">
+              <div className="text-text-primary leading-relaxed space-y-4">
                 <MathText text={currentProblem.description || ""} />
               </div>
 
               {/* Constraints */}
               {currentProblem.constraints && currentProblem.constraints.length > 0 && (
-                <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/10">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Ràng Buộc Dữ Liệu</h3>
-                  <ul className="list-disc list-inside space-y-1 text-xs text-gray-300">
+                <div className="p-4 rounded-2xl bg-bg-card border border-border-card shadow-sm">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-text-secondary mb-2">Ràng Buộc Dữ Liệu</h3>
+                  <ul className="list-disc list-inside space-y-1.5 text-sm text-text-primary">
                     {currentProblem.constraints.map((c: string, i: number) => (
                       <li key={i}><MathText text={c} /></li>
                     ))}
@@ -385,25 +387,25 @@ export default function CodingExamRunnerPage() {
               {/* Examples */}
               {currentProblem.examples && currentProblem.examples.length > 0 && (
                 <div className="space-y-4">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">Ví Dụ Mẫu (Sample Tests)</h3>
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-text-secondary">Ví Dụ Mẫu (Sample Tests)</h3>
                   {currentProblem.examples.map((ex: any, i: number) => (
-                    <div key={i} className="p-4 rounded-2xl bg-[#161b22] border border-white/10 space-y-3">
+                    <div key={i} className="p-4 rounded-2xl bg-bg-card border border-border-card space-y-3 shadow-sm">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                          <span className="text-[10px] font-bold uppercase text-gray-400 block mb-1">Input:</span>
-                          <pre className="p-2.5 rounded-xl bg-[#0d1117] border border-white/5 text-xs font-mono text-emerald-300 overflow-x-auto">
+                          <span className="text-[10px] font-bold uppercase text-text-muted block mb-1">Input:</span>
+                          <pre className="p-2.5 rounded-xl bg-bg-input border border-border-card text-xs font-mono text-emerald-600 dark:text-emerald-400 overflow-x-auto">
                             {ex.input || "(Trống)"}
                           </pre>
                         </div>
                         <div>
-                          <span className="text-[10px] font-bold uppercase text-gray-400 block mb-1">Output:</span>
-                          <pre className="p-2.5 rounded-xl bg-[#0d1117] border border-white/5 text-xs font-mono text-indigo-300 overflow-x-auto">
+                          <span className="text-[10px] font-bold uppercase text-text-muted block mb-1">Output:</span>
+                          <pre className="p-2.5 rounded-xl bg-bg-input border border-border-card text-xs font-mono text-indigo-600 dark:text-indigo-400 overflow-x-auto">
                             {ex.output}
                           </pre>
                         </div>
                       </div>
                       {ex.explanation && (
-                        <p className="text-xs text-gray-400 border-t border-white/5 pt-2">
+                        <p className="text-xs text-text-secondary border-t border-border-card pt-2">
                           💡 <strong>Giải thích:</strong> {ex.explanation}
                         </p>
                       )}
@@ -413,17 +415,17 @@ export default function CodingExamRunnerPage() {
               )}
             </div>
           ) : (
-            <div className="flex items-center justify-center h-full text-gray-500 text-sm">
+            <div className="flex items-center justify-center h-full text-text-muted text-sm">
               Chọn một bài toán ở thanh trên để bắt đầu làm bài.
             </div>
           )}
         </div>
 
         {/* Right Column: Code Editor & Terminal */}
-        <div className="w-full lg:w-1/2 flex flex-col bg-[#161b22] overflow-hidden">
+        <div className="w-full lg:w-1/2 flex flex-col bg-bg-card overflow-hidden">
           
           {/* Editor Header: Language selector & Actions */}
-          <div className="h-12 border-b border-white/10 px-4 flex items-center justify-between bg-[#161b22] shrink-0">
+          <div className="h-12 border-b border-border-card px-4 flex items-center justify-between bg-bg-card shrink-0">
             {/* Lang switcher */}
             <div className="flex items-center gap-1.5">
               {LANGS.map(l => (
@@ -432,8 +434,8 @@ export default function CodingExamRunnerPage() {
                   onClick={() => setLang(l.key)}
                   className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition ${
                     lang === l.key
-                      ? "bg-indigo-600/30 text-indigo-300 border border-indigo-500/40"
-                      : "text-gray-400 hover:text-gray-200 hover:bg-white/5"
+                      ? "bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30"
+                      : "text-text-muted hover:text-text-primary hover:bg-bg-hover"
                   }`}
                 >
                   <span>{l.icon}</span>
@@ -447,16 +449,16 @@ export default function CodingExamRunnerPage() {
               <button
                 onClick={handleRunCustomTest}
                 disabled={runningTest || submittingJudge}
-                className="px-3.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-bold text-gray-200 flex items-center gap-1.5 transition disabled:opacity-50"
+                className="px-3.5 py-1.5 rounded-xl bg-bg-main hover:bg-bg-hover border border-border-card text-xs font-bold text-text-primary flex items-center gap-1.5 transition disabled:opacity-50"
               >
-                {runningTest ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Play className="w-3.5 h-3.5 text-emerald-400" />}
+                {runningTest ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Play className="w-3.5 h-3.5 text-emerald-500" />}
                 <span>Chạy thử</span>
               </button>
 
               <button
                 onClick={handleSubmitProblem}
                 disabled={runningTest || submittingJudge}
-                className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-xs font-bold text-white shadow-lg shadow-indigo-600/30 flex items-center gap-1.5 transition disabled:opacity-50"
+                className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-xs font-bold text-white shadow-lg shadow-indigo-600/25 flex items-center gap-1.5 transition disabled:opacity-50"
               >
                 {submittingJudge ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
                 <span>Nộp bài này</span>
@@ -465,10 +467,10 @@ export default function CodingExamRunnerPage() {
           </div>
 
           {/* Monaco Editor */}
-          <div className="flex-1 min-h-[300px] relative">
+          <div className="flex-1 min-h-[300px] relative border-b border-border-card">
             <MonacoEditor
               height="100%"
-              theme="vs-dark"
+              theme={theme === "dark" ? "vs-dark" : "vs"}
               language={LANGS.find(l => l.key === lang)?.monacoLang || "cpp"}
               value={currentCode}
               onChange={handleCodeChange}
@@ -486,26 +488,26 @@ export default function CodingExamRunnerPage() {
 
           {/* ── Interactive Bottom Terminal ──────────────────────── */}
           {isTerminalOpen && (
-            <div className="h-64 border-t border-white/10 bg-[#0d1117] flex flex-col shrink-0">
+            <div className="h-64 border-t border-border-card bg-bg-card flex flex-col shrink-0">
               
               {/* Terminal Tab Bar */}
-              <div className="h-9 border-b border-white/10 bg-[#161b22] px-4 flex items-center justify-between text-xs text-gray-400">
+              <div className="h-9 border-b border-border-card bg-bg-main px-4 flex items-center justify-between text-xs text-text-muted">
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setTerminalView("split")}
-                    className={`px-2.5 py-1 rounded-md transition ${terminalView === "split" ? "bg-white/10 text-white font-bold" : "hover:text-gray-200"}`}
+                    className={`px-2.5 py-1 rounded-md transition ${terminalView === "split" ? "bg-bg-card text-text-primary font-bold shadow-sm" : "hover:text-text-primary"}`}
                   >
                     Custom Input
                   </button>
                   <button
                     onClick={() => setTerminalView("console")}
-                    className={`px-2.5 py-1 rounded-md transition ${terminalView === "console" ? "bg-white/10 text-white font-bold" : "hover:text-gray-200"}`}
+                    className={`px-2.5 py-1 rounded-md transition ${terminalView === "console" ? "bg-bg-card text-text-primary font-bold shadow-sm" : "hover:text-text-primary"}`}
                   >
                     Console Output
                   </button>
                   <button
                     onClick={() => setTerminalView("verdict")}
-                    className={`px-2.5 py-1 rounded-md transition ${terminalView === "verdict" ? "bg-white/10 text-white font-bold" : "hover:text-gray-200"}`}
+                    className={`px-2.5 py-1 rounded-md transition ${terminalView === "verdict" ? "bg-bg-card text-text-primary font-bold shadow-sm" : "hover:text-text-primary"}`}
                   >
                     Kết quả chấm bài (Judge)
                   </button>
@@ -513,7 +515,7 @@ export default function CodingExamRunnerPage() {
 
                 <button
                   onClick={() => setIsTerminalOpen(false)}
-                  className="text-gray-500 hover:text-gray-300"
+                  className="text-text-muted hover:text-text-primary"
                 >
                   ✕ Đóng
                 </button>
@@ -523,41 +525,41 @@ export default function CodingExamRunnerPage() {
               <div className="flex-1 p-3 overflow-y-auto font-mono text-xs">
                 {terminalView === "split" || terminalView === "input" ? (
                   <div className="h-full flex flex-col">
-                    <label className="text-[10px] text-gray-500 uppercase mb-1">Dữ liệu đầu vào thử nghiệm (stdin):</label>
+                    <label className="text-[10px] text-text-muted uppercase mb-1">Dữ liệu đầu vào thử nghiệm (stdin):</label>
                     <textarea
                       value={customInput}
                       onChange={e => setCustomInput(e.target.value)}
                       placeholder={currentProblem?.examples?.[0]?.input || "Nhập test case thử nghiệm..."}
-                      className="flex-1 w-full p-2.5 rounded-xl bg-[#161b22] border border-white/10 text-gray-200 focus:outline-none focus:border-indigo-500 resize-none"
+                      className="flex-1 w-full p-2.5 rounded-xl bg-bg-input border border-border-card text-text-primary focus:outline-none focus:border-indigo-500 resize-none"
                     />
                   </div>
                 ) : terminalView === "console" ? (
                   consoleOutput ? (
                     <div className="space-y-2">
-                      <div className="flex items-center gap-3 text-gray-400 text-[11px]">
-                        <span>Trạng thái: <strong className="text-white">{consoleOutput.status}</strong></span>
+                      <div className="flex items-center gap-3 text-text-secondary text-[11px]">
+                        <span>Trạng thái: <strong className="text-text-primary">{consoleOutput.status}</strong></span>
                         <span>Thời gian: {consoleOutput.time}</span>
                         <span>Bộ nhớ: {consoleOutput.memory}</span>
                       </div>
                       {consoleOutput.stdout && (
                         <div>
-                          <span className="text-[10px] text-emerald-400 block mb-1">Standard Output:</span>
-                          <pre className="p-2.5 rounded-xl bg-[#161b22] text-emerald-300 overflow-x-auto whitespace-pre-wrap">
+                          <span className="text-[10px] text-emerald-500 font-bold block mb-1">Standard Output:</span>
+                          <pre className="p-2.5 rounded-xl bg-bg-input border border-border-card text-emerald-600 dark:text-emerald-400 overflow-x-auto whitespace-pre-wrap">
                             {consoleOutput.stdout}
                           </pre>
                         </div>
                       )}
                       {consoleOutput.stderr && (
                         <div>
-                          <span className="text-[10px] text-rose-400 block mb-1">Errors / Stderr:</span>
-                          <pre className="p-2.5 rounded-xl bg-rose-950/30 text-rose-300 border border-rose-500/20 overflow-x-auto whitespace-pre-wrap">
+                          <span className="text-[10px] text-rose-500 font-bold block mb-1">Errors / Stderr:</span>
+                          <pre className="p-2.5 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 overflow-x-auto whitespace-pre-wrap">
                             {consoleOutput.stderr}
                           </pre>
                         </div>
                       )}
                     </div>
                   ) : (
-                    <div className="text-gray-500 flex items-center justify-center h-full">
+                    <div className="text-text-muted flex items-center justify-center h-full">
                       Bấm &quot;Chạy thử&quot; để xem kết quả console.
                     </div>
                   )
@@ -567,24 +569,24 @@ export default function CodingExamRunnerPage() {
                       <div className="flex items-center gap-3">
                         <span className={`px-3 py-1 rounded-xl font-bold text-sm border ${
                           judgeResult.verdict === "AC"
-                            ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
-                            : "bg-rose-500/20 text-rose-300 border-rose-500/30"
+                            ? "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border-emerald-500/30"
+                            : "bg-rose-500/20 text-rose-600 dark:text-rose-400 border-rose-500/30"
                         }`}>
                           {judgeResult.verdict === "AC" ? "✅ Accepted (100đ)" : `❌ ${judgeResult.verdict}`}
                         </span>
-                        <span className="text-gray-400">
-                          Đạt <strong>{judgeResult.passed || 0}/{judgeResult.total || 0}</strong> test cases
+                        <span className="text-text-secondary">
+                          Đạt <strong className="text-text-primary">{judgeResult.passed || 0}/{judgeResult.total || 0}</strong> test cases
                         </span>
                       </div>
 
                       {judgeResult.error && (
-                        <pre className="p-2.5 rounded-xl bg-rose-950/30 text-rose-300 border border-rose-500/20 whitespace-pre-wrap">
+                        <pre className="p-2.5 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 whitespace-pre-wrap">
                           {judgeResult.error}
                         </pre>
                       )}
                     </div>
                   ) : (
-                    <div className="text-gray-500 flex items-center justify-center h-full">
+                    <div className="text-text-muted flex items-center justify-center h-full">
                       Bấm &quot;Nộp bài này&quot; để hệ thống chấm toàn bộ test cases.
                     </div>
                   )

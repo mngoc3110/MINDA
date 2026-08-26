@@ -407,7 +407,7 @@ export default function CodeProblemPage() {
             {leftTab === "problem" && (
               <div className="space-y-6">
                 {/* Statement text with Markdown & LaTeX Math */}
-                <div className="prose prose-invert max-w-none text-slate-200 leading-relaxed">
+                <div className="text-text-primary leading-relaxed space-y-4">
                   <MathText>{problem?.statement || problem?.description}</MathText>
                 </div>
 
