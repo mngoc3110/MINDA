@@ -95,7 +95,7 @@ def run_code(language: str, code: str, stdin_input: str = "", timeout: float = 3
             # Compile step
             compiler = "g++" if shutil.which("g++") else "clang++"
             compile_proc = subprocess.run(
-                [compiler, "-O2", "-std=c++17", src_path, "-o", bin_path],
+                [compiler, "-O2", "-std=c++17", "-DONLINE_JUDGE", src_path, "-o", bin_path],
                 capture_output=True,
                 text=True,
                 timeout=8.0,
@@ -247,7 +247,7 @@ def judge_submission(language: str, code: str, test_cases: List[Dict[str, Any]],
 
             compiler = "g++" if shutil.which("g++") else "clang++"
             compile_proc = subprocess.run(
-                [compiler, "-O2", "-std=c++17", src_path, "-o", bin_path],
+                [compiler, "-O2", "-std=c++17", "-DONLINE_JUDGE", src_path, "-o", bin_path],
                 capture_output=True,
                 text=True,
                 timeout=8.0,

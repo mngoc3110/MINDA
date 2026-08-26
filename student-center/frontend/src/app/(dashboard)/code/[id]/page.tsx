@@ -142,12 +142,14 @@ export default function CodeProblemPage() {
     if (problem?.starter_code?.[l]) {
       setCode(problem.starter_code[l]);
     } else {
+      const taskName = (problem?.slug || "PROBLEM").toUpperCase().replace(/-/g, "_");
+      const defaultCpp = `/**\n * Task: ${taskName} - ${problem?.title || ""}\n * Cú pháp chuẩn Lập trình thi đấu & HSG Tin học\n */\n#include <bits/stdc++.h>\nusing namespace std;\n\n#define TASK "${taskName}"\n\nvoid setupIO() {\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    cout.tie(NULL);\n\n    #ifndef ONLINE_JUDGE\n        if (fopen(TASK ".INP", "r")) {\n            freopen(TASK ".INP", "r", stdin);\n            freopen(TASK ".OUT", "w", stdout);\n        }\n    #endif\n}\n\nvoid solve() {\n    // Viết thuật toán giải bài toán tại đây\n    \n}\n\nint main() {\n    setupIO();\n\n    int testCount = 1;\n    // cin >> testCount; // Mở comment nếu đề bài có nhiều test cases\n    while (testCount--) {\n        solve();\n    }\n\n    return 0;\n}`;
       setCode(
         l === "cpp"
-          ? "#include <iostream>\nusing namespace std;\n\nint main() {\n    // Viết code ở đây\n    return 0;\n}"
+          ? defaultCpp
           : l === "javascript"
-          ? "const fs = require('fs');\nconst input = fs.readFileSync(0, 'utf-8');\nconsole.log(input);\n"
-          : "# Viết code Python ở đây\n\n"
+          ? `// Task: ${taskName}\n// Viết code giải bài toán tại đây\n\n`
+          : `# Task: ${taskName}\n# Viết code giải bài toán tại đây\n\n`
       );
     }
   };
