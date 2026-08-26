@@ -31,6 +31,7 @@ from app.models.session_report import (
     AttendanceRecord, AttendanceDevice, StudentBiometric,
     ParentLink, SessionReport, WeeklyReport, MonthlyReport
 )
+from app.models.code_problem import CodeProblem, CodeSubmission, CodingExam
 
 # Import routers
 from app.api.endpoints import courses, assignments, exams, tuition, admin, auth, files, profile, google_auth, live_sessions, dashboard, emotion, ai_solver, assignment_folders, manim, yearbook, schedules, honors, testimonials

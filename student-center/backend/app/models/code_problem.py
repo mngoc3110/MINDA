@@ -41,3 +41,24 @@ class CodeSubmission(Base):
 
     problem = relationship("CodeProblem", backref="submissions")
     user = relationship("User", backref="code_submissions")
+
+
+class CodingExam(Base):
+    """Đề thi / Kỳ thi lập trình gồm tập hợp nhiều bài toán code"""
+    __tablename__ = "coding_exams"
+
+    id = Column(Integer, primary_key=True, index=True)
+    slug = Column(String, unique=True, index=True, nullable=False)
+    title = Column(String, nullable=False)
+    description = Column(Text, nullable=True)
+    duration_minutes = Column(Integer, default=120) # Thời gian làm bài (phút)
+    track = Column(String, default="thcs") # thcs, thpt, basic, contest
+    difficulty = Column(String, default="medium") # easy, medium, hard
+    total_score = Column(Integer, default=100)
+    is_published = Column(Boolean, default=True)
+    problem_ids = Column(JSON, default=list) # Danh sách ID các bài toán thuộc đề thi [1, 2, 3, ...]
+    tags = Column(JSON, default=list) # ["HSG Tin 8", "C++", "Level 01"]
+    creator_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    creator = relationship("User", foreign_keys=[creator_id])

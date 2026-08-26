@@ -13,14 +13,14 @@ from app.models.session_report import (
     AttendanceRecord, AttendanceDevice, StudentBiometric, AttendanceStatus, AttendanceMethod,
     ParentLink, SessionReport, WeeklyReport, MonthlyReport, HomeworkStatus
 )
-from app.models.code_problem import CodeProblem, CodeSubmission
+from app.models.code_problem import CodeProblem, CodeSubmission, CodingExam
 from app.models.revision import RevisionNotebook, RevisionDocument, RevisionQuiz, RevisionAttempt
 
 __all__ = [
     "User", "UserRole",
     "Course", "Enrollment", "CourseChapter", "Lesson", "LessonProgress",
     "Assignment", "AssignmentSubmission",
-    "CodeProblem", "CodeSubmission",
+    "CodeProblem", "CodeSubmission", "CodingExam",
     "RevisionNotebook", "RevisionDocument", "RevisionQuiz", "RevisionAttempt",
     "EmotionLog",
     "Exam", "ExamQuestion", "ExamSubmission",

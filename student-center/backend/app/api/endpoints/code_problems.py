@@ -8,10 +8,10 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel
 
 from app.db.database import get_db
-from app.models.code_problem import CodeProblem, CodeSubmission
+from app.models.code_problem import CodeProblem, CodeSubmission, CodingExam
 from app.models.user import User
 from app.core.security import get_current_user
-from app.services.problem_importer import seed_code_problems
+from app.services.problem_importer import seed_code_problems, seed_coding_exams
 from app.services.code_runner import run_code, judge_submission
 
 router = APIRouter()
@@ -33,16 +33,31 @@ class StandaloneRunRequest(BaseModel):
 
 class ProblemCreate(BaseModel):
     title: str
+    slug: Optional[str] = None
     subject: str = "Lập trình cơ bản"
     chapter: str = "1. Nhập / Xuất"
+    track: str = "thcs"
     difficulty: str = "easy"
     rating: int = 800
     description: str
+    tags: Optional[List[str]] = []
     constraints: Optional[List[str]] = []
     examples: Optional[List[dict]] = []
     hints: Optional[List[str]] = []
     starter_code: Optional[dict] = {}
     test_cases: Optional[List[dict]] = []
+    source: Optional[str] = "MINDA Problem Creator"
+
+class ExamCreate(BaseModel):
+    title: str
+    slug: Optional[str] = None
+    description: Optional[str] = None
+    duration_minutes: int = 120
+    track: str = "thcs"
+    difficulty: str = "medium"
+    total_score: int = 100
+    tags: Optional[List[str]] = []
+    problem_ids: List[int]
 
 @router.get("/problems")
 def get_code_problems(
@@ -142,7 +157,11 @@ def create_code_problem(
     """Giáo viên / Admin tạo bài tập lập trình mới."""
     import re, time
     slug_base = "custom-" + re.sub(r'[^a-z0-9]+', '-', data.title.lower()).strip('-')
-    slug = f"{slug_base}-{int(time.time())}"
+    slug = data.slug or f"{slug_base}-{int(time.time())}"
+
+    existing = db.query(CodeProblem).filter(CodeProblem.slug == slug).first()
+    if existing:
+        slug = f"{slug}-{int(time.time()) % 10000}"
 
     problem = CodeProblem(
         slug=slug,
@@ -150,10 +169,10 @@ def create_code_problem(
         description=data.description,
         difficulty=data.difficulty,
         rating=data.rating,
-        track="basic",
-        subject=data.subject,
-        chapter=data.chapter,
-        tags=["Giáo viên MINDA", data.subject, data.chapter],
+        track=data.track or "basic",
+        subject=data.subject or "Lập trình cơ bản",
+        chapter=data.chapter or "1. Nhập / Xuất",
+        tags=data.tags or ["Giáo viên MINDA", data.subject or "", data.chapter or ""],
         constraints=data.constraints or ["Thời gian <= 1.0s", "Bộ nhớ <= 256MB"],
         examples=data.examples or [{"input": "Sample", "output": "Sample", "explanation": "Ví dụ mẫu"}],
         hints=data.hints or [],
@@ -162,12 +181,132 @@ def create_code_problem(
             "python": "# Viết code Python ở đây\n\n"
         },
         test_cases=data.test_cases or [],
-        source=f"Giáo viên {current_user.full_name or 'MINDA'}"
+        source=data.source or f"Giáo viên {current_user.full_name or 'MINDA'}"
     )
     db.add(problem)
     db.commit()
     db.refresh(problem)
-    return {"message": "Đã tạo bài tập thành công", "id": problem.id, "slug": problem.slug}
+    return {"message": "Đã tạo bài tập thành công", "id": problem.id, "slug": problem.slug, "title": problem.title}
+
+# ─── CODING EXAMS / CONTESTS ENDPOINTS ────────────────────────────────────────
+
+@router.get("/coding-exams")
+def get_coding_exams(
+    track: Optional[str] = None,
+    db: Session = Depends(get_db)
+):
+    """Lấy danh sách các đề thi / kỳ thi lập trình."""
+    if db.query(CodingExam).count() == 0:
+        seed_code_problems(db)
+
+    query = db.query(CodingExam).filter(CodingExam.is_published == True)
+    if track and track != "all":
+        query = query.filter(CodingExam.track == track)
+    exams = query.order_by(CodingExam.id.asc()).all()
+
+    res = []
+    for ex in exams:
+        prob_count = len(ex.problem_ids) if ex.problem_ids else 0
+        res.append({
+            "id": ex.id,
+            "slug": ex.slug,
+            "title": ex.title,
+            "description": ex.description,
+            "duration_minutes": ex.duration_minutes,
+            "track": ex.track,
+            "difficulty": ex.difficulty,
+            "total_score": ex.total_score,
+            "tags": ex.tags or [],
+            "problem_count": prob_count,
+            "problem_ids": ex.problem_ids or [],
+            "created_at": ex.created_at.isoformat() if ex.created_at else None
+        })
+    return res
+
+@router.get("/coding-exams/{slug_or_id}")
+def get_coding_exam_detail(slug_or_id: str, db: Session = Depends(get_db)):
+    """Xem chi tiết đề thi và thông tin toàn bộ các bài toán bên trong."""
+    if slug_or_id.isdigit():
+        exam = db.query(CodingExam).filter(CodingExam.id == int(slug_or_id)).first()
+    else:
+        exam = db.query(CodingExam).filter(CodingExam.slug == slug_or_id).first()
+
+    if not exam:
+        seed_code_problems(db)
+        if slug_or_id.isdigit():
+            exam = db.query(CodingExam).filter(CodingExam.id == int(slug_or_id)).first()
+        else:
+            exam = db.query(CodingExam).filter(CodingExam.slug == slug_or_id).first()
+
+    if not exam:
+        raise HTTPException(status_code=404, detail="Không tìm thấy đề thi!")
+
+    # Fetch problems in order
+    problems = []
+    if exam.problem_ids:
+        raw_probs = db.query(CodeProblem).filter(CodeProblem.id.in_(exam.problem_ids)).all()
+        prob_map = {p.id: p for p in raw_probs}
+        for pid in exam.problem_ids:
+            if pid in prob_map:
+                p = prob_map[pid]
+                problems.append({
+                    "id": p.id,
+                    "slug": p.slug,
+                    "title": p.title,
+                    "difficulty": p.difficulty,
+                    "rating": p.rating,
+                    "description": p.description,
+                    "constraints": p.constraints or [],
+                    "examples": p.examples or [],
+                    "hints": p.hints or [],
+                    "starter_code": p.starter_code or {},
+                    "tags": p.tags or []
+                })
+
+    return {
+        "id": exam.id,
+        "slug": exam.slug,
+        "title": exam.title,
+        "description": exam.description,
+        "duration_minutes": exam.duration_minutes,
+        "track": exam.track,
+        "difficulty": exam.difficulty,
+        "total_score": exam.total_score,
+        "tags": exam.tags or [],
+        "problems": problems
+    }
+
+@router.post("/coding-exams")
+def create_coding_exam(
+    data: ExamCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Tạo đề thi lập trình mới."""
+    import re, time
+    slug_base = "exam-" + re.sub(r'[^a-z0-9]+', '-', data.title.lower()).strip('-')
+    slug = data.slug or f"{slug_base}-{int(time.time())}"
+
+    existing = db.query(CodingExam).filter(CodingExam.slug == slug).first()
+    if existing:
+        slug = f"{slug}-{int(time.time()) % 10000}"
+
+    exam = CodingExam(
+        slug=slug,
+        title=data.title,
+        description=data.description,
+        duration_minutes=data.duration_minutes,
+        track=data.track,
+        difficulty=data.difficulty,
+        total_score=data.total_score,
+        tags=data.tags or ["HSG Tin 8", "MINDA Contest"],
+        problem_ids=data.problem_ids,
+        creator_id=current_user.id
+    )
+    db.add(exam)
+    db.commit()
+    db.refresh(exam)
+    return {"message": "Tạo đề thi thành công", "exam": {"id": exam.id, "slug": exam.slug, "title": exam.title}}
 
 @router.get("/problems/{problem_id}/submissions")
 def get_problem_submissions(
