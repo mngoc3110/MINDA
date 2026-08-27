@@ -99,7 +99,8 @@ export default function CodeProblemPage() {
         if (res.ok) {
           const data = await res.json();
           setProblem(data);
-          const starter = data.starter_code?.[lang] || "# Viết code Python ở đây\n\n";
+          const savedCode = localStorage.getItem(`minda_code_${rawId}_${lang}`);
+          const starter = savedCode || data.starter_code?.[lang] || "# Viết code Python ở đây\n\n";
           setCode(starter);
           if (data.examples && data.examples.length > 0 && data.examples[0].input) {
             setCustomInput(data.examples[0].input);
@@ -139,6 +140,12 @@ export default function CodeProblemPage() {
 
   const handleLangChange = (l: LangKey) => {
     setLang(l);
+    if (!problem) return;
+    const savedCode = localStorage.getItem(`minda_code_${rawId}_${l}`);
+    if (savedCode) {
+      setCode(savedCode);
+      return;
+    }
     if (problem?.starter_code?.[l]) {
       setCode(problem.starter_code[l]);
     } else {
@@ -151,6 +158,16 @@ export default function CodeProblemPage() {
           ? `// Task: ${taskName}\n// Viết code giải bài toán tại đây\n\n`
           : `# Task: ${taskName}\n# Viết code giải bài toán tại đây\n\n`
       );
+    }
+  };
+
+  const handleEditorChange = (v: string | undefined) => {
+    const val = v || "";
+    setCode(val);
+    if (rawId) {
+      try {
+        localStorage.setItem(`minda_code_${rawId}_${lang}`, val);
+      } catch (e) {}
     }
   };
 
@@ -615,7 +632,7 @@ export default function CodeProblemPage() {
               height="100%"
               language={currentLangObj.monacoLang}
               value={code}
-              onChange={v => setCode(v ?? "")}
+              onChange={handleEditorChange}
               theme="vs-dark"
               options={{
                 fontSize: 14,
