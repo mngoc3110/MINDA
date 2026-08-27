@@ -47,6 +47,10 @@ export default function CodingExamRunnerPage() {
   const [selectedProblemIdx, setSelectedProblemIdx] = useState(0);
   const [loading, setLoading] = useState(true);
 
+  // Mobile View Switcher: "statement" | "editor" | "terminal"
+  const [mobileView, setMobileView] = useState<"statement" | "editor" | "terminal">("statement");
+  const editorRef = useRef<any>(null);
+
   // Horizontal Tab Scroll Ref
   const tabScrollRef = useRef<HTMLDivElement>(null);
   const [lastSaved, setLastSaved] = useState<string>("Đã sẵn sàng");
@@ -79,6 +83,39 @@ export default function CodingExamRunnerPage() {
   // Countdown timer in seconds
   const [timeLeft, setTimeLeft] = useState<number>(120 * 60);
   const [timerActive, setTimerActive] = useState(true);
+
+  // Quick Mobile Programming Symbols
+  const QUICK_SYMBOLS = [
+    { label: "Tab", value: "    " },
+    { label: "{ }", value: "{\n    \n}" },
+    { label: "( )", value: "()" },
+    { label: "[ ]", value: "[]" },
+    { label: ";", value: ";" },
+    { label: "<<", value: " << " },
+    { label: ">>", value: " >> " },
+    { label: "==", value: " == " },
+    { label: "!=", value: " != " },
+    { label: "<=", value: " <= " },
+    { label: ">=", value: " >= " },
+    { label: "\\n", value: "'\\n'" },
+    { label: '""', value: '""' },
+    { label: "cin", value: "cin >> " },
+    { label: "cout", value: "cout << " },
+    { label: "1LL", value: "1LL * " },
+    { label: "fixed", value: "cout << fixed << setprecision(2);\n    " }
+  ];
+
+  const insertSymbol = (text: string) => {
+    if (editorRef.current) {
+      const editor = editorRef.current;
+      const selection = editor.getSelection();
+      const op = { range: selection, text: text, forceMoveMarkers: true };
+      editor.executeEdits("symbol-bar", [op]);
+      editor.focus();
+    } else {
+      handleCodeChange(currentCode + text);
+    }
+  };
 
   // Fetch Exam details and restore from localStorage (Anti-loss on reload)
   useEffect(() => {
@@ -367,37 +404,36 @@ export default function CodingExamRunnerPage() {
   return (
     <div className="min-h-screen bg-bg-main text-text-primary flex flex-col font-sans selection:bg-indigo-500/30">
       
-      {/* ── Top Bar: Exam Title, Timer, Progress, Actions ────────── */}
-      <header className="h-16 border-b border-border-card bg-bg-card/95 backdrop-blur-md px-6 flex items-center justify-between shrink-0 z-30">
-        <div className="flex items-center gap-4">
+      {/* ── Top Bar: Exam Title, Timer, Progress, Actions (Full Responsive) ────────── */}
+      <header className="h-14 sm:h-16 border-b border-border-card bg-bg-card/95 backdrop-blur-md px-3 sm:px-6 flex items-center justify-between shrink-0 z-30 gap-2">
+        <div className="flex items-center gap-2 sm:gap-4 min-w-0">
           <Link
             href="/code"
-            className="flex items-center gap-2 text-xs font-semibold text-text-secondary hover:text-text-primary px-3 py-1.5 rounded-xl bg-bg-main border border-border-card hover:bg-bg-hover transition"
+            className="flex items-center gap-1 sm:gap-2 text-xs font-semibold text-text-secondary hover:text-text-primary px-2.5 sm:px-3 py-1.5 rounded-xl bg-bg-main border border-border-card hover:bg-bg-hover transition shrink-0"
+            title="Rời phòng thi"
           >
-            <ArrowLeft className="w-4 h-4" /> Rời phòng thi
+            <ArrowLeft className="w-4 h-4" />
+            <span className="hidden sm:inline">Rời phòng</span>
           </Link>
-          <div className="h-5 w-px bg-border-card" />
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
-                {exam.track?.toUpperCase() || "HSG TIN 8"}
+          <div className="h-5 w-px bg-border-card hidden sm:block" />
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[9px] sm:text-[10px] font-bold uppercase px-1.5 sm:px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 shrink-0">
+                {exam.track?.toUpperCase() || "HSG 8"}
               </span>
-              <h1 className="font-bold text-sm text-text-primary truncate max-w-[300px] md:max-w-md">
+              <h1 className="font-bold text-xs sm:text-sm text-text-primary truncate max-w-[140px] sm:max-w-xs md:max-w-md">
                 {exam.title}
               </h1>
             </div>
-            <p className="text-[11px] text-text-muted hidden sm:block truncate">
-              {exam.description || "Kỳ thi thử bồi dưỡng Học sinh giỏi Tin học"}
-            </p>
           </div>
         </div>
 
-        {/* Right Stats & Timer */}
-        <div className="flex items-center gap-3">
+        {/* Right Stats, PDF Handbook & Timer (Visible on all screen sizes) */}
+        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
           {/* Auto-save Status Badge */}
-          <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-medium">
-            <Save className="w-3.5 h-3.5 text-emerald-500" />
-            <span>{lastSaved}</span>
+          <div className="flex items-center gap-1 px-2 sm:px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[11px] sm:text-xs font-medium">
+            <Save className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+            <span className="hidden md:inline">{lastSaved}</span>
           </div>
 
           {/* Cẩm Nang C++ Button */}
@@ -405,33 +441,35 @@ export default function CodingExamRunnerPage() {
             href="/competitive_programming_handbook.pdf"
             target="_blank"
             rel="noopener noreferrer"
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/25 text-indigo-600 dark:text-indigo-300 text-xs font-bold transition"
+            className="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/25 text-indigo-600 dark:text-indigo-300 text-xs font-bold transition shadow-sm"
             title="Mở cẩm nang cú pháp & cơ chế C++"
           >
-            <BookOpen className="w-3.5 h-3.5" /> <span>Cẩm Nang C++ (PDF)</span>
+            <BookOpen className="w-3.5 h-3.5 shrink-0" />
+            <span className="hidden sm:inline">Cẩm Nang (PDF)</span>
+            <span className="sm:hidden">PDF</span>
           </a>
 
           {/* Progress badge */}
-          <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-bg-main border border-border-card text-xs">
-            <Trophy className="w-4 h-4 text-amber-500" />
-            <span>Đã hoàn thành: <strong className="text-text-primary">{solvedProblemsCount}/{problems.length}</strong> bài</span>
-            <span className="text-indigo-600 dark:text-indigo-400 font-bold">({totalScore}đ)</span>
+          <div className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-bg-main border border-border-card text-xs">
+            <Trophy className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+            <span className="font-bold text-text-primary">{solvedProblemsCount}/{problems.length}</span>
+            <span className="text-indigo-600 dark:text-indigo-400 font-bold hidden sm:inline">({totalScore}đ)</span>
           </div>
 
           {/* Countdown Clock */}
-          <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-indigo-500/10 border border-indigo-500/30 text-indigo-600 dark:text-indigo-300 text-xs font-mono font-bold shadow-inner">
-            <Clock className="w-4 h-4 text-indigo-500 animate-pulse" />
+          <div className="flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 rounded-xl bg-indigo-500/10 border border-indigo-500/30 text-indigo-600 dark:text-indigo-300 text-xs font-mono font-bold shadow-inner">
+            <Clock className="w-3.5 h-3.5 text-indigo-500 animate-pulse shrink-0" />
             <span>{formatTimer(timeLeft)}</span>
           </div>
         </div>
       </header>
 
       {/* ── Problem Navigation Tabs (Bài 1, Bài 2, ...) ──────────── */}
-      <div className="border-b border-border-card bg-bg-main px-4 py-2 flex items-center justify-between gap-2 shrink-0">
-        {/* Left Arrow Scroll Button */}
+      <div className="border-b border-border-card bg-bg-main px-2 sm:px-4 py-2 flex items-center justify-between gap-1.5 shrink-0 z-10">
+        {/* Left Arrow Scroll Button (Visible everywhere) */}
         <button
-          onClick={() => tabScrollRef.current?.scrollBy({ left: -260, behavior: "smooth" })}
-          className="p-1.5 rounded-xl bg-bg-card hover:bg-bg-hover border border-border-card text-text-secondary hover:text-text-primary transition shrink-0 hidden sm:flex items-center justify-center"
+          onClick={() => tabScrollRef.current?.scrollBy({ left: -240, behavior: "smooth" })}
+          className="p-1.5 rounded-xl bg-bg-card hover:bg-bg-hover border border-border-card text-text-secondary hover:text-text-primary transition shrink-0 flex items-center justify-center active:scale-95 shadow-sm"
           title="Cuộn sang trái"
         >
           <ChevronLeft className="w-4 h-4" />
@@ -445,7 +483,7 @@ export default function CodingExamRunnerPage() {
               tabScrollRef.current.scrollLeft += e.deltaY;
             }
           }}
-          className="flex-1 flex items-center gap-2 overflow-x-auto scrollbar-thin scrollbar-thumb-indigo-500/20 hover:scrollbar-thumb-indigo-500/40 pb-1 scroll-smooth"
+          className="flex-1 flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-thin scrollbar-thumb-indigo-500/20 hover:scrollbar-thumb-indigo-500/40 pb-1 scroll-smooth"
         >
           {problems.map((p, idx) => {
             const status = problemStatus[p.id];
@@ -457,16 +495,16 @@ export default function CodingExamRunnerPage() {
               <button
                 key={p.id}
                 onClick={() => setSelectedProblemIdx(idx)}
-                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium transition shrink-0 border whitespace-nowrap ${
+                className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-xs font-medium transition shrink-0 border whitespace-nowrap ${
                   isSelected
                     ? "bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-600/25"
                     : "bg-bg-card text-text-secondary border-border-card hover:bg-bg-hover hover:text-text-primary"
                 }`}
               >
                 {isAC ? (
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400 shrink-0" />
                 ) : isFailed ? (
-                  <XCircle className="w-4 h-4 text-rose-500 shrink-0" />
+                  <XCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-rose-500 shrink-0" />
                 ) : (
                   <span className="w-2 h-2 rounded-full bg-text-muted shrink-0" />
                 )}
@@ -477,21 +515,21 @@ export default function CodingExamRunnerPage() {
           })}
         </div>
 
-        {/* Right Arrow Scroll Button */}
+        {/* Right Arrow Scroll Button (Visible everywhere) */}
         <button
-          onClick={() => tabScrollRef.current?.scrollBy({ left: 260, behavior: "smooth" })}
-          className="p-1.5 rounded-xl bg-bg-card hover:bg-bg-hover border border-border-card text-text-secondary hover:text-text-primary transition shrink-0 hidden sm:flex items-center justify-center"
+          onClick={() => tabScrollRef.current?.scrollBy({ left: 240, behavior: "smooth" })}
+          className="p-1.5 rounded-xl bg-bg-card hover:bg-bg-hover border border-border-card text-text-secondary hover:text-text-primary transition shrink-0 flex items-center justify-center active:scale-95 shadow-sm"
           title="Cuộn sang phải"
         >
           <ChevronRight className="w-4 h-4" />
         </button>
 
         {/* Quick Problem Select Dropdown */}
-        <div className="shrink-0 flex items-center gap-1 pl-2 border-l border-border-card">
+        <div className="shrink-0 flex items-center gap-1 pl-1 sm:pl-2 border-l border-border-card">
           <select
             value={selectedProblemIdx}
             onChange={(e) => setSelectedProblemIdx(Number(e.target.value))}
-            className="px-2.5 py-1.5 rounded-xl bg-bg-card border border-border-card text-xs text-text-primary focus:outline-none focus:border-indigo-500 transition cursor-pointer font-medium"
+            className="px-2 py-1.5 rounded-xl bg-bg-card border border-border-card text-xs text-text-primary focus:outline-none focus:border-indigo-500 transition cursor-pointer font-medium max-w-[110px] sm:max-w-none"
             title="Chuyển nhanh tới bài toán"
           >
             {problems.map((p, idx) => (
@@ -503,11 +541,55 @@ export default function CodingExamRunnerPage() {
         </div>
       </div>
 
+      {/* ── Mobile Screen Segmented Switcher (Visible only on < lg screens) ─── */}
+      <div className="lg:hidden grid grid-cols-3 border-b border-border-card bg-bg-card p-1.5 gap-1.5 shrink-0 z-20">
+        <button
+          onClick={() => setMobileView("statement")}
+          className={`py-2 px-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition ${
+            mobileView === "statement"
+              ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
+              : "bg-bg-main text-text-secondary hover:text-text-primary"
+          }`}
+        >
+          <BookOpen className="w-3.5 h-3.5 shrink-0" /> <span>1. Đề bài</span>
+        </button>
+
+        <button
+          onClick={() => setMobileView("editor")}
+          className={`py-2 px-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition ${
+            mobileView === "editor"
+              ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
+              : "bg-bg-main text-text-secondary hover:text-text-primary"
+          }`}
+        >
+          <FileCode2 className="w-3.5 h-3.5 shrink-0" /> <span>2. Soạn Code</span>
+        </button>
+
+        <button
+          onClick={() => {
+            setMobileView("terminal");
+            setIsTerminalOpen(true);
+          }}
+          className={`py-2 px-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition relative ${
+            mobileView === "terminal"
+              ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
+              : "bg-bg-main text-text-secondary hover:text-text-primary"
+          }`}
+        >
+          <TerminalSquare className="w-3.5 h-3.5 shrink-0" /> <span>3. Chấm / Test</span>
+          {judgeResult && (
+            <span className={`w-2 h-2 rounded-full absolute top-1.5 right-1.5 ${judgeResult.verdict === "AC" ? "bg-emerald-400" : "bg-rose-400"}`} />
+          )}
+        </button>
+      </div>
+
       {/* ── Main Exam Body: Split Problem Statement & Code Editor ─── */}
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
         
-        {/* Left Column: Problem Statement */}
-        <div className="w-full lg:w-1/2 flex flex-col border-r border-border-card bg-bg-main overflow-y-auto p-6 scrollbar-thin">
+        {/* Left Column: Problem Statement (Responsive for mobile) */}
+        <div className={`w-full lg:w-1/2 flex-col border-r border-border-card bg-bg-main overflow-y-auto p-4 sm:p-6 scrollbar-thin ${
+          mobileView === "statement" ? "flex" : "hidden lg:flex"
+        }`}>
           {currentProblem ? (
             <div className="space-y-6 max-w-2xl">
               <div>
@@ -517,13 +599,13 @@ export default function CodingExamRunnerPage() {
                   </span>
                   <span className="text-xs text-text-muted">Độ khó Elo: {currentProblem.rating || 800}</span>
                 </div>
-                <h2 className="text-2xl font-black text-text-primary tracking-tight">
+                <h2 className="text-xl sm:text-2xl font-black text-text-primary tracking-tight">
                   {currentProblem.title}
                 </h2>
               </div>
 
               {/* Statement Description with LaTeX */}
-              <div className="text-text-primary leading-relaxed space-y-4">
+              <div className="text-text-primary leading-relaxed space-y-4 text-sm sm:text-base">
                 <MathText text={currentProblem.description || ""} />
               </div>
 
@@ -570,25 +652,28 @@ export default function CodingExamRunnerPage() {
               )}
 
               {/* Problem Switcher Navigation Footer */}
-              <div className="pt-6 mt-6 border-t border-border-card flex items-center justify-between gap-3">
+              <div className="pt-6 mt-6 border-t border-border-card flex items-center justify-between gap-2">
                 <button
                   onClick={() => setSelectedProblemIdx(prev => Math.max(0, prev - 1))}
                   disabled={selectedProblemIdx === 0}
-                  className="px-4 py-2.5 rounded-xl bg-bg-card hover:bg-bg-hover border border-border-card text-xs font-semibold text-text-secondary hover:text-text-primary disabled:opacity-40 disabled:pointer-events-none flex items-center gap-1.5 transition shadow-sm"
+                  className="px-3.5 sm:px-4 py-2.5 rounded-xl bg-bg-card hover:bg-bg-hover border border-border-card text-xs font-semibold text-text-secondary hover:text-text-primary disabled:opacity-40 disabled:pointer-events-none flex items-center gap-1.5 transition shadow-sm"
                 >
-                  <ChevronLeft className="w-4 h-4" /> Bài trước ({selectedProblemIdx > 0 ? `Bài ${selectedProblemIdx}` : "Đầu"})
+                  <ChevronLeft className="w-4 h-4" /> <span>Bài trước</span>
                 </button>
 
-                <span className="text-xs text-text-muted font-medium">
-                  Bài <strong>{selectedProblemIdx + 1}</strong> / {problems.length}
-                </span>
+                <button
+                  onClick={() => setMobileView("editor")}
+                  className="lg:hidden px-3.5 py-2.5 rounded-xl bg-indigo-600 text-white text-xs font-bold flex items-center gap-1.5 shadow-md shadow-indigo-600/30"
+                >
+                  <span>Làm bài</span> <ChevronRight className="w-4 h-4" />
+                </button>
 
                 <button
                   onClick={() => setSelectedProblemIdx(prev => Math.min(problems.length - 1, prev + 1))}
                   disabled={selectedProblemIdx === problems.length - 1}
-                  className="px-4 py-2.5 rounded-xl bg-indigo-600/15 hover:bg-indigo-600/25 border border-indigo-500/30 text-xs font-semibold text-indigo-600 dark:text-indigo-300 disabled:opacity-40 disabled:pointer-events-none flex items-center gap-1.5 transition shadow-sm"
+                  className="px-3.5 sm:px-4 py-2.5 rounded-xl bg-indigo-600/15 hover:bg-indigo-600/25 border border-indigo-500/30 text-xs font-semibold text-indigo-600 dark:text-indigo-300 disabled:opacity-40 disabled:pointer-events-none flex items-center gap-1.5 transition shadow-sm"
                 >
-                  Bài tiếp theo ({selectedProblemIdx < problems.length - 1 ? `Bài ${selectedProblemIdx + 2}` : "Hết"}) <ChevronRight className="w-4 h-4" />
+                  <span>Bài tiếp</span> <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
             </div>
@@ -599,35 +684,37 @@ export default function CodingExamRunnerPage() {
           )}
         </div>
 
-        {/* Right Column: Code Editor & Terminal */}
-        <div className="w-full lg:w-1/2 flex flex-col bg-bg-card overflow-hidden">
+        {/* Right Column: Code Editor & Terminal (Responsive for mobile) */}
+        <div className={`w-full lg:w-1/2 flex-col bg-bg-card overflow-hidden ${
+          mobileView !== "statement" ? "flex" : "hidden lg:flex"
+        }`}>
           
           {/* Editor Header: Language selector & Actions */}
-          <div className="h-12 border-b border-border-card px-4 flex items-center justify-between bg-bg-card shrink-0">
+          <div className="h-12 border-b border-border-card px-2 sm:px-4 flex items-center justify-between bg-bg-card shrink-0 gap-2">
             {/* Lang switcher */}
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1">
               {LANGS.map(l => (
                 <button
                   key={l.key}
                   onClick={() => setLang(l.key)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition ${
+                  className={`px-2 sm:px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 transition ${
                     lang === l.key
                       ? "bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30"
                       : "text-text-muted hover:text-text-primary hover:bg-bg-hover"
                   }`}
                 >
                   <span>{l.icon}</span>
-                  <span>{l.label}</span>
+                  <span className="hidden sm:inline">{l.label}</span>
                 </button>
               ))}
             </div>
 
             {/* Run & Submit buttons */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
               <button
                 onClick={handleRunCustomTest}
                 disabled={runningTest || submittingJudge}
-                className="px-3.5 py-1.5 rounded-xl bg-bg-main hover:bg-bg-hover border border-border-card text-xs font-bold text-text-primary flex items-center gap-1.5 transition disabled:opacity-50"
+                className="px-2.5 sm:px-3.5 py-1.5 rounded-xl bg-bg-main hover:bg-bg-hover border border-border-card text-xs font-bold text-text-primary flex items-center gap-1.5 transition disabled:opacity-50 active:scale-95"
               >
                 {runningTest ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Play className="w-3.5 h-3.5 text-emerald-500" />}
                 <span>Chạy thử</span>
@@ -636,22 +723,65 @@ export default function CodingExamRunnerPage() {
               <button
                 onClick={handleSubmitProblem}
                 disabled={runningTest || submittingJudge}
-                className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-xs font-bold text-white shadow-lg shadow-indigo-600/25 flex items-center gap-1.5 transition disabled:opacity-50"
+                className="px-3 sm:px-4 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-xs font-bold text-white shadow-lg shadow-indigo-600/25 flex items-center gap-1.5 transition disabled:opacity-50 active:scale-95"
               >
                 {submittingJudge ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
-                <span>Nộp bài này</span>
+                <span>Nộp bài</span>
               </button>
             </div>
           </div>
 
-          {/* Monaco Editor */}
-          <div className="flex-1 min-h-[300px] relative border-b border-border-card">
+          {/* ── Quick Programming Symbols Helper Bar (Touch Optimized) ── */}
+          <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 bg-bg-main border-b border-border-card overflow-x-auto scrollbar-thin shrink-0 select-none">
+            <span className="text-[10px] uppercase font-bold text-text-muted shrink-0 hidden sm:inline mr-1">Phím tắt:</span>
+            {QUICK_SYMBOLS.map((s, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => insertSymbol(s.value)}
+                className="px-2 sm:px-2.5 py-1 rounded-lg bg-bg-card hover:bg-indigo-600 hover:text-white border border-border-card text-xs font-mono font-bold text-text-primary transition shrink-0 active:scale-90 shadow-sm"
+              >
+                {s.label}
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={() => {
+                navigator.clipboard.writeText(currentCode);
+                alert("Đã sao chép toàn bộ mã nguồn!");
+              }}
+              className="px-2 py-1 rounded-lg bg-bg-card hover:bg-bg-hover border border-border-card text-xs font-medium text-text-secondary transition shrink-0 flex items-center gap-1 active:scale-95"
+              title="Sao chép mã nguồn"
+            >
+              <Copy className="w-3 h-3" /> Copy
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                if (confirm("Khôi phục lại mã nguồn mẫu ban đầu cho bài này?")) {
+                  const taskName = (currentProblem?.slug || "PROBLEM").toUpperCase().replace(/-/g, "_");
+                  const defaultCpp = `/**\n * Task: ${taskName} - ${currentProblem?.title || ""}\n * Cú pháp chuẩn Lập trình thi đấu & HSG Tin học\n */\n#include <bits/stdc++.h>\nusing namespace std;\n\n#define TASK "${taskName}"\n\nvoid setupIO() {\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    cout.tie(NULL);\n\n    #ifndef ONLINE_JUDGE\n        if (fopen(TASK ".INP", "r")) {\n            freopen(TASK ".INP", "r", stdin);\n            freopen(TASK ".OUT", "w", stdout);\n        }\n    #endif\n}\n\nvoid solve() {\n    // Viết thuật toán giải bài toán tại đây\n    \n}\n\nint main() {\n    setupIO();\n\n    int testCount = 1;\n    // cin >> testCount; // Mở comment nếu đề bài có nhiều test cases\n    while (testCount--) {\n        solve();\n    }\n\n    return 0;\n}`;
+                  handleCodeChange(currentProblem?.starter_code?.[lang] || defaultCpp);
+                }
+              }}
+              className="px-2 py-1 rounded-lg bg-bg-card hover:bg-rose-500/10 hover:text-rose-500 border border-border-card text-xs font-medium text-text-muted transition shrink-0 flex items-center gap-1 active:scale-95"
+              title="Khôi phục mẫu ban đầu"
+            >
+              <RotateCcw className="w-3 h-3" /> Reset
+            </button>
+          </div>
+
+          {/* Monaco Editor (Hidden on mobile if user is viewing full terminal) */}
+          <div className={`min-h-[260px] relative border-b border-border-card ${
+            mobileView === "terminal" ? "hidden lg:flex flex-1" : "flex-1"
+          }`}>
             <MonacoEditor
               height="100%"
               theme={theme === "dark" ? "vs-dark" : "vs"}
               language={LANGS.find(l => l.key === lang)?.monacoLang || "cpp"}
               value={currentCode}
               onChange={handleCodeChange}
+              onMount={(editor) => { editorRef.current = editor; }}
               options={{
                 fontSize: 13,
                 fontFamily: "var(--font-mono), 'Fira Code', Menlo, Consolas, monospace",
@@ -665,8 +795,10 @@ export default function CodingExamRunnerPage() {
           </div>
 
           {/* ── Interactive Bottom Terminal ──────────────────────── */}
-          {isTerminalOpen && (
-            <div className="h-64 border-t border-border-card bg-bg-card flex flex-col shrink-0">
+          {(isTerminalOpen || mobileView === "terminal") && (
+            <div className={`border-t border-border-card bg-bg-card flex flex-col shrink-0 ${
+              mobileView === "terminal" ? "flex-1 min-h-[350px]" : "h-64"
+            }`}>
               
               {/* Terminal Tab Bar */}
               <div className="h-9 border-b border-border-card bg-bg-main px-4 flex items-center justify-between text-xs text-text-muted">

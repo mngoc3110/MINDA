@@ -88,6 +88,43 @@ export default function CodeProblemPage() {
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [submittedSuccess, setSubmittedSuccess] = useState(false);
 
+  // Mobile View Switcher: "statement" | "editor" | "terminal"
+  const [mobileView, setMobileView] = useState<"statement" | "editor" | "terminal">("statement");
+  const editorRef = useRef<any>(null);
+
+  // Quick Mobile Programming Symbols
+  const QUICK_SYMBOLS = [
+    { label: "Tab", value: "    " },
+    { label: "{ }", value: "{\n    \n}" },
+    { label: "( )", value: "()" },
+    { label: "[ ]", value: "[]" },
+    { label: ";", value: ";" },
+    { label: "<<", value: " << " },
+    { label: ">>", value: " >> " },
+    { label: "==", value: " == " },
+    { label: "!=", value: " != " },
+    { label: "<=", value: " <= " },
+    { label: ">=", value: " >= " },
+    { label: "\\n", value: "'\\n'" },
+    { label: '""', value: '""' },
+    { label: "cin", value: "cin >> " },
+    { label: "cout", value: "cout << " },
+    { label: "1LL", value: "1LL * " },
+    { label: "fixed", value: "cout << fixed << setprecision(2);\n    " }
+  ];
+
+  const insertSymbol = (text: string) => {
+    if (editorRef.current) {
+      const editor = editorRef.current;
+      const selection = editor.getSelection();
+      const op = { range: selection, text: text, forceMoveMarkers: true };
+      editor.executeEdits("symbol-bar", [op]);
+      editor.focus();
+    } else {
+      handleEditorChange(code + text);
+    }
+  };
+
   // User & Submissions
   const [userRole, setUserRole] = useState<string>("student");
   const [submissions, setSubmissions] = useState<any[]>([]);
@@ -186,6 +223,7 @@ export default function CodeProblemPage() {
     if (!problem?.id) return;
     setRunningTest(true);
     setIsTerminalOpen(true);
+    setMobileView("terminal");
     // Switch to split view or console to see output immediately
     if (terminalView === "verdict") {
       setTerminalView("split");
@@ -231,6 +269,7 @@ export default function CodeProblemPage() {
     if (!problem?.id) return;
     setSubmittingJudge(true);
     setIsTerminalOpen(true);
+    setMobileView("terminal");
     setTerminalView("verdict");
     setJudgeResult(null);
 
@@ -292,7 +331,6 @@ export default function CodeProblemPage() {
   };
 
   const currentLangObj = LANGS.find(l => l.key === lang) || LANGS[0];
-
   if (loading) {
     return (
       <div className="min-h-screen bg-[#090d16] flex flex-col items-center justify-center text-text-primary">
@@ -305,86 +343,129 @@ export default function CodeProblemPage() {
   return (
     <div className="min-h-screen bg-[#090d16] text-text-primary flex flex-col" style={{ maxHeight: "100vh", overflow: "hidden" }}>
 
-      {/* ── Top Header Navigation Bar ─────────────────────────────────────── */}
-      <div className="flex items-center justify-between gap-3 px-4 py-2.5 border-b border-white/10 bg-[#0d121d] shrink-0">
-        <div className="flex items-center gap-3 min-w-0 flex-1">
+      {/* ── Top Header Navigation Bar (Responsive for Mobile & Desktop) ─────── */}
+      <div className="flex items-center justify-between gap-2 px-3 sm:px-4 py-2 border-b border-white/10 bg-[#0d121d] shrink-0">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
           <Link
             href="/code"
-            className="p-2 rounded-xl hover:bg-white/10 text-slate-400 hover:text-white transition flex items-center justify-center border border-white/5"
+            className="p-1.5 sm:p-2 rounded-xl hover:bg-white/10 text-slate-400 hover:text-white transition flex items-center justify-center border border-white/5 shrink-0"
             title="Quay lại kho bài tập"
           >
             <ArrowLeft className="w-4 h-4" />
           </Link>
-          <div className="flex items-center gap-2.5 min-w-0">
-            <h1 className="font-bold text-sm sm:text-base truncate text-white tracking-tight">{problem?.title}</h1>
-            <span className={`text-[11px] px-2.5 py-0.5 rounded-full border font-bold shrink-0 ${DIFF_STYLE[problem?.difficulty || "easy"]}`}>
+          <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0">
+            <h1 className="font-bold text-xs sm:text-base truncate text-white tracking-tight">{problem?.title}</h1>
+            <span className={`text-[10px] sm:text-[11px] px-2 py-0.5 rounded-full border font-bold shrink-0 ${DIFF_STYLE[problem?.difficulty || "easy"]}`}>
               {DIFF_LABEL[problem?.difficulty || "easy"]}
             </span>
-            <span className="text-[11px] px-2.5 py-0.5 rounded-full border border-indigo-500/30 bg-indigo-500/10 text-indigo-300 font-mono font-semibold shrink-0 hidden sm:inline-block">
+            <span className="text-[10px] sm:text-[11px] px-2 py-0.5 rounded-full border border-indigo-500/30 bg-indigo-500/10 text-indigo-300 font-mono font-semibold shrink-0 hidden sm:inline-block">
               {problem?.rating || 800} Elo
             </span>
-            {problem?.track && (
-              <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-slate-400 hidden md:inline-block">
-                {problem.track}
-              </span>
-            )}
           </div>
         </div>
 
-        {/* Top Control Buttons: 3 CLEAR SEPARATED ACTIONS */}
-        <div className="flex items-center gap-2.5 shrink-0">
-          {submittedSuccess && (
-            <span className="flex items-center gap-1.5 text-xs text-emerald-400 font-bold px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 animate-pulse">
-              <Trophy className="w-3.5 h-3.5" /> Accepted!
-            </span>
-          )}
+        {/* Top Control Buttons */}
+        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+          {/* Cẩm Nang C++ Button */}
+          <a
+            href="/competitive_programming_handbook.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/25 text-indigo-300 text-xs font-bold transition shadow-sm"
+            title="Mở cẩm nang C++ PDF"
+          >
+            <BookOpen className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Cẩm Nang C++</span>
+            <span className="sm:hidden">PDF</span>
+          </a>
 
-          {/* 1. NÚT GỌI TERMINAL (ON/OFF) */}
+          {/* 1. NÚT GỌI TERMINAL */}
           <button
             onClick={() => setIsTerminalOpen(prev => !prev)}
-            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl border text-xs font-bold transition shadow-md ${
+            className={`hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition shadow-md ${
               isTerminalOpen
-                ? "bg-purple-600/30 border-purple-500/50 text-purple-200 shadow-purple-900/20"
-                : "bg-white/5 border-white/15 text-slate-300 hover:text-white hover:bg-white/10"
+                ? "bg-purple-600/30 border-purple-500/50 text-purple-200"
+                : "bg-white/5 border-white/15 text-slate-300 hover:text-white"
             }`}
           >
-            <Terminal className="w-4 h-4 text-purple-400" />
-            <span>Gọi Terminal</span>
-            <span className={`text-[9px] px-1.5 py-0.2 rounded font-bold ${isTerminalOpen ? "bg-purple-500 text-white" : "bg-white/10 text-slate-400"}`}>
-              {isTerminalOpen ? "Đang Mở" : "Mở"}
-            </span>
+            <Terminal className="w-3.5 h-3.5 text-purple-400" />
+            <span>Terminal</span>
           </button>
 
-          {/* 2. NÚT CHẠY THỬ / TEST RIÊNG BIỆT */}
+          {/* 2. NÚT CHẠY THỬ */}
           <button
             onClick={handleRunTest}
             disabled={runningTest || submittingJudge}
             title="Chạy thử nghiệm với STDIN (Ctrl + Enter)"
-            className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 border border-indigo-400/30 text-xs font-bold text-white transition active:scale-95 disabled:opacity-50 shadow-md shadow-indigo-600/30"
+            className="flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 border border-indigo-400/30 text-xs font-bold text-white transition active:scale-95 disabled:opacity-50 shadow-md shadow-indigo-600/30"
           >
             {runningTest ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Play className="w-3.5 h-3.5 fill-current" />}
-            <span>Chạy thử (Run)</span>
-            <kbd className="hidden lg:inline text-[10px] font-mono px-1.5 py-0.2 rounded bg-black/40 text-indigo-200 border border-white/10">⌘↵</kbd>
+            <span className="hidden sm:inline">Chạy thử</span>
+            <span className="sm:hidden">Run</span>
           </button>
 
-          {/* 3. NÚT NỘP BÀI / SUBMIT RIÊNG BIỆT */}
+          {/* 3. NÚT NỘP BÀI */}
           <button
             onClick={handleSubmitJudge}
             disabled={runningTest || submittingJudge}
-            title="Nộp bài & Chấm Online Judge (Ctrl + Shift + Enter)"
-            className="flex items-center gap-2 px-4 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-xs font-bold text-white shadow-lg shadow-emerald-500/25 transition active:scale-95 disabled:opacity-50"
+            title="Nộp bài & Chấm Online Judge"
+            className="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-xs font-bold text-white shadow-lg shadow-emerald-500/25 transition active:scale-95 disabled:opacity-50"
           >
             {submittingJudge ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
-            <span>Nộp bài (Submit)</span>
+            <span>Nộp bài</span>
           </button>
         </div>
+      </div>
+
+      {/* ── Mobile Screen Segmented Switcher (Visible on < md screens) ─── */}
+      <div className="md:hidden grid grid-cols-3 border-b border-white/10 bg-[#0d121d] p-1.5 gap-1.5 shrink-0 z-20">
+        <button
+          onClick={() => setMobileView("statement")}
+          className={`py-2 px-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition ${
+            mobileView === "statement"
+              ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
+              : "bg-white/5 text-slate-400 hover:text-white"
+          }`}
+        >
+          <BookOpen className="w-3.5 h-3.5 shrink-0" /> <span>1. Đề bài</span>
+        </button>
+
+        <button
+          onClick={() => setMobileView("editor")}
+          className={`py-2 px-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition ${
+            mobileView === "editor"
+              ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
+              : "bg-white/5 text-slate-400 hover:text-white"
+          }`}
+        >
+          <FileCode2 className="w-3.5 h-3.5 shrink-0" /> <span>2. Soạn Code</span>
+        </button>
+
+        <button
+          onClick={() => {
+            setMobileView("terminal");
+            setIsTerminalOpen(true);
+          }}
+          className={`py-2 px-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition relative ${
+            mobileView === "terminal"
+              ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
+              : "bg-white/5 text-slate-400 hover:text-white"
+          }`}
+        >
+          <TerminalSquare className="w-3.5 h-3.5 shrink-0" /> <span>3. Kết quả</span>
+          {judgeResult && (
+            <span className={`w-2 h-2 rounded-full absolute top-1.5 right-1.5 ${judgeResult.verdict === "AC" ? "bg-emerald-400" : "bg-rose-400"}`} />
+          )}
+        </button>
       </div>
 
       {/* ── Main Split View ────────────────────────────────────────────────── */}
       <div className="flex flex-1 overflow-hidden">
 
         {/* ── LEFT COLUMN: Problem Statement & Hints Only ──────────────────── */}
-        <div className="w-full md:w-[460px] lg:w-[520px] shrink-0 flex flex-col border-r border-white/10 bg-[#0d121d] overflow-hidden">
+        <div className={`w-full md:w-[460px] lg:w-[520px] shrink-0 flex-col border-r border-white/10 bg-[#0d121d] overflow-hidden ${
+          mobileView === "statement" ? "flex flex-1" : "hidden md:flex"
+        }`}>
           {/* Left Tabs */}
           <div className="flex border-b border-white/10 bg-[#121826] shrink-0 px-2">
             <button
@@ -426,7 +507,7 @@ export default function CodeProblemPage() {
           </div>
 
           {/* Left Scrollable Content */}
-          <div className="flex-1 overflow-y-auto p-5 space-y-6 custom-scrollbar text-sm">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-6 custom-scrollbar text-sm">
             {leftTab === "problem" && (
               <div className="space-y-6">
                 {/* Statement text with Markdown & LaTeX Math */}
@@ -453,91 +534,51 @@ export default function CodeProblemPage() {
 
                 {/* Examples */}
                 {problem?.examples?.length > 0 && (
-                  <div className="space-y-3.5">
-                    <p className="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5" /> Ví dụ mẫu
-                    </p>
+                  <div className="space-y-3">
+                    <p className="text-xs font-bold text-slate-300 uppercase tracking-wider">Ví Dụ Mẫu (Sample Tests)</p>
                     {problem.examples.map((ex: any, i: number) => (
-                      <div key={i} className="rounded-2xl border border-white/10 bg-[#121826] overflow-hidden shadow-md">
-                        {/* Example Header */}
-                        <div className="flex items-center justify-between px-3.5 py-2 bg-white/[0.03] border-b border-white/10">
-                          <span className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
-                            <span className="w-2 h-2 rounded-full bg-emerald-400" /> Ví dụ {i + 1}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setCustomInput(ex.input);
-                              setIsTerminalOpen(true);
-                              setTerminalView("split");
-                            }}
-                            className="text-[11px] px-2.5 py-1 rounded-lg bg-indigo-500/10 text-indigo-300 hover:bg-indigo-500 hover:text-white transition font-semibold flex items-center gap-1 border border-indigo-500/20"
-                          >
-                            <TerminalSquare className="w-3 h-3" /> Nạp vào Terminal
-                          </button>
-                        </div>
-
-                        {/* Example I/O Grid */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-white/10">
-                          <div className="p-3">
-                            <div className="flex items-center justify-between mb-1.5">
-                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Input:</span>
-                              <button
-                                onClick={() => copyToClipboard(ex.input, `in-${i}`)}
-                                className="text-[11px] text-slate-400 hover:text-white flex items-center gap-1"
-                              >
-                                {copiedField === `in-${i}` ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
-                              </button>
-                            </div>
-                            <pre className="text-xs text-slate-100 font-mono bg-black/50 p-2.5 rounded-xl whitespace-pre-wrap select-all border border-white/5">{ex.input || "(Trống)"}</pre>
+                      <div key={i} className="p-4 rounded-2xl bg-white/[0.02] border border-white/10 space-y-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div>
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Input:</span>
+                            <pre className="bg-black/50 p-2.5 rounded-xl text-xs font-mono text-emerald-400 border border-white/5 overflow-x-auto select-all">{ex.input || "(Trống)"}</pre>
                           </div>
-
-                          <div className="p-3">
-                            <div className="flex items-center justify-between mb-1.5">
-                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Output:</span>
-                              <button
-                                onClick={() => copyToClipboard(ex.output, `out-${i}`)}
-                                className="text-[11px] text-slate-400 hover:text-white flex items-center gap-1"
-                              >
-                                {copiedField === `out-${i}` ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
-                              </button>
-                            </div>
-                            <pre className="text-xs text-emerald-300 font-mono bg-black/50 p-2.5 rounded-xl whitespace-pre-wrap select-all border border-white/5">{ex.output}</pre>
+                          <div>
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Output:</span>
+                            <pre className="bg-black/50 p-2.5 rounded-xl text-xs font-mono text-indigo-300 border border-white/5 overflow-x-auto select-all">{ex.output}</pre>
                           </div>
                         </div>
-
                         {ex.explanation && (
-                          <div className="px-3.5 py-2.5 border-t border-white/10 text-xs text-slate-300 bg-white/[0.01]">
-                            💡 <span className="font-semibold text-white">Giải thích:</span> {ex.explanation}
-                          </div>
+                          <p className="text-xs text-slate-400 border-t border-white/5 pt-2">
+                            💡 <strong>Giải thích:</strong> {ex.explanation}
+                          </p>
                         )}
                       </div>
                     ))}
                   </div>
                 )}
 
-                {/* Tags */}
-                {problem?.tags?.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 pt-2">
-                    {problem.tags.map((t: string) => (
-                      <span key={t} className="text-[11px] px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-slate-300 font-medium">
-                        #{t}
-                      </span>
-                    ))}
-                  </div>
-                )}
+                {/* Switch to code button for mobile */}
+                <div className="md:hidden pt-4 border-t border-white/10">
+                  <button
+                    onClick={() => setMobileView("editor")}
+                    className="w-full py-2.5 rounded-xl bg-indigo-600 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/30"
+                  >
+                    <span>Mở khung soạn code</span> <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             )}
 
             {leftTab === "hints" && (
-              <div className="space-y-3.5">
-                <p className="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
-                  <Zap className="w-3.5 h-3.5" /> Gợi ý giải thuật
+              <div className="space-y-4">
+                <p className="text-xs text-amber-300 font-bold uppercase tracking-wider flex items-center gap-1.5">
+                  <Zap className="w-3.5 h-3.5" /> Gợi ý định hướng thuật toán
                 </p>
-                {problem?.hints?.map((h: string, i: number) => (
-                  <div key={i} className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-200 leading-relaxed shadow-sm">
-                    <p className="font-bold text-amber-400 mb-1.5">Gợi ý #{i + 1}:</p>
-                    <p>{h}</p>
+                {problem.hints.map((h: string, i: number) => (
+                  <div key={i} className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-200 leading-relaxed flex items-start gap-2.5">
+                    <span className="w-5 h-5 rounded-full bg-amber-500/20 text-amber-300 font-bold flex items-center justify-center shrink-0 text-[10px]">{i + 1}</span>
+                    <MathText>{h}</MathText>
                   </div>
                 ))}
               </div>
@@ -575,30 +616,32 @@ export default function CodeProblemPage() {
         </div>
 
         {/* ── RIGHT COLUMN: Monaco Editor & Developer Terminal ─────────────── */}
-        <div className="flex-1 flex flex-col bg-[#1e1e1e] overflow-hidden">
+        <div className={`flex-1 flex-col bg-[#1e1e1e] overflow-hidden ${
+          mobileView !== "statement" ? "flex" : "hidden md:flex"
+        }`}>
           
           {/* Editor Header Toolbar */}
-          <div className="flex items-center justify-between gap-2 px-4 py-2 border-b border-white/10 bg-[#121826] shrink-0">
+          <div className="flex items-center justify-between gap-2 px-3 sm:px-4 py-2 border-b border-white/10 bg-[#121826] shrink-0">
             {/* Language Switcher */}
             <div className="flex gap-1 p-0.5 rounded-xl bg-black/50 border border-white/10">
               {LANGS.map(l => (
                 <button
                   key={l.key}
                   onClick={() => handleLangChange(l.key)}
-                  className={`px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+                  className={`px-2 sm:px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${
                     lang === l.key
                       ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
                       : "text-slate-400 hover:text-white"
                   }`}
                 >
                   <span>{l.icon}</span>
-                  <span>{l.label}</span>
+                  <span className="hidden sm:inline">{l.label}</span>
                 </button>
               ))}
             </div>
 
             {/* Right Editor Controls */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2">
               <button
                 onClick={() => setCode(problem?.starter_code?.[lang] || "")}
                 title="Khôi phục mã nguồn ban đầu (Reset)"
@@ -617,7 +660,7 @@ export default function CodeProblemPage() {
 
               <button
                 onClick={() => setIsTerminalOpen(prev => !prev)}
-                className={`px-3 py-1 rounded-xl border text-xs font-bold transition flex items-center gap-1.5 ${
+                className={`hidden md:flex px-3 py-1 rounded-xl border text-xs font-bold transition items-center gap-1.5 ${
                   isTerminalOpen
                     ? "bg-purple-600/30 border-purple-500/50 text-purple-200 shadow-sm"
                     : "border-white/10 text-slate-400 hover:text-white hover:bg-white/5"
@@ -630,16 +673,34 @@ export default function CodeProblemPage() {
             </div>
           </div>
 
+          {/* ── Quick Programming Symbols Helper Bar (Touch Optimized) ── */}
+          <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 bg-[#121826] border-b border-white/10 overflow-x-auto scrollbar-thin shrink-0 select-none">
+            <span className="text-[10px] uppercase font-bold text-slate-400 shrink-0 hidden sm:inline mr-1">Phím tắt:</span>
+            {QUICK_SYMBOLS.map((s, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => insertSymbol(s.value)}
+                className="px-2 sm:px-2.5 py-1 rounded-lg bg-black/40 hover:bg-indigo-600 hover:text-white border border-white/10 text-xs font-mono font-bold text-slate-200 transition shrink-0 active:scale-90 shadow-sm"
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+
           {/* Monaco Editor Window */}
-          <div className="flex-1 overflow-hidden relative">
+          <div className={`relative ${
+            mobileView === "terminal" ? "hidden md:flex flex-1" : "flex-1 overflow-hidden"
+          }`}>
             <MonacoEditor
               height="100%"
               language={currentLangObj.monacoLang}
               value={code}
               onChange={handleEditorChange}
+              onMount={(editor) => { editorRef.current = editor; }}
               theme="vs-dark"
               options={{
-                fontSize: 14,
+                fontSize: 13,
                 fontFamily: "'Fira Code', 'JetBrains Mono', 'Cascadia Code', monospace",
                 fontLigatures: true,
                 minimap: { enabled: false },
