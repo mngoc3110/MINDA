@@ -7,12 +7,12 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import confetti from "canvas-confetti";
 import {
-  ArrowLeft, Play, Send, ChevronRight, CheckCircle2, XCircle,
+  ArrowLeft, Play, Send, ChevronRight, ChevronLeft, CheckCircle2, XCircle,
   Clock, Cpu, AlertCircle, Loader2, RotateCcw, BookOpen,
   Terminal, Trophy, Zap, Copy, Check, Code2, RefreshCw,
   Sparkles, Maximize2, Minimize2, Split, TerminalSquare,
   FileCode2, ShieldAlert, CheckCheck, CornerDownLeft, Eye, EyeOff,
-  Flame, Award
+  Flame, Award, Save
 } from "lucide-react";
 import MathText from "@/components/MathText";
 import { useTheme } from "@/providers/ThemeProvider";
@@ -47,6 +47,10 @@ export default function CodingExamRunnerPage() {
   const [selectedProblemIdx, setSelectedProblemIdx] = useState(0);
   const [loading, setLoading] = useState(true);
 
+  // Horizontal Tab Scroll Ref
+  const tabScrollRef = useRef<HTMLDivElement>(null);
+  const [lastSaved, setLastSaved] = useState<string>("Đã sẵn sàng");
+
   // Per-problem code storage
   const [codes, setCodes] = useState<Record<number, Record<string, string>>>({});
   const [lang, setLang] = useState<LangKey>("cpp");
@@ -76,7 +80,7 @@ export default function CodingExamRunnerPage() {
   const [timeLeft, setTimeLeft] = useState<number>(120 * 60);
   const [timerActive, setTimerActive] = useState(true);
 
-  // Fetch Exam details
+  // Fetch Exam details and restore from localStorage (Anti-loss on reload)
   useEffect(() => {
     if (!rawId) return;
     const fetchExam = async () => {
@@ -87,20 +91,59 @@ export default function CodingExamRunnerPage() {
           const data = await res.json();
           setExam(data);
           setProblems(data.problems || []);
-          setTimeLeft((data.duration_minutes || 120) * 60);
 
-          // Initialize starter codes
+          // 1. Phục hồi mã nguồn học sinh đã viết từ localStorage nếu có
+          let savedCodes: Record<number, Record<string, string>> = {};
+          try {
+            const cached = localStorage.getItem(`minda_exam_codes_${rawId}`);
+            if (cached) savedCodes = JSON.parse(cached);
+          } catch (e) {}
+
+          // 2. Phục hồi kết quả nộp bài đã lưu
+          try {
+            const cachedStatus = localStorage.getItem(`minda_exam_status_${rawId}`);
+            if (cachedStatus) setProblemStatus(JSON.parse(cachedStatus));
+          } catch (e) {}
+
+          // 3. Phục hồi vị trí bài đang làm dở
+          try {
+            const cachedIdx = localStorage.getItem(`minda_exam_idx_${rawId}`);
+            if (cachedIdx !== null && !isNaN(Number(cachedIdx))) {
+              const idxNum = Number(cachedIdx);
+              if (idxNum >= 0 && idxNum < (data.problems?.length || 1)) {
+                setSelectedProblemIdx(idxNum);
+              }
+            }
+          } catch (e) {}
+
+          // 4. Phục hồi thời gian đếm ngược
+          try {
+            const cachedTimer = localStorage.getItem(`minda_exam_timer_${rawId}`);
+            if (cachedTimer !== null && !isNaN(Number(cachedTimer))) {
+              const t = Number(cachedTimer);
+              if (t > 0) setTimeLeft(t);
+              else setTimeLeft((data.duration_minutes || 120) * 60);
+            } else {
+              setTimeLeft((data.duration_minutes || 120) * 60);
+            }
+          } catch (e) {
+            setTimeLeft((data.duration_minutes || 120) * 60);
+          }
+
+          // Initialize starter codes (Ưu tiên code đã lưu trong cache trình duyệt)
           const initialCodes: Record<number, Record<string, string>> = {};
           (data.problems || []).forEach((p: any) => {
             const taskName = (p.slug || "PROBLEM").toUpperCase().replace(/-/g, "_");
             const defaultCpp = `/**\n * Task: ${taskName} - ${p.title || ""}\n * Cú pháp chuẩn Lập trình thi đấu & HSG Tin học\n */\n#include <bits/stdc++.h>\nusing namespace std;\n\n#define TASK "${taskName}"\n\nvoid setupIO() {\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    cout.tie(NULL);\n\n    #ifndef ONLINE_JUDGE\n        if (fopen(TASK ".INP", "r")) {\n            freopen(TASK ".INP", "r", stdin);\n            freopen(TASK ".OUT", "w", stdout);\n        }\n    #endif\n}\n\nvoid solve() {\n    // Viết thuật toán giải bài toán tại đây\n    \n}\n\nint main() {\n    setupIO();\n\n    int testCount = 1;\n    // cin >> testCount; // Mở comment nếu đề bài có nhiều test cases\n    while (testCount--) {\n        solve();\n    }\n\n    return 0;\n}`;
+            
             initialCodes[p.id] = {
-              cpp: p.starter_code?.cpp || defaultCpp,
-              python: p.starter_code?.python || `# Task: ${taskName}\n# Viết code giải bài toán tại đây\n\n`,
-              javascript: p.starter_code?.javascript || `// Task: ${taskName}\n// Viết code giải bài toán tại đây\n\n`
+              cpp: savedCodes[p.id]?.cpp || p.starter_code?.cpp || defaultCpp,
+              python: savedCodes[p.id]?.python || p.starter_code?.python || `# Task: ${taskName}\n# Viết code giải bài toán tại đây\n\n`,
+              javascript: savedCodes[p.id]?.javascript || p.starter_code?.javascript || `// Task: ${taskName}\n// Viết code giải bài toán tại đây\n\n`
             };
           });
           setCodes(initialCodes);
+          setLastSaved("Đã khôi phục bài làm an toàn");
         }
       } catch (err) {
         console.error("Error loading exam:", err);
@@ -111,7 +154,7 @@ export default function CodingExamRunnerPage() {
     fetchExam();
   }, [rawId]);
 
-  // Timer countdown
+  // Timer countdown & Auto-save timer to localStorage
   useEffect(() => {
     if (!timerActive || timeLeft <= 0) return;
     const interval = setInterval(() => {
@@ -121,11 +164,22 @@ export default function CodingExamRunnerPage() {
           setTimerActive(false);
           return 0;
         }
-        return prev - 1;
+        const next = prev - 1;
+        if (rawId && next % 5 === 0) {
+          try { localStorage.setItem(`minda_exam_timer_${rawId}`, String(next)); } catch (e) {}
+        }
+        return next;
       });
     }, 1000);
     return () => clearInterval(interval);
-  }, [timerActive, timeLeft]);
+  }, [timerActive, timeLeft, rawId]);
+
+  // Lưu selectedProblemIdx vào localStorage
+  useEffect(() => {
+    if (rawId) {
+      try { localStorage.setItem(`minda_exam_idx_${rawId}`, String(selectedProblemIdx)); } catch (e) {}
+    }
+  }, [selectedProblemIdx, rawId]);
 
   const formatTimer = (seconds: number) => {
     const h = Math.floor(seconds / 3600);
@@ -137,15 +191,26 @@ export default function CodingExamRunnerPage() {
   const currentProblem = problems[selectedProblemIdx];
   const currentCode = currentProblem ? (codes[currentProblem.id]?.[lang] || "") : "";
 
+  // Tự động lưu tức thì vào localStorage mỗi khi gõ phím (Realtime Auto-save)
   const handleCodeChange = (newCode: string | undefined) => {
     if (!currentProblem) return;
-    setCodes(prev => ({
-      ...prev,
-      [currentProblem.id]: {
-        ...(prev[currentProblem.id] || {}),
-        [lang]: newCode || ""
+    const codeVal = newCode || "";
+    setCodes(prev => {
+      const updated = {
+        ...prev,
+        [currentProblem.id]: {
+          ...(prev[currentProblem.id] || {}),
+          [lang]: codeVal
+        }
+      };
+      if (rawId) {
+        try {
+          localStorage.setItem(`minda_exam_codes_${rawId}`, JSON.stringify(updated));
+          setLastSaved(`Đã lưu ${new Date().toLocaleTimeString()}`);
+        } catch (e) {}
       }
-    }));
+      return updated;
+    });
   };
 
   // Run custom test
@@ -227,15 +292,24 @@ export default function CodingExamRunnerPage() {
       setJudgeResult(data);
 
       const isAC = data.verdict === "AC";
-      setProblemStatus(prev => ({
-        ...prev,
-        [currentProblem.id]: {
-          verdict: data.verdict,
-          passed: data.passed || 0,
-          total: data.total || 0,
-          score: isAC ? 100 : Math.round(((data.passed || 0) / (data.total || 1)) * 100)
+      const newStatus = {
+        verdict: data.verdict,
+        passed: data.passed || 0,
+        total: data.total || 0,
+        score: isAC ? 100 : Math.round(((data.passed || 0) / (data.total || 1)) * 100)
+      };
+      setProblemStatus(prev => {
+        const updated = {
+          ...prev,
+          [currentProblem.id]: newStatus
+        };
+        if (rawId) {
+          try {
+            localStorage.setItem(`minda_exam_status_${rawId}`, JSON.stringify(updated));
+          } catch (e) {}
         }
-      }));
+        return updated;
+      });
 
       if (isAC) {
         confetti({
@@ -320,6 +394,12 @@ export default function CodingExamRunnerPage() {
 
         {/* Right Stats & Timer */}
         <div className="flex items-center gap-3">
+          {/* Auto-save Status Badge */}
+          <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-medium">
+            <Save className="w-3.5 h-3.5 text-emerald-500" />
+            <span>{lastSaved}</span>
+          </div>
+
           {/* Cẩm Nang C++ Button */}
           <a
             href="/competitive_programming_handbook.pdf"
@@ -347,35 +427,80 @@ export default function CodingExamRunnerPage() {
       </header>
 
       {/* ── Problem Navigation Tabs (Bài 1, Bài 2, ...) ──────────── */}
-      <div className="border-b border-border-card bg-bg-main px-6 py-2 flex items-center gap-2 overflow-x-auto shrink-0 scrollbar-none">
-        {problems.map((p, idx) => {
-          const status = problemStatus[p.id];
-          const isSelected = selectedProblemIdx === idx;
-          const isAC = status?.verdict === "AC";
-          const isFailed = status && !isAC;
+      <div className="border-b border-border-card bg-bg-main px-4 py-2 flex items-center justify-between gap-2 shrink-0">
+        {/* Left Arrow Scroll Button */}
+        <button
+          onClick={() => tabScrollRef.current?.scrollBy({ left: -260, behavior: "smooth" })}
+          className="p-1.5 rounded-xl bg-bg-card hover:bg-bg-hover border border-border-card text-text-secondary hover:text-text-primary transition shrink-0 hidden sm:flex items-center justify-center"
+          title="Cuộn sang trái"
+        >
+          <ChevronLeft className="w-4 h-4" />
+        </button>
 
-          return (
-            <button
-              key={p.id}
-              onClick={() => setSelectedProblemIdx(idx)}
-              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium transition shrink-0 border ${
-                isSelected
-                  ? "bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-600/25"
-                  : "bg-bg-card text-text-secondary border-border-card hover:bg-bg-hover hover:text-text-primary"
-              }`}
-            >
-              {isAC ? (
-                <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-              ) : isFailed ? (
-                <XCircle className="w-4 h-4 text-rose-500 shrink-0" />
-              ) : (
-                <span className="w-2 h-2 rounded-full bg-text-muted shrink-0" />
-              )}
-              <span>Bài {idx + 1}: {p.title.replace(/^\[.*?\]\s*/, "")}</span>
-              {isAC && <span className="text-[10px] bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 px-1.5 py-0.2 rounded font-bold">100đ</span>}
-            </button>
-          );
-        })}
+        {/* Scrollable Tabs List with horizontal wheel support */}
+        <div
+          ref={tabScrollRef}
+          onWheel={(e) => {
+            if (tabScrollRef.current && e.deltaY) {
+              tabScrollRef.current.scrollLeft += e.deltaY;
+            }
+          }}
+          className="flex-1 flex items-center gap-2 overflow-x-auto scrollbar-thin scrollbar-thumb-indigo-500/20 hover:scrollbar-thumb-indigo-500/40 pb-1 scroll-smooth"
+        >
+          {problems.map((p, idx) => {
+            const status = problemStatus[p.id];
+            const isSelected = selectedProblemIdx === idx;
+            const isAC = status?.verdict === "AC";
+            const isFailed = status && !isAC;
+
+            return (
+              <button
+                key={p.id}
+                onClick={() => setSelectedProblemIdx(idx)}
+                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium transition shrink-0 border whitespace-nowrap ${
+                  isSelected
+                    ? "bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-600/25"
+                    : "bg-bg-card text-text-secondary border-border-card hover:bg-bg-hover hover:text-text-primary"
+                }`}
+              >
+                {isAC ? (
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                ) : isFailed ? (
+                  <XCircle className="w-4 h-4 text-rose-500 shrink-0" />
+                ) : (
+                  <span className="w-2 h-2 rounded-full bg-text-muted shrink-0" />
+                )}
+                <span>Bài {idx + 1}: {p.title.replace(/^\[.*?\]\s*/, "")}</span>
+                {isAC && <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.2 rounded font-bold">100đ</span>}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Right Arrow Scroll Button */}
+        <button
+          onClick={() => tabScrollRef.current?.scrollBy({ left: 260, behavior: "smooth" })}
+          className="p-1.5 rounded-xl bg-bg-card hover:bg-bg-hover border border-border-card text-text-secondary hover:text-text-primary transition shrink-0 hidden sm:flex items-center justify-center"
+          title="Cuộn sang phải"
+        >
+          <ChevronRight className="w-4 h-4" />
+        </button>
+
+        {/* Quick Problem Select Dropdown */}
+        <div className="shrink-0 flex items-center gap-1 pl-2 border-l border-border-card">
+          <select
+            value={selectedProblemIdx}
+            onChange={(e) => setSelectedProblemIdx(Number(e.target.value))}
+            className="px-2.5 py-1.5 rounded-xl bg-bg-card border border-border-card text-xs text-text-primary focus:outline-none focus:border-indigo-500 transition cursor-pointer font-medium"
+            title="Chuyển nhanh tới bài toán"
+          >
+            {problems.map((p, idx) => (
+              <option key={p.id} value={idx} className="bg-neutral-900 text-white">
+                {idx + 1}. {p.title.replace(/^\[.*?\]\s*/, "")} {problemStatus[p.id]?.verdict === "AC" ? "✅ (100đ)" : ""}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* ── Main Exam Body: Split Problem Statement & Code Editor ─── */}
@@ -443,6 +568,29 @@ export default function CodingExamRunnerPage() {
                   ))}
                 </div>
               )}
+
+              {/* Problem Switcher Navigation Footer */}
+              <div className="pt-6 mt-6 border-t border-border-card flex items-center justify-between gap-3">
+                <button
+                  onClick={() => setSelectedProblemIdx(prev => Math.max(0, prev - 1))}
+                  disabled={selectedProblemIdx === 0}
+                  className="px-4 py-2.5 rounded-xl bg-bg-card hover:bg-bg-hover border border-border-card text-xs font-semibold text-text-secondary hover:text-text-primary disabled:opacity-40 disabled:pointer-events-none flex items-center gap-1.5 transition shadow-sm"
+                >
+                  <ChevronLeft className="w-4 h-4" /> Bài trước ({selectedProblemIdx > 0 ? `Bài ${selectedProblemIdx}` : "Đầu"})
+                </button>
+
+                <span className="text-xs text-text-muted font-medium">
+                  Bài <strong>{selectedProblemIdx + 1}</strong> / {problems.length}
+                </span>
+
+                <button
+                  onClick={() => setSelectedProblemIdx(prev => Math.min(problems.length - 1, prev + 1))}
+                  disabled={selectedProblemIdx === problems.length - 1}
+                  className="px-4 py-2.5 rounded-xl bg-indigo-600/15 hover:bg-indigo-600/25 border border-indigo-500/30 text-xs font-semibold text-indigo-600 dark:text-indigo-300 disabled:opacity-40 disabled:pointer-events-none flex items-center gap-1.5 transition shadow-sm"
+                >
+                  Bài tiếp theo ({selectedProblemIdx < problems.length - 1 ? `Bài ${selectedProblemIdx + 2}` : "Hết"}) <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           ) : (
             <div className="flex items-center justify-center h-full text-text-muted text-sm">
