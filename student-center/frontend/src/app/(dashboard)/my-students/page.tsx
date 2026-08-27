@@ -1,7 +1,13 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
-import { Users, Search, UserPlus, UserMinus, CheckCircle, X, ChevronDown, ChevronRight, GraduationCap, ArrowRight, CheckSquare, Square, PenLine } from "lucide-react";
+import { useEffect, useState, useCallback, useMemo } from "react";
+import Link from "next/link";
+import {
+  Users, Search, UserPlus, UserMinus, CheckCircle, X,
+  ChevronDown, ChevronRight, GraduationCap, ArrowRight,
+  CheckSquare, Square, PenLine, Clock, Sparkles, ExternalLink,
+  RefreshCw, Radio, Zap, Trophy, Activity, Check, BookOpen
+} from "lucide-react";
 
 interface ClassGroup {
   class_name: string;
@@ -17,6 +23,31 @@ interface Student {
   phone?: string;
   class_name?: string;
   already_linked?: boolean;
+  is_graduated?: boolean;
+  status?: string;
+  is_online?: boolean;
+  last_active_at?: string | null;
+  offline_duration_text?: string;
+  offline_seconds?: number | null;
+  current_activity?: string;
+  current_url?: string;
+  activity_type?: string;
+  exp_points?: number;
+  current_rank?: string;
+  latest_code_submission?: {
+    problem_id: number;
+    problem_title: string;
+    verdict: string;
+    score: number;
+    submitted_at: string | null;
+    language: string;
+  } | null;
+  latest_assignment_submission?: {
+    assignment_id: number;
+    assignment_title: string;
+    score: number | null;
+    submitted_at: string | null;
+  } | null;
 }
 
 export default function MyStudentsPage() {
@@ -29,6 +60,9 @@ export default function MyStudentsPage() {
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [bulkSelectedIds, setBulkSelectedIds] = useState<Set<number>>(new Set());
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastRefreshedAt, setLastRefreshedAt] = useState<string>("");
+  const [presenceFilter, setPresenceFilter] = useState<"all" | "online" | "working" | "offline">("all");
   const [expandedClasses, setExpandedClasses] = useState<Set<string>>(new Set(["__all__"]));
   const [addClassName, setAddClassName] = useState("");
   const [showNewClass, setShowNewClass] = useState(false);
@@ -41,7 +75,8 @@ export default function MyStudentsPage() {
   const API = process.env.NEXT_PUBLIC_API_URL || "https://minda.io.vn";
   const getToken = () => localStorage.getItem("minda_token");
 
-  const fetchMyStudents = useCallback(async () => {
+  const fetchMyStudents = useCallback(async (isSilent = false) => {
+    if (!isSilent) setRefreshing(true);
     try {
       const [studentsRes, classesRes] = await Promise.all([
         fetch(`${API}/api/profile/my-offline-students`, {
@@ -55,17 +90,30 @@ export default function MyStudentsPage() {
       if (classesRes.ok) {
         const cls = await classesRes.json();
         setClasses(cls);
-        setExpandedClasses(new Set(["__all__", "__unclassified__", ...cls.map((c: any) => c.class_name)]));
+        if (!isSilent) {
+          setExpandedClasses(new Set(["__all__", "__unclassified__", ...cls.map((c: any) => c.class_name)]));
+        }
       }
+      setLastRefreshedAt(new Date().toLocaleTimeString());
     } catch (e) {
       console.error(e);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   }, [API]);
 
+  // Initial fetch
   useEffect(() => {
     fetchMyStudents();
+  }, [fetchMyStudents]);
+
+  // Realtime Polling ngầm mỗi 12 giây để cập nhật trạng thái online & bài tập học sinh đang làm
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchMyStudents(true);
+    }, 12000);
+    return () => clearInterval(interval);
   }, [fetchMyStudents]);
 
   const handleSearch = async (q: string, overrideClass?: string) => {
@@ -228,11 +276,46 @@ export default function MyStudentsPage() {
     });
   };
 
-  // Group students by class
+  // Group students by class with presence filtering
+  const uniqueStudentsMap = useMemo(() => {
+    const map = new Map<number, Student>();
+    myStudents.forEach((s) => {
+      if (!map.has(s.id)) map.set(s.id, s);
+    });
+    return map;
+  }, [myStudents]);
+
+  const uniqueStudentsList = useMemo(() => Array.from(uniqueStudentsMap.values()), [uniqueStudentsMap]);
+
+  const totalCount = uniqueStudentsList.length;
+  const onlineCount = uniqueStudentsList.filter((s) => s.is_online).length;
+  const workingCount = uniqueStudentsList.filter(
+    (s) => s.is_online && s.current_activity && !s.current_activity.includes("Duyệt") && !s.current_activity.includes("Xem Bảng")
+  ).length;
+  const offlineCount = totalCount - onlineCount;
+
+  const matchesPresenceFilter = (s: Student) => {
+    if (presenceFilter === "online") return !!s.is_online;
+    if (presenceFilter === "offline") return !s.is_online;
+    if (presenceFilter === "working") {
+      return (
+        !!s.is_online &&
+        !!s.current_activity &&
+        !s.current_activity.includes("Duyệt") &&
+        !s.current_activity.includes("Xem Bảng")
+      );
+    }
+    return true;
+  };
+
+  const filteredStudents = useMemo(() => {
+    return myStudents.filter(matchesPresenceFilter);
+  }, [myStudents, presenceFilter]);
+
   const studentsByClass = new Map<string, Student[]>();
   const unclassifiedStudents: Student[] = [];
 
-  myStudents.forEach((s) => {
+  filteredStudents.forEach((s) => {
     if (s.class_name) {
       if (!studentsByClass.has(s.class_name)) studentsByClass.set(s.class_name, []);
       studentsByClass.get(s.class_name)!.push(s);
@@ -259,53 +342,133 @@ export default function MyStudentsPage() {
   const graduatedClassNames = graduatedClasses.map(c => c.class_name);
   const allClassNames = classes.map(c => c.class_name);
 
-  const renderStudent = (s: Student) => (
-    <div key={s.id} className={`flex items-center gap-4 px-4 py-3 transition-colors group ${bulkMode ? 'cursor-pointer' : ''} ${bulkSelectedIds.has(s.id) ? 'bg-indigo-500/10' : 'hover:bg-bg-hover'}`}
-      onClick={() => bulkMode && toggleBulkSelect(s.id)}
-    >
-      {bulkMode && (
-        <div className="shrink-0">
-          {bulkSelectedIds.has(s.id) ? (
-            <CheckSquare className="w-5 h-5 text-indigo-400" />
+  const renderStudent = (s: Student) => {
+    const isOnline = !!s.is_online;
+
+    return (
+      <div
+        key={s.id}
+        className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 sm:px-5 py-4 transition-all group ${
+          bulkMode ? "cursor-pointer" : ""
+        } ${bulkSelectedIds.has(s.id) ? "bg-indigo-500/10" : "hover:bg-bg-hover"}`}
+        onClick={() => bulkMode && toggleBulkSelect(s.id)}
+      >
+        <div className="flex items-center gap-3.5 min-w-0 flex-1">
+          {bulkMode && (
+            <div className="shrink-0">
+              {bulkSelectedIds.has(s.id) ? (
+                <CheckSquare className="w-5 h-5 text-indigo-400" />
+              ) : (
+                <Square className="w-5 h-5 text-text-muted" />
+              )}
+            </div>
+          )}
+
+          {/* Avatar with Live Online Indicator Pin */}
+          <div className="relative shrink-0">
+            <div className="w-11 h-11 rounded-full bg-gradient-to-br from-indigo-500 via-purple-500 to-cyan-400 flex items-center justify-center overflow-hidden border-2 border-white/20 shadow-md">
+              {s.avatar_url ? (
+                <img src={s.avatar_url} alt={s.full_name} className="w-full h-full object-cover" />
+              ) : (
+                <span className="font-bold text-white text-base">{s.full_name[0]}</span>
+              )}
+            </div>
+
+            {isOnline ? (
+              <span className="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-bg-card flex items-center justify-center">
+                <span className="w-full h-full rounded-full bg-emerald-400 animate-ping opacity-75" />
+              </span>
+            ) : (
+              <span className="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-slate-500 border-2 border-bg-card" />
+            )}
+          </div>
+
+          {/* Info & Live Activity Details */}
+          <div className="flex-1 min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="font-bold text-sm text-text-primary tracking-tight truncate">{s.full_name}</p>
+              
+              <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                {s.current_rank || "Sơ cấp"} • {s.exp_points || 0} EXP
+              </span>
+
+              {s.phone && (
+                <span className="text-xs text-text-muted hidden md:inline">📞 {s.phone}</span>
+              )}
+            </div>
+
+            <p className="text-xs text-text-muted truncate mt-0.5">{s.email}</p>
+
+            {/* ── LIVE ACTIVITY BANNER (Học sinh đang làm bài tập gì) ── */}
+            <div className="mt-1.5 flex flex-wrap items-center gap-2">
+              {isOnline ? (
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-500/10 border border-indigo-500/25 text-xs text-indigo-600 dark:text-indigo-300 font-medium">
+                  <Sparkles className="w-3.5 h-3.5 text-indigo-500 shrink-0 animate-pulse" />
+                  <span className="truncate max-w-[280px] sm:max-w-md font-semibold">
+                    {s.current_activity || "Đang trực tuyến trên hệ thống"}
+                  </span>
+                  {s.current_url && (
+                    <Link
+                      href={s.current_url}
+                      target="_blank"
+                      onClick={(e) => e.stopPropagation()}
+                      className="ml-1 text-[11px] text-indigo-500 hover:text-indigo-400 font-bold underline flex items-center gap-0.5 shrink-0"
+                      title="Mở xem bài học sinh đang làm"
+                    >
+                      <span>Xem</span> <ExternalLink className="w-2.5 h-2.5" />
+                    </Link>
+                  )}
+                </div>
+              ) : (
+                s.current_activity && s.current_activity !== "Chưa có hoạt động gần đây" && (
+                  <div className="text-[11px] text-text-muted flex items-center gap-1">
+                    <span>Hoạt động gần nhất:</span>
+                    <span className="text-text-secondary font-medium truncate max-w-[240px] sm:max-w-sm">{s.current_activity}</span>
+                  </div>
+                )
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Right Status Badge & Actions */}
+        <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 pl-14 sm:pl-0">
+          {/* Status Badge */}
+          {isOnline ? (
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs font-bold shadow-sm shadow-emerald-500/10">
+              <Radio className="w-3.5 h-3.5 text-emerald-500 animate-pulse" />
+              <span>Đang Online</span>
+            </div>
           ) : (
-            <Square className="w-5 h-5 text-text-muted" />
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-bg-main border border-border-card text-text-muted text-xs font-medium">
+              <Clock className="w-3.5 h-3.5 text-text-muted" />
+              <span>{s.offline_duration_text || "Offline"}</span>
+            </div>
+          )}
+
+          {/* Action Buttons */}
+          {!bulkMode && (
+            <div className="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
+              <button
+                onClick={(e) => { e.stopPropagation(); setMovingStudent(s); }}
+                className="p-2 text-indigo-400 hover:bg-indigo-500/10 rounded-xl transition-colors"
+                title="Đổi lớp"
+              >
+                <ArrowRight className="w-4 h-4" />
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); handleRemoveStudent(s.id, s.full_name, s.class_name || "__unclassified__"); }}
+                className="p-2 text-red-500 hover:bg-red-500/10 rounded-xl transition-colors"
+                title="Xoá khỏi lớp"
+              >
+                <UserMinus className="w-4 h-4" />
+              </button>
+            </div>
           )}
         </div>
-      )}
-      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-cyan-400 flex items-center justify-center overflow-hidden shrink-0 border-2 border-white/20">
-        {s.avatar_url ? (
-          <img src={s.avatar_url} alt={s.full_name} className="w-full h-full object-cover" />
-        ) : (
-          <span className="font-bold text-white text-sm">{s.full_name[0]}</span>
-        )}
       </div>
-      <div className="flex-1 min-w-0">
-        <p className="font-semibold text-sm truncate">{s.full_name}</p>
-        <p className="text-xs text-text-muted truncate">{s.email}</p>
-      </div>
-      {s.phone && (
-        <span className="text-xs text-text-secondary hidden md:block">{s.phone}</span>
-      )}
-      {!bulkMode && (
-        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button
-            onClick={(e) => { e.stopPropagation(); setMovingStudent(s); }}
-            className="p-1.5 text-indigo-400 hover:bg-indigo-500/10 rounded-lg transition-colors"
-            title="Đổi lớp"
-          >
-            <ArrowRight className="w-4 h-4" />
-          </button>
-          <button
-            onClick={(e) => { e.stopPropagation(); handleRemoveStudent(s.id, s.full_name, s.class_name || "__unclassified__"); }}
-            className="p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
-            title="Xoá khỏi lớp"
-          >
-            <UserMinus className="w-4 h-4" />
-          </button>
-        </div>
-      )}
-    </div>
-  );
+    );
+  };
 
   const renderGroupHeader = (title: string, students: Student[], icon: React.ReactNode, colorClass: string, groupKey: string) => {
     const isExpanded = expandedClasses.has(groupKey);
@@ -387,94 +550,202 @@ export default function MyStudentsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-bg-main text-text-primary p-6 md:p-8 font-outfit">
+    <div className="min-h-screen bg-bg-main text-text-primary p-4 sm:p-6 md:p-8 font-outfit">
       {/* Header */}
-      <header className="flex items-center justify-between mb-8 pb-6 border-b border-border-card">
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-6 border-b border-border-card">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-500 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-500 flex items-center justify-center shadow-lg shadow-emerald-500/25">
             <Users className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="font-bold text-2xl tracking-tight leading-none mb-1">Quản lý Học sinh</h1>
-            <p className="text-text-secondary text-sm">Phân lớp và quản lý học sinh của bạn</p>
+            <div className="flex items-center gap-2">
+              <h1 className="font-bold text-2xl tracking-tight leading-none">Quản lý & Giám sát Học sinh</h1>
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" title="Hệ thống giám sát Realtime đang hoạt động" />
+            </div>
+            <p className="text-text-secondary text-sm mt-1">
+              Theo dõi trực tiếp ai đang online, thời gian offline và bài tập đang làm
+            </p>
           </div>
         </div>
-        <div className="flex gap-3">
+
+        <div className="flex flex-wrap items-center gap-2.5">
+          <button
+            onClick={() => fetchMyStudents(false)}
+            disabled={refreshing}
+            className="px-3.5 py-2 bg-bg-card hover:bg-bg-hover border border-border-card rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 text-text-secondary hover:text-text-primary shadow-sm"
+            title="Làm mới trạng thái tức thì"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin text-indigo-500" : ""}`} />
+            <span>Làm mới {lastRefreshedAt ? `(${lastRefreshedAt})` : ""}</span>
+          </button>
           <button
             onClick={() => setShowNewClass(true)}
-            className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 rounded-xl text-sm font-semibold transition-all flex items-center gap-2"
+            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 text-white shadow-md shadow-indigo-600/20"
           >
             <GraduationCap className="w-4 h-4" /> Tạo Lớp
           </button>
           <button
             onClick={() => { setShowAddModal(true); handleSearch(""); }}
-            className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 rounded-xl text-sm font-semibold transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)] flex items-center gap-2"
+            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-md shadow-emerald-600/20 flex items-center gap-2 text-white"
           >
             <UserPlus className="w-4 h-4" /> Thêm HS
           </button>
         </div>
       </header>
 
+      {/* ── Top Presence Overview Stats Cards ── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
+        <div className="p-4 rounded-2xl bg-bg-card border border-border-card shadow-sm flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+            <Users className="w-5 h-5" />
+          </div>
+          <div>
+            <p className="text-xs text-text-muted uppercase font-bold">Tổng học sinh</p>
+            <p className="text-xl font-black text-text-primary mt-0.5">{totalCount}</p>
+          </div>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/25 shadow-sm flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+            <Radio className="w-5 h-5 animate-pulse" />
+          </div>
+          <div>
+            <p className="text-xs text-emerald-600 dark:text-emerald-400 uppercase font-bold flex items-center gap-1.5">
+              <span>Đang Online</span>
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+            </p>
+            <p className="text-xl font-black text-emerald-600 dark:text-emerald-400 mt-0.5">{onlineCount}</p>
+          </div>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-purple-500/10 border border-purple-500/25 shadow-sm flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
+            <Sparkles className="w-5 h-5 animate-pulse" />
+          </div>
+          <div>
+            <p className="text-xs text-purple-600 dark:text-purple-400 uppercase font-bold">Đang làm bài</p>
+            <p className="text-xl font-black text-purple-600 dark:text-purple-400 mt-0.5">{workingCount}</p>
+          </div>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-bg-card border border-border-card shadow-sm flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-slate-500/10 text-slate-400 flex items-center justify-center shrink-0">
+            <Clock className="w-5 h-5" />
+          </div>
+          <div>
+            <p className="text-xs text-text-muted uppercase font-bold">Đang Offline</p>
+            <p className="text-xl font-black text-text-primary mt-0.5">{offlineCount}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Presence Filter Tabs & Controls ── */}
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+        <div className="flex items-center gap-1 p-1 bg-bg-card border border-border-card rounded-2xl overflow-x-auto scrollbar-thin">
+          <button
+            onClick={() => setPresenceFilter("all")}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
+              presenceFilter === "all"
+                ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
+                : "text-text-secondary hover:text-text-primary"
+            }`}
+          >
+            <span>Tất cả</span>
+            <span className="px-1.5 py-0.2 rounded-md bg-black/20 text-[10px]">{totalCount}</span>
+          </button>
+
+          <button
+            onClick={() => setPresenceFilter("online")}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
+              presenceFilter === "online"
+                ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/30"
+                : "text-text-secondary hover:text-emerald-500"
+            }`}
+          >
+            <span className="w-2 h-2 rounded-full bg-emerald-400" />
+            <span>Đang Online</span>
+            <span className="px-1.5 py-0.2 rounded-md bg-black/20 text-[10px]">{onlineCount}</span>
+          </button>
+
+          <button
+            onClick={() => setPresenceFilter("working")}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
+              presenceFilter === "working"
+                ? "bg-purple-600 text-white shadow-md shadow-purple-600/30"
+                : "text-text-secondary hover:text-purple-400"
+            }`}
+          >
+            <Sparkles className="w-3 h-3" />
+            <span>Đang làm bài</span>
+            <span className="px-1.5 py-0.2 rounded-md bg-black/20 text-[10px]">{workingCount}</span>
+          </button>
+
+          <button
+            onClick={() => setPresenceFilter("offline")}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
+              presenceFilter === "offline"
+                ? "bg-slate-700 text-white shadow-md shadow-slate-700/30"
+                : "text-text-secondary hover:text-text-primary"
+            }`}
+          >
+            <Clock className="w-3 h-3" />
+            <span>Offline</span>
+            <span className="px-1.5 py-0.2 rounded-md bg-black/20 text-[10px]">{offlineCount}</span>
+          </button>
+        </div>
+
+        {/* Bulk select button */}
+        <div>
+          {bulkMode ? (
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-indigo-400">
+                Đã chọn {bulkSelectedIds.size} HS
+              </span>
+              <button
+                onClick={() => { if (bulkSelectedIds.size > 0) setShowBulkAssign(true); }}
+                disabled={bulkSelectedIds.size === 0}
+                className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 text-white"
+              >
+                <GraduationCap className="w-3.5 h-3.5" /> Gán lớp
+              </button>
+              <button
+                onClick={() => { setBulkMode(false); setBulkSelectedIds(new Set()); }}
+                className="px-3 py-1.5 bg-bg-card hover:bg-bg-hover border border-border-card rounded-xl text-xs font-semibold transition-colors"
+              >
+                Huỷ
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setBulkMode(true)}
+              className="px-3.5 py-1.5 bg-bg-card hover:bg-indigo-500/10 border border-border-card hover:border-indigo-500/30 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 text-text-secondary hover:text-indigo-400"
+            >
+              <CheckSquare className="w-3.5 h-3.5" /> Chọn nhiều HS
+            </button>
+          )}
+        </div>
+      </div>
+
       {/* Create Class Inline */}
       {showNewClass && (
-        <div className="mb-6 flex items-center gap-3 bg-bg-card border border-indigo-500/30 p-4 rounded-2xl">
-          <GraduationCap className="w-5 h-5 text-indigo-400" />
+        <div className="mb-6 flex items-center gap-3 bg-bg-card border border-indigo-500/30 p-4 rounded-2xl shadow-sm">
+          <GraduationCap className="w-5 h-5 text-indigo-400 shrink-0" />
           <input
             type="text" value={newClassName} onChange={(e) => setNewClassName(e.target.value)}
             placeholder="Tên lớp mới..."
-            className="w-1/3 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-500 text-text-primary"
+            className="w-1/3 bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm outline-none focus:border-indigo-500 text-text-primary"
             autoFocus
           />
           <input
             type="text" value={newAcademicYear} onChange={(e) => setNewAcademicYear(e.target.value)}
             placeholder="Năm học (VD: 2024-2025)..."
-            className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-500 text-text-primary"
+            className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm outline-none focus:border-indigo-500 text-text-primary"
             onKeyDown={(e) => e.key === "Enter" && handleCreateClass()}
           />
-          <button onClick={handleCreateClass} className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 rounded-xl text-sm font-bold transition-colors">Tạo</button>
-          <button onClick={() => setShowNewClass(false)} className="p-2 hover:bg-white/5 rounded-lg"><X className="w-5 h-5" /></button>
+          <button onClick={handleCreateClass} className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-xl text-xs font-bold text-white transition-colors">Tạo</button>
+          <button onClick={() => setShowNewClass(false)} className="p-2 hover:bg-white/5 rounded-lg"><X className="w-4 h-4" /></button>
         </div>
       )}
-
-      {/* Stats + Bulk Mode Toggle */}
-      <div className="flex gap-4 mb-6 flex-wrap items-center">
-        <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
-          <Users className="w-4 h-4 text-emerald-500" />
-          <span className="text-sm font-bold text-emerald-500">{new Set(myStudents.map(s => s.id)).size} học sinh</span>
-        </div>
-        <div className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-500/10 border border-indigo-500/20 rounded-xl">
-          <GraduationCap className="w-4 h-4 text-indigo-400" />
-          <span className="text-sm font-bold text-indigo-400">{allClassNames.length} lớp</span>
-        </div>
-        <div className="flex-1" />
-        {bulkMode ? (
-          <div className="flex items-center gap-3">
-            <span className="text-sm font-bold text-indigo-400">
-              ✅ Đã chọn {bulkSelectedIds.size} HS
-            </span>
-            <button
-              onClick={() => { if (bulkSelectedIds.size > 0) setShowBulkAssign(true); }}
-              disabled={bulkSelectedIds.size === 0}
-              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed rounded-xl text-sm font-bold transition-colors flex items-center gap-2"
-            >
-              <GraduationCap className="w-4 h-4" /> Gán vào lớp
-            </button>
-            <button
-              onClick={() => { setBulkMode(false); setBulkSelectedIds(new Set()); }}
-              className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-semibold transition-colors"
-            >
-              Huỷ
-            </button>
-          </div>
-        ) : (
-          <button
-            onClick={() => setBulkMode(true)}
-            className="px-4 py-2 bg-white/5 hover:bg-indigo-500/10 border border-white/10 hover:border-indigo-500/30 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 text-text-secondary hover:text-indigo-400"
-          >
-            <CheckSquare className="w-4 h-4" /> Chọn nhiều HS
-          </button>
-        )}
-      </div>
 
       {/* Student List grouped by class */}
       <div className="space-y-4">
@@ -508,7 +779,11 @@ export default function MyStudentsPage() {
                         {isExpanded && (
                           <div className="border-t border-border-card divide-y divide-border-card">
                             {students.length === 0 ? (
-                              <p className="text-sm text-text-muted px-6 py-4 italic">Chưa có học sinh nào trong lớp này.</p>
+                              <p className="text-xs text-text-muted px-6 py-4 italic">
+                                {presenceFilter === "all"
+                                  ? "Chưa có học sinh nào trong lớp này."
+                                  : `Không có học sinh nào ${presenceFilter === "online" ? "đang online" : presenceFilter === "working" ? "đang làm bài" : "đang offline"} trong lớp này.`}
+                              </p>
                             ) : (
                               students.map((s) => renderStudent(s))
                             )}

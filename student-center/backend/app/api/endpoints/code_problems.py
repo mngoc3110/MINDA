@@ -2,6 +2,7 @@
 API Endpoints cho Phòng luyện Code (Online Judge Platform)
 Hỗ trợ chạy kiểm thử trực tiếp (Sandbox Execution) và chấm bài qua test cases.
 """
+from datetime import datetime
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -354,6 +355,13 @@ def test_custom_code(
         timeout=3.0
     )
 
+    now = datetime.utcnow()
+    current_user.last_active_at = now
+    current_user.current_activity = f"Đang giải bài: {problem.title}"
+    current_user.current_url = f"/code/{problem.id}"
+    current_user.activity_type = "coding"
+    db.commit()
+
     # Format user friendly response
     return {
         "status": res["status"],
@@ -461,6 +469,13 @@ def submit_code(
             current_user.exp_points = old_exp + exp_earned
             rank_data = get_student_rank(current_user, current_user.exp_points)
             current_user.current_rank = rank_data.get("rank_name", current_user.current_rank or "Sơ cấp")
+
+    now = datetime.utcnow()
+    current_user.last_active_at = now
+    verdict_tag = "AC (100đ)" if judge_res["verdict"] == "AC" else judge_res["verdict"]
+    current_user.current_activity = f"Vừa nộp bài: {problem.title} [{verdict_tag}]"
+    current_user.current_url = f"/code/{problem.id}"
+    current_user.activity_type = "coding"
 
     db.commit()
 

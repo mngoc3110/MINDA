@@ -425,6 +425,13 @@ def submit_assignment(
         if teacher:
             teacher.exp_points = (teacher.exp_points or 0) + 5
 
+    now = datetime.utcnow()
+    current_user.last_active_at = now
+    score_tag = f" ({submission.score}đ)" if submission.score is not None else ""
+    current_user.current_activity = f"Vừa nộp bài tập: {assignment.title}{score_tag}"
+    current_user.current_url = f"/assignments"
+    current_user.activity_type = "assignment"
+
     db.add(submission)
     db.commit()
     db.refresh(submission)

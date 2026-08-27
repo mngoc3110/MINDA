@@ -146,6 +146,11 @@ export default function CodeProblemPage() {
           if (data.examples && data.examples.length > 0 && data.examples[0].input) {
             setCustomInput(data.examples[0].input);
           }
+          if (typeof window !== "undefined") {
+            const desc = `Đang giải bài: ${data.title}`;
+            (window as any).__minda_current_activity = desc;
+            window.dispatchEvent(new CustomEvent("minda_activity_update", { detail: { activity: desc } }));
+          }
         }
       } catch (e) {
         console.error(e);

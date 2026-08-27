@@ -174,37 +174,58 @@ export default function Dashboard() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
           {[
-            { label: "Tổng số Học sinh", value: stats.total_students || "0", icon: Users, color: "text-blue-600", bg: "bg-blue-50", border: "border-blue-200" },
-            { label: "Khoá học đang mở", value: stats.active_courses || "0", icon: BookOpen, color: "text-emerald-600", bg: "bg-emerald-50", border: "border-emerald-200" },
-            { label: "Học sinh chờ duyệt", value: stats.pending_students ?? "0", icon: Clock, color: "text-amber-600", bg: "bg-amber-50", border: "border-amber-200" },
-            { label: "Bài tập đã tạo", value: stats.assignment_count ?? "0", icon: FileText, color: "text-pink-600", bg: "bg-pink-50", border: "border-pink-200" },
+            { label: "Tổng số Học sinh", value: stats.total_students || "0", icon: Users, color: "text-blue-600", bg: "bg-blue-500/10", border: "border-blue-500/20", href: "/my-students" },
+            { label: "Đang Online Realtime", value: stats.online_students ?? "0", icon: Activity, color: "text-emerald-500", bg: "bg-emerald-500/10", border: "border-emerald-500/30", href: "/my-students", isOnline: true },
+            { label: "Khoá học đang mở", value: stats.active_courses || "0", icon: BookOpen, color: "text-indigo-500", bg: "bg-indigo-500/10", border: "border-indigo-500/20", href: "/courses" },
+            { label: "Bài tập đã tạo", value: stats.assignment_count ?? "0", icon: FileText, color: "text-pink-500", bg: "bg-pink-500/10", border: "border-pink-500/20", href: "/assignments" },
           ].map((stat, i) => (
-            <div key={i} className={`p-5 rounded-2xl bg-bg-card border ${stat.border} flex items-center gap-4 shadow-sm`}>
-              <div className={`p-3 rounded-xl ${stat.bg} border ${stat.border}`}>
+            <Link key={i} href={stat.href} className={`p-5 rounded-2xl bg-bg-card border ${stat.border} flex items-center gap-4 shadow-sm hover:scale-[1.02] transition-transform`}>
+              <div className={`p-3 rounded-xl ${stat.bg} border ${stat.border} relative`}>
                 <stat.icon className={`w-5 h-5 ${stat.color}`} />
+                {stat.isOnline && Number(stat.value) > 0 && (
+                  <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-emerald-500 animate-ping" />
+                )}
               </div>
               <div>
-                <p className="text-xs text-text-secondary font-medium mb-0.5">{stat.label}</p>
+                <p className="text-xs text-text-secondary font-medium mb-0.5 flex items-center gap-1.5">
+                  <span>{stat.label}</span>
+                  {stat.isOnline && <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />}
+                </p>
                 <p className="text-2xl font-black text-text-primary">{stat.value as string}</p>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <section className="p-6 rounded-3xl bg-bg-card border border-border-card shadow-sm">
-            <h2 className="text-base font-bold mb-4 flex items-center gap-2 text-text-primary">
-              <Activity className="w-5 h-5 text-pink-500" /> Bảng tin hệ thống
+            <h2 className="text-base font-bold mb-4 flex items-center justify-between text-text-primary">
+              <span className="flex items-center gap-2">
+                <Activity className="w-5 h-5 text-pink-500" /> Bảng tin & Trực tuyến
+              </span>
+              <Link href="/my-students" className="text-xs font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1">
+                <span>Xem học sinh</span> <ExternalLink className="w-3 h-3" />
+              </Link>
             </h2>
             <div className="text-text-secondary text-sm border-l-2 border-pink-400 pl-4 py-1 space-y-3">
-              <div>
-                <p className="font-semibold text-text-primary mb-1">Cập nhật lúc 08:00 AM</p>
-                <p>Hệ thống tự động chấm điểm bài tập trắc nghiệm đã được bật.</p>
+              <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-text-primary flex items-center justify-between">
+                <div>
+                  <p className="font-bold text-xs text-emerald-500 uppercase flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                    Theo dõi hoạt động thời gian thực
+                  </p>
+                  <p className="text-xs text-text-secondary mt-0.5">
+                    Có <strong className="text-emerald-400 font-bold">{String(stats.online_students || 0)} học sinh</strong> đang online.
+                  </p>
+                </div>
+                <Link href="/my-students" className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition">
+                  Giám sát ngay
+                </Link>
               </div>
               {Number(stats.pending_students) > 0 && (
                 <div className="mt-3 pt-3 border-t border-border-card">
-                  <p className="font-semibold text-amber-700 mb-1">⚠️ Có {String(stats.pending_students)} học sinh chờ phê duyệt đăng ký!</p>
-                  <a href="/courses" className="text-xs text-blue-600 underline">Vào Quản lý Khoá học để duyệt →</a>
+                  <p className="font-semibold text-amber-500 mb-1">⚠️ Có {String(stats.pending_students)} học sinh chờ phê duyệt đăng ký!</p>
+                  <a href="/courses" className="text-xs text-blue-500 underline">Vào Quản lý Khoá học để duyệt →</a>
                 </div>
               )}
               <div className="mt-3 pt-3 border-t border-border-card">

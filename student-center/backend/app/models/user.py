@@ -39,6 +39,12 @@ class User(Base):
     exp_points = Column(Integer, default=0)
     current_rank = Column(String, default="Đồng")
 
+    # Realtime Presence & Activity Tracking
+    last_active_at = Column(DateTime, nullable=True)
+    current_activity = Column(String, nullable=True)
+    current_url = Column(String, nullable=True)
+    activity_type = Column(String, nullable=True)
+
     # Relationships
     taught_courses = relationship("Course", back_populates="teacher", foreign_keys="Course.teacher_id")
     enrollments = relationship("Enrollment", back_populates="student")

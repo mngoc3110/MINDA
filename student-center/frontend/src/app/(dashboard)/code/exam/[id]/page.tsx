@@ -211,12 +211,20 @@ export default function CodingExamRunnerPage() {
     return () => clearInterval(interval);
   }, [timerActive, timeLeft, rawId]);
 
-  // Lưu selectedProblemIdx vào localStorage
+  // Lưu selectedProblemIdx vào localStorage & đồng bộ activity cho giáo viên
   useEffect(() => {
     if (rawId) {
       try { localStorage.setItem(`minda_exam_idx_${rawId}`, String(selectedProblemIdx)); } catch (e) {}
     }
-  }, [selectedProblemIdx, rawId]);
+    if (currentProblem) {
+      const examTitle = exam?.title ? `${exam.title} - ` : "";
+      const desc = `Đang làm bài thi: ${examTitle}Bài ${selectedProblemIdx + 1}: ${currentProblem.title}`;
+      if (typeof window !== "undefined") {
+        (window as any).__minda_current_activity = desc;
+        window.dispatchEvent(new CustomEvent("minda_activity_update", { detail: { activity: desc } }));
+      }
+    }
+  }, [selectedProblemIdx, rawId, currentProblem, exam]);
 
   const formatTimer = (seconds: number) => {
     const h = Math.floor(seconds / 3600);

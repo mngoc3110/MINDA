@@ -1,3 +1,4 @@
+from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from sqlalchemy.orm import Session
 from app.db.database import get_db
@@ -311,24 +312,137 @@ def my_offline_teachers(db: Session = Depends(get_db), current_user: User = Depe
         for t in teachers
     ]
 
+def format_offline_duration(last_active_at: datetime | None) -> tuple[bool, str, int | None]:
+    """Trả về (is_online, offline_text, offline_seconds) dựa trên thời gian hoạt động cuối cùng."""
+    if not last_active_at:
+        return False, "Chưa từng đăng nhập", None
+    now = datetime.utcnow()
+    diff = (now - last_active_at).total_seconds()
+    if diff < 0:
+        diff = 0
+    if diff <= 120:
+        return True, "Đang trực tuyến", int(diff)
+    elif diff < 3600:
+        mins = max(1, int(diff // 60))
+        return False, f"Offline {mins} phút trước", int(diff)
+    elif diff < 86400:
+        hours = max(1, int(diff // 3600))
+        return False, f"Offline {hours} giờ trước", int(diff)
+    elif diff < 86400 * 30:
+        days = max(1, int(diff // 86400))
+        return False, f"Offline {days} ngày trước", int(diff)
+    else:
+        return False, f"Offline từ {last_active_at.strftime('%d/%m/%Y')}", int(diff)
+
+
+@router.post("/presence-heartbeat")
+def presence_heartbeat(data: dict, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    """API ping định kỳ cập nhật trạng thái Online và bài tập đang làm của người dùng."""
+    now = datetime.utcnow()
+    current_user.last_active_at = now
+
+    current_activity = data.get("current_activity")
+    current_url = data.get("current_url")
+    activity_type = data.get("activity_type")
+
+    if current_activity is not None:
+        current_user.current_activity = str(current_activity)[:255]
+    if current_url is not None:
+        current_user.current_url = str(current_url)[:255]
+    if activity_type is not None:
+        current_user.activity_type = str(activity_type)[:50]
+
+    db.commit()
+    return {
+        "status": "ok",
+        "last_active_at": now.isoformat(),
+        "is_online": True
+    }
+
+
 @router.get("/my-offline-students")
 def my_offline_students(db: Session = Depends(get_db), current_user: User = Depends(require_role("teacher", "admin"))):
     from app.models.user import TeacherStudentLink
+    from app.models.code_problem import CodeSubmission, CodeProblem
+    from app.models.assignment import AssignmentSubmission, Assignment
+
     links = db.query(TeacherStudentLink).filter(TeacherStudentLink.teacher_id == current_user.id).all()
     
-    return [
-        {
-            "id": link.student.id,
-            "full_name": link.student.full_name,
-            "avatar_url": link.student.avatar_url,
-            "email": link.student.email,
-            "phone": link.student.phone,
+    results = []
+    for link in links:
+        s = link.student
+        if not s:
+            continue
+
+        is_online, offline_text, offline_secs = format_offline_duration(s.last_active_at)
+
+        # Lấy bài nộp code gần nhất nếu có
+        latest_code_sub = db.query(CodeSubmission).filter(
+            CodeSubmission.user_id == s.id
+        ).order_by(CodeSubmission.submitted_at.desc()).first()
+
+        latest_code_info = None
+        if latest_code_sub:
+            prob = db.query(CodeProblem).filter(CodeProblem.id == latest_code_sub.problem_id).first()
+            latest_code_info = {
+                "problem_id": latest_code_sub.problem_id,
+                "problem_title": prob.title if prob else f"Bài #{latest_code_sub.problem_id}",
+                "verdict": latest_code_sub.verdict,
+                "score": 100 if latest_code_sub.verdict == "AC" else 0,
+                "submitted_at": latest_code_sub.submitted_at.isoformat() if latest_code_sub.submitted_at else None,
+                "language": latest_code_sub.language
+            }
+
+        # Lấy bài tập gần nhất
+        latest_assign_sub = db.query(AssignmentSubmission).filter(
+            AssignmentSubmission.student_id == s.id
+        ).order_by(AssignmentSubmission.submitted_at.desc()).first()
+
+        latest_assign_info = None
+        if latest_assign_sub:
+            assign = db.query(Assignment).filter(Assignment.id == latest_assign_sub.assignment_id).first()
+            latest_assign_info = {
+                "assignment_id": latest_assign_sub.assignment_id,
+                "assignment_title": assign.title if assign else f"Bài tập #{latest_assign_sub.assignment_id}",
+                "score": latest_assign_sub.score,
+                "submitted_at": latest_assign_sub.submitted_at.isoformat() if latest_assign_sub.submitted_at else None
+            }
+
+        # Xác định activity text hiển thị tối ưu nhất
+        active_task = s.current_activity
+        if not active_task:
+            if is_online:
+                active_task = "Đang duyệt hệ thống"
+            elif latest_code_info:
+                active_task = f"Vừa nộp: {latest_code_info['problem_title']} ({latest_code_info['verdict']})"
+            elif latest_assign_info:
+                active_task = f"Vừa nộp: {latest_assign_info['assignment_title']}"
+            else:
+                active_task = "Chưa có hoạt động gần đây"
+
+        results.append({
+            "id": s.id,
+            "full_name": s.full_name,
+            "avatar_url": s.avatar_url,
+            "email": s.email,
+            "phone": s.phone,
             "class_name": link.class_name or "",
             "is_graduated": link.is_graduated or False,
-            "status": link.status or "active"
-        }
-        for link in links if link.student
-    ]
+            "status": link.status or "active",
+            "is_online": is_online,
+            "last_active_at": s.last_active_at.isoformat() if s.last_active_at else None,
+            "offline_duration_text": offline_text,
+            "offline_seconds": offline_secs,
+            "current_activity": active_task,
+            "current_url": s.current_url,
+            "activity_type": s.activity_type or "general",
+            "exp_points": s.exp_points or 0,
+            "current_rank": s.current_rank or "Sơ cấp",
+            "latest_code_submission": latest_code_info,
+            "latest_assignment_submission": latest_assign_info
+        })
+
+    return results
 
 @router.post("/create-class")
 def create_class(data: dict, db: Session = Depends(get_db), current_user: User = Depends(require_role("teacher", "admin"))):

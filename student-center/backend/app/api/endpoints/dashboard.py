@@ -117,9 +117,16 @@ def get_teacher_stats(
     active_courses = db.query(Course).filter(Course.teacher_id == current_user.id).count()
 
     # Tổng học sinh kết nối offline
+    from datetime import datetime, timedelta
     from app.models.user import TeacherStudentLink
     total_students = db.query(TeacherStudentLink).filter(
         TeacherStudentLink.teacher_id == current_user.id
+    ).count()
+
+    two_mins_ago = datetime.utcnow() - timedelta(seconds=120)
+    online_students = db.query(TeacherStudentLink).join(User, TeacherStudentLink.student_id == User.id).filter(
+        TeacherStudentLink.teacher_id == current_user.id,
+        User.last_active_at >= two_mins_ago
     ).count()
 
     # Học sinh đang chờ phê duyệt
@@ -142,6 +149,7 @@ def get_teacher_stats(
     return {
         "exp": rank_info.get("xp", teacher_xp),
         "total_students": total_students,
+        "online_students": online_students,
         "pending_students": pending_students,
         "active_courses": active_courses,
         "assignment_count": total_created,
