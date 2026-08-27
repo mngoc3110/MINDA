@@ -2,9 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { Menu, X, ShieldAlert, BrainCircuit, Grid, Users, Settings, LogOut,
+import {
+  Menu, X, ShieldAlert, BrainCircuit, Grid, Users, Settings, LogOut,
   LayoutDashboard, BookOpen, Radio, ClipboardCheck, Trophy, Wallet,
-  Dumbbell, User, Sun, Moon, UserCircle, FolderOpen, Heart, Presentation, Sparkles } from "lucide-react";
+  Dumbbell, Sun, Moon, UserCircle, FolderOpen, Heart, Presentation,
+  Sparkles, Terminal, Calendar, ClipboardList, FileText, Zap,
+  Clapperboard, FileUser, BarChart3, MessageSquareQuote
+} from "lucide-react";
 import Link from "next/link";
 import { useTheme } from "@/providers/ThemeProvider";
 
@@ -31,41 +35,56 @@ export default function MobileHeader() {
     { name: "Tổng quan", href: "/admin", icon: Grid },
     { name: "Người dùng", href: "/admin/users", icon: Users },
     { name: "Bảng Vinh Danh", href: "/honors", icon: Trophy },
+    { name: "Cảm nhận học sinh", href: "/testimonials", icon: MessageSquareQuote },
     { name: "Hệ thống", href: "/admin/settings", icon: Settings },
   ];
 
   const TEACHER_ITEMS = [
     { name: "Tổng quan", href: "/dashboard", icon: LayoutDashboard },
-    { name: "Bài Giảng Tương Tác", href: "/lesson-studio", icon: Presentation },
-    { name: "Ôn tập AI (Notebook)", href: "/revision", icon: Sparkles },
+    { name: "Bài Giảng Tương Tác", href: "/lesson-studio", icon: Presentation, badge: "SCORM" },
+    { name: "Ôn tập AI (Notebook)", href: "/revision", icon: Sparkles, badge: "AI" },
+    { name: "MINDA Code", href: "/code", icon: Terminal, badge: "NEW" },
+    { name: "Bảng thành tích", href: "/leaderboard", icon: Trophy },
+    { name: "Lịch học", href: "/schedule", icon: Calendar },
     { name: "Trang cá nhân", href: "/profile", icon: UserCircle },
-    { name: "Hồ sơ CV", href: "/cv", icon: User },
-    { name: "Khoá học", href: "/courses", icon: BookOpen },
-    { name: "Học sinh", href: "/my-students", icon: Users },
-    { name: "Lớp Live", href: "/live", icon: Radio },
-    { name: "Bài tập", href: "/assignments", icon: ClipboardCheck },
+    { name: "Hồ sơ CV", href: "/cv", icon: FileUser },
+    { name: "Quản lý Khoá học", href: "/courses", icon: BookOpen },
+    { name: "Quản lý Học sinh", href: "/my-students", icon: Users },
+    { name: "Điểm Danh & Báo Cáo", href: "/session-reports", icon: ClipboardList },
+    { name: "Lớp học Live", href: "/live", icon: Radio },
+    { name: "Chấm điểm & Bài tập", href: "/assignments", icon: ClipboardCheck },
     { name: "Bảng Vinh Danh", href: "/honors", icon: Trophy },
     { name: "Lưu Bút Kỷ Yếu", href: "/yearbook/", icon: Heart },
-    { name: "Học phí", href: "/tuition", icon: Wallet },
+    { name: "Công cụ PDF", href: "/pdf-tools", icon: FileText },
+    { name: "Upload Đề Nhanh", href: "/quick-upload", icon: Zap, badge: "NEW" },
+    { name: "Manim Studio", href: "/manim-studio", icon: Clapperboard, badge: "AI" },
+    { name: "Quản lý Học phí", href: "/tuition", icon: Wallet },
   ];
 
   const STUDENT_ITEMS = [
     { name: "Tổng quan", href: "/dashboard", icon: LayoutDashboard },
-    { name: "Bài Giảng Tương Tác", href: "/lesson-studio", icon: Presentation },
-    { name: "Ôn tập AI (Notebook)", href: "/revision", icon: Sparkles },
+    { name: "Bài Giảng Tương Tác", href: "/lesson-studio", icon: Presentation, badge: "SCORM" },
+    { name: "Ôn tập AI (Notebook)", href: "/revision", icon: Sparkles, badge: "AI" },
+    { name: "MINDA Code", href: "/code", icon: Terminal, badge: "NEW" },
     { name: "Thư viện Lớp học", href: "/courses", icon: BookOpen },
+    { name: "Lịch học", href: "/schedule", icon: Calendar },
+    { name: "Nhật Ký Học Tập", href: "/my-reports", icon: BarChart3 },
     { name: "Phòng học Live", href: "/live", icon: Radio },
     { name: "Phòng Luyện Thi", href: "/practice", icon: Dumbbell },
     { name: "Cặp xách (Drive)", href: "/drive", icon: FolderOpen },
     { name: "Lưu Bút Kỷ Yếu", href: "/yearbook/", icon: Heart },
-    { name: "Bảng Vàng (Hall of Fame)", href: "/hall-of-fame", icon: Trophy },
+    { name: "Bảng Vàng (Hall of Fame)", href: "/hall-of-fame", icon: Trophy, badge: "HOT" },
     { name: "Bảng Thành tích", href: "/leaderboard", icon: Trophy },
     { name: "Học phí", href: "/tuition", icon: Wallet },
   ];
 
   const navItems = isAdminMode ? ADMIN_ITEMS : role === "teacher" ? TEACHER_ITEMS : STUDENT_ITEMS;
-  const accentColor = isAdminMode ? "text-red-600" : role === "teacher" ? "text-pink-600" : "text-indigo-600";
-  const activeBg = isAdminMode ? "bg-red-50 border-red-200 text-red-700" : role === "teacher" ? "bg-pink-50 border-pink-200 text-pink-700" : "bg-indigo-50 border-indigo-200 text-indigo-700";
+  const accentColor = isAdminMode ? "text-red-500" : role === "teacher" ? "text-rose-500" : "text-indigo-500";
+  const activeBg = isAdminMode
+    ? "bg-red-500/10 border-red-500/30 text-red-500 font-bold"
+    : role === "teacher"
+    ? "bg-rose-500/10 border-rose-500/30 text-rose-500 font-bold"
+    : "bg-indigo-500/10 border-indigo-500/30 text-indigo-400 font-bold";
 
   return (
     <>
@@ -143,10 +162,15 @@ export default function MobileHeader() {
                 <a
                   key={item.href}
                   href={item.href}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-semibold text-sm border text-text-secondary border-transparent hover:bg-bg-hover hover:text-text-primary`}
+                  className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-semibold text-sm border text-text-secondary border-transparent hover:bg-bg-hover hover:text-text-primary"
                 >
                   <Icon className="w-4 h-4 shrink-0" />
-                  {item.name}
+                  <span className="flex-1">{item.name}</span>
+                  {(item as any).badge && (
+                    <span className="text-[9px] font-black px-1.5 py-0.5 rounded-md bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 tracking-widest shrink-0">
+                      {(item as any).badge}
+                    </span>
+                  )}
                 </a>
               );
             }
@@ -159,8 +183,13 @@ export default function MobileHeader() {
                   isActive ? activeBg : "text-text-secondary border-transparent hover:bg-bg-hover hover:text-text-primary"
                 }`}
               >
-                <Icon className="w-4 h-4 shrink-0" />
-                {item.name}
+                <Icon className={`w-4 h-4 shrink-0 ${isActive ? (role === "teacher" ? "text-rose-500" : "text-indigo-400") : ""}`} />
+                <span className="flex-1">{item.name}</span>
+                {(item as any).badge && (
+                  <span className="text-[9px] font-black px-1.5 py-0.5 rounded-md bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 tracking-widest shrink-0">
+                    {(item as any).badge}
+                  </span>
+                )}
               </Link>
             );
           })}
@@ -196,13 +225,13 @@ export default function MobileHeader() {
               }
               window.location.reload();
             }}
-            className="flex items-center gap-2 w-full px-4 py-2.5 rounded-xl text-sm font-semibold text-blue-600 hover:bg-blue-50 border border-transparent hover:border-blue-200 transition-colors"
+            className="flex items-center gap-2 w-full px-4 py-2.5 rounded-xl text-sm font-semibold text-blue-500 hover:bg-blue-500/10 border border-transparent hover:border-blue-500/20 transition-colors"
           >
             🔄 Cập nhật phiên bản mới
           </button>
           <button
             onClick={() => { localStorage.clear(); window.location.href='/login'; }}
-            className="flex items-center gap-2 w-full px-4 py-2.5 rounded-xl text-sm font-semibold text-red-600 hover:bg-red-50 border border-transparent hover:border-red-200 transition-colors"
+            className="flex items-center gap-2 w-full px-4 py-2.5 rounded-xl text-sm font-semibold text-red-500 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-colors"
           >
             <LogOut className="w-4 h-4" /> Đăng xuất
           </button>
