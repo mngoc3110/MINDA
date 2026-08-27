@@ -744,7 +744,7 @@ export default function CodingExamRunnerPage() {
                 ) : (
                   judgeResult ? (
                     <div className="space-y-3">
-                      <div className="flex items-center gap-3">
+                      <div className="flex flex-wrap items-center gap-3">
                         <span className={`px-3 py-1 rounded-xl font-bold text-sm border ${
                           judgeResult.verdict === "AC"
                             ? "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border-emerald-500/30"
@@ -752,9 +752,20 @@ export default function CodingExamRunnerPage() {
                         }`}>
                           {judgeResult.verdict === "AC" ? "✅ Accepted (100đ)" : `❌ ${judgeResult.verdict}`}
                         </span>
-                        <span className="text-text-secondary">
+                        <span className="text-text-secondary text-xs">
                           Đạt <strong className="text-text-primary">{judgeResult.passed || 0}/{judgeResult.total || 0}</strong> test cases
                         </span>
+
+                        {judgeResult.exp_reward > 0 && (
+                          <span className="px-2.5 py-1 rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-300 border border-amber-500/30 text-xs font-black animate-bounce flex items-center gap-1">
+                            <Sparkles className="w-3.5 h-3.5 text-amber-500" /> +{judgeResult.exp_reward} EXP
+                          </span>
+                        )}
+                        {judgeResult.total_exp !== undefined && (
+                          <span className="text-xs text-text-muted">
+                            (Tổng: <strong className="text-amber-500 font-bold">{judgeResult.total_exp} EXP</strong> • Hạng: <strong className="text-indigo-600 dark:text-indigo-400 font-bold">{judgeResult.current_rank}</strong>)
+                          </span>
+                        )}
                       </div>
 
                       {judgeResult.error && (

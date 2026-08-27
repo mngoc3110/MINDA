@@ -381,6 +381,8 @@ def run_standalone_code(
     )
     return res
 
+from app.api.endpoints.dashboard import get_student_rank
+
 @router.post("/problems/{problem_id}/submit")
 def submit_code(
     problem_id: int,
@@ -388,7 +390,7 @@ def submit_code(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Nộp bài làm lập trình & Chấm điểm tự động qua tất cả test cases."""
+    """Nộp bài làm lập trình & Chấm điểm tự động qua tất cả test cases & Thưởng EXP chuẩn."""
     problem = db.query(CodeProblem).filter(CodeProblem.id == problem_id).first()
     if not problem:
         raise HTTPException(status_code=404, detail="Bài tập không tồn tại")
@@ -397,7 +399,7 @@ def submit_code(
     if not code:
         return {"verdict": "CE", "error": "Mã nguồn trống. Vui lòng viết code trước khi nộp."}
 
-    # Execute Online Judge over all test cases
+    # 1. Execute Online Judge over all test cases
     judge_res = judge_submission(
         language=sub_data.language,
         code=sub_data.code,
@@ -405,7 +407,14 @@ def submit_code(
         timeout=3.0
     )
 
-    # Save to database
+    # 2. Kiểm tra xem user này đã từng có bài nộp AC trước đây chưa
+    has_prev_ac = db.query(CodeSubmission).filter(
+        CodeSubmission.problem_id == problem.id,
+        CodeSubmission.user_id == current_user.id,
+        CodeSubmission.verdict == "AC"
+    ).first() is not None
+
+    # 3. Save to database
     submission = CodeSubmission(
         problem_id=problem.id,
         user_id=current_user.id,
@@ -418,9 +427,47 @@ def submit_code(
     )
     db.add(submission)
 
+    # 4. EXP & Gamification Logic
+    exp_earned = 0
+    is_first_ac = False
+    old_exp = current_user.exp_points or 0
+
     if judge_res["verdict"] == "AC":
-        problem.solved_count = (problem.solved_count or 0) + 1
+        if not has_prev_ac:
+            is_first_ac = True
+            problem.solved_count = (problem.solved_count or 0) + 1
+            
+            # Thưởng EXP theo độ khó bài toán
+            diff = (problem.difficulty or "easy").lower()
+            rating = problem.rating or 800
+            if diff == "hard" or rating >= 1300:
+                exp_earned = 40
+            elif diff == "medium" or rating >= 950:
+                exp_earned = 25
+            else:
+                exp_earned = 15
+
+            current_user.exp_points = old_exp + exp_earned
+            rank_data = get_student_rank(current_user, current_user.exp_points)
+            current_user.current_rank = rank_data.get("rank_name", current_user.current_rank or "Sơ cấp")
+    else:
+        # Nếu chưa AC, kiểm tra xem đây có phải lần nộp đầu tiên của học sinh ở bài này không
+        prev_subs_count = db.query(CodeSubmission).filter(
+            CodeSubmission.problem_id == problem.id,
+            CodeSubmission.user_id == current_user.id
+        ).count()
+        if prev_subs_count == 0:
+            exp_earned = 2  # Thưởng động viên 2 EXP lần đầu thử sức
+            current_user.exp_points = old_exp + exp_earned
+            rank_data = get_student_rank(current_user, current_user.exp_points)
+            current_user.current_rank = rank_data.get("rank_name", current_user.current_rank or "Sơ cấp")
 
     db.commit()
 
+    judge_res["exp_reward"] = exp_earned
+    judge_res["total_exp"] = current_user.exp_points or 0
+    judge_res["current_rank"] = current_user.current_rank or "Sơ cấp"
+    judge_res["is_first_ac"] = is_first_ac
+
     return judge_res
+

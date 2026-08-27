@@ -46,6 +46,10 @@ interface RunResult {
   total?: number;
   test_results?: any[];
   failed_case?: any;
+  exp_reward?: number;
+  total_exp?: number;
+  current_rank?: string;
+  is_first_ac?: boolean;
 }
 
 export default function CodeProblemPage() {
@@ -946,8 +950,18 @@ export default function CodeProblemPage() {
                                   RTE: "RUNTIME ERROR ⚠️ (Lỗi thực thi)"
                                 }[judgeResult.verdict ?? "WA"]}
                               </p>
-                              <p className="text-xs opacity-90 mt-0.5">
-                                Đã vượt qua: <span className="font-bold">{judgeResult.passed ?? 0}/{judgeResult.total ?? 0}</span> test cases
+                              <p className="text-xs opacity-90 mt-0.5 flex flex-wrap items-center gap-2">
+                                <span>Đã vượt qua: <span className="font-bold">{judgeResult.passed ?? 0}/{judgeResult.total ?? 0}</span> test cases</span>
+                                {judgeResult.exp_reward !== undefined && judgeResult.exp_reward > 0 && (
+                                  <span className="px-2 py-0.5 rounded-lg bg-amber-400/20 text-amber-300 border border-amber-400/30 text-[11px] font-black animate-bounce flex items-center gap-1">
+                                    <Sparkles className="w-3 h-3 text-amber-400" /> +{judgeResult.exp_reward} EXP
+                                  </span>
+                                )}
+                                {judgeResult.total_exp !== undefined && (
+                                  <span className="text-[11px] opacity-80">
+                                    (Tổng: <strong className="text-amber-300 font-bold">{judgeResult.total_exp} EXP</strong> • Hạng: <strong className="text-indigo-300">{judgeResult.current_rank}</strong>)
+                                  </span>
+                                )}
                               </p>
                             </div>
                           </div>
