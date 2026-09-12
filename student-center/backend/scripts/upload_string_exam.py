@@ -277,7 +277,7 @@ PROBLEMS = [
         "examples": [
             {
                 "input": "An apple a day keeps the doctor away!\na",
-                "output": "n pple   dy keeps the doctor wy!",
+                "output": "n pple  dy keeps the doctor wy!",
                 "explanation": "Tất cả ký tự 'a' và 'A' đều bị xóa."
             }
         ],
@@ -287,7 +287,7 @@ PROBLEMS = [
             "python": "import sys\nlines = sys.stdin.read().splitlines()\nif len(lines) >= 2:\n    s = lines[0]\n    c = lines[1].lower()\n    print(''.join(ch for ch in s if ch.lower() != c))\n"
         },
         "test_cases": [
-            {"input": "An apple a day keeps the doctor away!\na\n", "output": "n pple   dy keeps the doctor wy!\n"},
+            {"input": "An apple a day keeps the doctor away!\na\n", "output": "n pple  dy keeps the doctor wy!\n"},
             {"input": "Hello World\nO\n", "output": "Hell Wrld\n"},
             {"input": "ABCabcABC\nb\n", "output": "ACacAC\n"},
             {"input": "xxxxXXXX\nx\n", "output": "\n"},
