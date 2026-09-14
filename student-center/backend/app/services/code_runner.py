@@ -1,7 +1,4 @@
-"""
-Module thực thi mã nguồn an toàn & Chấm bài (Online Judge Execution Engine)
-Hỗ trợ: Python 3, C++ (17/20), JavaScript (Node.js)
-"""
+import re
 import os
 import sys
 import time
@@ -19,6 +16,93 @@ def normalize_output(text: str) -> str:
         return ""
     lines = [line.rstrip() for line in text.strip().splitlines()]
     return "\n".join(lines)
+
+def prepare_io_files(tmpdir: str, code: str, stdin_input: str):
+    """Tự động tạo các file .INP / input.txt nếu code học sinh có dùng freopen / file I/O,
+    để hỗ trợ 100% phong cách Lập trình thi đấu & HSG Tin học Việt Nam."""
+    if not code:
+        return
+    # 1. Tìm #define TASK "XYZ"
+    task_match = re.search(r'#define\s+TASK\s+["\']([^"\']+)["\']', code)
+    if task_match:
+        task_name = task_match.group(1).strip()
+        for variant in [f"{task_name}.INP", f"{task_name.lower()}.inp", f"{task_name.upper()}.INP"]:
+            try:
+                with open(os.path.join(tmpdir, variant), "w", encoding="utf-8") as f:
+                    f.write(stdin_input)
+            except Exception:
+                pass
+
+    # 2. Tìm freopen("filename.ext", "r", ...)
+    freopen_matches = re.findall(r'freopen\s*\(\s*["\']([^"\']+)["\']\s*,\s*["\']r["\']', code, re.IGNORECASE)
+    for fn in freopen_matches:
+        try:
+            with open(os.path.join(tmpdir, fn), "w", encoding="utf-8") as f:
+                f.write(stdin_input)
+        except Exception:
+            pass
+
+    # 3. Mẫu input.txt
+    if "input.txt" in code or "INPUT.TXT" in code:
+        try:
+            with open(os.path.join(tmpdir, "input.txt"), "w", encoding="utf-8") as f:
+                f.write(stdin_input)
+            with open(os.path.join(tmpdir, "INPUT.TXT"), "w", encoding="utf-8") as f:
+                f.write(stdin_input)
+        except Exception:
+            pass
+
+def capture_io_output(tmpdir: str, code: str, proc_stdout: str) -> str:
+    """Nếu stdout trống do chương trình ghi vào file (vd: HTRON.OUT hoặc output.txt),
+    đọc nội dung từ file đó để trả về."""
+    if proc_stdout and proc_stdout.strip():
+        return proc_stdout
+
+    if not code:
+        return proc_stdout
+
+    # 1. Check define TASK "XYZ" -> XYZ.OUT
+    task_match = re.search(r'#define\s+TASK\s+["\']([^"\']+)["\']', code)
+    if task_match:
+        task_name = task_match.group(1).strip()
+        for variant in [f"{task_name}.OUT", f"{task_name.lower()}.out", f"{task_name.upper()}.OUT"]:
+            out_file = os.path.join(tmpdir, variant)
+            if os.path.exists(out_file):
+                try:
+                    with open(out_file, "r", encoding="utf-8", errors="ignore") as f:
+                        content = f.read()
+                        if content.strip():
+                            return content
+                except Exception:
+                    pass
+
+    # 2. Check freopen("filename.ext", "w", ...)
+    freopen_matches = re.findall(r'freopen\s*\(\s*["\']([^"\']+)["\']\s*,\s*["\']w["\']', code, re.IGNORECASE)
+    for fn in freopen_matches:
+        fp = os.path.join(tmpdir, fn)
+        if os.path.exists(fp):
+            try:
+                with open(fp, "r", encoding="utf-8", errors="ignore") as f:
+                    content = f.read()
+                    if content.strip():
+                        return content
+            except Exception:
+                pass
+
+    # 3. Check any .out, .OUT, output.txt file in tmpdir
+    try:
+        for f_name in os.listdir(tmpdir):
+            if f_name.endswith(".out") or f_name.endswith(".OUT") or f_name.lower() == "output.txt":
+                fp = os.path.join(tmpdir, f_name)
+                if os.path.isfile(fp):
+                    with open(fp, "r", encoding="utf-8", errors="ignore") as f:
+                        content = f.read()
+                        if content.strip():
+                            return content
+    except Exception:
+        pass
+
+    return proc_stdout
 
 def run_code(language: str, code: str, stdin_input: str = "", timeout: float = 3.0) -> Dict[str, Any]:
     """Thực thi mã nguồn với dữ liệu stdin_input được truyền vào.
@@ -46,7 +130,7 @@ def run_code(language: str, code: str, stdin_input: str = "", timeout: float = 3
                 proc = subprocess.run(
                     [python_cmd, "-u", file_path],
                     input=stdin_input,
-                    text=True,
+                    text=True, errors="replace",
                     capture_output=True,
                     timeout=timeout,
                     cwd=tmpdir
@@ -97,7 +181,7 @@ def run_code(language: str, code: str, stdin_input: str = "", timeout: float = 3
             compile_proc = subprocess.run(
                 [compiler, "-O2", "-std=c++17", "-DONLINE_JUDGE", src_path, "-o", bin_path],
                 capture_output=True,
-                text=True,
+                text=True, errors="replace",
                 timeout=8.0,
                 cwd=tmpdir
             )
@@ -115,21 +199,23 @@ def run_code(language: str, code: str, stdin_input: str = "", timeout: float = 3
                 }
 
             # Run step
+            prepare_io_files(tmpdir, code, stdin_input)
             exec_start = time.perf_counter()
             try:
                 proc = subprocess.run(
                     [bin_path],
                     input=stdin_input,
-                    text=True,
+                    text=True, errors="replace",
                     capture_output=True,
                     timeout=timeout,
                     cwd=tmpdir
                 )
                 duration_ms = int((time.perf_counter() - exec_start) * 1000)
+                captured_out = capture_io_output(tmpdir, code, proc.stdout)
                 status = "success" if proc.returncode == 0 else "runtime_error"
                 return {
                     "status": status,
-                    "stdout": proc.stdout,
+                    "stdout": captured_out,
                     "stderr": proc.stderr,
                     "exit_code": proc.returncode,
                     "execution_time": f"{duration_ms}ms",
@@ -168,7 +254,7 @@ def run_code(language: str, code: str, stdin_input: str = "", timeout: float = 3
                 proc = subprocess.run(
                     [node_cmd, file_path],
                     input=stdin_input,
-                    text=True,
+                    text=True, errors="replace",
                     capture_output=True,
                     timeout=timeout,
                     cwd=tmpdir
@@ -256,7 +342,7 @@ def judge_submission(language: str, code: str, test_cases: List[Dict[str, Any]],
             compile_proc = subprocess.run(
                 [compiler, "-O2", "-std=c++17", "-DONLINE_JUDGE", src_path, "-o", bin_path],
                 capture_output=True,
-                text=True,
+                text=True, errors="replace",
                 timeout=8.0,
                 cwd=tmpdir
             )
@@ -299,12 +385,22 @@ def judge_submission(language: str, code: str, test_cases: List[Dict[str, Any]],
             expected = tc.get("output", "")
             is_hidden = tc.get("is_hidden", False)
 
+            # Xóa các file .OUT hoặc output.txt cũ nếu có trước khi chạy test mới
+            try:
+                for f_name in os.listdir(tmpdir):
+                    if f_name.endswith(".out") or f_name.endswith(".OUT") or f_name.lower() == "output.txt":
+                        os.remove(os.path.join(tmpdir, f_name))
+            except Exception:
+                pass
+
+            prepare_io_files(tmpdir, code, inp)
+
             t_start = time.perf_counter()
             try:
                 proc = subprocess.run(
                     exec_cmd,
                     input=inp,
-                    text=True,
+                    text=True, errors="replace",
                     capture_output=True,
                     timeout=timeout,
                     cwd=tmpdir
@@ -327,7 +423,8 @@ def judge_submission(language: str, code: str, test_cases: List[Dict[str, Any]],
                     })
                     break
 
-                actual_norm = normalize_output(proc.stdout)
+                captured_out = capture_io_output(tmpdir, code, proc.stdout)
+                actual_norm = normalize_output(captured_out)
                 expected_norm = normalize_output(expected)
 
                 if actual_norm == expected_norm:
@@ -346,7 +443,7 @@ def judge_submission(language: str, code: str, test_cases: List[Dict[str, Any]],
                             failed_details = {
                                 "input": inp,
                                 "expected": expected,
-                                "actual": proc.stdout
+                                "actual": captured_out
                             }
                     test_results.append({
                         "test_index": idx,
@@ -355,7 +452,7 @@ def judge_submission(language: str, code: str, test_cases: List[Dict[str, Any]],
                         "time": f"{duration_ms}ms",
                         "input": inp if not is_hidden else "(Test ẩn)",
                         "expected": expected if not is_hidden else "(Test ẩn)",
-                        "actual": proc.stdout if not is_hidden else "(Test ẩn)",
+                        "actual": captured_out if not is_hidden else "(Test ẩn)",
                         "is_hidden": is_hidden
                     })
 

@@ -572,7 +572,7 @@ PROBLEMS = [
             "### Dữ liệu ra\n"
             "- In ra chuỗi sau khi đã giải mã."
         ),
-        "constraints": ["1 <= len(S) <= 100000"],
+        "constraints": ["1 <= len(S) <= 100000", "S chỉ gồm các ký tự tiếng Anh (không dấu) và khoảng trắng"],
         "examples": [
             {
                 "input": "olleh dlrow gnimmargorp si nuf",
@@ -582,8 +582,8 @@ PROBLEMS = [
         ],
         "hints": [],
         "starter_code": {
-            "cpp": "#include <iostream>\n#include <string>\n#include <algorithm>\nusing namespace std;\n\nint main() {\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    string s;\n    if (getline(cin, s)) {\n        int n = s.length();\n        int l = 0;\n        for (int r = 0; r <= n; r++) {\n            if (r == n || s[r] == ' ') {\n                reverse(s.begin() + l, s.begin() + r);\n                l = r + 1;\n            }\n        }\n        cout << s << \"\\n\";\n    }\n    return 0;\n}",
-            "python": "import sys\ns = sys.stdin.readline().rstrip('\\r\\n')\nwords = s.split(' ')\nprint(' '.join(w[::-1] for w in words))\n"
+            "cpp": "#include <iostream>\n#include <string>\n#include <algorithm>\nusing namespace std;\n\nint main() {\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    string s;\n    if (getline(cin, s)) {\n        if (!s.empty() && s.back() == '\\r') s.pop_back();\n        int n = s.length();\n        int l = 0;\n        for (int r = 0; r <= n; r++) {\n            if (r == n || s[r] == ' ') {\n                reverse(s.begin() + l, s.begin() + r);\n                l = r + 1;\n            }\n        }\n        cout << s << \"\\n\";\n    }\n    return 0;\n}",
+            "python": "import sys\nif hasattr(sys.stdin, 'reconfigure'):\n    sys.stdin.reconfigure(encoding='utf-8')\n    sys.stdout.reconfigure(encoding='utf-8')\ns = sys.stdin.readline().rstrip('\\r\\n')\nwords = s.split(' ')\nprint(' '.join(w[::-1] for w in words))\n"
         },
         "test_cases": [
             {"input": "olleh dlrow gnimmargorp si nuf\n", "output": "hello world programming is fun\n"},
