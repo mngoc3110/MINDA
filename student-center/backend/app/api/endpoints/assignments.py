@@ -2,7 +2,7 @@ import os
 import json
 import base64
 import requests
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -13,7 +13,7 @@ from app.db.database import get_db
 from app.models.user import User
 from app.models.assignment import Assignment, AssignmentSubmission
 from app.schemas.course import AssignmentCreate, AssignmentResponse, SubmissionCreate, SubmissionResponse, GradeSubmission
-from app.core.security import get_current_user, require_role
+from app.core.security import get_current_user, get_current_user_optional, require_role
 from app.services.ocr_service import extract_quiz_from_pdf_local, extract_quiz_from_image_local
 from app.api.endpoints.ai_solver import _get_client, _call_gemini, SYSTEM_INSTRUCTION
 
@@ -265,28 +265,38 @@ def submit_assignment(
     assignment_id: int,
     data: SubmissionCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("student")),
+    current_user: Optional[User] = Depends(get_current_user_optional),
 ):
-    """Học sinh nộp bài tập. Mỗi lần nộp tạo record mới (lịch sử), EXP chỉ cộng 1 lần duy nhất/đề."""
+    """Nộp bài tập (hỗ trợ cả học sinh, giáo viên, admin và khách tự luyện)."""
     assignment = db.query(Assignment).filter(Assignment.id == assignment_id).first()
     if not assignment:
         raise HTTPException(status_code=404, detail="Bài tập không tồn tại")
     
-    # ── Kiểm tra đã có submission cũ chưa (để biết cộng EXP hay không) ──
-    existing_count = db.query(AssignmentSubmission).filter(
-        AssignmentSubmission.assignment_id == assignment_id,
-        AssignmentSubmission.student_id == current_user.id
-    ).count()
+    user_id = current_user.id if current_user else None
+    already_earned_exp = False
     
-    # EXP chỉ cộng lần đầu tiên (chưa có submission nào trước đó)
-    already_earned_exp = existing_count > 0
-    
-    # Luôn tạo submission mới (giữ lịch sử các lần làm)
-    submission = AssignmentSubmission(
-        assignment_id=assignment_id,
-        student_id=current_user.id,
-        **data.model_dump(),
-    )
+    if user_id:
+        existing_count = db.query(AssignmentSubmission).filter(
+            AssignmentSubmission.assignment_id == assignment_id,
+            AssignmentSubmission.student_id == user_id
+        ).count()
+        already_earned_exp = existing_count > 0
+        
+        dumped = data.model_dump(exclude={"candidate_info"})
+        submission = AssignmentSubmission(
+            assignment_id=assignment_id,
+            student_id=user_id,
+            **dumped,
+        )
+    else:
+        dumped = data.model_dump(exclude={"candidate_info"})
+        guest_user = db.query(User).filter(User.email == "guest_candidate@minda.io.vn").first()
+        guest_student_id = guest_user.id if guest_user else 75
+        submission = AssignmentSubmission(
+            assignment_id=assignment_id,
+            student_id=guest_student_id,
+            **dumped,
+        )
     
     # Auto-grader for quiz
     if assignment.assignment_type == "quiz" and assignment.quiz_data and data.quiz_answers:
@@ -397,8 +407,43 @@ def submit_assignment(
         except Exception as e:
             print("Auto-grade error:", e)
 
-    # ── EXP Logic: Quy đổi điểm thang 10 → EXP, chỉ 1 lần duy nhất ──
-    if not already_earned_exp and submission.score is not None:
+    if not current_user:
+        # Khách nộp bài: Lưu vào DB dưới tài khoản guest để giáo viên theo dõi và chấm bài
+        try:
+            db.add(submission)
+            db.commit()
+            db.refresh(submission)
+        except Exception as e:
+            print("Lỗi lưu bài nộp của khách:", e)
+            db.rollback()
+
+        if assignment_id in [234, 235] or getattr(assignment, "exam_format", "") == "practice":
+            try:
+                send_candidate_result_email(
+                    assignment=assignment,
+                    submission=submission,
+                    candidate_info=data.candidate_info,
+                    quiz_answers=data.quiz_answers,
+                )
+            except Exception as e:
+                print("Lỗi gửi email cho khách:", e)
+
+        return SubmissionResponse(
+            id=submission.id or 0,
+            assignment_id=assignment_id,
+            student_id=submission.student_id or 0,
+            content=data.content or "Khách tự luyện",
+            file_url=data.file_url,
+            quiz_answers=data.quiz_answers,
+            score=submission.score,
+            feedback="Tự động chấm điểm bài tập",
+            submitted_at=submission.submitted_at or datetime.utcnow(),
+            graded_at=submission.graded_at or datetime.utcnow()
+        )
+
+    # ── EXP Logic chỉ áp dụng cho học sinh ──
+    is_student = getattr(current_user.role, "value", str(current_user.role)) == "student"
+    if is_student and not already_earned_exp and submission.score is not None:
         # Quy về thang 10 (giữ thập phân)
         if assignment.max_score and float(assignment.max_score) > 0:
             score_10 = (float(submission.score) / float(assignment.max_score)) * 10
@@ -406,21 +451,16 @@ def submit_assignment(
             score_10 = 0
         
         if score_10 >= 8:
-            exp_change = 20
+            exp_change = 50
         elif score_10 >= 5:
-            exp_change = 10
+            exp_change = 20
         else:
-            # Dưới trung bình: nếu hạng Học bá trở xuống (< 800 EXP) thì cộng 5, ngược lại trừ EXP
-            if (current_user.exp_points or 0) < 800:
-                exp_change = 5
-            else:
-                exp_change = -int(5 - score_10)
+            exp_change = 10
         
         new_exp = (current_user.exp_points or 0) + exp_change
         current_user.exp_points = max(new_exp, 0)  # Không cho EXP âm
 
-    # ── Cộng EXP cho giáo viên khi có HS nộp bài (lần đầu) ──
-    if not already_earned_exp:
+        # Cộng EXP cho giáo viên khi có HS nộp bài (lần đầu)
         teacher = db.query(User).filter(User.id == assignment.teacher_id).first()
         if teacher:
             teacher.exp_points = (teacher.exp_points or 0) + 5
@@ -428,13 +468,26 @@ def submit_assignment(
     now = datetime.utcnow()
     current_user.last_active_at = now
     score_tag = f" ({submission.score}đ)" if submission.score is not None else ""
-    current_user.current_activity = f"Vừa nộp bài tập: {assignment.title}{score_tag}"
+    current_user.current_activity = f"Vừa làm bài tập: {assignment.title}{score_tag}"
     current_user.current_url = f"/assignments"
     current_user.activity_type = "assignment"
 
     db.add(submission)
     db.commit()
     db.refresh(submission)
+
+    if assignment_id in [234, 235] or getattr(assignment, "exam_format", "") == "practice":
+        try:
+            cand_dict = data.candidate_info or {"fullName": current_user.full_name, "phone": current_user.phone or "Tài khoản học sinh"}
+            send_candidate_result_email(
+                assignment=assignment,
+                submission=submission,
+                candidate_info=cand_dict,
+                quiz_answers=data.quiz_answers,
+            )
+        except Exception as e:
+            print("Lỗi gửi email học sinh:", e)
+
     return submission
 
 
@@ -678,25 +731,36 @@ def teacher_dashboard_submissions(db: Session = Depends(get_db), current_user: U
         .order_by(AssignmentSubmission.submitted_at.desc())\
         .all()
     
-    return [
-        {
+    res = []
+    import re
+    for sub in submissions:
+        student_name = (sub.student.full_name if sub.student else None) or f"Học sinh #{sub.student_id}"
+        if sub.content and "Thí sinh mới:" in sub.content:
+            m = re.search(r"Thí sinh mới:\s*([^|\]]+)", sub.content)
+            p = re.search(r"SĐT:\s*([^|\]]+)", sub.content)
+            if m:
+                cand_name = m.group(1).strip()
+                phone_str = f" ({p.group(1).strip()})" if p else ""
+                student_name = f"👤 {cand_name}{phone_str} [Khách]"
+
+        res.append({
             "id": sub.id,
             "student_id": sub.student_id,
-            "student_name": sub.student.full_name or f"Học sinh #{sub.student_id}",
-            "student_avatar": sub.student.avatar_url,
-            "course_title": sub.assignment.course.title if sub.assignment.course else None,
+            "student_name": student_name,
+            "student_avatar": sub.student.avatar_url if sub.student else None,
+            "course_title": sub.assignment.course.title if (sub.assignment and sub.assignment.course) else None,
             "assignment_id": sub.assignment_id,
-            "assignment_title": sub.assignment.title,
-            "max_score": sub.assignment.max_score,
+            "assignment_title": sub.assignment.title if sub.assignment else "Bài tập",
+            "max_score": sub.assignment.max_score if sub.assignment else 10.0,
             "status": "graded" if sub.score is not None else "pending",
             "score": sub.score,
-            "submitted_at": sub.submitted_at.isoformat(),
+            "feedback": sub.feedback,
+            "submitted_at": sub.submitted_at.isoformat() if sub.submitted_at else None,
             "quiz_answers": sub.quiz_answers,
             "content": sub.content,
             "file_url": sub.file_url,
-        }
-        for sub in submissions
-    ]
+        })
+    return res
 
 @router.post("/assignments/parse-upload")
 async def parse_upload_to_quiz(
@@ -774,4 +838,221 @@ async def parse_upload_to_quiz(
     except Exception as e:
         print(f"Error parsing upload: {e}")
         raise HTTPException(status_code=500, detail="Lỗi khi phân tích AI: " + str(e))
+
+
+@router.post("/assignments/upload-submission-image")
+async def upload_submission_image(
+    file: UploadFile = File(...)
+):
+    """Upload ảnh bài làm tự luận của học sinh, lưu trữ cục bộ vào static/submissions/"""
+    import uuid
+    import shutil
+    
+    valid_exts = ["jpg", "jpeg", "png", "webp", "heic", "pdf", "bmp", "gif"]
+    ext = file.filename.split(".")[-1].lower() if "." in file.filename else "jpg"
+    if ext not in valid_exts:
+        raise HTTPException(status_code=400, detail="Định dạng không hỗ trợ. Vui lòng chọn ảnh JPG, PNG, WEBP hoặc PDF.")
+    
+    unique_id = str(uuid.uuid4())[:12]
+    save_dir = os.path.join("static", "submissions")
+    os.makedirs(save_dir, exist_ok=True)
+    
+    safe_name = f"{unique_id}_{file.filename.replace(' ', '_')}"
+    file_path = os.path.join(save_dir, safe_name)
+    
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+        
+    file_url = f"/static/submissions/{safe_name}"
+    return {
+        "file_url": file_url,
+        "url": file_url,
+        "filename": file.filename
+    }
+
+
+def send_candidate_result_email(
+    assignment,
+    submission=None,
+    candidate_info=None,
+    agent_result=None,
+    quiz_answers=None,
+    recipient="darber3110@gmail.com",
+):
+    """Gửi email thông báo kết quả bài thi tới giáo viên."""
+    import os
+    import smtplib
+    from email.mime.multipart import MIMEMultipart
+    from email.mime.text import MIMEText
+    from datetime import datetime
+    import logging
+
+    cand = candidate_info or {}
+    full_name = cand.get("fullName") or cand.get("name") or "Thí sinh Tự do"
+    phone = cand.get("phone") or "Chưa cung cấp"
+    school_class = cand.get("schoolClass") or cand.get("grade") or "Chưa cung cấp"
+
+    obj_score = float(submission.score or 0.0) if submission else 0.0
+    essay_score = float(agent_result.get("total_essay_score", 0.0)) if agent_result else 0.0
+    total_score = float(agent_result.get("updated_total_score", (obj_score + essay_score))) if agent_result else obj_score
+    total_score = round(min(10.0, total_score), 2)
+
+    answers_to_scan = quiz_answers or (submission.quiz_answers if submission else {}) or {}
+    essay_images = []
+    for k, v in answers_to_scan.items():
+        if isinstance(v, dict) and "images" in v and isinstance(v["images"], list):
+            essay_images.extend(v["images"])
+
+    # Xây dựng danh sách nhận xét từng câu tự luận nếu có
+    html_items = []
+    if agent_result and agent_result.get("graded_items"):
+        for item in agent_result["graded_items"]:
+            q_label = item.get("question_label", "Câu tự luận")
+            score_item = item.get("score", 0)
+            max_s = item.get("max_score", 1.0)
+            feed = item.get("feedback", "")
+            steps = item.get("steps_breakdown", [])
+            step_html = "".join([f"<li style='margin-bottom: 4px; font-size: 13px;'>{st}</li>" for st in steps])
+            html_items.append(f"""
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+                <div style="font-weight: bold; margin-bottom: 6px; color: #1e293b;">
+                    <span>{q_label}</span> • <span style="color: #4f46e5;">{score_item}/{max_s} điểm</span>
+                </div>
+                <p style="margin: 4px 0 8px 0; font-size: 13px; color: #475569;"><strong>Nhận xét AI:</strong> {feed}</p>
+                {f'<ul style="margin: 0; padding-left: 20px; color: #334155;">{step_html}</ul>' if steps else ''}
+            </div>
+            """)
+
+    images_html = ""
+    if essay_images:
+        img_links = []
+        for img in essay_images:
+            link = f"https://minda.io.vn{img}" if img.startswith("/") else img
+            img_links.append(f"<li style='margin-bottom: 6px;'><a href='{link}' target='_blank' style='color: #4f46e5; font-weight: bold;'>{link}</a></li>")
+        images_html = f"""
+        <div style="margin-top: 16px;">
+            <h4 style="margin-bottom: 8px; color: #1e293b;">📸 Ảnh bài làm tự luận ({len(essay_images)} ảnh):</h4>
+            <ul style="padding-left: 20px;">{''.join(img_links)}</ul>
+        </div>
+        """
+
+    html_content = f"""
+    <div style="font-family: Arial, sans-serif; max-width: 650px; margin: 0 auto; padding: 24px; border: 1px solid #e0e7ff; border-radius: 12px; background: #ffffff;">
+        <div style="text-align: center; border-bottom: 2px solid #6366f1; padding-bottom: 16px; margin-bottom: 20px;">
+            <h2 style="color: #4f46e5; margin: 0;">MINDA • THÔNG BÁO THÍ SINH MỚI NỘP BÀI TEST</h2>
+            <p style="color: #64748b; margin-top: 6px; font-weight: bold;">{assignment.title}</p>
+        </div>
+
+        <div style="background: #f8fafc; padding: 16px; border-radius: 8px; margin-bottom: 16px; border-left: 4px solid #6366f1;">
+            <h4 style="margin: 0 0 10px 0; color: #1e293b;">📋 Thông tin thí sinh:</h4>
+            <p style="margin: 4px 0;"><strong>Họ và tên:</strong> {full_name}</p>
+            <p style="margin: 4px 0;"><strong>Số điện thoại / Zalo phụ huynh:</strong> <a href="tel:{phone}" style="color: #4f46e5; font-weight: bold;">{phone}</a></p>
+            <p style="margin: 4px 0;"><strong>Trường / Lớp:</strong> {school_class}</p>
+            <p style="margin: 4px 0;"><strong>Thời gian nộp:</strong> {datetime.now().strftime('%H:%M:%S ngày %d/%m/%Y')}</p>
+        </div>
+
+        <div style="background: #ecfdf5; padding: 16px; border-radius: 8px; margin-bottom: 16px; border-left: 4px solid #10b981;">
+            <h4 style="margin: 0 0 10px 0; color: #065f46;">🎯 Kết quả tổng thể:</h4>
+            <p style="margin: 4px 0; font-size: 20px;"><strong>Tổng điểm:</strong> <span style="color: #059669; font-weight: bold; font-size: 24px;">{total_score} / 10.0 đ</span></p>
+            <p style="margin: 4px 0; font-size: 13px; color: #047857;">• Điểm trắc nghiệm & điền khuyết: <strong>{obj_score} đ</strong></p>
+            <p style="margin: 4px 0; font-size: 13px; color: #047857;">• Điểm tự luận AI Agent chấm: <strong>{essay_score} đ</strong></p>
+        </div>
+
+        {f'<div style="margin-top: 16px;"><h4 style="color: #1e293b; margin-bottom: 10px;">📝 Chi tiết AI chấm tự luận:</h4>{"".join(html_items)}</div>' if html_items else ''}
+
+        {images_html}
+
+        <div style="text-align: center; margin-top: 25px; padding-top: 15px; border-top: 1px solid #e2e8f0; font-size: 12px; color: #94a3b8;">
+            Hệ thống Tự Động MINDA EduCenter • <a href="https://minda.io.vn" style="color: #6366f1;">minda.io.vn</a>
+        </div>
+    </div>
+    """
+
+    try:
+        from app.core.email import conf
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = f"[MINDA TEST] Thí sinh: {full_name} ({phone}) đã nộp {assignment.title} - Điểm: {total_score}/10"
+        msg["From"] = f"{conf.MAIL_FROM_NAME} <{conf.MAIL_FROM}>"
+        msg["To"] = recipient
+        msg.attach(MIMEText(html_content, "html"))
+
+        server = smtplib.SMTP(conf.MAIL_SERVER, conf.MAIL_PORT, timeout=10)
+        server.ehlo()
+        server.starttls()
+        server.ehlo()
+        server.login(conf.MAIL_USERNAME, conf.MAIL_PASSWORD)
+        server.sendmail(conf.MAIL_FROM, [recipient], msg.as_string())
+        server.quit()
+        logging.info(f"Đã gửi email thông báo thí sinh {full_name} tới {recipient}")
+    except Exception as e:
+        logging.error(f"Gửi email thông báo tới {recipient} thất bại: {e}")
+
+
+class GradeEssayRequest(BaseModel):
+    submission_id: Optional[int] = None
+    quiz_answers: Optional[Dict[str, Any]] = None
+    candidate_info: Optional[Dict[str, Any]] = None
+
+
+@router.post("/assignments/{assignment_id}/grade-essay-ai")
+def grade_essay_ai_endpoint(
+    assignment_id: int,
+    payload: GradeEssayRequest,
+    db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user_optional),
+):
+    """
+    Kích hoạt AI Agent chấm điểm bài làm tự luận từ ảnh viết tay học sinh đã nộp,
+    đối chiếu từng bước với biểu điểm và đáp án chính thức.
+    """
+    assignment = db.query(Assignment).filter(Assignment.id == assignment_id).first()
+    if not assignment:
+        raise HTTPException(status_code=404, detail="Bài tập không tồn tại")
+    
+    quiz_answers = payload.quiz_answers or {}
+    submission = None
+    if payload.submission_id and payload.submission_id > 0:
+        submission = db.query(AssignmentSubmission).filter(
+            AssignmentSubmission.id == payload.submission_id
+        ).first()
+        if submission and not quiz_answers and submission.quiz_answers:
+            quiz_answers = submission.quiz_answers
+
+    from app.services.essay_grader_agent import grade_essay_submission_with_agent
+    
+    agent_result = grade_essay_submission_with_agent(
+        assignment_data=assignment.quiz_data or {},
+        quiz_answers=quiz_answers,
+        base_dir=os.getcwd()
+    )
+    
+    # Nếu có submission trong DB, cập nhật điểm tổng & feedback
+    if submission and agent_result.get("status") == "success":
+        essay_score = float(agent_result.get("total_essay_score", 0.0))
+        submission.feedback = json.dumps(agent_result, ensure_ascii=False)
+        
+        # Cập nhật tổng điểm: Điểm trắc nghiệm cơ bản + essay_score
+        base_obj_score = float(submission.score or 0.0)
+        max_score = float(assignment.max_score or 10.0)
+        submission.score = round(min(max_score, base_obj_score + essay_score), 2)
+        submission.graded_at = datetime.utcnow()
+        db.commit()
+        db.refresh(submission)
+        agent_result["updated_total_score"] = submission.score
+        agent_result["submission_id"] = submission.id
+
+    if assignment_id in [234, 235] or getattr(assignment, "exam_format", "") == "practice":
+        try:
+            send_candidate_result_email(
+                assignment=assignment,
+                submission=submission,
+                candidate_info=payload.candidate_info,
+                agent_result=agent_result,
+                quiz_answers=quiz_answers,
+            )
+        except Exception as e:
+            print("Lỗi gửi email kết quả tự luận:", e)
+
+    return agent_result
+
 
