@@ -4,6 +4,19 @@ import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
+function isTokenExpired(token: string) {
+  try {
+    const payloadBase64 = token.split('.')[1];
+    const decodedJson = atob(payloadBase64);
+    const decoded = JSON.parse(decodedJson);
+    const exp = decoded.exp;
+    const now = Math.floor(Date.now() / 1000);
+    return exp < now;
+  } catch (e) {
+    return true;
+  }
+}
+
 export default function RouteGuard({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -18,11 +31,18 @@ export default function RouteGuard({ children }: { children: React.ReactNode }) 
     if (!mounted) return;
 
     const checkAuth = () => {
+      // Cho phép học sinh làm bài thi / luyện tập công khai mà không cần đăng nhập
+      if (pathname.startsWith("/practice")) {
+        setAuthorized(true);
+        return;
+      }
+
       const token = localStorage.getItem("minda_token");
       const portal = localStorage.getItem("minda_portal");
 
-      // Không có token → chuyển về login
-      if (!token || token === "undefined" || token === "null" || token.trim() === "") {
+      // Không có token hoặc token đã hết hạn → chuyển về login
+      if (!token || token === "undefined" || token === "null" || token.trim() === "" || isTokenExpired(token)) {
+        localStorage.removeItem("minda_token");
         if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
           router.replace("/admin/login");
         } else {
@@ -46,8 +66,10 @@ export default function RouteGuard({ children }: { children: React.ReactNode }) 
 
     // Kiểm tra session mỗi 5 phút
     const interval = setInterval(() => {
+      if (pathname.startsWith("/practice")) return;
       const token = localStorage.getItem("minda_token");
-      if (!token || token === "undefined" || token === "null" || token.trim() === "") {
+      if (!token || token === "undefined" || token === "null" || token.trim() === "" || isTokenExpired(token)) {
+        localStorage.removeItem("minda_token");
         window.location.href = "/login";
       }
     }, 5 * 60 * 1000);
