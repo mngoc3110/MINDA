@@ -647,19 +647,40 @@ export default function PracticeRoomPage() {
               </div>
             </div>
 
-            {assignment.quiz_data?.originalDocUrl && (
-              <div className="mt-8 flex justify-center">
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+              {assignment.quiz_data?.originalDocUrl && (
                 <a
                   href={assignment.quiz_data.originalDocUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-500/10 border border-indigo-500/20 rounded-xl hover:bg-indigo-500/20 text-sm font-bold text-indigo-500 transition-colors"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-500/10 border border-indigo-500/20 rounded-xl hover:bg-indigo-500/20 text-xs sm:text-sm font-bold text-indigo-500 transition-colors"
                 >
-                  <FileText className="w-5 h-5 text-indigo-500" />
+                  <FileText className="w-4 h-4 text-indigo-500" />
                   Xem & Tải Đề Gốc Bản In (PDF)
                 </a>
-              </div>
-            )}
+              )}
+              {assignment.quiz_data?.answerKeyDocUrl && (
+                <a
+                  href={assignment.quiz_data.answerKeyDocUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-500/10 border border-emerald-500/30 rounded-xl hover:bg-emerald-500/20 text-xs sm:text-sm font-bold text-emerald-600 dark:text-emerald-400 transition-colors"
+                >
+                  <CheckCircle className="w-4 h-4 text-emerald-500" />
+                  Xem & Tải Đáp Án Gốc (PDF)
+                </a>
+              )}
+              {assignment.quiz_data?.answerKeyImages && assignment.quiz_data.answerKeyImages.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setShowOfficialKeyModal(true)}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-purple-500/10 border border-purple-500/30 rounded-xl hover:bg-purple-500/20 text-xs sm:text-sm font-bold text-purple-600 dark:text-purple-400 transition-colors"
+                >
+                  <Eye className="w-4 h-4 text-purple-500" />
+                  Bản Ảnh Đáp Án Bộ Đề
+                </button>
+              )}
+            </div>
 
             {/* Candidate Information Card for Guest / New Students */}
             <div className={`mt-8 max-w-lg mx-auto p-5 sm:p-6 rounded-2xl border text-left ${theme === "dark" ? "bg-white/[0.03] border-white/10" : "bg-gray-50 border-gray-200"}`}>
@@ -1469,7 +1490,7 @@ export default function PracticeRoomPage() {
                                         className="w-full flex items-center justify-between font-bold text-xs sm:text-sm text-emerald-600 dark:text-emerald-400 hover:opacity-80 transition"
                                       >
                                         <span className="flex items-center gap-2">
-                                          <CheckCircle className="w-4 h-4" /> ĐÁP ÁN & HƯỚNG DẪN GIẢI CHÍNH THỨC (TRƯỜNG LÝ THƯỜNG KIỆT)
+                                          <CheckCircle className="w-4 h-4" /> ĐÁP ÁN & HƯỚNG DẪN GIẢI CHÍNH THỨC {assignment.quiz_data?.school ? `(${assignment.quiz_data.school.toUpperCase()})` : ""}
                                         </span>
                                         <span>{expandedSolutions[`${sIdx}_${qIdx}`] ? "▲ Thu gọn" : "▼ Xem lời giải"}</span>
                                       </button>
@@ -1574,9 +1595,11 @@ export default function PracticeRoomPage() {
               <div>
                 <h3 className="font-extrabold text-sm sm:text-base text-text-primary flex items-center gap-2">
                   <CheckCircle className="w-4 h-4 text-emerald-500" />
-                  ĐÁP ÁN & BIỂU ĐIỂM CHÍNH THỨC &mdash; MÔN TOÁN 9
+                  ĐÁP ÁN & BIỂU ĐIỂM CHÍNH THỨC
                 </h3>
-                <p className="text-[11px] text-text-muted mt-0.5">Trường THCS Lý Thường Kiệt (UBND Xã Xuân Sơn) &bull; Năm học 2025 - 2026</p>
+                <p className="text-[11px] text-text-muted mt-0.5">
+                  {assignment.quiz_data?.school ? `${assignment.quiz_data.school} • ` : ""}{assignment.title}
+                </p>
               </div>
               <button
                 type="button"
@@ -1590,7 +1613,10 @@ export default function PracticeRoomPage() {
             {/* Page Tabs & Download */}
             <div className="px-4 py-2.5 bg-bg-main/60 border-b border-border-card flex flex-wrap items-center justify-between gap-2 text-xs">
               <div className="flex items-center gap-2">
-                {[0, 1].map((pIdx) => (
+                {((assignment.quiz_data?.answerKeyImages && assignment.quiz_data.answerKeyImages.length > 0)
+                  ? assignment.quiz_data.answerKeyImages
+                  : [0, 1]
+                ).map((_: any, pIdx: number) => (
                   <button
                     key={pIdx}
                     type="button"
@@ -1601,7 +1627,7 @@ export default function PracticeRoomPage() {
                         : "bg-bg-card text-text-secondary hover:bg-bg-hover border border-border-card"
                     }`}
                   >
-                    {pIdx === 0 ? "Trang 1 (Trắc nghiệm & Bài 1, 2)" : "Trang 2 (Tự luận Bài 3, 4, 5)"}
+                    Trang {pIdx + 1}
                   </button>
                 ))}
               </div>

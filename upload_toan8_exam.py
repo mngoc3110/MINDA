@@ -148,7 +148,8 @@ QUIZ_DATA = {
                 },
                 {
                     "id": "q8",
-                    "text": f"Cho các hình thang sau, hình nào là **hình thang cân**?\n\n| Hình a | Hình b |\n| :---: | :---: |\n| ![{get_url('cau8_a.png')}]({get_url('cau8_a.png')}) | ![{get_url('cau8_b.jpeg')}]({get_url('cau8_b.jpeg')}) |\n\n| Hình c | Hình d |\n| :---: | :---: |\n| ![{get_url('cau8_c.png')}]({get_url('cau8_c.png')}) | ![{get_url('cau8_d.png')}]({get_url('cau8_d.png')}) |",
+                    "text": "Cho các hình thang sau, hình nào là **hình thang cân**?",
+                    "imageUrl": get_url("cau8_all.png"),
                     "options": [
                         "A. Hình a",
                         "B. Hình b",
@@ -161,7 +162,8 @@ QUIZ_DATA = {
                 },
                 {
                     "id": "q9",
-                    "text": f"Cho hình vẽ bên (tam giác $ABC$ vuông tại $A$):\n\n<div align=\"center\"><img src=\"{get_url('cau9.png')}\" alt=\"Tam giác vuông ABC\" width=\"150\" /></div>\n\nKhẳng định nào sau đây là đúng?",
+                    "text": "Cho hình vẽ bên (tam giác $ABC$ vuông tại $A$). Khẳng định nào sau đây là đúng?",
+                    "imageUrl": get_url("cau9.png"),
                     "options": [
                         "A. $BC^2 = AB^2 + AC^2$",
                         "B. $AC^2 = AB^2 + BC^2$",
@@ -174,7 +176,8 @@ QUIZ_DATA = {
                 },
                 {
                     "id": "q10",
-                    "text": f"Trong các hình vẽ sau, hình nào là **hình chóp tam giác đều**?\n\n<div align=\"center\"><img src=\"{get_url('cau10.jpeg')}\" alt=\"Các hình chóp\" style=\"max-width:100%\" /></div>",
+                    "text": "Trong các hình vẽ sau, hình nào là **hình chóp tam giác đều**?",
+                    "imageUrl": get_url("cau10.jpeg"),
                     "options": [
                         "A. Hình a",
                         "B. Hình b",
@@ -187,7 +190,8 @@ QUIZ_DATA = {
                 },
                 {
                     "id": "q11",
-                    "text": f"Hình vẽ bên có dạng hình gì?\n\n<div align=\"center\"><img src=\"{get_url('cau11.jpeg')}\" alt=\"Hình chóp\" width=\"200\" /></div>",
+                    "text": "Hình vẽ bên có dạng hình gì?",
+                    "imageUrl": get_url("cau11.jpeg"),
                     "options": [
                         "A. Hình chóp tứ giác đều",
                         "B. Hình chóp tam giác đều",
@@ -200,7 +204,8 @@ QUIZ_DATA = {
                 },
                 {
                     "id": "q12",
-                    "text": f"Cho hình vẽ bên, các **mặt bên** của hình chóp tam giác đều là:\n\n<div align=\"center\"><img src=\"{get_url('cau12.jpeg')}\" alt=\"Hình chóp tam giác đều S.ABC\" width=\"180\" /></div>",
+                    "text": "Cho hình vẽ bên, các **mặt bên** của hình chóp tam giác đều là:",
+                    "imageUrl": get_url("cau12.jpeg"),
                     "options": [
                         "A. $ABC, SAB, SBC, SAC$",
                         "B. $ABC, SAB, SBC$",
@@ -337,7 +342,8 @@ QUIZ_DATA = {
                 },
                 {
                     "id": "q18",
-                    "text": f"Cho hình thang cân $ABCD$ như hình vẽ bên, biết $\\hat{{A}} = 100^\\circ$. Khi đó số đo góc $\\hat{{B}}$ bằng bao nhiêu độ?\n\n<div align=\"center\"><img src=\"{get_url('cau18.png')}\" alt=\"Hình thang cân ABCD\" width=\"160\" /></div>",
+                    "text": "Cho hình thang cân $ABCD$ như hình vẽ bên, biết $\\hat{A} = 100^\\circ$. Khi đó số đo góc $\\hat{B}$ bằng bao nhiêu độ?",
+                    "imageUrl": get_url("cau18.png"),
                     "correctAnswer": "100",
                     "acceptedAnswers": [
                         "100",
@@ -404,7 +410,8 @@ QUIZ_DATA = {
                 },
                 {
                     "id": "essay_3",
-                    "text": f"### Bài 3: (1,0 điểm)\n\na) Cho tứ giác $ABCD$ có $\\hat{{A}} = 120^\\circ, \\hat{{B}} = 100^\\circ, \\hat{{C}} = 75^\\circ$. Tính số đo góc $\\hat{{D}}$.\n\nb) Một cây cao $12\\text{{ m}}$ mọc cạnh bờ sông. Trên đỉnh cây có một con chim đang đậu và chuẩn bị sà xuống bắt con cá trên mặt nước (như Hình 1 và được mô phỏng như Hình 2). Hỏi con chim sẽ bay một đoạn ngắn nhất là bao nhiêu mét để bắt được con cá biết rằng con cá cách gốc cây $5\\text{{ m}}$ và nước mấp mé bờ sông?\n\n<div align=\"center\"><img src=\"{get_url('bai3b.png')}\" alt=\"Mô phỏng con chim bắt cá\" width=\"240\" /></div>",
+                    "text": "### Bài 3: (1,0 điểm)\n\na) Cho tứ giác $ABCD$ có $\\hat{A} = 120^\\circ, \\hat{B} = 100^\\circ, \\hat{C} = 75^\\circ$. Tính số đo góc $\\hat{D}$.\n\nb) Một cây cao $12\\text{ m}$ mọc cạnh bờ sông. Trên đỉnh cây có một con chim đang đậu và chuẩn bị sà xuống bắt con cá trên mặt nước (như Hình 1 và được mô phỏng như Hình 2). Hỏi con chim sẽ bay một đoạn ngắn nhất là bao nhiêu mét để bắt được con cá biết rằng con cá cách gốc cây $5\\text{ m}$ và nước mấp mé bờ sông?",
+                    "imageUrl": get_url("bai3b.png"),
                     "score": 1.0,
                     "rubric": [
                         {
